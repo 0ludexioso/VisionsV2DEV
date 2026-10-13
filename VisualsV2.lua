@@ -1,4 +1,5 @@
 -- Visuals V2
+-- 2026-10-13: Cover direct/cached native throwable requests alongside the namecall route; expose transport checks.
 -- 2026-10-13: Detach disabled throwable handlers and preserve native request forwarding across nested method checks.
 -- 2026-10-13: Preserve native camera touch input; align throwable aim with the game's crosshair and GUI inset.
 -- 2026-10-09: Preserve SprayPaint tool logic and native tool/emote playback with all FE presets.
@@ -7052,6 +7053,7 @@ local callingScript=getcallingscript or env.getcallingscript
 local namecallMethod=getnamecallmethod or env.getnamecallmethod
 local restoreNamecallMethod=setnamecallmethod or env.setnamecallmethod
 local hookMeta=hookmetamethod or env.hookmetamethod
+local hookFunction=hookfunction or env.hookfunction
 local makeClosure=newcclosure or env.newcclosure
 local callbackValue=getcallbackvalue or env.getcallbackvalue
 local callbackRecords={}
@@ -7308,6 +7310,16 @@ if type(bridge)~="table" or bridge.version~=2 then
 end
 local handler={}
 handler.Enabled=function() return alive and runtimeAlive and aimEnabled end
+handler.Remote=function(object,method,args)
+    if not handler.Enabled() or typeof(object)~="Instance" then return nil end
+    local aim=currentAim()
+    if not aim or not instanceDescendant(object,aim.tool) or not gameCaller(aim,true) then return nil end
+    if (method=="FireServer" and instanceIsA(object,"RemoteEvent"))
+        or (method=="InvokeServer" and instanceIsA(object,"RemoteFunction")) then
+        local rewritten=rewriteArguments(object,args,aim)
+        if rewritten then return "args",rewritten end
+    end
+end
 handler.Index=function(object,key)
     -- Touch input objects are shared with the camera, movement and menus.
     -- Leave them untouched and redirect the native tool's aim reads instead.
@@ -7353,15 +7365,62 @@ end
 -- wrappers are only installed when aiming is explicitly enabled.
 bridge.handler=nil
 
+-- Direct/cached FireServer and InvokeServer calls can bypass __namecall.
+-- Hook their native method functions too, without generating any new request.
+-- These shared wrappers forward exactly once and are inert with no owner.
+bridge.remoteMethods=bridge.remoteMethods or {}
+local function installNativeRemoteMethods()
+    if type(hookFunction)~="function" then return false end
+    for _,spec in ipairs({{"FireServer","RemoteEvent"},{"InvokeServer","RemoteFunction"}}) do
+        local method,class=spec[1],spec[2]
+        local record=bridge.remoteMethods[method]
+        if not record then record={calls=0}; bridge.remoteMethods[method]=record end
+        if not record.ready then
+            local temporary=Instance.new(class)
+            local ok,native=pcall(function() return temporary[method] end)
+            temporary:Destroy()
+            if ok and type(native)=="function" then
+                local previous
+                local wrapper=function(object,...)
+                    local current=bridge.handler
+                    local thread=coroutine.running() or bridge
+                    if previous and current and current.Enabled() and not bridge.dispatchers[thread] then
+                        record.calls=record.calls+1
+                        local savedMethod
+                        if type(restoreNamecallMethod)=="function" and type(namecallMethod)=="function" then
+                            local success,value=pcall(namecallMethod)
+                            if success and type(value)=="string" then savedMethod=value end
+                        end
+                        bridge.dispatchers[thread]=true
+                        local success,action,args=pcall(current.Remote,object,method,table.pack(...))
+                        bridge.dispatchers[thread]=nil
+                        if savedMethod then pcall(restoreNamecallMethod,savedMethod) end
+                        if success and action=="args" then return previous(object,table.unpack(args,1,args.n)) end
+                    end
+                    return previous(object,...)
+                end
+                if type(makeClosure)=="function" then wrapper=makeClosure(wrapper) end
+                local success,original=pcall(hookFunction,native,wrapper)
+                if success and type(original)=="function" then
+                    previous=original; record.ready=true; record.error=nil
+                else record.error=tostring(original) end
+            else record.error=tostring(native) end
+        end
+    end
+    local event=bridge.remoteMethods.FireServer
+    return event and event.ready==true or false
+end
+
 local function installHooks()
+    local nativeReady=installNativeRemoteMethods()
     if bridge.indexReady and bridge.namecallReady then return true end
-    if type(namecallMethod)~="function" or (type(checkCaller)~="function" and type(callingScript)~="function") then return false end
+    if type(namecallMethod)~="function" or (type(checkCaller)~="function" and type(callingScript)~="function") then return nativeReady end
     local hook=hookMeta
     if type(hook)~="function" then
         local rawMeta=getrawmetatable or env.getrawmetatable
         local readOnly=setreadonly or env.setreadonly
         local isReadOnly=isreadonly or env.isreadonly
-        if type(rawMeta)~="function" or type(readOnly)~="function" then return false end
+        if type(rawMeta)~="function" or type(readOnly)~="function" then return nativeReady end
         hook=function(object,key,replacement)
             local mt=rawMeta(object)
             local old=mt[key]
@@ -7396,7 +7455,7 @@ local function installHooks()
         end
         if type(makeClosure)=="function" then wrapper=makeClosure(wrapper) end
         local ok,original=pcall(hook,game,"__index",wrapper)
-        if not ok or type(original)~="function" then return false end
+        if not ok or type(original)~="function" then return nativeReady end
         previous=original
         bridge.indexReady=true
     end
@@ -7407,6 +7466,9 @@ local function installHooks()
             local thread=coroutine.running() or bridge
             if current and current.Enabled() and not bridge.dispatchers[thread] then
                 local method=namecallMethod()
+                if method=="FireServer" or method=="InvokeServer" then
+                    bridge.namecallRequests=(bridge.namecallRequests or 0)+1
+                end
                 bridge.dispatchers[thread]=true
                 local ok,action,value=pcall(current.Namecall,object,method,table.pack(...))
                 bridge.dispatchers[thread]=nil
@@ -7420,7 +7482,7 @@ local function installHooks()
         end
         if type(makeClosure)=="function" then wrapper=makeClosure(wrapper) end
         local ok,original=pcall(hook,game,"__namecall",wrapper)
-        if not ok or type(original)~="function" then return false end
+        if not ok or type(original)~="function" then return nativeReady end
         previous=original
         bridge.namecallReady=true
     end
@@ -7540,6 +7602,15 @@ end)
 env.VisualsV2Runtime.ShiftLockThrowables={
     IsLocked=nativeLocked,
     GetAim=currentAim,
+    GetTransport=function()
+        local event=bridge.remoteMethods.FireServer or {}
+        local invoke=bridge.remoteMethods.InvokeServer or {}
+        return {namecallReady=bridge.namecallReady==true,indexReady=bridge.indexReady==true,
+            nativeFireServerReady=event.ready==true,nativeInvokeServerReady=invoke.ready==true,
+            namecallRequests=bridge.namecallRequests or 0,
+            nativeFireServerRequests=event.calls or 0,nativeInvokeServerRequests=invoke.calls or 0,
+            nativeFireServerError=event.error,nativeInvokeServerError=invoke.error}
+    end,
 }
 env.VisualsV2Runtime.RegisterReset(function()
     aimEnabled=false; activeAim=nil
