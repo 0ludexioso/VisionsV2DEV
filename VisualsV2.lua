@@ -1,4 +1,5 @@
 -- Visuals V2
+-- 2026-10-13: Centre captured bomb requests regardless of executor caller flags; keep toy input native and restore blue Tool ForceField.
 -- 2026-10-13: Cover direct/cached native throwable requests alongside the namecall route; expose transport checks.
 -- 2026-10-13: Detach disabled throwable handlers and preserve native request forwarding across nested method checks.
 -- 2026-10-13: Preserve native camera touch input; align throwable aim with the game's crosshair and GUI inset.
@@ -4852,6 +4853,8 @@ local heartbeatConnection,chromConnection,shellConnection
 local chromHost,chromView,chromWorld,chromCamera
 local dirty,queued,resetting=true,false,false
 local CHROM_SCALE,CHROM_ALPHA=1.012,0.025
+local TOOL_FORCE_FIELD_COLOR=Color3.fromRGB(85,170,255)
+local TOOL_FORCE_FIELD_ALPHA=0.35
 
 local function disconnectAll(connections)
     for _,connection in ipairs(connections) do connection:Disconnect() end
@@ -4998,6 +5001,8 @@ local function shell(source,scale)
 end
 
 local function syncForceField(tool,state,color)
+    local fixedBlue=state.group.key=="toolChams"
+    if fixedBlue then color=TOOL_FORCE_FIELD_COLOR end
     for _,entry in ipairs(state.forceEntries or {}) do
         local source,clone=entry.source,entry.clone
         if source.Parent then
@@ -5005,11 +5010,10 @@ local function syncForceField(tool,state,color)
             if alpha~=1 then entry.alpha=alpha end
             local visible=tool.Parent==player.Character and math.max(source.Transparency,entry.alpha)<1
             clone.CFrame=source.CFrame
-            clone.Transparency=visible and math.max(source.Transparency,entry.alpha) or 1
-            clone.Color=color
-            local mesh=clone:FindFirstChildWhichIsA("SpecialMesh")
-            if mesh then mesh.VertexColor=Vector3.new(1,1,1) end
-            source.LocalTransparencyModifier=1
+            clone.Transparency=visible and math.max(source.Transparency,entry.alpha,fixedBlue and TOOL_FORCE_FIELD_ALPHA or 0) or 1
+            if clone.Color~=color then clone.Color=color end
+            -- Avoid repeatedly signalling native Handle.Changed listeners.
+            if source.LocalTransparencyModifier~=1 then source.LocalTransparencyModifier=1 end
         else clone.Transparency=1 end
     end
 end
@@ -5110,7 +5114,9 @@ local function applyForceField(tool,state,color)
             if clone then
                 clone.Anchored=true
                 clone.Material=Enum.Material.ForceField
-                clone.Color=color
+                clone.Color=state.group.key=="toolChams" and TOOL_FORCE_FIELD_COLOR or color
+                local mesh=clone:FindFirstChildWhichIsA("SpecialMesh")
+                if mesh then mesh.VertexColor=Vector3.new(1,1,1) end
                 clone.CFrame=source.CFrame
                 clone.Parent=model
                 entries[#entries+1]={source=source,clone=clone,alpha=source.LocalTransparencyModifier}
@@ -5229,12 +5235,20 @@ local function refresh()
         end)
     end
     update()
+    if type(runtime.RefreshToolTint)=="function" then runtime.RefreshToolTint() end
 end
 runtime.RefreshChams=refresh
+runtime.ToolForceFieldActive=function(tool)
+    local group=groupFor(tool)
+    return group and group.key=="toolChams" and group.preset=="ForceField" or false
+end
 
 runtime.RegisterChamsFeature=function(section,key,label,matches)
-    section:AddParagraph(label.." Chams","All presets use Chams Color. Tint controls are separate.")
+    section:AddParagraph(label.." Chams",key=="toolChams"
+        and "ForceField uses transparent blue. Flat and Chromatic use Chams Color."
+        or "All presets use Chams Color. Tint controls are separate.")
     local group={
+        key=key,
         enabled=C(key.."Enabled",false),
         preset=presetName(C(key.."Preset","ForceField")),
         matches=matches,
@@ -7048,8 +7062,6 @@ local FRAME="VisualsV2_ShiftLockFrame"
 local castParams=RaycastParams.new()
 castParams.FilterType=Enum.RaycastFilterType.Exclude
 castParams.IgnoreWater=true
-local checkCaller=checkcaller or env.checkcaller
-local callingScript=getcallingscript or env.getcallingscript
 local namecallMethod=getnamecallmethod or env.getnamecallmethod
 local restoreNamecallMethod=setnamecallmethod or env.setnamecallmethod
 local hookMeta=hookmetamethod or env.hookmetamethod
@@ -7201,22 +7213,6 @@ local function currentAim()
     return aim
 end
 
-local function gameCaller(aim,toolRemote)
-    if not alive or not runtimeAlive or not aimEnabled or not aim then return false end
-    if type(checkCaller)=="function" then
-        local ok,result=pcall(checkCaller)
-        if not ok or result then return false end
-    end
-    -- An exact remote inside the currently equipped throwable is enough to
-    -- identify its native request, even when a shared module owns the caller.
-    if toolRemote then return true end
-    if type(callingScript)=="function" then
-        local ok,source=pcall(callingScript)
-        return ok and typeof(source)=="Instance" and instanceDescendant(source,aim.tool) or false
-    end
-    return false
-end
-
 local function targetValue(value,aim,direction)
     local valueType=typeof(value)
     if valueType=="Vector3" then return direction and aim.direction*value.Magnitude or aim.position end
@@ -7287,7 +7283,7 @@ local function rewriteArguments(remote,args,aim)
         output[index]=targetValue(value,aim,direction)
     elseif #candidates==2 and operation then
         -- Known origin + target/direction layouts: preserve the launch origin.
-        -- Ambiguous multi-vector layouts are left to the Mouse/ray input path.
+        -- Ambiguous multi-vector layouts keep their original native payload.
         local first,second=args[candidates[1]],args[candidates[2]]
         local origin=typeof(first)=="Vector3" and first or (typeof(first)=="CFrame" and first.Position)
         if origin and (origin-aim.origin).Magnitude<=8 then
@@ -7313,52 +7309,21 @@ handler.Enabled=function() return alive and runtimeAlive and aimEnabled end
 handler.Remote=function(object,method,args)
     if not handler.Enabled() or typeof(object)~="Instance" then return nil end
     local aim=currentAim()
-    if not aim or not instanceDescendant(object,aim.tool) or not gameCaller(aim,true) then return nil end
+    -- The captured FakeBomb request is CFrame + power 50. Native detours mark
+    -- it checkcaller=true, so identify it by its exact equipped-tool remote.
+    if not aim or not instanceDescendant(object,aim.tool) then return nil end
     if (method=="FireServer" and instanceIsA(object,"RemoteEvent"))
         or (method=="InvokeServer" and instanceIsA(object,"RemoteFunction")) then
         local rewritten=rewriteArguments(object,args,aim)
         if rewritten then return "args",rewritten end
     end
 end
-handler.Index=function(object,key)
-    -- Touch input objects are shared with the camera, movement and menus.
-    -- Leave them untouched and redirect the native tool's aim reads instead.
-    if not handler.Enabled() or typeof(object)~="Instance" or not instanceIsA(object,"Mouse") then return false end
-    local aim=currentAim()
-    if not gameCaller(aim) or type(key)~="string" then return false end
-    local name=key:lower()
-    if name=="hit" then return true,aim.hit end
-    if name=="target" then return true,aim.target end
-    if name=="unitray" then return true,aim.ray end
-    if name=="origin" then return true,CFrame.lookAt(aim.ray.Origin,aim.ray.Origin+aim.ray.Direction) end
-    if name=="x" then return true,aim.mouseX end
-    if name=="y" then return true,aim.mouseY end
-    return false
-end
+-- The captured bomb protocol contains its final target already. Redirect only
+-- that request; never substitute global Mouse, touch or camera input reads.
+handler.Index=function() return false end
 handler.Namecall=function(object,method,args)
-    if not handler.Enabled() then return nil end
-    local remoteRequest=(method=="FireServer" and instanceIsA(object,"RemoteEvent"))
-        or (method=="InvokeServer" and instanceIsA(object,"RemoteFunction"))
-    local cameraRequest=method=="ScreenPointToRay" or method=="ViewportPointToRay"
-    if not remoteRequest and not cameraRequest and method~="GetMouseLocation" then return nil end
-    if type(checkCaller)=="function" then
-        local ok,result=pcall(checkCaller)
-        if not ok or result then return nil end
-    end
-    local aim=currentAim()
-    if not aim then return nil end
-    local toolRemote=remoteRequest and instanceDescendant(object,aim.tool)
-    if not gameCaller(aim,toolRemote) then return nil end
-    if object==aim.camera and (method=="ScreenPointToRay" or method=="ViewportPointToRay") then
-        local depth=tonumber(args[3]) or 0
-        return "value",Ray.new(aim.ray.Origin+aim.ray.Direction*depth,aim.ray.Direction)
-    end
-    if object==UserInputService and method=="GetMouseLocation" then
-        return "value",Vector2.new(aim.screenX,aim.screenY)
-    end
-    if remoteRequest then
-        local rewritten=rewriteArguments(object,args,aim)
-        if rewritten then return "args",rewritten end
+    if method=="FireServer" or method=="InvokeServer" then
+        return handler.Remote(object,method,args)
     end
 end
 -- Inactive handlers are detached, including on first execution. The global
@@ -7413,8 +7378,8 @@ end
 
 local function installHooks()
     local nativeReady=installNativeRemoteMethods()
-    if bridge.indexReady and bridge.namecallReady then return true end
-    if type(namecallMethod)~="function" or (type(checkCaller)~="function" and type(callingScript)~="function") then return nativeReady end
+    if bridge.namecallReady then return true end
+    if type(namecallMethod)~="function" then return nativeReady end
     local hook=hookMeta
     if type(hook)~="function" then
         local rawMeta=getrawmetatable or env.getrawmetatable
@@ -7432,33 +7397,8 @@ local function installHooks()
             return old
         end
     end
-    if not bridge.indexReady then
-        local previous
-        local wrapper=function(object,key)
-            local current=bridge.handler
-            local thread=coroutine.running() or bridge
-            if current and current.Enabled() and not bridge.dispatchers[thread] then
-                local method
-                if type(restoreNamecallMethod)=="function" and type(namecallMethod)=="function" then
-                    local ok,value=pcall(namecallMethod)
-                    if ok and type(value)=="string" then method=value end
-                end
-                bridge.dispatchers[thread]=true
-                local ok,handled,value=pcall(current.Index,object,key)
-                bridge.dispatchers[thread]=nil
-                if type(restoreNamecallMethod)=="function" and type(method)=="string" then
-                    pcall(restoreNamecallMethod,method)
-                end
-                if ok and handled then return value end
-            end
-            return previous(object,key)
-        end
-        if type(makeClosure)=="function" then wrapper=makeClosure(wrapper) end
-        local ok,original=pcall(hook,game,"__index",wrapper)
-        if not ok or type(original)~="function" then return nativeReady end
-        previous=original
-        bridge.indexReady=true
-    end
+    -- Legacy __index wrappers remain pass-through through handler.Index.
+    -- Fresh sessions need no mouse/property interception for throwable aim.
     if not bridge.namecallReady then
         local previous
         local wrapper=function(object,...)
@@ -8065,6 +8005,8 @@ local rainbowSpeed=C("toolTintRainbowSpeed",3)
 local transparency=C("toolTintTransparency",5)
 local rainbowConn
 local HIGHLIGHT_NAME="VisualsV2_ToolTint"
+local tintHighlights={}
+local tintConnections={}
 
 local function isGunKnife(tool)
     if not tool or not tool:IsA("Tool") then return false end
@@ -8095,28 +8037,41 @@ local function fillAlpha()
 end
 local function removeHighlight(tool)
     if not tool then return end
-    local h=tool:FindFirstChild(HIGHLIGHT_NAME)
-    if h then h:Destroy() end
+    local h=tintHighlights[tool]
+    if h then h:Destroy(); tintHighlights[tool]=nil end
+    local legacy=tool:FindFirstChild(HIGHLIGHT_NAME)
+    if legacy then legacy:Destroy() end
 end
 
 local function apply(tool)
     if not enabled or not tool or not tool:IsA("Tool") then return end
-    if isGunKnife(tool) then removeHighlight(tool); return end
-    local h=tool:FindFirstChild(HIGHLIGHT_NAME)
+    local forceField=env.VisualsV2Runtime.ToolForceFieldActive
+    if isGunKnife(tool) or (type(forceField)=="function" and forceField(tool)) then
+        removeHighlight(tool); return
+    end
+    local legacy=tool:FindFirstChild(HIGHLIGHT_NAME)
+    if legacy then legacy:Destroy() end
+    local h=tintHighlights[tool]
     if not h then
         h=Instance.new("Highlight")
         h.Name=HIGHLIGHT_NAME
         h.Adornee=tool
         h.DepthMode=Enum.HighlightDepthMode.Occluded
         h.OutlineTransparency=1
-        h.Parent=tool
+        h.Parent=workspace
+        tintHighlights[tool]=h
     end
     h.FillColor=colorNow()
     h.FillTransparency=fillAlpha()
 end
-local function applyAll() for _,tool in ipairs(allTools()) do apply(tool) end end
+local function applyAll()
+    local seen={}
+    for _,tool in ipairs(allTools()) do seen[tool]=true; apply(tool) end
+    for tool in pairs(tintHighlights) do if not seen[tool] then removeHighlight(tool) end end
+end
 local function restoreAll()
     if rainbowConn then rainbowConn:Disconnect(); rainbowConn=nil end
+    for tool,h in pairs(tintHighlights) do h:Destroy(); tintHighlights[tool]=nil end
     for _,tool in ipairs(allTools()) do removeHighlight(tool) end
 end
 local function refreshAll()
@@ -8126,10 +8081,20 @@ local function refreshAll()
 end
 local function watch(container)
     if not container then return end
-    container.ChildAdded:Connect(function(obj) if obj:IsA("Tool") and enabled then task.defer(function() apply(obj) end) end end)
+    local function changed(obj)
+        if obj:IsA("Tool") and enabled and runtimeAlive then
+            task.defer(function() if enabled and runtimeAlive then applyAll() end end)
+        end
+    end
+    tintConnections[#tintConnections+1]=container.ChildAdded:Connect(changed)
+    tintConnections[#tintConnections+1]=container.ChildRemoved:Connect(changed)
 end
 watch(player:FindFirstChildOfClass("Backpack")); watch(player.Character)
-player.CharacterAdded:Connect(function(char) watch(char); if enabled then task.defer(applyAll) end end)
+tintConnections[#tintConnections+1]=player.CharacterAdded:Connect(function(char)
+    if not runtimeAlive then return end
+    watch(char)
+    if enabled then task.defer(function() if enabled and runtimeAlive then applyAll() end end) end
+end)
 
 env.VisualsV2Runtime.RefreshToolTint=refreshAll
 
@@ -8159,6 +8124,10 @@ env.VisualsV2Runtime.RegisterReset(function()
     enabledToggle:Set(false); rainbowToggle:Set(false)
     enabled=false; rainbow=false; tintColor=Color3.fromRGB(255,255,255); rainbowSpeed=3; transparency=5
     restoreAll()
+    if not runtimeAlive then
+        for _,connection in ipairs(tintConnections) do connection:Disconnect() end
+        table.clear(tintConnections)
+    end
 end)
 end)()
 
