@@ -1,4 +1,5 @@
 -- Visuals V2
+-- 2026-10-13 r19: Remove the SprayPaint/TeddyBear visibility fade and its slider.
 -- 2026-10-13: Restore snowball launch range, clear dense paint/teddy texture masks, and expose live build/aim failures.
 -- 2026-10-13: Native SprayPaint ForceField replacement, restored toy appearance overrides, and crosshair world targets for VolleyBall2025.
 -- 2026-10-13: Detect Volleyball and centre the captured SnowballToy2020/WaterBalloon2024 origin-plus-target packets.
@@ -238,7 +239,7 @@ if type(previousRuntime) == "table" and type(previousRuntime.Cleanup) == "functi
 end
 
 -- Runtime reset registry.
-env.VisualsV2Runtime = {Resetters = {}, Build = "2026-10-13-r18"}
+env.VisualsV2Runtime = {Resetters = {}, Build = "2026-10-13-r19"}
 env.VisualsV2Runtime.RegisterReset = function(callback)
     if type(callback) == "function" then table.insert(env.VisualsV2Runtime.Resetters, callback) end
 end
@@ -4904,10 +4905,6 @@ local function clearForceField(state)
             end
             if record.materialVariant~=nil then source.MaterialVariant=record.materialVariant end
             if record.textureID~=nil then source.TextureID=record.textureID end
-            if record.forcedLocalTransparency~=nil
-                and source.LocalTransparencyModifier==record.forcedLocalTransparency then
-                source.LocalTransparencyModifier=record.localTransparency
-            end
             if record.physicsPinned and source.CustomPhysicalProperties==record.pinnedPhysics then
                 source.CustomPhysicalProperties=record.customPhysics
             end
@@ -5193,18 +5190,6 @@ local function applyForceField(tool,state,color)
             if record.textureID~=nil and source.TextureID~=BOMB_FORCEFIELD_TEXTURE then
                 source.TextureID=BOMB_FORCEFIELD_TEXTURE
             end
-            if bombField then
-                -- Fade dense mesh interiors locally without changing the native
-                -- handle's Transparency, geometry, targeting or tool input.
-                local current=source.LocalTransparencyModifier
-                if record.localTransparency==nil or current~=record.forcedLocalTransparency then
-                    record.localTransparency=current
-                end
-                local alpha=state.group.forceTransparency or 0.85
-                local target=record.localTransparency+(1-record.localTransparency)*alpha
-                if current~=target then source.LocalTransparencyModifier=target end
-                record.forcedLocalTransparency=target
-            end
             if record.materialVariant~=nil and source.MaterialVariant~="" then source.MaterialVariant="" end
             if source.Material~=Enum.Material.ForceField then source.Material=Enum.Material.ForceField end
             if source.Color~=color then source.Color=color end
@@ -5342,7 +5327,6 @@ runtime.RegisterChamsFeature=function(section,key,label,matches)
         colorValue=C(key.."Color",Color3.fromRGB(255,200,0)),
         rainbow=C(key.."Rainbow",false),
         rainbowSpeed=math.clamp(tonumber(C(key.."RainbowSpeed",3)) or 3,1,10),
-        forceTransparency=math.clamp(tonumber(C("toolChamsForceFieldTransparency",85)) or 85,0,99)/100,
     }
     group.color=function()
         if group.rainbow then return Color3.fromHSV((os.clock()*(group.rainbowSpeed*0.1))%1,1,1) end
@@ -5359,13 +5343,6 @@ runtime.RegisterChamsFeature=function(section,key,label,matches)
         SetCfg(key.."Preset",group.preset)
         refresh()
     end)
-    if key=="toolChams" then
-        section:AddSlider("SprayPaint / TeddyBear ForceField Transparency",0,99,group.forceTransparency*100,function(value)
-            group.forceTransparency=math.clamp(tonumber(value) or 85,0,99)/100
-            SetCfg("toolChamsForceFieldTransparency",group.forceTransparency*100)
-            update()
-        end)
-    end
     section:AddColorpicker(label.." Chams Color",group.colorValue,function(color)
         group.colorValue=color
         SetCfg(key.."Color",color)
@@ -5392,7 +5369,6 @@ runtime.RegisterReset(function()
         group.rainbow=false
         group.colorValue=Color3.fromRGB(255,200,0)
         group.rainbowSpeed=3
-        group.forceTransparency=0.85
         group.toggle:Set(false)
         group.rainbowToggle:Set(false)
     end
