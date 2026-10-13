@@ -1,4 +1,5 @@
 -- Visuals V2
+-- 2026-10-13: Detach disabled throwable handlers and preserve native request forwarding across nested method checks.
 -- 2026-10-13: Preserve native camera touch input; align throwable aim with the game's crosshair and GUI inset.
 -- 2026-10-09: Preserve SprayPaint tool logic and native tool/emote playback with all FE presets.
 -- 2026-10-09: Fixed MM2 skin choices: 357 guns and 631 knives, excluding defaults.
@@ -39,6 +40,11 @@ if type(getgenv) == "function" then
     local ok, result = pcall(getgenv)
     if ok and type(result) == "table" then env = result end
 end
+
+-- Release a previous build's global aim handler before loading any settings
+-- or cleaning up its callbacks. Legacy wrappers then pass native calls through.
+local previousThrowableBridge=env.VisualsV2ThrowableAimBridge
+if type(previousThrowableBridge)=="table" then previousThrowableBridge.handler=nil end
 
 local read = type(readfile) == "function" and readfile or env.readfile
 local write = type(writefile) == "function" and writefile or env.writefile
@@ -7044,12 +7050,22 @@ castParams.IgnoreWater=true
 local checkCaller=checkcaller or env.checkcaller
 local callingScript=getcallingscript or env.getcallingscript
 local namecallMethod=getnamecallmethod or env.getnamecallmethod
+local restoreNamecallMethod=setnamecallmethod or env.setnamecallmethod
 local hookMeta=hookmetamethod or env.hookmetamethod
 local makeClosure=newcclosure or env.newcclosure
 local callbackValue=getcallbackvalue or env.getcallbackvalue
 local callbackRecords={}
 local hookReady=false
 local refresh
+
+-- Cache native method functions before attaching the hook. Calling these with
+-- dot syntax avoids nested __namecall dispatch replacing FireServer/InvokeServer
+-- in the original calling thread. Aim is sampled separately at render time.
+local instanceIsA=game.IsA
+local instanceDescendant=game.IsDescendantOf
+local instanceFindChild=game.FindFirstChild
+local instanceFindClass=game.FindFirstChildOfClass
+local nativeFocusedTextBox=UserInputService.GetFocusedTextBox
 
 local function notify(message)
     if alive and runtimeAlive then pcall(function() shared.Notify(message,4) end) end
@@ -7072,14 +7088,14 @@ local function equippedThrowable(character)
 end
 
 local function nativeCrosshair()
-    local gui=player:FindFirstChildOfClass("PlayerGui")
-    local topbar=gui and gui:FindFirstChild("GameTopbar")
-    local crosshair=topbar and topbar:FindFirstChild("Crosshair")
-    if not crosshair or not crosshair:IsA("GuiObject") then return nil,false end
+    local gui=instanceFindClass(player,"PlayerGui")
+    local topbar=gui and instanceFindChild(gui,"GameTopbar")
+    local crosshair=topbar and instanceFindChild(topbar,"Crosshair")
+    if not crosshair or not instanceIsA(crosshair,"GuiObject") then return nil,false end
     local current=crosshair
     while current and current~=gui do
-        if current:IsA("GuiObject") and not current.Visible then return crosshair,false end
-        if current:IsA("ScreenGui") and not current.Enabled then return crosshair,false end
+        if instanceIsA(current,"GuiObject") and not current.Visible then return crosshair,false end
+        if instanceIsA(current,"ScreenGui") and not current.Enabled then return crosshair,false end
         current=current.Parent
     end
     return crosshair,true
@@ -7167,6 +7183,22 @@ local function sampleAim()
     return centreAim(cam,character,tool)
 end
 
+local function currentAim()
+    local aim=activeAim
+    if not alive or not runtimeAlive or not aimEnabled or not aim
+        or aim.tool.Parent~=player.Character or aim.camera~=workspace.CurrentCamera
+        or aim.camera.CameraType==Enum.CameraType.Scriptable or GuiService.MenuIsOpen
+        or nativeFocusedTextBox(UserInputService) then return nil end
+    local character=player.Character
+    local humanoid=character and instanceFindClass(character,"Humanoid")
+    if not humanoid or humanoid.Health<=0 then return nil end
+    local subject=aim.camera.CameraSubject
+    if subject~=humanoid and (not subject or not instanceDescendant(subject,character)) then return nil end
+    local crosshair,visible=nativeCrosshair()
+    if crosshair and not visible then return nil end
+    return aim
+end
+
 local function gameCaller(aim,toolRemote)
     if not alive or not runtimeAlive or not aimEnabled or not aim then return false end
     if type(checkCaller)=="function" then
@@ -7178,7 +7210,7 @@ local function gameCaller(aim,toolRemote)
     if toolRemote then return true end
     if type(callingScript)=="function" then
         local ok,source=pcall(callingScript)
-        return ok and typeof(source)=="Instance" and source:IsDescendantOf(aim.tool) or false
+        return ok and typeof(source)=="Instance" and instanceDescendant(source,aim.tool) or false
     end
     return false
 end
@@ -7209,7 +7241,7 @@ local function rewritePayload(payload,aim)
 end
 
 local function rewriteArguments(remote,args,aim)
-    local toolLocal=remote:IsDescendantOf(aim.tool)
+    local toolLocal=instanceDescendant(remote,aim.tool)
     local name=compact(remote.Name)
     local command=type(args[1])=="string" and compact(args[1]) or ""
     local function aimOperation(value)
@@ -7269,16 +7301,18 @@ end
 -- installed once and become pass-through when their current owner is reset.
 -- This preserves other add-ons' hooks and avoids an ever-growing hook chain.
 local bridge=env.VisualsV2ThrowableAimBridge
-if type(bridge)~="table" or bridge.version~=1 then
-    bridge={version=1}
+if type(bridge)~="table" or bridge.version~=2 then
+    if type(bridge)=="table" then bridge.handler=nil end
+    bridge={version=2,dispatchers=setmetatable({}, {__mode="k"})}
     env.VisualsV2ThrowableAimBridge=bridge
 end
 local handler={}
+handler.Enabled=function() return alive and runtimeAlive and aimEnabled end
 handler.Index=function(object,key)
     -- Touch input objects are shared with the camera, movement and menus.
     -- Leave them untouched and redirect the native tool's aim reads instead.
-    if typeof(object)~="Instance" or not object:IsA("Mouse") then return false end
-    local aim=sampleAim()
+    if not handler.Enabled() or typeof(object)~="Instance" or not instanceIsA(object,"Mouse") then return false end
+    local aim=currentAim()
     if not gameCaller(aim) or type(key)~="string" then return false end
     local name=key:lower()
     if name=="hit" then return true,aim.hit end
@@ -7290,17 +7324,18 @@ handler.Index=function(object,key)
     return false
 end
 handler.Namecall=function(object,method,args)
-    local remoteRequest=(method=="FireServer" and object:IsA("RemoteEvent"))
-        or (method=="InvokeServer" and object:IsA("RemoteFunction"))
+    if not handler.Enabled() then return nil end
+    local remoteRequest=(method=="FireServer" and instanceIsA(object,"RemoteEvent"))
+        or (method=="InvokeServer" and instanceIsA(object,"RemoteFunction"))
     local cameraRequest=method=="ScreenPointToRay" or method=="ViewportPointToRay"
     if not remoteRequest and not cameraRequest and method~="GetMouseLocation" then return nil end
     if type(checkCaller)=="function" then
         local ok,result=pcall(checkCaller)
         if not ok or result then return nil end
     end
-    local aim=sampleAim()
+    local aim=currentAim()
     if not aim then return nil end
-    local toolRemote=remoteRequest and object:IsDescendantOf(aim.tool)
+    local toolRemote=remoteRequest and instanceDescendant(object,aim.tool)
     if not gameCaller(aim,toolRemote) then return nil end
     if object==aim.camera and (method=="ScreenPointToRay" or method=="ViewportPointToRay") then
         local depth=tonumber(args[3]) or 0
@@ -7314,7 +7349,9 @@ handler.Namecall=function(object,method,args)
         if rewritten then return "args",rewritten end
     end
 end
-bridge.handler=handler
+-- Inactive handlers are detached, including on first execution. The global
+-- wrappers are only installed when aiming is explicitly enabled.
+bridge.handler=nil
 
 local function installHooks()
     if bridge.indexReady and bridge.namecallReady then return true end
@@ -7340,10 +7377,19 @@ local function installHooks()
         local previous
         local wrapper=function(object,key)
             local current=bridge.handler
-            if current and not bridge.dispatching then
-                bridge.dispatching=true
+            local thread=coroutine.running() or bridge
+            if current and current.Enabled() and not bridge.dispatchers[thread] then
+                local method
+                if type(restoreNamecallMethod)=="function" and type(namecallMethod)=="function" then
+                    local ok,value=pcall(namecallMethod)
+                    if ok and type(value)=="string" then method=value end
+                end
+                bridge.dispatchers[thread]=true
                 local ok,handled,value=pcall(current.Index,object,key)
-                bridge.dispatching=false
+                bridge.dispatchers[thread]=nil
+                if type(restoreNamecallMethod)=="function" and type(method)=="string" then
+                    pcall(restoreNamecallMethod,method)
+                end
                 if ok and handled then return value end
             end
             return previous(object,key)
@@ -7357,12 +7403,16 @@ local function installHooks()
     if not bridge.namecallReady then
         local previous
         local wrapper=function(object,...)
-            local method=namecallMethod()
             local current=bridge.handler
-            if current and not bridge.dispatching then
-                bridge.dispatching=true
+            local thread=coroutine.running() or bridge
+            if current and current.Enabled() and not bridge.dispatchers[thread] then
+                local method=namecallMethod()
+                bridge.dispatchers[thread]=true
                 local ok,action,value=pcall(current.Namecall,object,method,table.pack(...))
-                bridge.dispatching=false
+                bridge.dispatchers[thread]=nil
+                if type(restoreNamecallMethod)=="function" and type(method)=="string" then
+                    pcall(restoreNamecallMethod,method)
+                end
                 if ok and action=="value" then return value end
                 if ok and action=="args" then return previous(object,table.unpack(value,1,value.n)) end
             end
@@ -7416,7 +7466,7 @@ local function wrapCallback(remote,tool)
         local location=name=="mouselocation" or name=="getmouselocation"
         local ray=name=="unitray" or name=="mouseunitray"
         if position or hit or location or ray then
-            local aim=sampleAim()
+            local aim=currentAim()
             if aim and aim.tool==tool then
                 local kind=typeof(results[1])
                 if kind=="Vector2" then
@@ -7458,11 +7508,13 @@ end
 local elapsed=0
 refresh=function()
     activeAim=nil
+    if bridge.handler==handler then bridge.handler=nil end
     refreshCallbacks()
     if not alive or not runtimeAlive or not aimEnabled then
         if frameBound then RunService:UnbindFromRenderStep(FRAME); frameBound=false end
         return
     end
+    if hookReady then bridge.handler=handler end
     if not frameBound then
         RunService:BindToRenderStep(FRAME,Enum.RenderPriority.Camera.Value+1,function(dt)
             local ok,aim=pcall(sampleAim)
@@ -7475,7 +7527,7 @@ refresh=function()
 end
 
 aimToggle=addToggle(section,"Centre Aim for Throwables",aimEnabled,function(value)
-    hookReady=installHooks()
+    if value then hookReady=installHooks() end
     if value and not hookReady and type(callbackValue)~="function" then
         aimEnabled=false
         SetCfg("vv2ThrowableCentreAim",false)
@@ -7487,7 +7539,7 @@ end)
 
 env.VisualsV2Runtime.ShiftLockThrowables={
     IsLocked=nativeLocked,
-    GetAim=function() return activeAim end,
+    GetAim=currentAim,
 }
 env.VisualsV2Runtime.RegisterReset(function()
     aimEnabled=false; activeAim=nil
@@ -7509,9 +7561,11 @@ task.spawn(function()
         end
     end
 end)
-hookReady=installHooks()
-if aimEnabled and not hookReady and type(callbackValue)~="function" then
-    aimEnabled=false; SetCfg("vv2ThrowableCentreAim",false)
+if aimEnabled then
+    hookReady=installHooks()
+    if not hookReady and type(callbackValue)~="function" then
+        aimEnabled=false; SetCfg("vv2ThrowableCentreAim",false)
+    end
 end
 refresh()
 end)()
