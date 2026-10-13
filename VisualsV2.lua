@@ -1,4 +1,5 @@
 -- Visuals V2
+-- 2026-10-13: Use crosshair surface targets for beach balls/water balloons; separate SprayPaint's visible ForceField shell.
 -- 2026-10-13: Restore supplied material/viewport chams, protect SprayPaint visibility, and preserve native projectile range.
 -- 2026-10-13: Cover direct/cached native throwable requests alongside the namecall route; expose transport checks.
 -- 2026-10-13: Detach disabled throwable handlers and preserve native request forwarding across nested method checks.
@@ -4853,6 +4854,7 @@ local heartbeatConnection,chromConnection,shellConnection
 local chromHost,chromView,chromWorld,chromCamera
 local dirty,queued,resetting=true,false,false
 local CHROM_SCALE,CHROM_ALPHA=1.012,0.025
+local PAINT_FORCE_SCALE=1.025
 local ownedSurfaces=setmetatable({}, {__mode="k"})
 
 local function disconnectAll(connections)
@@ -5025,20 +5027,30 @@ local function paintTool(tool)
     return name:find("spray",1,true)~=nil or name:find("graffiti",1,true)~=nil
 end
 
--- ForceField keeps original texture IDs, sizes and mesh vertex colours, as
--- the supplied plugin does. Its texture-stripping shell is only for Foil/Flat.
+-- Keep the native brush visible and untouched. An expanded cosmetic copy
+-- avoids sharing its depth with the opaque can and retains the shader texture.
 local function paintForceShell(source)
     local archivable=source.Archivable
     if not archivable and not pcall(function() source.Archivable=true end) then return nil end
     local ok,clone=pcall(function() return source:Clone() end)
     if not archivable then pcall(function() source.Archivable=archivable end) end
     if not ok or not clone then return nil end
+    if source:IsA("MeshPart") then
+        local appearance=source:FindFirstChildWhichIsA("SurfaceAppearance")
+        if clone.TextureID=="" and appearance then
+            pcall(function() clone.TextureID=appearance.ColorMap end)
+        end
+    end
     for _,child in ipairs(clone:GetChildren()) do
         if not child:IsA("DataModelMesh") then child:Destroy() end
     end
     for _,child in ipairs(clone:GetDescendants()) do
         if child:IsA("Script") or child:IsA("LocalScript") or child:IsA("ModuleScript") then child:Destroy() end
     end
+    local mesh=clone:FindFirstChildWhichIsA("DataModelMesh")
+    if mesh then mesh.Scale=mesh.Scale*PAINT_FORCE_SCALE
+    else clone.Size=source.Size*PAINT_FORCE_SCALE end
+    pcall(function() clone.MaterialVariant="" end)
     clone.Anchored=true; clone.CanCollide=false; clone.CanQuery=false; clone.CanTouch=false
     clone.Massless=true; clone.CastShadow=false; clone.LocalTransparencyModifier=0
     return clone
@@ -5050,6 +5062,10 @@ local function syncForceField(tool,state,color)
         local visible=source.Parent and tool.Parent==player.Character
         if visible then
             clone.CFrame=source.CFrame
+            if entry.mesh and entry.sourceMesh and entry.sourceMesh.Parent then
+                entry.mesh.Scale=entry.sourceMesh.Scale*PAINT_FORCE_SCALE
+                entry.mesh.Offset=entry.sourceMesh.Offset
+            else clone.Size=source.Size*PAINT_FORCE_SCALE end
             clone.Transparency=source.Transparency
             clone.LocalTransparencyModifier=source.LocalTransparencyModifier
             if clone.Color~=color then clone.Color=color end
@@ -5155,7 +5171,9 @@ local function applyForceField(tool,state,color)
                     clone.Color=color
                     clone.CFrame=source.CFrame
                     clone.Parent=model
-                    entries[#entries+1]={source=source,clone=clone}
+                    entries[#entries+1]={source=source,clone=clone,
+                        mesh=clone:FindFirstChildWhichIsA("DataModelMesh"),
+                        sourceMesh=source:FindFirstChildWhichIsA("DataModelMesh")}
                 end
             end
             model.Parent=workspace
@@ -7252,9 +7270,12 @@ local function centreAim(cam,character,tool)
     local handle=tool:FindFirstChild("Handle")
     local root=character:FindFirstChild("HumanoidRootPart")
     local origin=(handle and handle:IsA("BasePart") and handle.Position) or (root and root.Position) or ray.Origin
+    local name=compact(tool.Name)
+    local pointTarget=name:find("beachball",1,true) or name:find("waterballoon",1,true)
     return {tool=tool,camera=cam,ray=ray,position=position,
         hit=CFrame.new(position)*cam.CFrame.Rotation,target=result and result.Instance or nil,
         origin=origin,direction=ray.Direction,
+        targetMode=pointTarget and "Position" or "LaunchRay",
         x=x,y=y,mouseX=guiX,mouseY=guiY,screenX=x,screenY=y}
 end
 
@@ -7285,16 +7306,26 @@ local function currentAim()
     return aim
 end
 
--- Preserve the native request's range and magnitude. A nearby raycast hit
--- must not turn the same throw into a steep dive from the tool's handle.
+-- BeachBall2023 sends a world position. Projecting its old tap distance from
+-- the handle put that position below the ground in the supplied report.
+-- Point-target balls use the crosshair surface; bombs and snowballs keep the
+-- working launch-ray range. Explicit velocity/direction keeps its magnitude.
 local function targetValue(value,aim,direction,launchOrigin)
     local kind=typeof(value)
     local origin=launchOrigin or aim.origin
     if kind=="Vector2" then return Vector2.new(aim.mouseX,aim.mouseY) end
-    if kind=="Vector3" and direction then return aim.ray.Direction*value.Magnitude end
-    if kind=="Ray" then return Ray.new(value.Origin,aim.ray.Direction*value.Direction.Magnitude) end
+    local function centredDirection(from)
+        if aim.targetMode=="Position" then
+            local delta=aim.position-from
+            if delta.Magnitude>0.001 then return delta.Unit end
+        end
+        return aim.ray.Direction
+    end
+    if kind=="Vector3" and direction then return centredDirection(origin)*value.Magnitude end
+    if kind=="Ray" then return Ray.new(value.Origin,centredDirection(value.Origin)*value.Direction.Magnitude) end
     local position=kind=="CFrame" and value.Position or (kind=="Vector3" and value)
     if not position then return value end
+    if aim.targetMode=="Position" then return kind=="CFrame" and aim.hit or aim.position end
     local distance=(position-origin).Magnitude
     if distance<0.001 or distance~=distance or distance==math.huge then return value end
     local centred=origin+aim.ray.Direction*distance
@@ -7574,10 +7605,10 @@ local function wrapCallback(remote,tool)
         local mode=args[1]
         if type(mode)=="table" then mode=mode.Mode or mode.mode or mode.Action or mode.action end
         local name=compact(mode)
-        if #bridge.callbackLog<8 then
-            bridge.callbackLog[#bridge.callbackLog+1]={tool=tool,remote=remote,mode=tostring(mode),
-                originalType=typeof(results[1]),count=results.n}
-        end
+        if #bridge.callbackLog>=8 then table.remove(bridge.callbackLog,1) end
+        local audit={tool=tool,remote=remote,mode=tostring(mode),
+            originalType=typeof(results[1]),count=results.n,original=table.clone(results)}
+        bridge.callbackLog[#bridge.callbackLog+1]=audit
         local position=name=="mouseposition" or name=="getmouseposition" or name=="targetposition"
         local hit=name=="mousehit" or name=="getmousehit" or name=="getmouse" or name=="mouse"
         local location=name=="mouselocation" or name=="getmouselocation"
@@ -7598,6 +7629,7 @@ local function wrapCallback(remote,tool)
                 end
             end
         end
+        audit.forwarded=table.clone(results)
         return table.unpack(results,1,results.n)
     end
     local ok=pcall(function() remote.OnClientInvoke=record.wrapper end)
