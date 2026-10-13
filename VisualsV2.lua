@@ -238,7 +238,7 @@ if type(previousRuntime) == "table" and type(previousRuntime.Cleanup) == "functi
 end
 
 -- Runtime reset registry.
-env.VisualsV2Runtime = {Resetters = {}, Build = "2026-10-13-r16"}
+env.VisualsV2Runtime = {Resetters = {}, Build = "2026-10-13-r17"}
 env.VisualsV2Runtime.RegisterReset = function(callback)
     if type(callback) == "function" then table.insert(env.VisualsV2Runtime.Resetters, callback) end
 end
@@ -4857,6 +4857,9 @@ local heartbeatConnection,chromConnection,shellConnection
 local chromHost,chromView,chromWorld,chromCamera
 local dirty,queued,resetting=true,false,false
 local CHROM_SCALE,CHROM_ALPHA=1.012,0.025
+-- The working FakeBomb texture from the MMV report. Its mask drives the
+-- ForceField shimmer; each tool keeps its own mesh, scale and dimensions.
+local BOMB_FORCEFIELD_TEXTURE="rbxassetid://104516981"
 local ownedSurfaces=setmetatable({}, {__mode="k"})
 
 local function disconnectAll(connections)
@@ -5118,6 +5121,7 @@ local function applyForceField(tool,state,color)
     -- One native renderer for every tool, including SprayPaint and TeddyBear.
     -- Never hide the real handle, resize it, clone its logic or change input.
     -- Keep mesh textures for the ForceField shader; suppress opaque overlays.
+    -- SprayPaint/TeddyBear use FakeBomb's mask instead of an empty texture.
     state.forceNative=state.forceNative or {}
     state.forceSurfaces=state.forceSurfaces or {}
     state.forceDecals=state.forceDecals or {}
@@ -5140,14 +5144,14 @@ local function applyForceField(tool,state,color)
     -- reach its ForceField material without multiplying that tint a second time.
     local toolName=tool.Name:lower():gsub("[^%w]","")
     local teddy=toolName:find("teddy",1,true)~=nil
-    local plainField=teddy or toolName:find("spray",1,true)~=nil or toolName:find("graffiti",1,true)~=nil
-    if plainField then
+    local bombField=teddy or toolName:find("spray",1,true)~=nil or toolName:find("graffiti",1,true)~=nil
+    if bombField then
         for _,mesh in ipairs(state.meshes) do
             if mesh.Parent then
                 local ok,texture=pcall(function() return mesh.TextureId end)
                 if ok and type(texture)=="string" then
                     if state.forceMeshTextures[mesh]==nil then state.forceMeshTextures[mesh]=texture end
-                    if texture~="" then mesh.TextureId="" end
+                    if texture~=BOMB_FORCEFIELD_TEXTURE then mesh.TextureId=BOMB_FORCEFIELD_TEXTURE end
                 end
             end
         end
@@ -5176,13 +5180,15 @@ local function applyForceField(tool,state,color)
                 end
                 local variantOK,variant=pcall(function() return source.MaterialVariant end)
                 if variantOK and type(variant)=="string" then record.materialVariant=variant end
-                if plainField then
+                if bombField then
                     local textureOK,texture=pcall(function() return source.TextureID end)
                     if textureOK and type(texture)=="string" then record.textureID=texture end
                 end
                 state.forceNative[source]=record
             end
-            if record.textureID~=nil and source.TextureID~="" then source.TextureID="" end
+            if record.textureID~=nil and source.TextureID~=BOMB_FORCEFIELD_TEXTURE then
+                source.TextureID=BOMB_FORCEFIELD_TEXTURE
+            end
             if record.materialVariant~=nil and source.MaterialVariant~="" then source.MaterialVariant="" end
             if source.Material~=Enum.Material.ForceField then source.Material=Enum.Material.ForceField end
             if source.Color~=color then source.Color=color end
