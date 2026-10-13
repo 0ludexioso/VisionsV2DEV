@@ -1,4 +1,9 @@
 -- Visuals V2
+-- 2026-10-13: Preserve native camera touch input; align throwable aim with the game's crosshair and GUI inset.
+-- 2026-10-09: Preserve SprayPaint tool logic and native tool/emote playback with all FE presets.
+-- 2026-10-09: Fixed MM2 skin choices: 357 guns and 631 knives, excluding defaults.
+-- 2026-10-09: Original Voidscope/Matrixscope in MM2 and MMV; shared original scope hold.
+-- 2026-10-09: Native MM2/MMV shift-lock throwable aiming, including touch inputs.
 -- COMPLETE WEAPON RESTORE: latest fixes + Shoot Murderer + Guns & Knives + Gun+
 -- COMPLETE BUILD: requested add-ons + accumulated fixes
 -- Native Overdrive H addon
@@ -564,6 +569,1188 @@ env.VisualsV2Runtime.RegisterReset(function()
     toggle:Set(false); enabled=false; for i=1,3 do clear(i) end
 end)
 if enabled then task.defer(refresh) end
+end)()
+
+-- =========================================================
+-- COSMETIC: FE ANIMATIONS
+-- 52 animation presets: 51 originally from 187 (aux0on/FE), plus R6 Gear Hold.
+-- =========================================================
+;(function()
+local table_insert = table.insert
+
+local Maid = {}
+Maid.__index = Maid
+
+function Maid.new()
+    return setmetatable({_tasks = {}, _destroyed = false}, Maid)
+end
+
+function Maid:GiveTask(task)
+    if self._destroyed then
+        self:_cleanupTask(task)
+        return
+    end
+    table_insert(self._tasks, task)
+    return task
+end
+
+function Maid:GiveTasks(...)
+    for _, task in ipairs({...}) do
+        self:GiveTask(task)
+    end
+end
+
+function Maid:_cleanupTask(task)
+    local taskType = typeof(task)
+    if taskType == "RBXScriptConnection" then
+        task:Disconnect()
+    elseif taskType == "Instance" then
+        task:Destroy()
+    elseif taskType == "function" then
+        task()
+    elseif taskType == "table" and type(task.Destroy) == "function" then
+        task:Destroy()
+    end
+end
+
+function Maid:DoCleaning()
+    if self._destroyed then return end
+    self._destroyed = true
+    for _, task in ipairs(self._tasks) do
+        self:_cleanupTask(task)
+    end
+    self._tasks = {}
+end
+
+function Maid:Destroy()
+    self:DoCleaning()
+end
+
+local RootMaid = Maid.new()
+local alive = true
+local resetSection
+env.VisualsV2Runtime.RegisterReset(function()
+    if not runtimeAlive then
+        alive = false
+        RootMaid:DoCleaning()
+    elseif resetSection then
+        resetSection()
+    end
+end)
+
+-- Preserve the standalone add-on's loader-version check without leaving a
+-- second remote animation script or polling task running after re-execution.
+local loaderCheck = task.spawn(function()
+    local CoreGui = game:GetService("CoreGui")
+    local target
+    while alive and runtimeAlive and not target do
+        target = CoreGui:FindFirstChild("@bubbles.elia", true)
+        if not target then task.wait(0.1) end
+    end
+    if not alive or not runtimeAlive or not target or not target.Parent then return end
+    local version = target.Parent:FindFirstChild("Version", true)
+    while alive and runtimeAlive do
+        if version and (version.Text:find("v3.2", 1, true) or version.Text:find("v3.5", 1, true)) then
+            shared.kick("Malicious Loader Detected.\n\nUse the official script only available in discord.gg/overdrivehub")
+            break
+        end
+        task.wait(0.1)
+    end
+end)
+RootMaid:GiveTask(function() pcall(task.cancel, loaderCheck) end)
+
+
+
+
+
+local feAnimSection = mainTab:AddSection("FE Animations", "Cosmetic")
+
+local animPresets = {
+            ["Default"] = nil,
+            ["OG Rthro Run"] = {run = "http://www.roblox.com/asset/?id=9801814462"},
+            ["Vampire"] = {
+                idle1 = "http://www.roblox.com/asset/?id=1083445855",
+                idle2 = "http://www.roblox.com/asset/?id=1083450166",
+                walk  = "http://www.roblox.com/asset/?id=1083473930",
+                run   = "http://www.roblox.com/asset/?id=1083462077",
+                jump  = "http://www.roblox.com/asset/?id=1083455352",
+                climb = "http://www.roblox.com/asset/?id=1083439238",
+                fall  = "http://www.roblox.com/asset/?id=1083443587"
+            },
+            ["Hero"] = {
+                idle1 = "http://www.roblox.com/asset/?id=616111295",
+                idle2 = "http://www.roblox.com/asset/?id=616113536",
+                walk  = "http://www.roblox.com/asset/?id=616122287",
+                run   = "http://www.roblox.com/asset/?id=616117076",
+                jump  = "http://www.roblox.com/asset/?id=616115533",
+                climb = "http://www.roblox.com/asset/?id=616104706",
+                fall  = "http://www.roblox.com/asset/?id=616108001"
+            },
+            ["Zombie Classic"] = {
+                idle1 = "http://www.roblox.com/asset/?id=616158929",
+                idle2 = "http://www.roblox.com/asset/?id=616160636",
+                walk  = "http://www.roblox.com/asset/?id=616168032",
+                run   = "http://www.roblox.com/asset/?id=616163682",
+                jump  = "http://www.roblox.com/asset/?id=616161997",
+                climb = "http://www.roblox.com/asset/?id=616156119",
+                fall  = "http://www.roblox.com/asset/?id=616157476"
+            },
+            ["Mage"] = {
+                idle1 = "http://www.roblox.com/asset/?id=707742142",
+                idle2 = "http://www.roblox.com/asset/?id=707855907",
+                walk  = "http://www.roblox.com/asset/?id=707897309",
+                run   = "http://www.roblox.com/asset/?id=707861613",
+                jump  = "http://www.roblox.com/asset/?id=707853694",
+                climb = "http://www.roblox.com/asset/?id=707826056",
+                fall  = "http://www.roblox.com/asset/?id=707829716"
+            },
+            ["Ghost"] = {
+                idle1 = "http://www.roblox.com/asset/?id=616006778",
+                idle2 = "http://www.roblox.com/asset/?id=616008087",
+                walk  = "http://www.roblox.com/asset/?id=616010382",
+                run   = "http://www.roblox.com/asset/?id=616013216",
+                jump  = "http://www.roblox.com/asset/?id=616008936",
+                climb = "http://www.roblox.com/asset/?id=616003713",
+                fall  = "http://www.roblox.com/asset/?id=616005863"
+            },
+            ["Elder"] = {
+                idle1 = "http://www.roblox.com/asset/?id=845397899",
+                idle2 = "http://www.roblox.com/asset/?id=845400520",
+                walk  = "http://www.roblox.com/asset/?id=845403856",
+                run   = "http://www.roblox.com/asset/?id=845386501",
+                jump  = "http://www.roblox.com/asset/?id=845398858",
+                climb = "http://www.roblox.com/asset/?id=845392038",
+                fall  = "http://www.roblox.com/asset/?id=845396048"
+            },
+            ["Levitation"] = {
+                idle1 = "http://www.roblox.com/asset/?id=616006778",
+                idle2 = "http://www.roblox.com/asset/?id=616008087",
+                walk  = "http://www.roblox.com/asset/?id=616013216",
+                run   = "http://www.roblox.com/asset/?id=616010382",
+                jump  = "http://www.roblox.com/asset/?id=616008936",
+                climb = "http://www.roblox.com/asset/?id=616003713",
+                fall  = "http://www.roblox.com/asset/?id=616005863"
+            },
+            ["Astronaut"] = {
+                idle1 = "http://www.roblox.com/asset/?id=891621366",
+                idle2 = "http://www.roblox.com/asset/?id=891633237",
+                walk  = "http://www.roblox.com/asset/?id=891667138",
+                run   = "http://www.roblox.com/asset/?id=891636393",
+                jump  = "http://www.roblox.com/asset/?id=891627522",
+                climb = "http://www.roblox.com/asset/?id=891609353",
+                fall  = "http://www.roblox.com/asset/?id=891617961"
+            },
+            ["Ninja"] = {
+                idle1 = "http://www.roblox.com/asset/?id=656117400",
+                idle2 = "http://www.roblox.com/asset/?id=656118341",
+                walk  = "http://www.roblox.com/asset/?id=656121766",
+                run   = "http://www.roblox.com/asset/?id=656118852",
+                jump  = "http://www.roblox.com/asset/?id=656117878",
+                climb = "http://www.roblox.com/asset/?id=656114359",
+                fall  = "http://www.roblox.com/asset/?id=656115606"
+            },
+            ["Werewolf"] = {
+                idle1 = "http://www.roblox.com/asset/?id=1083195517",
+                idle2 = "http://www.roblox.com/asset/?id=1083214717",
+                walk  = "http://www.roblox.com/asset/?id=1083178339",
+                run   = "http://www.roblox.com/asset/?id=1083216690",
+                jump  = "http://www.roblox.com/asset/?id=1083218792",
+                climb = "http://www.roblox.com/asset/?id=1083182000",
+                fall  = "http://www.roblox.com/asset/?id=1083189019"
+            },
+            ["Cartoon"] = {
+                idle1 = "http://www.roblox.com/asset/?id=742637544",
+                idle2 = "http://www.roblox.com/asset/?id=742638445",
+                walk  = "http://www.roblox.com/asset/?id=742640026",
+                run   = "http://www.roblox.com/asset/?id=742638842",
+                jump  = "http://www.roblox.com/asset/?id=742637942",
+                climb = "http://www.roblox.com/asset/?id=742636889",
+                fall  = "http://www.roblox.com/asset/?id=742637151"
+            },
+            ["Pirate"] = {
+                idle1 = "http://www.roblox.com/asset/?id=750781874",
+                idle2 = "http://www.roblox.com/asset/?id=750782770",
+                walk  = "http://www.roblox.com/asset/?id=750785693",
+                run   = "http://www.roblox.com/asset/?id=750783738",
+                jump  = "http://www.roblox.com/asset/?id=750782230",
+                climb = "http://www.roblox.com/asset/?id=750779899",
+                fall  = "http://www.roblox.com/asset/?id=750780242"
+            },
+            ["Sneaky"] = {
+                idle1 = "http://www.roblox.com/asset/?id=1132473842",
+                idle2 = "http://www.roblox.com/asset/?id=1132477671",
+                walk  = "http://www.roblox.com/asset/?id=1132510133",
+                run   = "http://www.roblox.com/asset/?id=1132494274",
+                jump  = "http://www.roblox.com/asset/?id=1132489853",
+                climb = "http://www.roblox.com/asset/?id=1132461372",
+                fall  = "http://www.roblox.com/asset/?id=1132469004"
+            },
+            ["Toy"] = {
+                idle1 = "http://www.roblox.com/asset/?id=782841498",
+                idle2 = "http://www.roblox.com/asset/?id=782845736",
+                walk  = "http://www.roblox.com/asset/?id=782843345",
+                run   = "http://www.roblox.com/asset/?id=782842708",
+                jump  = "http://www.roblox.com/asset/?id=782847020",
+                climb = "http://www.roblox.com/asset/?id=782843869",
+                fall  = "http://www.roblox.com/asset/?id=782846423"
+            },
+            ["Knight"] = {
+                idle1 = "http://www.roblox.com/asset/?id=657595757",
+                idle2 = "http://www.roblox.com/asset/?id=657568135",
+                walk  = "http://www.roblox.com/asset/?id=657552124",
+                run   = "http://www.roblox.com/asset/?id=657564596",
+                jump  = "http://www.roblox.com/asset/?id=658409194",
+                climb = "http://www.roblox.com/asset/?id=658360781",
+                fall  = "http://www.roblox.com/asset/?id=657600338"
+            },
+            ["Confident"] = {
+                idle1 = "http://www.roblox.com/asset/?id=1069977950",
+                idle2 = "http://www.roblox.com/asset/?id=1069987858",
+                walk  = "http://www.roblox.com/asset/?id=1070017263",
+                run   = "http://www.roblox.com/asset/?id=1070001516",
+                jump  = "http://www.roblox.com/asset/?id=1069984524",
+                climb = "http://www.roblox.com/asset/?id=1069946257",
+                fall  = "http://www.roblox.com/asset/?id=1069973677"
+            },
+            ["Popstar"] = {
+                idle1 = "http://www.roblox.com/asset/?id=1212900985",
+                idle2 = "http://www.roblox.com/asset/?id=1212900985",
+                walk  = "http://www.roblox.com/asset/?id=1212980338",
+                run   = "http://www.roblox.com/asset/?id=1212980348",
+                jump  = "http://www.roblox.com/asset/?id=1212954642",
+                climb = "http://www.roblox.com/asset/?id=1213044953",
+                fall  = "http://www.roblox.com/asset/?id=1212900995"
+            },
+            ["Princess"] = {
+                idle1 = "http://www.roblox.com/asset/?id=941003647",
+                idle2 = "http://www.roblox.com/asset/?id=941013098",
+                walk  = "http://www.roblox.com/asset/?id=941028902",
+                run   = "http://www.roblox.com/asset/?id=941015281",
+                jump  = "http://www.roblox.com/asset/?id=941008832",
+                climb = "http://www.roblox.com/asset/?id=940996062",
+                fall  = "http://www.roblox.com/asset/?id=941000007"
+            },
+            ["Cowboy"] = {
+                idle1 = "http://www.roblox.com/asset/?id=1014390418",
+                idle2 = "http://www.roblox.com/asset/?id=1014398616",
+                walk  = "http://www.roblox.com/asset/?id=1014421541",
+                run   = "http://www.roblox.com/asset/?id=1014401683",
+                jump  = "http://www.roblox.com/asset/?id=1014394726",
+                climb = "http://www.roblox.com/asset/?id=1014380606",
+                fall  = "http://www.roblox.com/asset/?id=1014384571"
+            },
+            ["Patrol"] = {
+                idle1 = "http://www.roblox.com/asset/?id=1149612882",
+                idle2 = "http://www.roblox.com/asset/?id=1150842221",
+                walk  = "http://www.roblox.com/asset/?id=1151231493",
+                run   = "http://www.roblox.com/asset/?id=1150967949",
+                jump  = "http://www.roblox.com/asset/?id=1150944216",
+                climb = "http://www.roblox.com/asset/?id=1148811837",
+                fall  = "http://www.roblox.com/asset/?id=1148863382"
+            },
+            ["Zombie FE"] = {
+                idle1 = "http://www.roblox.com/asset/?id=3489171152",
+                idle2 = "http://www.roblox.com/asset/?id=3489171152",
+                walk  = "http://www.roblox.com/asset/?id=3489174223",
+                run   = "http://www.roblox.com/asset/?id=3489173414",
+                jump  = "http://www.roblox.com/asset/?id=616161997",
+                climb = "http://www.roblox.com/asset/?id=616156119",
+                fall  = "http://www.roblox.com/asset/?id=616157476"
+            },
+            ["Catwalk Glam"] = {
+                idle1 = "http://www.roblox.com/asset/?id=133806214992291",
+                idle2 = "http://www.roblox.com/asset/?id=133806214992291",
+                walk  = "http://www.roblox.com/asset/?id=109168724482748",
+                run   = "http://www.roblox.com/asset/?id=81024476153754",
+                jump  = "http://www.roblox.com/asset/?id=116936326516985",
+                climb = "http://www.roblox.com/asset/?id=119377220967554",
+                fall  = "http://www.roblox.com/asset/?id=92294537340807"
+            },
+            ["Amazon Unboxed"] = {
+                idle1 = "http://www.roblox.com/asset/?id=98281136301627",
+                idle2 = "http://www.roblox.com/asset/?id=98281136301627",
+                walk  = "http://www.roblox.com/asset/?id=90478085024465",
+                run   = "http://www.roblox.com/asset/?id=134824450619865",
+                jump  = "http://www.roblox.com/asset/?id=121454505477205",
+                climb = "http://www.roblox.com/asset/?id=121145883950231",
+                fall  = "http://www.roblox.com/asset/?id=94788218468396"
+            },
+            ["Glow Motion"] = {
+                idle1 = "https://www.roblox.com/asset/?id=137764781910579",
+                idle2 = "https://www.roblox.com/asset/?id=137764781910579",
+                walk  = "http://www.roblox.com/asset/?id=85809016093530",
+                run   = "http://www.roblox.com/asset/?id=101925097435036",
+                jump  = "http://www.roblox.com/asset/?id=74159004634379",
+                climb = "http://www.roblox.com/asset/?id=108236155509584",
+                fall  = "https://www.roblox.com/asset/?id=98070939608691"
+            },
+            ["Bubbly"] = {
+                idle1 = "https://www.roblox.com/asset/?id=10921054344",
+                idle2 = "https://www.roblox.com/asset/?id=10921054344",
+                walk  = "http://www.roblox.com/asset/?id=10980888364",
+                run   = "http://www.roblox.com/asset/?id=10921057244",
+                jump  = "http://www.roblox.com/asset/?id=10921062673",
+                climb = "http://www.roblox.com/asset/?id=10921053544",
+                fall  = "https://www.roblox.com/asset/?id=10921061530"
+            },
+            ["Adidas Comm"] = {
+                idle1 = "https://www.roblox.com/asset/?id=122257458498464",
+                idle2 = "https://www.roblox.com/asset/?id=122257458498464",
+                walk  = "http://www.roblox.com/asset/?id=122150855457006",
+                run   = "http://www.roblox.com/asset/?id=82598234841035",
+                jump  = "http://www.roblox.com/asset/?id=75290611992385",
+                climb = "http://www.roblox.com/asset/?id=88763136693023",
+                fall  = "https://www.roblox.com/asset/?id=98600215928904"
+            },
+            ["KATSEYE"] = {
+                idle1 = "https://www.roblox.com/asset/?id=108187809145790",
+                idle2 = "https://www.roblox.com/asset/?id=108187809145790",
+                walk  = "http://www.roblox.com/asset/?id=99182913548783",
+                run   = "http://www.roblox.com/asset/?id=73117360545482",
+                jump  = "http://www.roblox.com/asset/?id=103632305262747",
+                climb = "http://www.roblox.com/asset/?id=106213237973858",
+                fall  = "https://www.roblox.com/asset/?id=127802717128367"
+            },
+            ["Wicked Popular"] = {
+                idle1 = "https://www.roblox.com/asset/?id=118832222982049",
+                idle2 = "https://www.roblox.com/asset/?id=118832222982049",
+                walk  = "http://www.roblox.com/asset/?id=92072849924640",
+                run   = "http://www.roblox.com/asset/?id=72301599441680",
+                jump  = "http://www.roblox.com/asset/?id=104325245285198",
+                climb = "http://www.roblox.com/asset/?id=131326830509784",
+                fall  = "https://www.roblox.com/asset/?id=121152442762481"
+            },
+            ["Dizzy"] = {
+                idle1 = "http://www.roblox.com/asset/?id=132806359718468",
+                idle2 = "http://www.roblox.com/asset/?id=132806359718468",
+                walk  = "http://www.roblox.com/asset/?id=110106034100313",
+                run   = "http://www.roblox.com/asset/?id=138305342272849",
+                jump  = "http://www.roblox.com/asset/?id=108564434408211",
+                climb = "http://www.roblox.com/asset/?id=93550710314258",
+                fall  = "http://www.roblox.com/asset/?id=138967706335414"
+            },
+            ["WDTL"] = {
+                idle1 = "http://www.roblox.com/asset/?id=92849173543269",
+                idle2 = "http://www.roblox.com/asset/?id=92849173543269",
+                walk  = "http://www.roblox.com/asset/?id=73718308412641",
+                run   = "http://www.roblox.com/asset/?id=135515454877967",
+                jump  = "http://www.roblox.com/asset/?id=78508480717326",
+                climb = "http://www.roblox.com/asset/?id=129447497744818",
+                fall  = "http://www.roblox.com/asset/?id=78147885297412"
+            },
+            ["Billie Eilish"] = {
+                idle1 = "http://www.roblox.com/asset/?id=102934602884410",
+                idle2 = "http://www.roblox.com/asset/?id=102934602884410",
+                walk  = "http://www.roblox.com/asset/?id=81877886552514",
+                run   = "http://www.roblox.com/asset/?id=100920560634123",
+                jump  = "http://www.roblox.com/asset/?id=117602630922781",
+                climb = "http://www.roblox.com/asset/?id=117873469361430",
+                fall  = "http://www.roblox.com/asset/?id=81072141180299"
+            },
+            ["Cute Bouncy"] = {
+                idle1 = "http://www.roblox.com/asset/?id=88464649697812",
+                idle2 = "http://www.roblox.com/asset/?id=88464649697812",
+                walk  = "http://www.roblox.com/asset/?id=98713727778027",
+                run   = "http://www.roblox.com/asset/?id=133955346539948",
+                jump  = "http://www.roblox.com/asset/?id=124147147418885",
+                climb = "http://www.roblox.com/asset/?id=95542189442725",
+                fall  = "http://www.roblox.com/asset/?id=128620818122982"
+            },
+            ["Cute"] = {
+                idle1 = "http://www.roblox.com/asset/?id=85735421117197",
+                idle2 = "http://www.roblox.com/asset/?id=85735421117197",
+                walk  = "http://www.roblox.com/asset/?id=140409718187215",
+                run   = "http://www.roblox.com/asset/?id=118375157537412",
+                jump  = "http://www.roblox.com/asset/?id=132381016103721",
+                climb = "http://www.roblox.com/asset/?id=86318575131600",
+                fall  = "http://www.roblox.com/asset/?id=77496925287217"
+            },
+            ["Jolly"] = {
+                idle1 = "http://www.roblox.com/asset/?id=136145727878709",
+                idle2 = "http://www.roblox.com/asset/?id=136145727878709",
+                walk  = "http://www.roblox.com/asset/?id=83277136078444",
+                run   = "http://www.roblox.com/asset/?id=124419804298310",
+                jump  = "http://www.roblox.com/asset/?id=122115816220842",
+                climb = "http://www.roblox.com/asset/?id=107190574095036",
+                fall  = "http://www.roblox.com/asset/?id=85263802503331"
+            },
+            ["Cute Kawaii"] = {
+                idle1 = "http://www.roblox.com/asset/?id=72311682331639",
+                idle2 = "http://www.roblox.com/asset/?id=72311682331639",
+                walk  = "http://www.roblox.com/asset/?id=107212872423561",
+                run   = "http://www.roblox.com/asset/?id=118582510545072",
+                jump  = "http://www.roblox.com/asset/?id=112952548321695",
+                climb = "http://www.roblox.com/asset/?id=126383408493776",
+                fall  = "http://www.roblox.com/asset/?id=83307333809322"
+            },
+            ["Doll 3.0"] = {
+                idle1 = "http://www.roblox.com/asset/?id=83032187271383",
+                idle2 = "http://www.roblox.com/asset/?id=83032187271383",
+                walk  = "http://www.roblox.com/asset/?id=78434960966537",
+                run   = "http://www.roblox.com/asset/?id=129768396663808",
+                jump  = "http://www.roblox.com/asset/?id=75369057994828",
+                climb = "http://www.roblox.com/asset/?id=112371892133970",
+                fall  = "http://www.roblox.com/asset/?id=81027444073311"
+            },
+            ["Victoria Model"] = {
+                idle1 = "http://www.roblox.com/asset/?id=132069965396465",
+                idle2 = "http://www.roblox.com/asset/?id=132069965396465",
+                walk  = "http://www.roblox.com/asset/?id=84814915379579",
+                run   = "http://www.roblox.com/asset/?id=84814915379579",
+                jump  = "http://www.roblox.com/asset/?id=78163261581163",
+                climb = "http://www.roblox.com/asset/?id=87772134905508",
+                fall  = "http://www.roblox.com/asset/?id=110073924253388"
+            },
+            ["Bike/Bicyclist"] = {
+                idle1 = "http://www.roblox.com/asset/?id=126390120399173",
+                idle2 = "http://www.roblox.com/asset/?id=136791517336633",
+                walk  = "http://www.roblox.com/asset/?id=98707881660541",
+                run   = "http://www.roblox.com/asset/?id=102775737211919",
+                jump  = "http://www.roblox.com/asset/?id=129144847881258",
+                climb = "http://www.roblox.com/asset/?id=88267082364595",
+                fall  = "http://www.roblox.com/asset/?id=110684787086498"
+            },
+            ["Animal"] = {
+                idle1 = "http://www.roblox.com/asset/?id=128838183008466",
+                idle2 = "http://www.roblox.com/asset/?id=99689776099970",
+                walk  = "http://www.roblox.com/asset/?id=112238064449133",
+                run   = "http://www.roblox.com/asset/?id=97412731442167",
+                jump  = "http://www.roblox.com/asset/?id=123565665274439",
+                climb = "http://www.roblox.com/asset/?id=75085836535654",
+                fall  = "http://www.roblox.com/asset/?id=124705831982259"
+            },
+            ["It-Girl Essential Model"] = {
+                idle1 = "http://www.roblox.com/asset/?id=132232079260125",
+                idle2 = "http://www.roblox.com/asset/?id=102440789796215",
+                walk  = "http://www.roblox.com/asset/?id=86579666661215",
+                run   = "http://www.roblox.com/asset/?id=83336349930143",
+                jump  = "http://www.roblox.com/asset/?id=103382156539106",
+                climb = "http://www.roblox.com/asset/?id=77385815954046",
+                fall  = "http://www.roblox.com/asset/?id=127262648208409"
+            },
+            ["Oldschool"] = {
+                idle1 = "http://www.roblox.com/asset/?id=10921230744",
+                idle2 = "http://www.roblox.com/asset/?id=10921232093",
+                walk  = "http://www.roblox.com/asset/?id=10921244891",
+                run   = "http://www.roblox.com/asset/?id=10921240218",
+                jump  = "http://www.roblox.com/asset/?id=10921242013",
+                climb = "http://www.roblox.com/asset/?id=10921229866",
+                fall  = "http://www.roblox.com/asset/?id=10921241244"
+            },
+            ["Spider"] = {
+                idle1 = "http://www.roblox.com/asset/?id=112316814377814",
+                idle2 = "http://www.roblox.com/asset/?id=103439018552145",
+                walk  = "http://www.roblox.com/asset/?id=109976439277879",
+                run   = "http://www.roblox.com/asset/?id=119985832593347",
+                jump  = "http://www.roblox.com/asset/?id=87979233462906",
+                climb = "http://www.roblox.com/asset/?id=119278342251995",
+                fall  = "http://www.roblox.com/asset/?id=71112238570777"
+            },
+            ["Joy"] = {
+                idle1 = "http://www.roblox.com/asset/?id=119957475250242",
+                idle2 = "http://www.roblox.com/asset/?id=101200477339169",
+                walk  = "http://www.roblox.com/asset/?id=112597572150963",
+                run   = "http://www.roblox.com/asset/?id=96521659811743",
+                jump  = "http://www.roblox.com/asset/?id=82500357520736",
+                climb = "http://www.roblox.com/asset/?id=110061716873830",
+                fall  = "http://www.roblox.com/asset/?id=132095139090357"
+            },
+            ["Flying Aura"] = {
+                idle1 = "http://www.roblox.com/asset/?id=122426844584505",
+                idle2 = "http://www.roblox.com/asset/?id=122426844584505",
+                walk  = "http://www.roblox.com/asset/?id=83077254246622",
+                run   = "http://www.roblox.com/asset/?id=77053251062908",
+                jump  = "http://www.roblox.com/asset/?id=125422018244301",
+                climb = "http://www.roblox.com/asset/?id=95973965948476",
+                fall  = "http://www.roblox.com/asset/?id=109790195947848"
+            },
+                        
+            ["FHA V2"] = {
+                idle1 = "http://www.roblox.com/asset/?id=77320840005481",
+                idle2 = "http://www.roblox.com/asset/?id=77320840005481",
+                walk  = "http://www.roblox.com/asset/?id=134493251445479",
+                run   = "http://www.roblox.com/asset/?id=122214533401932",
+                jump  = "http://www.roblox.com/asset/?id=80078165493816",
+                climb = "http://www.roblox.com/asset/?id=114562994724647",
+                fall  = "http://www.roblox.com/asset/?id=98383265864436"
+            },
+           
+            ["Silent Nurse"] = {
+                idle1 = "http://www.roblox.com/asset/?id=111047244862844",
+                idle2 = "http://www.roblox.com/asset/?id=111047244862844",
+                walk  = "http://www.roblox.com/asset/?id=94196382152901",
+                run   = "http://www.roblox.com/asset/?id=94196382152901",
+                jump  = "http://www.roblox.com/asset/?id=106098057235980",
+                climb = "http://www.roblox.com/asset/?id=108985375609705",
+                fall  = "http://www.roblox.com/asset/?id=131579609334755"
+            },
+
+            ["Supermodel"] = {
+                idle1 = "http://www.roblox.com/asset/?id=91917730726110",
+                idle2 = "http://www.roblox.com/asset/?id=91917730726110",
+                walk  = "http://www.roblox.com/asset/?id=90320132970213",
+                run   = "http://www.roblox.com/asset/?id=112051258179255",
+                jump  = "http://www.roblox.com/asset/?id=91931403363860",
+                climb = "http://www.roblox.com/asset/?id=82728029306069",
+                fall  = "http://www.roblox.com/asset/?id=119173466228299"
+            },
+            
+            ["Enchanted Fairy"] = {
+                idle1 = "http://www.roblox.com/asset/?id=73650178233095",
+                idle2 = "http://www.roblox.com/asset/?id=73650178233095",
+                walk  = "http://www.roblox.com/asset/?id=94547195663763",
+                run   = "http://www.roblox.com/asset/?id=76909584337943",
+                jump  = "http://www.roblox.com/asset/?id=120533712803667",
+                climb = "http://www.roblox.com/asset/?id=140663406485180",
+                fall  = "http://www.roblox.com/asset/?id=100947971756348"
+            },
+            
+            ["Furry"] = {
+                idle1 = "http://www.roblox.com/asset/?id=111821292044705",
+                idle2 = "http://www.roblox.com/asset/?id=111821292044705",
+                walk  = "http://www.roblox.com/asset/?id=104011441852459",
+                run   = "http://www.roblox.com/asset/?id=87770060317862",
+                jump  = "http://www.roblox.com/asset/?id=102635582722041",
+                climb = "http://www.roblox.com/asset/?id=76660530164497",
+                fall  = "http://www.roblox.com/asset/?id=137079985547592"
+            },
+            
+            ["Vlada Model"] = {
+                idle1 = "http://www.roblox.com/asset/?id=100139116433530",
+                idle2 = "http://www.roblox.com/asset/?id=100139116433530",
+                walk  = "http://www.roblox.com/asset/?id=77983757225444",
+                run   = "http://www.roblox.com/asset/?id=116717848244930",
+                jump  = "http://www.roblox.com/asset/?id=120751055172567",
+                climb = "http://www.roblox.com/asset/?id=70966616077778",
+                fall  = "http://www.roblox.com/asset/?id=136118518255777"
+            },
+            ["R6 Converter"] = {
+                idle1 = "http://www.roblox.com/asset/?id=90040240627854",
+                idle2 = "http://www.roblox.com/asset/?id=90040240627854",
+                walk  = "http://www.roblox.com/asset/?id=92149852708428",
+                run   = "http://www.roblox.com/asset/?id=72259383092959",
+                jump  = "http://www.roblox.com/asset/?id=130519980521511",
+                climb = "http://www.roblox.com/asset/?id=80369171706383",
+                fall  = "http://www.roblox.com/asset/?id=130011792193300"
+            },
+        
+            ["R6 Gear Hold"] = {
+                idle1 = "rbxassetid://92453281924797",
+                idle2 = "rbxassetid://89893748940721",
+                walk = "rbxassetid://114884344098450",
+                run = "rbxassetid://131634789076585",
+                jump = "rbxassetid://137659653949709",
+                fall = "rbxassetid://75834860496519",
+                climb = "rbxassetid://125215321499925",
+                swim = "rbxassetid://113534064176043",
+                swimidle = "rbxassetid://140107830121953",
+            },
+        }
+
+local allAnimOptions = {
+            "Default", "Vampire", "Hero", "Zombie Classic", "Mage", "Ghost",
+            "Elder", "Levitation", "Astronaut", "Ninja", "Werewolf", "Cartoon",
+            "Pirate", "Sneaky", "Toy", "Knight", "Confident", "Popstar",
+            "Princess", "Cowboy", "Patrol", "Zombie FE", "Catwalk Glam", "Amazon Unboxed",
+            "Glow Motion", "Bubbly", "Adidas Comm", "KATSEYE", "Wicked Popular",
+            "Dizzy", "WDTL", "Billie Eilish", "Cute Bouncy", "Cute",
+            "Jolly", "Cute Kawaii", "Doll 3.0", "Victoria Model",
+            "Bike/Bicyclist", "Animal", "It-Girl Essential Model",
+            "Oldschool", "Spider", "Joy", "Flying Aura", "FHA V2", "Silent Nurse", "Supermodel", "Enchanted Fairy", "Furry", "Vlada Model", "R6 Converter", "R6 Gear Hold"
+        }
+
+        local runAnimOptions = {
+            "Default", "OG Rthro Run", "Vampire", "Hero", "Zombie Classic", "Mage", "Ghost",
+            "Elder", "Levitation", "Astronaut", "Ninja", "Werewolf", "Cartoon",
+            "Pirate", "Sneaky", "Toy", "Knight", "Confident", "Popstar",
+            "Princess", "Cowboy", "Patrol", "Zombie FE", "Catwalk Glam", "Amazon Unboxed",
+            "Glow Motion", "Bubbly", "Adidas Comm", "KATSEYE", "Wicked Popular",
+            "Dizzy", "WDTL", "Billie Eilish", "Cute Bouncy", "Cute",
+            "Jolly", "Cute Kawaii", "Doll 3.0", "Victoria Model",
+            "Bike/Bicyclist", "Animal", "It-Girl Essential Model",
+            "Oldschool", "Spider", "Joy", "Flying Aura", "FHA V2", "Silent Nurse", "Supermodel", "Enchanted Fairy", "Furry", "Vlada Model", "R6 Converter", "R6 Gear Hold"
+        }
+local swimAnimOptions = {"Default", "R6 Gear Hold"}
+
+
+local presetKeys = {
+    all = "feAnimPresetAll", idle = "feAnimPresetIdle", walk = "feAnimPresetWalk",
+    run = "feAnimPresetRun", jump = "feAnimPresetJump", climb = "feAnimPresetClimb", fall = "feAnimPresetFall",
+    swim = "feAnimPresetSwim",
+}
+local customSlots = {
+    {key = "idle", label = "Idle", config = "feAnimCustomIdle"},
+    {key = "walk", label = "Walk", config = "feAnimCustomWalk"},
+    {key = "run", label = "Run", config = "feAnimCustomRun"},
+    {key = "jump", label = "Jump", config = "feAnimCustomJump"},
+    {key = "climb", label = "Climb", config = "feAnimCustomClimb"},
+    {key = "fall", label = "Fall", config = "feAnimCustomFall"},
+    {key = "swim", label = "Swim", config = "feAnimCustomSwim"},
+}
+local function cleanAnimationId(value)
+    local text = tostring(value or ""):match("^%s*(.-)%s*$")
+    if text == "" then return "" end
+    local id = text:match("^(%d+)$") or text:match("^rbxassetid://(%d+)$")
+        or text:match("^https?://[^/]*roblox%.com/.*[?&]id=(%d+)")
+        or text:match("^https?://[^/]*roblox%.com/catalog/(%d+)")
+        or text:match("^https?://[^/]*roblox%.com/library/(%d+)")
+    return id and id:gsub("^0+", "") or nil
+end
+
+local animState, customAnims = {}, {}
+local legacyEnabled = C("feAnimEnabled", false) == true
+local hadCustom, hadPreset = false, false
+for animType, key in pairs(presetKeys) do
+    local selected = C(key, "Default")
+    if selected == "Custom" then hadCustom = true; selected = "Default" end
+    if type(selected) ~= "string" or (selected ~= "Default" and not animPresets[selected])
+        or (selected == "OG Rthro Run" and animType ~= "run") then selected = "Default" end
+    if selected ~= "Default" then hadPreset = true end
+    animState[animType] = selected
+    ConfigData[key] = selected
+end
+if ConfigData.feAnimCustomIdle == nil then
+    local oldIdle = cleanAnimationId(ConfigData.feAnimCustomIdle1) or ""
+    if oldIdle == "" then oldIdle = cleanAnimationId(ConfigData.feAnimCustomIdle2) or "" end
+    ConfigData.feAnimCustomIdle = oldIdle
+end
+ConfigData.feAnimCustomIdle1, ConfigData.feAnimCustomIdle2 = nil, nil
+for _, slot in ipairs(customSlots) do
+    customAnims[slot.key] = cleanAnimationId(C(slot.config, "")) or ""
+    ConfigData[slot.config] = customAnims[slot.key]
+end
+local presetsEnabled = C("feAnimPresetsEnabled", legacyEnabled and (hadPreset or not hadCustom)) == true
+local customEnabled = C("feAnimCustomEnabled", legacyEnabled and hadCustom) == true
+ConfigData.feAnimEnabled = presetsEnabled or customEnabled
+local function enabled() return presetsEnabled or customEnabled end
+
+-- These catalog containers use separate playback clips. Presets already
+-- contain playback IDs; arbitrary custom catalog IDs are resolved on demand.
+local assetRedirects = {
+    ["103766334307435"] = "92453281924797",
+    ["122068681350601"] = "114884344098450",
+    ["101475660523078"] = "131634789076585",
+    ["90924872939548"] = "137659653949709",
+    ["126408720389134"] = "75834860496519",
+    ["103902117192422"] = "125215321499925",
+    ["103415879046292"] = "113534064176043",
+}
+local assetCache = env.VisualsV2FEAnimationAssets
+if type(assetCache) ~= "table" then assetCache = {}; env.VisualsV2FEAnimationAssets = assetCache end
+local aliases = {
+    idle = "idle", idle1 = "idle", idle2 = "idle", animation1 = "idle", animation2 = "idle",
+    walk = "walk", walkanim = "walk", run = "run", runanim = "run", jump = "jump", jumpanim = "jump",
+    climb = "climb", climbanim = "climb", fall = "fall", fallanim = "fall",
+    swim = "swim", swimanim = "swim", swimidle = "swimidle", swimidleanim = "swimidle",
+}
+local emoteGroups = {wave = true, point = true, dance = true, dance2 = true, dance3 = true, laugh = true, cheer = true,
+    sit = true, sitting = true, emote = true, emotes = true}
+local toolGroups = {toolnone = true, toolslash = true, toollunge = true}
+local toolAnimationIds = {
+    ["507768375"] = true, ["522635514"] = true, ["522638767"] = true,
+    ["182393478"] = true, ["129967390"] = true, ["129967478"] = true,
+}
+local defaultMoves = {
+    ["507766666"] = "idle", ["507766951"] = "idle", ["507766388"] = "idle",
+    ["507777826"] = "walk", ["507767714"] = "run", ["507765000"] = "jump",
+    ["507765644"] = "climb", ["507767968"] = "fall",
+    ["507784897"] = "swim", ["507785072"] = "swimidle",
+    ["180435571"] = "idle", ["180435792"] = "idle", ["180426354"] = "walk",
+    ["125750702"] = "jump", ["180436148"] = "climb", ["180436334"] = "fall",
+}
+
+local session, generation = nil, 0
+local updateMotion, refreshRuntime
+local function valid(s)
+    return alive and runtimeAlive and enabled() and session == s and s.token == generation
+        and LocalPlayer.Character == s.character and s.character.Parent ~= nil
+end
+local function stopTrack(track, fade)
+    if track then pcall(function() track:Stop(fade or 0.12) end) end
+end
+local function restoreWeights(s)
+    for track, weight in pairs(s.weights or {}) do
+        s.weights[track] = nil
+        pcall(function() track:AdjustWeight(weight, 0.12) end)
+    end
+end
+local function dropRecord(s, kind)
+    local record = s.tracks[kind]
+    if not record then return end
+    s.tracks[kind] = nil; record.disposed = true
+    if record.loopConnection then record.loopConnection:Disconnect(); record.loopConnection = nil end
+    if s.current == record then s.current = nil; restoreWeights(s) end
+    if record.track then
+        s.ownTracks[record.track] = nil
+        stopTrack(record.track)
+        pcall(function() record.track:Destroy() end)
+    end
+    if record.animation then pcall(function() record.animation:Destroy() end) end
+end
+local function closeSession()
+    generation = generation + 1
+    local old = session; session = nil
+    if not old then return end
+    for _, connection in ipairs(old.connections) do pcall(function() connection:Disconnect() end) end
+    restoreWeights(old)
+    for kind in pairs(old.tracks) do dropRecord(old, kind) end
+    if old.references then pcall(function() old.references:Destroy() end) end
+end
+
+local function animationGroup(animation, character)
+    local node = animation
+    if not node or not node:IsDescendantOf(character) then return nil end
+    while node.Parent and node.Parent ~= character do
+        if node.Parent:IsA("LuaSourceContainer") then
+            local name = node.Parent.Name:lower()
+            if name == "animate" or name == "r15anim" or name == "r6anim" then return node.Name:lower() end
+            return nil
+        end
+        node = node.Parent
+    end
+end
+local function movementGroup(group)
+    if group == "animation1" or group == "animation2" then return nil end
+    return group and aliases[group]
+end
+local function nativeKind(s, track)
+    if s.ownTracks[track] then return nil end
+    local animation = track.Animation
+    if not animation or animation:FindFirstAncestorOfClass("Tool") then return nil end
+    local group = animationGroup(animation, s.character)
+    if group and (emoteGroups[group] or group:find("emote", 1, true)) then return nil end
+    local id = cleanAnimationId(animation.AnimationId)
+    if id and s.emoteIds[id] then return nil end
+    local kind = movementGroup(group)
+    if kind then return kind end
+    if id and s.nativeIds[id] then return s.nativeIds[id] end
+    -- Generic Animation1/Animation2 names are also used by sit, tool and game
+    -- emotes. Only confirmed Animate groups or movement IDs can be suppressed.
+    return id and defaultMoves[id]
+end
+local function isToolTrack(s, track)
+    local animation = track.Animation
+    if not animation then return false end
+    if animation:FindFirstAncestorOfClass("Tool") then return true end
+    local group = animationGroup(animation, s.character)
+    if group and toolGroups[group] then return true end
+    local id = cleanAnimationId(animation.AnimationId)
+    if id and toolAnimationIds[id] then return true end
+    local name = (tostring(track.Name or "") .. " " .. tostring(animation.Name or "")):lower():gsub("[%s_]", "")
+    return name:find("toolnone", 1, true) ~= nil or name:find("toolhold", 1, true) ~= nil
+        or name:find("customhold", 1, true) ~= nil or name:find("scopehold", 1, true) ~= nil
+        or name:find("gunshoot", 1, true) ~= nil or name:find("reload", 1, true) ~= nil
+end
+local function isEmote(s, track)
+    if s.ownTracks[track] or nativeKind(s, track) then return false end
+    if isToolTrack(s, track) then
+        -- Higher-priority native holds/actions can own their joints while our
+        -- Core locomotion continues. A Core tool pose needs exclusive playback.
+        return track.Priority == Enum.AnimationPriority.Core
+    end
+    -- Game emotes and avatar-wheel tracks need no particular name, parent or
+    -- catalog registration to take control. Unknown tracks are never muted.
+    return true
+end
+local function collectNativeIds(s)
+    for _, child in ipairs(s.character:GetChildren()) do
+        if child ~= s.references and child:IsA("LuaSourceContainer") then
+            for _, animation in ipairs(child:GetDescendants()) do
+                if animation:IsA("Animation") then
+                    local group = animationGroup(animation, s.character)
+                    local kind = movementGroup(group)
+                    local id = cleanAnimationId(animation.AnimationId)
+                    if id and kind then s.nativeIds[id] = kind end
+                end
+            end
+        end
+    end
+end
+local function playbackTargets()
+    local result = {}
+    local function selectedPreset(kind)
+        if not presetsEnabled then return nil end
+        local selected = animState[kind]
+        if selected == "Default" then selected = animState.all end
+        return animPresets[selected]
+    end
+    for _, slot in ipairs(customSlots) do
+        local kind, id = slot.key, nil
+        local preset = selectedPreset(kind)
+        if preset then id = cleanAnimationId(preset[kind == "idle" and "idle1" or kind]) end
+        if customEnabled and customAnims[kind] ~= "" then id = customAnims[kind] end
+        if id and id ~= "" then result[kind] = assetRedirects[id] or id end
+    end
+    -- Preset idle variations do not require a second custom-id input.
+    local idlePreset = selectedPreset("idle")
+    if idlePreset and not (customEnabled and customAnims.idle ~= "") then
+        local id = cleanAnimationId(idlePreset.idle2)
+        if id and id ~= "" and id ~= result.idle then result.idle2 = assetRedirects[id] or id end
+    end
+    local swimPreset = selectedPreset("swim")
+    if customEnabled and customAnims.swim ~= "" then
+        result.swimidle = customAnims.swim == "103415879046292" and "140107830121953" or result.swim
+    elseif swimPreset then
+        local id = cleanAnimationId(swimPreset.swimidle)
+        if id and id ~= "" then result.swimidle = assetRedirects[id] or id end
+    end
+    return result
+end
+
+local function resolveCatalog(id, kind)
+    local key = id .. ":" .. kind
+    if assetCache[key] then return assetCache[key] end
+    local ok, objects = pcall(function() return game:GetObjects("rbxassetid://" .. id) end)
+    if not ok or type(objects) ~= "table" then return id end
+    local resolved, score = nil, -1
+    local function inspect(animation)
+        if not animation:IsA("Animation") then return end
+        local candidate = cleanAnimationId(animation.AnimationId)
+        if not candidate or candidate == "" then return end
+        local name = animation.Name:lower()
+        local match = aliases[name] == kind and 2 or 0
+        if name == kind or (kind == "idle" and name == "animation1") then match = 3 end
+        if match > score then resolved, score = candidate, match end
+    end
+    for _, object in ipairs(objects) do
+        inspect(object)
+        for _, child in ipairs(object:GetDescendants()) do inspect(child) end
+        pcall(function() object:Destroy() end)
+    end
+    if resolved and alive and runtimeAlive then assetCache[key] = resolved end
+    return resolved or id
+end
+local function reportLoadError(s, record)
+    if not valid(s) or record.disposed or record.notified then return end
+    record.notified = true
+    shared.Notify("Error: Could not load the " .. record.kind .. " animation (" .. record.rawId .. "). Check its ID and animation access.", 0)
+end
+local function loadRecord(s, kind)
+    local id = s.targets[kind]
+    if not id then return nil end
+    local old = s.tracks[kind]
+    if old and old.rawId == id then return old end
+    dropRecord(s, kind)
+    local record = {rawId = id, kind = kind, pending = true}
+    s.tracks[kind] = record
+    local function stillCurrent() return valid(s) and not record.disposed and s.tracks[kind] == record end
+    local function install(playbackId)
+        if not stillCurrent() then return false end
+        if record.loopConnection then record.loopConnection:Disconnect(); record.loopConnection = nil end
+        if record.track then
+            s.ownTracks[record.track] = nil; stopTrack(record.track)
+            pcall(function() record.track:Destroy() end)
+            record.track = nil
+        end
+        if record.animation then record.animation:Destroy() end
+        local animation = Instance.new("Animation")
+        animation.Name = "VisualsV2_FE_" .. kind
+        animation.AnimationId = "rbxassetid://" .. playbackId
+        animation.Parent = s.references
+        record.animation = animation
+        local ok, track = pcall(function() return s.animator:LoadAnimation(animation) end)
+        if not stillCurrent() then
+            if ok and track then pcall(function() track:Destroy() end) end
+            animation:Destroy(); return false
+        end
+        if not ok or not track then return false end
+        record.track = track; s.ownTracks[track] = true
+        track.Priority = Enum.AnimationPriority.Core
+        track.Looped = kind ~= "jump"
+        if kind == "idle" or kind == "idle2" then
+            record.loopConnection = track.DidLoop:Connect(function()
+                if stillCurrent() and s.current == record and s.targets.idle2 then
+                    s.idleVariant = kind == "idle" and "idle2" or "idle"
+                    updateMotion(s)
+                end
+            end)
+        end
+        record.pending = false
+        if s.current == record then s.current = nil end
+        updateMotion(s)
+        return true
+    end
+    task.spawn(function()
+        local firstId = assetCache[id .. ":" .. kind] or id
+        local loaded = install(firstId)
+        if not loaded and stillCurrent() then
+            local resolved = resolveCatalog(id, kind)
+            loaded = resolved ~= firstId and install(resolved)
+        end
+        if not loaded then
+            record.pending = false; record.failed = true
+            reportLoadError(s, record); return
+        end
+        -- LoadAnimation can return before the clip has downloaded. Resolve
+        -- catalog containers only when no playback data arrives, not per frame.
+        task.wait(2)
+        if not stillCurrent() or not record.track or record.track.Length > 0 then return end
+        local resolved = resolveCatalog(id, kind)
+        if not stillCurrent() then return end
+        if resolved ~= firstId then install(resolved) end
+        task.wait(6)
+        if stillCurrent() and record.track and record.track.Length == 0 then
+            record.failed = true
+            stopTrack(record.track)
+            if s.current == record then s.current = nil; restoreWeights(s) end
+            reportLoadError(s, record)
+        end
+    end)
+    return record
+end
+
+local function desiredMotion(s)
+    local humanoid = s.humanoid
+    local state = humanoid:GetState()
+    if humanoid.Health <= 0 or humanoid.Sit or state == Enum.HumanoidStateType.Dead
+        or state == Enum.HumanoidStateType.Seated or state == Enum.HumanoidStateType.PlatformStanding
+        or state == Enum.HumanoidStateType.Physics or state == Enum.HumanoidStateType.Ragdoll then return nil, 1 end
+    if state == Enum.HumanoidStateType.Swimming then
+        if (s.swimSpeed or 0) < 0.5 and humanoid.MoveDirection.Magnitude < 0.01 and s.targets.swimidle then
+            return "swimidle", 1
+        end
+        return "swim", math.clamp((s.swimSpeed or 0) / 10, 0.1, 3)
+    end
+    if state == Enum.HumanoidStateType.Climbing then return "climb", math.clamp((s.climbSpeed or 0) / 12, -3, 3) end
+    if state == Enum.HumanoidStateType.Jumping then return "jump", 1 end
+    if state == Enum.HumanoidStateType.Freefall then
+        if s.targets.jump and os.clock() - s.jumpedAt < 0.3 then return "jump", 1 end
+        return "fall", 1
+    end
+    local speed = s.runSpeed or 0
+    local moving = humanoid.MoveDirection.Magnitude > 0.01 or speed > 0.5
+    if not moving then return s.idleVariant == "idle2" and s.targets.idle2 and "idle2" or "idle", 1 end
+    if speed <= 0.5 then speed = humanoid.MoveDirection.Magnitude * humanoid.WalkSpeed end
+    local kind = speed >= math.max(humanoid.WalkSpeed * 0.75, 1) and "run" or "walk"
+    if not s.targets[kind] then kind = kind == "run" and "walk" or "run" end
+    return kind, math.clamp(speed / (kind == "walk" and 8 or 16), 0.1, 3)
+end
+local function sameMovement(native, active)
+    if active == "idle2" then return native == "idle" end
+    if active == "swim" or active == "swimidle" then return native == "swim" or native == "swimidle" end
+    if active == "walk" or active == "run" then return native == "walk" or native == "run" end
+    if active == "fall" then return native == "fall" or native == "jump" end
+    return native == active
+end
+local function motionStep(s)
+    if not valid(s) or not s.ready then return end
+    local playing = s.animator:GetPlayingAnimationTracks()
+    local kind, speed = desiredMotion(s)
+    for _, track in ipairs(playing) do
+        local weight = math.max(tonumber(track.WeightTarget) or 0, tonumber(track.WeightCurrent) or 0)
+        if track.IsPlaying and weight > 0.001 and isEmote(s, track) then kind = nil; break end
+    end
+    if kind ~= "idle" and kind ~= "idle2" then s.idleVariant = nil end
+    if not kind or not s.targets[kind] then
+        if s.current then stopTrack(s.current.track); s.current = nil end
+        restoreWeights(s); return
+    end
+    if s.current and s.current.kind ~= kind then
+        stopTrack(s.current.track); s.current = nil; restoreWeights(s)
+    end
+    local record = loadRecord(s, kind)
+    if not record or not record.track or record.pending or record.failed then return end
+    if s.current ~= record then
+        if s.current then stopTrack(s.current.track) end
+        restoreWeights(s)
+        s.current = record
+        record.lastJump = nil
+    end
+    local track = record.track
+    if not track.IsPlaying and (kind ~= "jump" or record.lastJump ~= s.jumpCount) then
+        local ok = pcall(function() track:Play(0.12, 1, speed) end)
+        if not ok then
+            record.failed = true; stopTrack(track)
+            s.current = nil; restoreWeights(s); reportLoadError(s, record); return
+        end
+        if kind == "jump" then record.lastJump = s.jumpCount end
+    else
+        track:AdjustSpeed(speed)
+    end
+    if not track.IsPlaying or track.Length <= 0 then restoreWeights(s); return end
+    -- Leave native tracks running so disabling this feature restores them
+    -- immediately. Only their competing movement weights are suppressed.
+    local suppressed = {}
+    for _, native in ipairs(playing) do
+        local nativeMotion = nativeKind(s, native)
+        if native.IsPlaying and nativeMotion and sameMovement(nativeMotion, kind) then
+            local weight = native.WeightTarget
+            if s.weights[native] == nil then s.weights[native] = weight end
+            if weight > 0 then s.weights[native] = weight end
+            native:AdjustWeight(0, 0.12)
+            suppressed[native] = true
+        end
+    end
+    for native, weight in pairs(s.weights) do
+        if not suppressed[native] then
+            s.weights[native] = nil
+            pcall(function() native:AdjustWeight(weight, 0.12) end)
+        end
+    end
+end
+updateMotion = function(s)
+    if not valid(s) or s.updating then return end
+    s.updating = true
+    local ok = pcall(motionStep, s)
+    s.updating = false
+    if not ok then
+        if s.current then stopTrack(s.current.track); s.current = nil end
+        restoreWeights(s)
+    end
+end
+
+local function refreshTargets(s)
+    if not valid(s) or not s.ready then return end
+    local targets = playbackTargets()
+    local oldTargets = s.targets or {}
+    if targets.idle ~= oldTargets.idle or targets.idle2 ~= oldTargets.idle2 then s.idleVariant = nil end
+    for kind, record in pairs(s.tracks) do
+        if targets[kind] ~= record.rawId then dropRecord(s, kind) end
+    end
+    s.targets = targets
+    updateMotion(s)
+end
+local function bindCharacter(character)
+    closeSession()
+    if not alive or not runtimeAlive or not enabled() or LocalPlayer.Character ~= character then return end
+    local s = {character = character, token = generation, binding = true, connections = {}, tracks = {}, weights = {},
+        ownTracks = setmetatable({}, {__mode = "k"}), nativeIds = {}, emoteIds = {}, jumpCount = 0, jumpedAt = -math.huge}
+    session = s
+    table.insert(s.connections, character.DescendantAdded:Connect(function(child)
+        if not valid(s) then return end
+        if (child:IsA("Animator") or child:IsA("Humanoid")) and not s.binding then
+            if not s.ready or (child:IsA("Animator") and child ~= s.animator) then
+                task.defer(function() if valid(s) then bindCharacter(character) end end)
+            end
+        end
+    end))
+    task.spawn(function()
+        local humanoid = character:WaitForChild("Humanoid", 10)
+        if not humanoid or not valid(s) then s.binding = false; return end
+        local animator = humanoid:FindFirstChildOfClass("Animator") or humanoid:WaitForChild("Animator", 10)
+        if not animator or not valid(s) then s.binding = false; return end
+        s.humanoid, s.animator = humanoid, animator
+        s.references = Instance.new("LocalScript")
+        s.references.Name = "VisualsV2_FEAnimationReferences"; s.references.Disabled = true
+        s.references.Parent = character
+        collectNativeIds(s)
+        s.ready, s.binding = true, false
+        if humanoid:GetState() == Enum.HumanoidStateType.Jumping then s.jumpedAt = os.clock(); s.jumpCount = 1 end
+        local function connect(event, callback) table.insert(s.connections, event:Connect(callback)) end
+        connect(humanoid.Running, function(speed) s.runSpeed = speed; updateMotion(s) end)
+        connect(humanoid.Climbing, function(speed) s.climbSpeed = speed; updateMotion(s) end)
+        connect(humanoid.Swimming, function(speed) s.swimSpeed = speed; updateMotion(s) end)
+        connect(humanoid.StateChanged, function(_, state)
+            if state == Enum.HumanoidStateType.Jumping then s.jumpedAt = os.clock(); s.jumpCount = s.jumpCount + 1 end
+            updateMotion(s)
+        end)
+        connect(humanoid.Died, function() if session == s then closeSession() end end)
+        connect(animator.AnimationPlayed, function(track)
+            if s.ownTracks[track] then return end
+            updateMotion(s)
+            task.defer(function() if valid(s) then updateMotion(s) end end)
+        end)
+        connect(character.DescendantAdded, function(child)
+            if child:IsA("Animation") and not child:IsDescendantOf(s.references) then
+                local group = animationGroup(child, character)
+                local id = cleanAnimationId(child.AnimationId)
+                local kind = movementGroup(group)
+                if kind and id then s.nativeIds[id] = kind end
+            end
+        end)
+        local elapsed = 0
+        connect(RunService.Heartbeat, function(dt)
+            elapsed = elapsed + dt
+            if elapsed < 0.1 then return end
+            elapsed = 0
+            updateMotion(s)
+        end)
+        refreshTargets(s)
+        task.spawn(function()
+            local ok, description = pcall(function() return humanoid:GetAppliedDescription() end)
+            if not ok or not description or not valid(s) then return end
+            local success, emotes = pcall(function() return description:GetEmotes() end)
+            if success and type(emotes) == "table" then
+                for _, ids in pairs(emotes) do
+                    if type(ids) == "table" then
+                        for _, id in ipairs(ids) do local value = cleanAnimationId(id); if value then s.emoteIds[value] = true end end
+                    end
+                end
+            end
+        end)
+    end)
+end
+refreshRuntime = function()
+    if not alive or not runtimeAlive then return end
+    if not enabled() then closeSession(); return end
+    local character = LocalPlayer.Character
+    if not character then return end
+    if session and session.character == character and (session.ready or session.binding) then
+        refreshTargets(session)
+    else
+        bindCharacter(character)
+    end
+end
+RootMaid:GiveTask(LocalPlayer.CharacterAdded:Connect(function(character)
+    if alive and runtimeAlive and enabled() then bindCharacter(character) end
+end))
+RootMaid:GiveTask(LocalPlayer.CharacterRemoving:Connect(function(character)
+    if session and session.character == character then closeSession() end
+end))
+RootMaid:GiveTask(closeSession)
+
+local presetToggle = addToggle(feAnimSection, "Enable Preset Animations", presetsEnabled, function(value)
+    if not alive or not runtimeAlive then return end
+    presetsEnabled = value
+    SetCfg("feAnimPresetsEnabled", value); SetCfg("feAnimEnabled", enabled())
+    refreshRuntime()
+end)
+local presetControllers = {}
+local function addAnimationDropdown(label, kind, options)
+    presetControllers[kind] = addDropdown(feAnimSection, label, options, animState[kind], function(selected)
+        if not alive or not runtimeAlive or type(selected) ~= "string" then return end
+        if selected ~= "Default" and not animPresets[selected] then return end
+        if selected == "OG Rthro Run" and kind ~= "run" then return end
+        animState[kind] = selected; SetCfg(presetKeys[kind], selected)
+        refreshRuntime()
+    end)
+end
+addAnimationDropdown("All Animations", "all", allAnimOptions)
+for _, slot in ipairs(customSlots) do
+    local options = slot.key == "run" and runAnimOptions or slot.key == "swim" and swimAnimOptions or allAnimOptions
+    addAnimationDropdown(slot.label .. " Animation", slot.key, options)
+end
+local customToggle = addToggle(feAnimSection, "Enable Custom Animations", customEnabled, function(value)
+    if not alive or not runtimeAlive then return end
+    customEnabled = value
+    SetCfg("feAnimCustomEnabled", value); SetCfg("feAnimEnabled", enabled())
+    refreshRuntime()
+end)
+for _, slot in ipairs(customSlots) do
+    feAnimSection:AddTextBox("Custom " .. slot.label .. " Animation ID", function(value)
+        if not alive or not runtimeAlive then return end
+        local id = cleanAnimationId(value)
+        if id == nil then shared.Notify("Error: Enter an animation ID or asset URL. Leave it empty to clear it.", 0); return end
+        customAnims[slot.key] = id; SetCfg(slot.config, id)
+        refreshRuntime()
+    end)
+end
+
+resetSection = function()
+    presetToggle:Set(false); customToggle:Set(false)
+    presetsEnabled, customEnabled = false, false
+    closeSession()
+    for kind in pairs(presetKeys) do
+        animState[kind] = "Default"
+        local control = presetControllers[kind]
+        if control and type(control.Select) == "function" then
+            local ok = pcall(function() control:Select("Default") end)
+            if not ok then pcall(control.Select, "Default") end
+        end
+    end
+    for _, slot in ipairs(customSlots) do customAnims[slot.key] = "" end
+end
+if enabled() then task.defer(refreshRuntime) end
 end)()
 
 -- COSMETIC: TRAIL
@@ -3654,10 +4841,9 @@ local presets={"ForceField","Flat","Chromatic"}
 local groups,states={},{}
 local trackedCharacter,removingCharacter
 local characterConnections,lifecycleConnections={},{}
-local heartbeatConnection,chromConnection
+local heartbeatConnection,chromConnection,shellConnection
 local chromHost,chromView,chromWorld,chromCamera
 local dirty,queued,resetting=true,false,false
-local ownedSurfaces={}
 local CHROM_SCALE,CHROM_ALPHA=1.012,0.025
 
 local function disconnectAll(connections)
@@ -3688,34 +4874,28 @@ local function clearChromatic(state)
     state.chrom,state.chromEntries,state.chromColor=nil,nil,nil
 end
 
-local function restoreMaterial(state)
-    for part,material in pairs(state.materials) do
+local function clearForceField(state)
+    for _,entry in ipairs(state.forceEntries or {}) do
         pcall(function()
-            -- Skin ForceField can also own this material. Preserve its active
-            -- layer and its original-material attribute when the layers overlap.
-            if runtimeAlive and not configResetting and ConfigData.ffEnabled then
-                local saved=part:GetAttribute("VisualsV2_OriginalMaterial")
-                if saved=="ForceField" and material~=Enum.Material.ForceField then
-                    part:SetAttribute("VisualsV2_OriginalMaterial",material.Name)
-                end
-                part.Material=Enum.Material.ForceField
-            else
-                part.Material=material
+            -- Restore only our local visibility layer. Native materials,
+            -- textures, appearances and paint colours were never changed.
+            if entry.source.LocalTransparencyModifier==1 then
+                entry.source.LocalTransparencyModifier=entry.alpha
             end
         end)
     end
-    table.clear(state.materials)
-    for appearance,parent in pairs(state.surfaces) do
-        pcall(function() appearance.Parent=parent end)
-        ownedSurfaces[appearance]=nil
-    end
-    table.clear(state.surfaces)
+    if state.force then state.force:Destroy() end
+    state.force,state.forceEntries=nil,nil
 end
 
 local function clearState(state)
     clearFlat(state)
     clearChromatic(state)
-    restoreMaterial(state)
+    clearForceField(state)
+end
+
+local function stopShellSync()
+    if shellConnection then shellConnection:Disconnect(); shellConnection=nil end
 end
 
 local function destroyViewport()
@@ -3810,6 +4990,39 @@ local function shell(source,scale)
     return clone
 end
 
+local function syncForceField(tool,state,color)
+    for _,entry in ipairs(state.forceEntries or {}) do
+        local source,clone=entry.source,entry.clone
+        if source.Parent then
+            local alpha=source.LocalTransparencyModifier
+            if alpha~=1 then entry.alpha=alpha end
+            local visible=tool.Parent==player.Character and math.max(source.Transparency,entry.alpha)<1
+            clone.CFrame=source.CFrame
+            clone.Transparency=visible and math.max(source.Transparency,entry.alpha) or 1
+            clone.Color=color
+            local mesh=clone:FindFirstChildWhichIsA("SpecialMesh")
+            if mesh then mesh.VertexColor=Vector3.new(1,1,1) end
+            source.LocalTransparencyModifier=1
+        else clone.Transparency=1 end
+    end
+end
+
+local function ensureShellSync()
+    if shellConnection then return end
+    shellConnection=RunService.RenderStepped:Connect(function()
+        for tool,state in pairs(states) do
+            if state.forceEntries then syncForceField(tool,state,state.group.color()) end
+            for _,entry in ipairs(state.flatEntries or {}) do
+                local source,clone=entry[1],entry[2]
+                local visible=source.Parent and tool.Parent==player.Character
+                    and math.max(source.Transparency,source.LocalTransparencyModifier)<1
+                if source.Parent then clone.CFrame=source.CFrame end
+                clone.Transparency=visible and source.Transparency or 1
+            end
+        end
+    end)
+end
+
 local function applyFlat(tool,state,color)
     if not state.flat or not state.flat.Parent then
         clearFlat(state)
@@ -3819,11 +5032,9 @@ local function applyFlat(tool,state,color)
         for _,source in ipairs(state.parts) do
             local clone=not deformable(source) and shell(source,0.99) or nil
             if clone then
-                clone.Anchored=false
+                clone.Anchored=true
                 clone.CFrame=source.CFrame
                 clone.Parent=model
-                local weld=Instance.new("WeldConstraint")
-                weld.Part0=clone; weld.Part1=source; weld.Parent=clone
                 entries[#entries+1]={source,clone}
             end
         end
@@ -3840,6 +5051,7 @@ local function applyFlat(tool,state,color)
         visible.Adornee=tool; visible.Parent=model
         state.flat,state.flatHighlight,state.visibleHighlight,state.flatEntries=model,occluded,visible,entries
     end
+    ensureShellSync()
     state.flatHighlight.FillColor=color
     state.visibleHighlight.FillColor=color
     for _,entry in ipairs(state.flatEntries) do
@@ -3876,23 +5088,32 @@ local function applyChromatic(tool,state,color)
     for _,entry in ipairs(state.chromEntries) do entry[2].Color=color end
 end
 
-local function applyForceField(state)
-    for _,source in ipairs(state.parts) do
-        if state.materials[source]==nil then
-            local original=source.Material
-            local skinOriginal=source:GetAttribute("VisualsV2_OriginalMaterial")
-            if skinOriginal and Enum.Material[skinOriginal] then original=Enum.Material[skinOriginal] end
-            state.materials[source]=original
+local function applyForceField(tool,state,color)
+    if not state.force or not state.force.Parent then
+        clearForceField(state)
+        local model=Instance.new("Model")
+        model.Name="VisualsV2_ForceFieldChams_"..tool.Name
+        model:SetAttribute("VisualsV2_ChamsVisual",true)
+        local entries={}
+        -- Clone visual geometry only. The real SprayPaint Handle and its
+        -- SurfaceAppearance/Decal/Texture children remain where its script
+        -- expects them, with their native material and paint colour intact.
+        for _,source in ipairs(state.parts) do
+            local clone=not deformable(source) and shell(source,1.005) or nil
+            if clone then
+                clone.Anchored=true
+                clone.Material=Enum.Material.ForceField
+                clone.Color=color
+                clone.CFrame=source.CFrame
+                clone.Parent=model
+                entries[#entries+1]={source=source,clone=clone,alpha=source.LocalTransparencyModifier}
+            end
         end
-        source.Material=Enum.Material.ForceField
+        model.Parent=workspace
+        state.force,state.forceEntries=model,entries
     end
-    for _,appearance in ipairs(state.appearances) do
-        if appearance.Parent and state.surfaces[appearance]==nil then
-            state.surfaces[appearance]=appearance.Parent
-            ownedSurfaces[appearance]=true
-            appearance.Parent=nil
-        end
-    end
+    ensureShellSync()
+    syncForceField(tool,state,color)
 end
 
 local update
@@ -3908,7 +5129,7 @@ end
 local function relevantChange(object)
     if object:IsA("Tool") or object:IsA("BasePart") or object:IsA("DataModelMesh")
         or object:IsA("Bone") or object:IsA("WrapLayer")
-        or (object:IsA("SurfaceAppearance") and not ownedSurfaces[object]) then
+        or object:IsA("SurfaceAppearance") then
         dirty=true
         queueUpdate()
     end
@@ -3937,6 +5158,7 @@ local function stopWatching()
     disconnectAll(characterConnections)
     trackedCharacter=nil
     for tool,state in pairs(states) do clearState(state); states[tool]=nil end
+    stopShellSync()
     destroyViewport()
     dirty=true
 end
@@ -3952,30 +5174,31 @@ update=function()
             for _,tool in ipairs(trackedCharacter:GetChildren()) do
                 local group=groupFor(tool)
                 if group then
-                    local state={group=group,preset=group.preset,parts={},appearances={},materials={},surfaces={}}
+                    local state={group=group,preset=group.preset,parts={}}
                     for _,object in ipairs(tool:GetDescendants()) do
                         if object:IsA("BasePart") then state.parts[#state.parts+1]=object
-                        elseif object:IsA("SurfaceAppearance") then state.appearances[#state.appearances+1]=object end
+                        end
                     end
                     states[tool]=state
                 end
             end
         end
     end
-    local chromatic=false
+    local chromatic,shells=false,false
     for tool,state in pairs(states) do
         if tool.Parent~=trackedCharacter or groupFor(tool)~=state.group then
             clearState(state); states[tool]=nil
         elseif #state.parts>0 then
             local color=state.group.color()
-            if state.preset=="Flat" then applyFlat(tool,state,color)
+            if state.preset=="Flat" then applyFlat(tool,state,color); shells=true
             elseif state.preset=="Chromatic" then
                 applyChromatic(tool,state,color)
                 chromatic=state.chrom~=nil or chromatic
-            else applyForceField(state) end
+            else applyForceField(tool,state,color); shells=true end
         end
     end
     if not chromatic then destroyViewport() end
+    if not shells then stopShellSync() end
 end
 
 local function refresh()
@@ -4003,7 +5226,7 @@ end
 runtime.RefreshChams=refresh
 
 runtime.RegisterChamsFeature=function(section,key,label,matches)
-    section:AddParagraph(label.." Chams","Independent of tint. Flat and Chromatic use Chams Color; ForceField keeps the original part colours.")
+    section:AddParagraph(label.." Chams","All presets use Chams Color. Tint controls are separate.")
     local group={
         enabled=C(key.."Enabled",false),
         preset=presetName(C(key.."Preset","ForceField")),
@@ -4060,6 +5283,2237 @@ runtime.RegisterReset(function()
     removingCharacter=nil
     resetting=false
 end)
+end)()
+
+-- =========================================================
+-- COSMETIC: FIXED CLIENT GUN / KNIFE SKINS (MM2 / MMV)
+-- Dropdown choices are supplied when the controls are created.
+-- No database requires, catalog requests, background scans or refresh buttons.
+-- =========================================================
+;(function()
+local section=mainTab:AddSection("Client Gun & Knife Skins","Cosmetic")
+local MARKER="VisualsV2_ClientWeaponSkin"
+local NONE="None"
+local alive=true
+local refreshing=false
+local catalog={Gun={},Knife={}}
+local connections={}
+local toolStates={}
+local heartbeat=nil
+local hideFrame=nil
+local refreshTools,updateWatching
+local kinds={
+    Gun={enabled=C("clientGunEnabled",false),selected=tostring(C("clientGunSkin",NONE)),key="clientGun"},
+    Knife={enabled=C("clientKnifeEnabled",false),selected=tostring(C("clientKnifeSkin",NONE)),key="clientKnife"},
+}
+local function notify(message)
+    if alive and runtimeAlive then pcall(function() shared.Notify(message,4) end) end
+end
+
+local function compact(value)
+    return type(value)=="string" and value:lower():gsub("[^%w]","") or ""
+end
+
+local function weaponKind(value)
+    local name=compact(value)
+    if name=="gun" or name=="guns" or name=="pistol" or name=="revolver"
+        or name=="firearm" or name=="gunskins" then return "Gun" end
+    if name=="knife" or name=="knives" or name=="melee" or name=="sword"
+        or name=="knifeskins" then return "Knife" end
+end
+
+local function properties(data)
+    local result={}
+    if type(data)=="table" then
+        for key,value in pairs(data) do
+            if type(key)=="string" then result[compact(key)]=value end
+        end
+    end
+    return result
+end
+
+local function isDefault(id,data)
+    if data.isdefault==true or data.default==true then return true end
+    local key=compact(id)
+    if key=="default" or key=="defaultgun" or key=="defaultknife"
+        or key=="gun" or key=="knife" then return true end
+    local name=compact(data.itemname or data.displayname or data.name)
+    return name=="defaultgun" or name=="defaultknife" or name=="default"
+end
+
+local function register(kind,id,data,source)
+    if not kind or id==nil then return end
+    id=tostring(id)
+    if id=="" or isDefault(id,data) then return end
+    local entry=catalog[kind][id]
+    if not entry then
+        entry={id=id,kind=kind,data={},revision=0}
+        catalog[kind][id]=entry
+    end
+    local changed=false
+    for key,value in pairs(data) do
+        if entry.data[key]~=value then entry.data[key]=value; changed=true end
+    end
+    if source and entry.source~=source then entry.source=source; changed=true end
+    entry.name=tostring(entry.data.itemname or entry.data.displayname or entry.data.name or id)
+    if entry.data.chroma==true and not entry.name:lower():find("chroma",1,true) then
+        entry.name="Chroma "..entry.name
+    end
+    if changed then entry.revision=entry.revision+1 end
+    return entry
+end
+
+-- Fixed original weapon records from the supplied MM2/MMV exports.
+-- 355 MM2 guns and 631 knives, plus the two original MMV scope models.
+-- This data never changes through runtime scanning or inventory ownership.
+local staticMM2={
+    {"Gun","Ace",{["itemid"]=238546577,["itemname"]="Ace",["itemtype"]="Gun",["rarity"]="Rare"}},
+    {"Gun","AduriteGun",{["itemid"]=196752289,["itemname"]="Adurite",["itemtype"]="Gun",["rarity"]="Uncommon"}},
+    {"Gun","Aid",{["itemid"]=203807397,["itemname"]="Juice",["itemtype"]="Gun",["rarity"]="Common"}},
+    {"Gun","Aliens_G_2021",{["itemid"]=7800250906,["itemname"]="Aliens",["itemtype"]="Gun",["rarity"]="Common"}},
+    {"Gun","AmericaGun",{["itemid"]=196751752,["itemname"]="America",["itemtype"]="Gun",["rarity"]="Classic"}},
+    {"Gun","Amerilaser",{["itemid"]=446050753,["itemname"]="Amerilaser",["itemtype"]="Gun",["rarity"]="Godly"}},
+    {"Gun","Apoc_G_2022",{["itemid"]=11255501940,["itemname"]="Apocalypse",["itemtype"]="Gun",["rarity"]="Common"}},
+    {"Gun","Aquarium_G_2025",{["itemid"]=129460052425837,["itemname"]="Aquarium",["itemtype"]="Gun",["rarity"]="Legendary"}},
+    {"Gun","Arctic_G_2022",{["itemid"]=11834443783,["itemname"]="Arctic",["itemtype"]="Gun",["rarity"]="Legendary"}},
+    {"Gun","Asteroid",{["itemid"]=476599365,["itemname"]="Asteroid",["itemtype"]="Gun",["rarity"]="Common"}},
+    {"Gun","AuroraGun",{["itemid"]=108635848059846,["itemname"]="Borealis",["itemtype"]="Gun",["rarity"]="Godly"}},
+    {"Gun","Aurora_G_2019",{["itemid"]=4534875165,["itemname"]="Aurora",["itemtype"]="Gun",["rarity"]="Rare"}},
+    {"Gun","Aurora_G_2021",{["itemid"]=8304766165,["itemname"]="Aurora",["itemtype"]="Gun",["rarity"]="Legendary"}},
+    {"Gun","Bacon",{["itemid"]=238546467,["itemname"]="Bacon",["itemtype"]="Gun",["rarity"]="Rare"}},
+    {"Gun","BatsG",{["itemid"]=2513741174,["itemname"]="Bats",["itemtype"]="Gun",["rarity"]="Common"}},
+    {"Gun","Bats_G_2024",{["itemid"]=71258273720666,["itemname"]="Bats",["itemtype"]="Gun",["rarity"]="Common"}},
+    {"Gun","Bauble",{["itemid"]=84481559639371,["itemname"]="Bauble",["itemtype"]="Gun",["rarity"]="Godly"}},
+    {"Gun","BaubleChroma",{["chroma"]=true,["itemid"]=84481559639371,["itemname"]="Bauble",["itemtype"]="Gun",["rarity"]="Godly"}},
+    {"Gun","BigKill",{["itemid"]=196752330,["itemname"]="Big Kill",["itemtype"]="Gun",["rarity"]="Common"}},
+    {"Gun","Biogun",{["itemid"]=4659627458,["itemname"]="Biogun",["itemtype"]="Gun",["rarity"]="Uncommon"}},
+    {"Gun","Bit",{["itemid"]=238549030,["itemname"]="Bit",["itemtype"]="Gun",["rarity"]="Common"}},
+    {"Gun","Blaster",{["itemid"]=386277381,["itemname"]="Blaster",["itemtype"]="Gun",["rarity"]="Godly"}},
+    {"Gun","Bleed",{["itemid"]=315100702,["itemname"]="Rupture",["itemtype"]="Gun",["rarity"]="Legendary"}},
+    {"Gun","Blizzard",{["itemid"]=88928894807422,["itemname"]="Blizzard",["itemtype"]="Gun",["rarity"]="Godly"}},
+    {"Gun","BlizzardChroma",{["chroma"]=true,["itemid"]=88928894807422,["itemname"]="Blizzard",["itemtype"]="Gun",["rarity"]="Godly"}},
+    {"Gun","Blossom_G",{["itemid"]=12339377105,["itemname"]="Blossom",["itemtype"]="Gun",["rarity"]="Godly"}},
+    {"Gun","BlueHarvester",{["itemid"]=8194219645,["itemname"]="Blue Harvester",["itemtype"]="Gun",["rarity"]="Unique"}},
+    {"Gun","BlueSugar",{["itemid"]=3215262120,["itemname"]="Blue Sugar",["itemtype"]="Gun",["rarity"]="Unique"}},
+    {"Gun","BluesteelGun",{["itemid"]=196752379,["itemname"]="Bluesteel",["itemtype"]="Gun",["rarity"]="Uncommon"}},
+    {"Gun","Bones2019",{["itemid"]=4210926347,["itemname"]="Bones",["itemtype"]="Gun",["rarity"]="Uncommon"}},
+    {"Gun","Brains_G_2022",{["itemid"]=11284145298,["itemname"]="Brains",["itemtype"]="Gun",["rarity"]="Uncommon"}},
+    {"Gun","BronzeHarvester",{["itemid"]=8194221072,["itemname"]="Bronze Harvester",["itemtype"]="Gun",["rarity"]="Unique"}},
+    {"Gun","BronzeIceblaster",{["itemid"]=6404167442,["itemname"]="Bronze Iceblaster",["itemtype"]="Gun",["rarity"]="Unique"}},
+    {"Gun","BronzeSugar",{["itemid"]=3215261913,["itemname"]="Bronze Sugar",["itemtype"]="Gun",["rarity"]="Unique"}},
+    {"Gun","Butterflies_G_2025",{["itemid"]=135662872427976,["itemname"]="Butterflies",["itemtype"]="Gun",["rarity"]="Rare"}},
+    {"Gun","Camo",{["itemid"]=196752456,["itemname"]="Camo",["itemtype"]="Gun",["rarity"]="Uncommon"}},
+    {"Gun","Candied_G_2022",{["itemid"]=11834435627,["itemname"]="Candied",["itemtype"]="Gun",["rarity"]="Common"}},
+    {"Gun","Candleflame_G_2024",{["itemid"]=90595111293037,["itemname"]="Candleflame",["itemtype"]="Gun",["rarity"]="Rare"}},
+    {"Gun","CandyCorn_G_2020",{["itemid"]=5866454590,["itemname"]="Candy Corn",["itemtype"]="Gun",["rarity"]="Common"}},
+    {"Gun","CandyCorn_G_2022",{["itemid"]=11255558166,["itemname"]="Candy Corn",["itemtype"]="Gun",["rarity"]="Common"}},
+    {"Gun","CandyCorn_G_2024",{["itemid"]=117473869340749,["itemname"]="Candy Corn",["itemtype"]="Gun",["rarity"]="Common"}},
+    {"Gun","CandyCorn_G_2025",{["itemid"]=129781304866793,["itemname"]="Candy Corn",["itemtype"]="Gun",["rarity"]="Common"}},
+    {"Gun","CandySwirl_G_2019",{["itemid"]=4534874602,["itemname"]="Candy Swirl",["itemtype"]="Gun",["rarity"]="Rare"}},
+    {"Gun","CaneGun",{["itemid"]=332497187,["itemname"]="Cane",["itemtype"]="Gun",["rarity"]="Rare"}},
+    {"Gun","Cane_G_2018",{["itemid"]=2669785546,["itemname"]="Cane",["itemtype"]="Gun",["rarity"]="Rare"}},
+    {"Gun","Cane_G_2021",{["itemid"]=8304768700,["itemname"]="Cane",["itemtype"]="Gun",["rarity"]="Common"}},
+    {"Gun","Canes_G_2023",{["itemid"]=15635558982,["itemname"]="Canes",["itemtype"]="Gun",["rarity"]="Uncommon"}},
+    {"Gun","Carrot_G_2024",{["itemid"]=16960082652,["itemname"]="Carrot",["itemtype"]="Gun",["rarity"]="Uncommon"}},
+    {"Gun","Carved_G_2020",{["itemid"]=5866457985,["itemname"]="Carved",["itemtype"]="Gun",["rarity"]="Common"}},
+    {"Gun","Cat_G_2021",{["itemid"]=7800253444,["itemname"]="Cat",["itemtype"]="Gun",["rarity"]="Common"}},
+    {"Gun","Caution",{["itemid"]=238546422,["itemname"]="Caution",["itemtype"]="Gun",["rarity"]="Uncommon"}},
+    {"Gun","Cavern_G_2019",{["itemid"]=4534875511,["itemname"]="Cavern",["itemtype"]="Gun",["rarity"]="Legendary"}},
+    {"Gun","Cheddar",{["itemid"]=203808317,["itemname"]="Cheddar",["itemtype"]="Gun",["rarity"]="Uncommon"}},
+    {"Gun","Cherries_G_2026",{["itemid"]=96164363513384,["itemname"]="Cherries",["itemtype"]="Gun",["rarity"]="Common"}},
+    {"Gun","ChromaDarkbringer",{["chroma"]=true,["itemid"]=4751501078,["itemname"]="Darkbringer",["itemtype"]="Gun",["rarity"]="Godly"}},
+    {"Gun","ChromaLightbringer",{["chroma"]=true,["itemid"]=4751500761,["itemname"]="Lightbringer",["itemtype"]="Gun",["rarity"]="Godly"}},
+    {"Gun","Chromatic_G_2023",{["itemid"]=12965339774,["itemname"]="Chromatic",["itemtype"]="Gun",["rarity"]="Legendary"}},
+    {"Gun","Clown_G",{["itemid"]=4659627976,["itemname"]="Clown",["itemtype"]="Gun",["rarity"]="Common"}},
+    {"Gun","Clown_G_2024",{["itemid"]=71982363966070,["itemname"]="Clown",["itemtype"]="Gun",["rarity"]="Uncommon"}},
+    {"Gun","Clownfish_G_2024",{["itemid"]=18322197952,["itemname"]="Clownfish",["itemtype"]="Gun",["rarity"]="Common"}},
+    {"Gun","Coal_G_2018",{["itemid"]=2669784920,["itemname"]="Coal",["itemtype"]="Gun",["rarity"]="Common"}},
+    {"Gun","Coal_G_2021",{["itemid"]=8304769409,["itemname"]="Coal",["itemtype"]="Gun",["rarity"]="Common"}},
+    {"Gun","Coal_G_2022",{["itemid"]=11834434264,["itemname"]="Coal",["itemtype"]="Gun",["rarity"]="Common"}},
+    {"Gun","Cola",{["itemid"]=238546400,["itemname"]="Soda",["itemtype"]="Gun",["rarity"]="Uncommon"}},
+    {"Gun","Cold",{["itemid"]=196752499,["itemname"]="Cold",["itemtype"]="Gun",["rarity"]="Common"}},
+    {"Gun","Constellation",{["itemid"]=114197436469014,["itemname"]="Constellation",["itemtype"]="Gun",["rarity"]="Godly"}},
+    {"Gun","ConstellationChroma",{["chroma"]=true,["itemid"]=114197436469014,["itemname"]="Constellation",["itemtype"]="Gun",["rarity"]="Godly"}},
+    {"Gun","Constellation_Bronze",{["itemid"]=112811587103866,["itemname"]="Bronze Constellation",["itemtype"]="Gun",["rarity"]="Unique"}},
+    {"Gun","Constellation_G_2024",{["itemid"]=94311965719769,["itemname"]="Nightsky",["itemtype"]="Gun",["rarity"]="Legendary"}},
+    {"Gun","Constellation_Gold",{["itemid"]=132975248521820,["itemname"]="Gold Constellation",["itemtype"]="Gun",["rarity"]="Unique"}},
+    {"Gun","Constellation_Red",{["itemid"]=85766514163212,["itemname"]="Red Constellation",["itemtype"]="Gun",["rarity"]="Unique"}},
+    {"Gun","Constellation_Silver",{["itemid"]=100747436297625,["itemname"]="Silver Constellation",["itemtype"]="Gun",["rarity"]="Unique"}},
+    {"Gun","Cookie_G_2021",{["itemid"]=8304771148,["itemname"]="Cookie",["itemtype"]="Gun",["rarity"]="Uncommon"}},
+    {"Gun","Cracks_G_2021",{["itemid"]=7800254737,["itemname"]="Cracks",["itemtype"]="Gun",["rarity"]="Common"}},
+    {"Gun","Cursed_G_2024",{["itemid"]=122855768693454,["itemname"]="Cursed",["itemtype"]="Gun",["rarity"]="Legendary"}},
+    {"Gun","Dark_G_2023",{["itemid"]=15091406343,["itemname"]="Darkgun",["itemtype"]="Gun",["rarity"]="Rare"}},
+    {"Gun","Darkbringer",{["itemid"]=4749071819,["itemname"]="Darkbringer",["itemtype"]="Gun",["rarity"]="Godly"}},
+    {"Gun","Darkness_G_2022",{["itemid"]=11255507374,["itemname"]="Darkness",["itemtype"]="Gun",["rarity"]="Common"}},
+    {"Gun","Darkshot",{["itemid"]=15080280688,["itemname"]="Darkshot",["itemtype"]="Gun",["rarity"]="Godly"}},
+    {"Gun","Dartbringer",{["itemid"]=8626617523,["itemname"]="Dartbringer",["itemtype"]="Gun",["rarity"]="Unique"}},
+    {"Gun","Disint",{["itemid"]=196751943,["itemname"]="Laser",["itemtype"]="Gun",["rarity"]="Classic"}},
+    {"Gun","Duckies_G_2026",{["itemid"]=124567820488562,["itemname"]="Duckies",["itemtype"]="Gun",["rarity"]="Common"}},
+    {"Gun","ElderwoodGun",{["itemid"]=4211142894,["itemname"]="Elderwood Revolver",["itemtype"]="Gun",["rarity"]="Godly"}},
+    {"Gun","ElderwoodGunBlue",{["itemid"]=4468574885,["itemname"]="Blue Elderwood",["itemtype"]="Gun",["rarity"]="Unique"}},
+    {"Gun","ElderwoodGunBronze",{["itemid"]=4468585407,["itemname"]="Bronze Elderwood",["itemtype"]="Gun",["rarity"]="Unique"}},
+    {"Gun","ElderwoodGunGold",{["itemid"]=4468584345,["itemname"]="Gold Elderwood",["itemtype"]="Gun",["rarity"]="Unique"}},
+    {"Gun","ElderwoodGunSilver",{["itemid"]=4468583758,["itemname"]="Silver Elderwood",["itemtype"]="Gun",["rarity"]="Unique"}},
+    {"Gun","ElfGun",{["itemid"]=332767999,["itemname"]="Elf",["itemtype"]="Gun",["rarity"]="Common"}},
+    {"Gun","Elf_G_2023",{["itemid"]=15635569893,["itemname"]="Elf",["itemtype"]="Gun",["rarity"]="Common"}},
+    {"Gun","Emptybringer",{["itemid"]=4749071819,["itemname"]="???",["itemtype"]="Gun",["rarity"]="Godly"}},
+    {"Gun","EmptybringerChroma",{["chroma"]=true,["itemid"]=4749071819,["itemname"]="???",["itemtype"]="Gun",["rarity"]="Godly"}},
+    {"Gun","Energized_G_2025",{["itemid"]=114403390530326,["itemname"]="Energized",["itemtype"]="Gun",["rarity"]="Legendary"}},
+    {"Gun","Engraved",{["itemid"]=203807690,["itemname"]="Engraved",["itemtype"]="Gun",["rarity"]="Common"}},
+    {"Gun","Eyes_G_2020",{["itemid"]=5866459380,["itemname"]="Watcher",["itemtype"]="Gun",["rarity"]="Common"}},
+    {"Gun","Eyes_G_2025",{["itemid"]=90751163516480,["itemname"]="Eyes",["itemtype"]="Gun",["rarity"]="Uncommon"}},
+    {"Gun","FallCamo_G_2021",{["itemid"]=7800257544,["itemname"]="Fall Camo",["itemtype"]="Gun",["rarity"]="Uncommon"}},
+    {"Gun","Fall_G_2025",{["itemid"]=78153346812503,["itemname"]="Fall",["itemtype"]="Gun",["rarity"]="Common"}},
+    {"Gun","Fallout",{["itemid"]=196752601,["itemname"]="Fallout",["itemtype"]="Gun",["rarity"]="Common"}},
+    {"Gun","Floatie_G_2024",{["itemid"]=18322194067,["itemname"]="Floatie",["itemtype"]="Gun",["rarity"]="Uncommon"}},
+    {"Gun","Flora",{["itemid"]=138204709945147,["itemname"]="Flora",["itemtype"]="Gun",["rarity"]="Godly"}},
+    {"Gun","Floral_G_2024",{["itemid"]=18323751219,["itemname"]="Floral",["itemtype"]="Gun",["rarity"]="Rare"}},
+    {"Gun","Floral_G_2026",{["itemid"]=107508982214346,["itemname"]="Floral",["itemtype"]="Gun",["rarity"]="Uncommon"}},
+    {"Gun","FlowerwoodGun",{["itemid"]=16963894455,["itemname"]="Flowerwood Gun",["itemtype"]="Gun",["rarity"]="Godly"}},
+    {"Gun","Forest_G_2024",{["itemid"]=78199422065424,["itemname"]="Forest",["itemtype"]="Gun",["rarity"]="Uncommon"}},
+    {"Gun","Fragile_G_2023",{["itemid"]=12965349193,["itemname"]="Fragile",["itemtype"]="Gun",["rarity"]="Common"}},
+    {"Gun","Frosted_G_2019",{["itemid"]=4534866678,["itemname"]="Frosted",["itemtype"]="Gun",["rarity"]="Common"}},
+    {"Gun","Frostfade_G_2023",{["itemid"]=15635577623,["itemname"]="Frostfade",["itemtype"]="Gun",["rarity"]="Legendary"}},
+    {"Gun","Frostflame_G_2024",{["itemid"]=114781759936576,["itemname"]="Frostflame",["itemtype"]="Gun",["rarity"]="Rare"}},
+    {"Gun","Frozen_G_2019",{["itemid"]=4534873956,["itemname"]="Frozen",["itemtype"]="Gun",["rarity"]="Uncommon"}},
+    {"Gun","Frozen_G_2022",{["itemid"]=11834445016,["itemname"]="Frozen",["itemtype"]="Gun",["rarity"]="Common"}},
+    {"Gun","Frozen_G_2023",{["itemid"]=15635571468,["itemname"]="Frozen",["itemtype"]="Gun",["rarity"]="Common"}},
+    {"Gun","Frozen_G_2025",{["itemid"]=90622014285727,["itemname"]="Frozen",["itemtype"]="Gun",["rarity"]="Legendary"}},
+    {"Gun","Galactic",{["itemid"]=196752683,["itemname"]="Galactic",["itemtype"]="Gun",["rarity"]="Rare"}},
+    {"Gun","Ghastly_G_2023",{["itemid"]=15091342564,["itemname"]="Ghastly",["itemtype"]="Gun",["rarity"]="Rare"}},
+    {"Gun","GhostG2018",{["itemid"]=2513741407,["itemname"]="Ghost",["itemtype"]="Gun",["rarity"]="Legendary"}},
+    {"Gun","Ghost_G_2026",{["itemid"]=120512330305244,["itemname"]="Ghost",["itemtype"]="Gun",["rarity"]="Uncommon"}},
+    {"Gun","Ghostfire_G_2022",{["itemid"]=11284140034,["itemname"]="Ghostfire",["itemtype"]="Gun",["rarity"]="Rare"}},
+    {"Gun","Ghosts_G_2020",{["itemid"]=5866465099,["itemname"]="Ghosts",["itemtype"]="Gun",["rarity"]="Rare"}},
+    {"Gun","Ghosts_G_2021",{["itemid"]=7800251557,["itemname"]="Wraiths",["itemtype"]="Gun",["rarity"]="Uncommon"}},
+    {"Gun","Gift_G_2020",{["itemid"]=6121867603,["itemname"]="Wrap",["itemtype"]="Gun",["rarity"]="Uncommon"}},
+    {"Gun","Giftbag_G_2020",{["itemid"]=6121864813,["itemname"]="Gift Bag",["itemtype"]="Gun",["rarity"]="Common"}},
+    {"Gun","Gifts_G_2019",{["itemid"]=4534867381,["itemname"]="Gifts",["itemtype"]="Gun",["rarity"]="Common"}},
+    {"Gun","GingerGun",{["itemid"]=332497038,["itemname"]="Ginger",["itemtype"]="Gun",["rarity"]="Rare"}},
+    {"Gun","GingerLuger",{["itemid"]=2674983099,["itemname"]="Ginger Luger",["itemtype"]="Gun",["rarity"]="Godly"}},
+    {"Gun","Ginger_G_2018",{["itemid"]=2669785821,["itemname"]="Ginger",["itemtype"]="Gun",["rarity"]="Legendary"}},
+    {"Gun","Gingerbread_G_2019",{["itemid"]=4534872116,["itemname"]="Gingerbread",["itemtype"]="Gun",["rarity"]="Uncommon"}},
+    {"Gun","Gingerbread_G_2020",{["itemid"]=6121860619,["itemname"]="Gingerbread",["itemtype"]="Gun",["rarity"]="Uncommon"}},
+    {"Gun","Gingerbread_G_2021",{["itemid"]=8304772140,["itemname"]="Gingerbread",["itemtype"]="Gun",["rarity"]="Uncommon"}},
+    {"Gun","Gingerbread_G_2022",{["itemid"]=11834442414,["itemname"]="Gingerbread",["itemtype"]="Gun",["rarity"]="Rare"}},
+    {"Gun","Gingerbread_G_2025",{["itemid"]=74908113882525,["itemname"]="Gingerbread",["itemtype"]="Gun",["rarity"]="Uncommon"}},
+    {"Gun","Gingercookie_G_2025",{["itemid"]=99160839686845,["itemname"]="Gingercookie",["itemtype"]="Gun",["rarity"]="Rare"}},
+    {"Gun","Gingermint_G",{["itemid"]=11872179646,["itemname"]="Gingermint",["itemtype"]="Gun",["rarity"]="Godly"}},
+    {"Gun","Gingerscope",{["itemid"]=15666469505,["itemname"]="Gingerscope",["itemtype"]="Gun",["rarity"]="Ancient"}},
+    {"Gun","Gingerscope_Blue",{["itemid"]=16964462231,["itemname"]="Blue Gingerscope",["itemtype"]="Gun",["rarity"]="Unique"}},
+    {"Gun","Gingerscope_Bronze",{["itemid"]=16964465320,["itemname"]="Bronze Gingerscope",["itemtype"]="Gun",["rarity"]="Unique"}},
+    {"Gun","Gingerscope_Gold",{["itemid"]=16964471890,["itemname"]="Gold Gingerscope",["itemtype"]="Gun",["rarity"]="Unique"}},
+    {"Gun","Gingerscope_Silver",{["itemid"]=16964468980,["itemname"]="Silver Gingerscope",["itemtype"]="Gun",["rarity"]="Unique"}},
+    {"Gun","GoldHarvester",{["itemid"]=8194222523,["itemname"]="Gold Harvester",["itemtype"]="Gun",["rarity"]="Unique"}},
+    {"Gun","GoldIceblaster",{["itemid"]=6404165933,["itemname"]="Gold Iceblaster",["itemtype"]="Gun",["rarity"]="Unique"}},
+    {"Gun","GoldSugar",{["itemid"]=3215260149,["itemname"]="Gold Sugar",["itemtype"]="Gun",["rarity"]="Unique"}},
+    {"Gun","GoldenGun",{["itemid"]=196751989,["itemname"]="Golden",["itemtype"]="Gun",["rarity"]="Classic"}},
+    {"Gun","Gothic_G_2021",{["itemid"]=7800253970,["itemname"]="Gothic",["itemtype"]="Gun",["rarity"]="Uncommon"}},
+    {"Gun","GraveG",{["itemid"]=2513731746,["itemname"]="Grave",["itemtype"]="Gun",["rarity"]="Common"}},
+    {"Gun","GreenLuger",{["itemid"]=332044679,["itemname"]="Green Luger",["itemtype"]="Gun",["rarity"]="Godly"}},
+    {"Gun","Gun1",{["itemid"]=196752052,["itemname"]="Cowboy",["itemtype"]="Gun",["rarity"]="Classic"}},
+    {"Gun","HL2",{["itemid"]=238546100,["itemname"]="HL2",["itemtype"]="Gun",["rarity"]="Common"}},
+    {"Gun","Hacker",{["itemid"]=203819271,["itemname"]="Hacker",["itemtype"]="Gun",["rarity"]="Rare"}},
+    {"Gun","Hallowgun",{["itemid"]=5878721461,["itemname"]="Hallowgun",["itemtype"]="Gun",["rarity"]="Godly"}},
+    {"Gun","Harvester",{["itemid"]=7800847534,["itemname"]="Harvester",["itemtype"]="Gun",["rarity"]="Ancient"}},
+    {"Gun","HauntedG",{["itemid"]=2513741901,["itemname"]="Haunted",["itemtype"]="Gun",["rarity"]="Common"}},
+    {"Gun","Hazard_G_2022",{["itemid"]=11255505449,["itemname"]="Hazard",["itemtype"]="Gun",["rarity"]="Uncommon"}},
+    {"Gun","Heartbreak_G_2026",{["itemid"]=79235438948261,["itemname"]="Heartbreak",["itemtype"]="Gun",["rarity"]="Rare"}},
+    {"Gun","Holly_G_2018",{["itemid"]=2669786261,["itemname"]="Holly",["itemtype"]="Gun",["rarity"]="Uncommon"}},
+    {"Gun","Hologram_G_2025",{["itemid"]=108751717527377,["itemname"]="Hologram",["itemtype"]="Gun",["rarity"]="Rare"}},
+    {"Gun","IceCamo_G_2021",{["itemid"]=8304767724,["itemname"]="Ice Camo",["itemtype"]="Gun",["rarity"]="Rare"}},
+    {"Gun","Icebeam",{["itemid"]=8311005531,["itemname"]="Icebeam",["itemtype"]="Gun",["rarity"]="Godly"}},
+    {"Gun","Iceblaster",{["itemid"]=6125814417,["itemname"]="Iceblaster",["itemtype"]="Gun",["rarity"]="Godly"}},
+    {"Gun","Icedriller_G_2020",{["itemid"]=6121866490,["itemname"]="Icedriller",["itemtype"]="Gun",["rarity"]="Legendary"}},
+    {"Gun","Icepiercer",{["itemid"]=11874071041,["itemname"]="Icepiercer",["itemtype"]="Gun",["rarity"]="Ancient"}},
+    {"Gun","IcepiercerBronze",{["itemid"]=12226920195,["itemname"]="Bronze Icepiercer",["itemtype"]="Gun",["rarity"]="Unique"}},
+    {"Gun","IcepiercerGold",{["itemid"]=12226688172,["itemname"]="Gold Icepiercer",["itemtype"]="Gun",["rarity"]="Unique"}},
+    {"Gun","IcepiercerRed",{["itemid"]=12227133450,["itemname"]="Red Icepiercer",["itemtype"]="Gun",["rarity"]="Unique"}},
+    {"Gun","IcepiercerSilver",{["itemid"]=12226843957,["itemname"]="Silver Icepiercer",["itemtype"]="Gun",["rarity"]="Unique"}},
+    {"Gun","Icicles_G_2018",{["itemid"]=2669786044,["itemname"]="Icicles",["itemtype"]="Gun",["rarity"]="Rare"}},
+    {"Gun","Igloo_G_2024",{["itemid"]=95517099886712,["itemname"]="Igloo",["itemtype"]="Gun",["rarity"]="Common"}},
+    {"Gun","Imbued",{["itemid"]=196752718,["itemname"]="Imbued",["itemtype"]="Gun",["rarity"]="Rare"}},
+    {"Gun","Infected_G_2022",{["itemid"]=11255502768,["itemname"]="Infected",["itemtype"]="Gun",["rarity"]="Common"}},
+    {"Gun","Infiltrator",{["itemid"]=203806022,["itemname"]="Infiltrator",["itemtype"]="Gun",["rarity"]="Common"}},
+    {"Gun","Iron",{["itemid"]=196752812,["itemname"]="Iron",["itemtype"]="Gun",["rarity"]="Common"}},
+    {"Gun","Jinglegun",{["itemid"]=6125742758,["itemname"]="Jinglegun",["itemtype"]="Gun",["rarity"]="Godly"}},
+    {"Gun","Laser",{["itemid"]=238546983,["itemname"]="Laser",["itemtype"]="Gun",["rarity"]="Godly"}},
+    {"Gun","LaserChroma",{["chroma"]=true,["itemid"]=3187395952,["itemname"]="Laser",["itemtype"]="Gun",["rarity"]="Godly"}},
+    {"Gun","Latte_G_2023",{["itemid"]=15413116029,["itemname"]="Latte",["itemtype"]="Gun",["rarity"]="Legendary"}},
+    {"Gun","Lava_G_2025",{["itemid"]=90170220549489,["itemname"]="Lava",["itemtype"]="Gun",["rarity"]="Uncommon"}},
+    {"Gun","Leaves_G_2024",{["itemid"]=129970927613267,["itemname"]="Leaves",["itemtype"]="Gun",["rarity"]="Uncommon"}},
+    {"Gun","Lightbringer",{["itemid"]=4749070432,["itemname"]="Lightbringer",["itemtype"]="Gun",["rarity"]="Godly"}},
+    {"Gun","Lights_G_2019",{["itemid"]=4534872673,["itemname"]="Lights",["itemtype"]="Gun",["rarity"]="Uncommon"}},
+    {"Gun","Lights_G_2025",{["itemid"]=104258636970738,["itemname"]="Lights",["itemtype"]="Gun",["rarity"]="Common"}},
+    {"Gun","LoveGun",{["itemid"]=203867650,["itemname"]="Love",["itemtype"]="Gun",["rarity"]="Uncommon"}},
+    {"Gun","Luger",{["itemid"]=198042673,["itemname"]="Luger",["itemtype"]="Gun",["rarity"]="Godly"}},
+    {"Gun","LugerChroma",{["chroma"]=true,["itemid"]=3187395551,["itemname"]="Luger",["itemtype"]="Gun",["rarity"]="Godly"}},
+    {"Gun","Lugercane",{["itemid"]=4535482609,["itemname"]="Lugercane",["itemtype"]="Gun",["rarity"]="Godly"}},
+    {"Gun","Magma_G_2021",{["itemid"]=7800252572,["itemname"]="Magma",["itemtype"]="Gun",["rarity"]="Rare"}},
+    {"Gun","Makeshift",{["itemid"]=11229837140,["itemname"]="Makeshift",["itemtype"]="Gun",["rarity"]="Godly"}},
+    {"Gun","Marina",{["itemid"]=203808190,["itemname"]="Marina",["itemtype"]="Gun",["rarity"]="Uncommon"}},
+    {"Gun","Meadow_G_2025",{["itemid"]=107321881182350,["itemname"]="Meadow",["itemtype"]="Gun",["rarity"]="Uncommon"}},
+    {"Gun","Melon_G_2023",{["itemid"]=13944153861,["itemname"]="Melon",["itemtype"]="Gun",["rarity"]="Uncommon"}},
+    {"Gun","Minty",{["itemid"]=4535408229,["itemname"]="Minty",["itemtype"]="Gun",["rarity"]="Godly"}},
+    {"Gun","MintyBlue",{["itemid"]=4753347062,["itemname"]="Blue Minty",["itemtype"]="Gun",["rarity"]="Unique"}},
+    {"Gun","MintyBronze",{["itemid"]=4753348263,["itemname"]="Bronze Minty",["itemtype"]="Gun",["rarity"]="Unique"}},
+    {"Gun","MintyGold",{["itemid"]=4753347636,["itemname"]="Gold Minty",["itemtype"]="Gun",["rarity"]="Unique"}},
+    {"Gun","MintySilver",{["itemid"]=4753346087,["itemname"]="Silver Minty",["itemtype"]="Gun",["rarity"]="Unique"}},
+    {"Gun","Mistletoe_G_2022",{["itemid"]=11834438982,["itemname"]="Mistletoe",["itemtype"]="Gun",["rarity"]="Uncommon"}},
+    {"Gun","Molten",{["itemid"]=203869308,["itemname"]="Molten",["itemtype"]="Gun",["rarity"]="Rare"}},
+    {"Gun","Monster",{["itemid"]=4210941474,["itemname"]="Monster",["itemtype"]="Gun",["rarity"]="Rare"}},
+    {"Gun","Moonlight_G_2022",{["itemid"]=11284143055,["itemname"]="Moonlight",["itemtype"]="Gun",["rarity"]="Uncommon"}},
+    {"Gun","Mummy",{["itemid"]=315155591,["itemname"]="Mummy",["itemtype"]="Gun",["rarity"]="Rare"}},
+    {"Gun","MummyG2018",{["itemid"]=2513741663,["itemname"]="Mummy",["itemtype"]="Gun",["rarity"]="Uncommon"}},
+    {"Gun","Mummy_G_2020",{["itemid"]=5866463755,["itemname"]="Mummy",["itemtype"]="Gun",["rarity"]="Uncommon"}},
+    {"Gun","Neon_G_2023",{["itemid"]=15635560825,["itemname"]="Neon",["itemtype"]="Gun",["rarity"]="Rare"}},
+    {"Gun","Neon_G_2025",{["itemid"]=134429631587448,["itemname"]="Neon",["itemtype"]="Gun",["rarity"]="Rare"}},
+    {"Gun","News",{["itemid"]=238546032,["itemname"]="News",["itemtype"]="Gun",["rarity"]="Common"}},
+    {"Gun","Night",{["itemid"]=197829003,["itemname"]="Night",["itemtype"]="Gun",["rarity"]="Uncommon"}},
+    {"Gun","Nightfire",{["itemid"]=4659626966,["itemname"]="Nightfire",["itemtype"]="Gun",["rarity"]="Rare"}},
+    {"Gun","Nuke_G_2023",{["itemid"]=12965335931,["itemname"]="Nuke",["itemtype"]="Gun",["rarity"]="Rare"}},
+    {"Gun","Nutcracker",{["itemid"]=332497657,["itemname"]="Nutcracker",["itemtype"]="Gun",["rarity"]="Uncommon"}},
+    {"Gun","Ocean_G",{["itemid"]=13945898892,["itemname"]="Ocean",["itemtype"]="Gun",["rarity"]="Godly"}},
+    {"Gun","Ornament1Gun",{["itemid"]=332497144,["itemname"]="Ornament1",["itemtype"]="Gun",["rarity"]="Common"}},
+    {"Gun","Ornament2Gun",{["itemid"]=332497550,["itemname"]="Ornament2",["itemtype"]="Gun",["rarity"]="Common"}},
+    {"Gun","Ornaments_G_2020",{["itemid"]=6121863515,["itemname"]="Ornaments",["itemtype"]="Gun",["rarity"]="Common"}},
+    {"Gun","Overseer",{["itemid"]=197830043,["itemname"]="Overseer",["itemtype"]="Gun",["rarity"]="Legendary"}},
+    {"Gun","Painted_G_2023",{["itemid"]=12965344675,["itemname"]="Painted",["itemtype"]="Gun",["rarity"]="Uncommon"}},
+    {"Gun","Palms_G_2024",{["itemid"]=18322192817,["itemname"]="Palms",["itemtype"]="Gun",["rarity"]="Legendary"}},
+    {"Gun","Paws_G_2026",{["itemid"]=120089556380493,["itemname"]="Paws",["itemtype"]="Gun",["rarity"]="Uncommon"}},
+    {"Gun","Pea",{["itemid"]=238545971,["itemname"]="Pea",["itemtype"]="Gun",["rarity"]="Common"}},
+    {"Gun","Pearl_G",{["itemid"]=18322646152,["itemname"]="Pearlshine",["itemtype"]="Gun",["rarity"]="Godly"}},
+    {"Gun","Peppermint_G_2025",{["itemid"]=73148873488539,["itemname"]="Peppermint",["itemtype"]="Gun",["rarity"]="Common"}},
+    {"Gun","Phaser",{["itemid"]=196752144,["itemname"]="Phaser",["itemtype"]="Gun",["rarity"]="Classic"}},
+    {"Gun","Pine_G_2019",{["itemid"]=4534871260,["itemname"]="Pine",["itemtype"]="Gun",["rarity"]="Common"}},
+    {"Gun","Pirate",{["itemid"]=3183639867,["itemname"]="Pirate",["itemtype"]="Gun",["rarity"]="Uncommon"}},
+    {"Gun","Plaid_G_2026",{["itemid"]=121681210724670,["itemname"]="Plaid",["itemtype"]="Gun",["rarity"]="Common"}},
+    {"Gun","Plasmabeam",{["itemid"]=10014717343,["itemname"]="Plasmabeam",["itemtype"]="Gun",["rarity"]="Godly"}},
+    {"Gun","PopArt_G_2025",{["itemid"]=90526048501163,["itemname"]="Pop Art",["itemtype"]="Gun",["rarity"]="Rare"}},
+    {"Gun","Popsicle_G_2024",{["itemid"]=18322191060,["itemname"]="Popsicle",["itemtype"]="Gun",["rarity"]="Uncommon"}},
+    {"Gun","Portal_G_2020",{["itemid"]=5866461926,["itemname"]="Portal",["itemtype"]="Gun",["rarity"]="Uncommon"}},
+    {"Gun","PotionG2018",{["itemid"]=2513742133,["itemname"]="Potion",["itemtype"]="Gun",["rarity"]="Uncommon"}},
+    {"Gun","Predator",{["itemid"]=203810176,["itemname"]="Predator",["itemtype"]="Gun",["rarity"]="Legendary"}},
+    {"Gun","Prince_G_2026",{["itemid"]=87296563281923,["itemname"]="Prince",["itemtype"]="Gun",["rarity"]="Rare"}},
+    {"Gun","PumpkinPatch_G_2025",{["itemid"]=117088166092009,["itemname"]="Pumpkin Patch",["itemtype"]="Gun",["rarity"]="Uncommon"}},
+    {"Gun","Pumpkin_G_2023",{["itemid"]=15091327743,["itemname"]="Pumpkin",["itemtype"]="Gun",["rarity"]="Common"}},
+    {"Gun","RIP",{["itemid"]=4210947993,["itemname"]="RIP",["itemtype"]="Gun",["rarity"]="Common"}},
+    {"Gun","RainbowGun",{["itemid"]=3183640145,["itemname"]="Rainbow",["itemtype"]="Gun",["rarity"]="Rare"}},
+    {"Gun","Rainbow_G",{["itemid"]=12966354606,["itemname"]="Rainbow Gun",["itemtype"]="Gun",["rarity"]="Godly"}},
+    {"Gun","Raygun",{["itemid"]=139431943195380,["itemname"]="Raygun",["itemtype"]="Gun",["rarity"]="Godly"}},
+    {"Gun","RaygunBronze",{["itemid"]=138881346504998,["itemname"]="Bronze Raygun",["itemtype"]="Gun",["rarity"]="Unique"}},
+    {"Gun","RaygunChroma",{["chroma"]=true,["itemid"]=139431943195380,["itemname"]="Raygun",["itemtype"]="Gun",["rarity"]="Godly"}},
+    {"Gun","RaygunGold",{["itemid"]=76250851065456,["itemname"]="Gold Raygun",["itemtype"]="Gun",["rarity"]="Unique"}},
+    {"Gun","RaygunRed",{["itemid"]=132354489228618,["itemname"]="Red Raygun",["itemtype"]="Gun",["rarity"]="Unique"}},
+    {"Gun","RaygunSilver",{["itemid"]=71511736314707,["itemname"]="Silver Raygun",["itemtype"]="Gun",["rarity"]="Unique"}},
+    {"Gun","RedIceblaster",{["itemid"]=6404168049,["itemname"]="Red Iceblaster",["itemtype"]="Gun",["rarity"]="Unique"}},
+    {"Gun","RedLuger",{["itemid"]=332044583,["itemname"]="Red Luger",["itemtype"]="Gun",["rarity"]="Godly"}},
+    {"Gun","Ripper_G_2020",{["itemid"]=5866460591,["itemname"]="Ripper",["itemtype"]="Gun",["rarity"]="Legendary"}},
+    {"Gun","Ritual_G_2024",{["itemid"]=122021199074749,["itemname"]="Ritual",["itemtype"]="Gun",["rarity"]="Rare"}},
+    {"Gun","Sands",{["itemid"]=119213058412452,["itemname"]="Sands",["itemtype"]="Gun",["rarity"]="Godly"}},
+    {"Gun","SandsChroma",{["chroma"]=true,["itemid"]=119213058412452,["itemname"]="Sands",["itemtype"]="Gun",["rarity"]="Godly"}},
+    {"Gun","Sandy_G_2024",{["itemid"]=18323752709,["itemname"]="Sandy",["itemtype"]="Gun",["rarity"]="Common"}},
+    {"Gun","SantaGun",{["itemid"]=332496861,["itemname"]="Santa",["itemtype"]="Gun",["rarity"]="Common"}},
+    {"Gun","Santa_G_2018",{["itemid"]=2669785184,["itemname"]="Elf",["itemtype"]="Gun",["rarity"]="Common"}},
+    {"Gun","Santa_G_2023",{["itemid"]=15635550625,["itemname"]="Santa",["itemtype"]="Gun",["rarity"]="Common"}},
+    {"Gun","Shadow_G_2026",{["itemid"]=131289807674112,["itemname"]="Shadow",["itemtype"]="Gun",["rarity"]="Legendary"}},
+    {"Gun","Shark",{["itemid"]=203858533,["itemname"]="Shark",["itemtype"]="Gun",["rarity"]="Godly"}},
+    {"Gun","SharkChroma",{["chroma"]=true,["itemid"]=3187395738,["itemname"]="Shark",["itemtype"]="Gun",["rarity"]="Godly"}},
+    {"Gun","SharkSeeker",{["itemid"]=6967771328,["itemname"]="SharkSeeker",["itemtype"]="Gun",["rarity"]="Unique"}},
+    {"Gun","SilentNight_G_2020",{["itemid"]=6121862034,["itemname"]="Silent Night",["itemtype"]="Gun",["rarity"]="Rare"}},
+    {"Gun","SilverHarvester",{["itemid"]=8194217388,["itemname"]="Silver Harvester",["itemtype"]="Gun",["rarity"]="Unique"}},
+    {"Gun","SilverIceblaster",{["itemid"]=6404166698,["itemname"]="Silver Iceblaster",["itemtype"]="Gun",["rarity"]="Unique"}},
+    {"Gun","SilverSugar",{["itemid"]=3215261680,["itemname"]="Silver Sugar",["itemtype"]="Gun",["rarity"]="Unique"}},
+    {"Gun","Sketch",{["itemid"]=203808108,["itemname"]="Sketch",["itemtype"]="Gun",["rarity"]="Uncommon"}},
+    {"Gun","SlimeG",{["itemid"]=2513742319,["itemname"]="Slime",["itemtype"]="Gun",["rarity"]="Common"}},
+    {"Gun","SlouseClownGun",{["itemid"]=4659627976,["itemname"]="Clown",["itemtype"]="Gun",["rarity"]="Unique"}},
+    {"Gun","SnakebiteG",{["itemid"]=4210925026,["itemname"]="Snakebite",["itemtype"]="Gun",["rarity"]="Rare"}},
+    {"Gun","Snowball_G_2025",{["itemid"]=104416405402940,["itemname"]="Snowball",["itemtype"]="Gun",["rarity"]="Common"}},
+    {"Gun","Snowcannon",{["itemid"]=129186939023729,["itemname"]="Snowcannon",["itemtype"]="Gun",["rarity"]="Godly"}},
+    {"Gun","SnowcannonBronze",{["itemid"]=84743767811732,["itemname"]="Bronze Snowcannon",["itemtype"]="Gun",["rarity"]="Unique"}},
+    {"Gun","SnowcannonChroma",{["chroma"]=true,["itemid"]=129186939023729,["itemname"]="Snowcannon",["itemtype"]="Gun",["rarity"]="Godly"}},
+    {"Gun","SnowcannonGold",{["itemid"]=115609046800090,["itemname"]="Gold Snowcannon",["itemtype"]="Gun",["rarity"]="Unique"}},
+    {"Gun","SnowcannonRed",{["itemid"]=110812086479763,["itemname"]="Red Snowcannon",["itemtype"]="Gun",["rarity"]="Unique"}},
+    {"Gun","SnowcannonSilver",{["itemid"]=83838802472095,["itemname"]="Silver Snowcannon",["itemtype"]="Gun",["rarity"]="Unique"}},
+    {"Gun","Snowflake_G_2018",{["itemid"]=2669786515,["itemname"]="Snowflake",["itemtype"]="Gun",["rarity"]="Uncommon"}},
+    {"Gun","Snowflake_G_2022",{["itemid"]=11834437796,["itemname"]="Snowflake",["itemtype"]="Gun",["rarity"]="Uncommon"}},
+    {"Gun","Snowflake_G_2023",{["itemid"]=15635575718,["itemname"]="Snowflake",["itemtype"]="Gun",["rarity"]="Rare"}},
+    {"Gun","Snowflakes_G_2019",{["itemid"]=4534866065,["itemname"]="Snowflakes",["itemtype"]="Gun",["rarity"]="Common"}},
+    {"Gun","SnowmanGun",{["itemid"]=332497603,["itemname"]="Snowman",["itemtype"]="Gun",["rarity"]="Uncommon"}},
+    {"Gun","Snowman_G_2018",{["itemid"]=2669786846,["itemname"]="Snowman",["itemtype"]="Gun",["rarity"]="Common"}},
+    {"Gun","Snowman_G_2021",{["itemid"]=8304766932,["itemname"]="Snowman",["itemtype"]="Gun",["rarity"]="Uncommon"}},
+    {"Gun","Snowman_G_2022",{["itemid"]=11834436620,["itemname"]="Snowman",["itemtype"]="Gun",["rarity"]="Common"}},
+    {"Gun","Snowman_G_2023",{["itemid"]=15635572427,["itemname"]="Snowman",["itemtype"]="Gun",["rarity"]="Uncommon"}},
+    {"Gun","Soda_G_2025",{["itemid"]=132525981806780,["itemname"]="Soda",["itemtype"]="Gun",["rarity"]="Uncommon"}},
+    {"Gun","Sparkle",{["itemid"]=203869110,["itemname"]="Sparkle",["itemtype"]="Gun",["rarity"]="Legendary"}},
+    {"Gun","Spearmint_G_2025",{["itemid"]=81352860339620,["itemname"]="Spearmint",["itemtype"]="Gun",["rarity"]="Rare"}},
+    {"Gun","Spectral_G_2021",{["itemid"]=7800255531,["itemname"]="Spectral",["itemtype"]="Gun",["rarity"]="Legendary"}},
+    {"Gun","Spectre2022",{["itemid"]=11229779932,["itemname"]="Spectre",["itemtype"]="Gun",["rarity"]="Godly"}},
+    {"Gun","Spitfire",{["itemid"]=197829561,["itemname"]="Spitfire",["itemtype"]="Gun",["rarity"]="Rare"}},
+    {"Gun","Splash_G",{["itemid"]=4659626370,["itemname"]="Splash",["itemtype"]="Gun",["rarity"]="Legendary"}},
+    {"Gun","Splat",{["itemid"]=3183639522,["itemname"]="Splat",["itemtype"]="Gun",["rarity"]="Common"}},
+    {"Gun","Star",{["itemid"]=203807904,["itemname"]="Star",["itemtype"]="Gun",["rarity"]="Common"}},
+    {"Gun","Starfish_G_2024",{["itemid"]=18322189584,["itemname"]="Starfish",["itemtype"]="Gun",["rarity"]="Common"}},
+    {"Gun","Starry_G_2020",{["itemid"]=5930731295,["itemname"]="Starry",["itemtype"]="Gun",["rarity"]="Common"}},
+    {"Gun","Starry_G_2021",{["itemid"]=8304772774,["itemname"]="Starry",["itemtype"]="Gun",["rarity"]="Rare"}},
+    {"Gun","Stars_G_2023",{["itemid"]=15635574031,["itemname"]="Stars",["itemtype"]="Gun",["rarity"]="Uncommon"}},
+    {"Gun","Steel_G_2023",{["itemid"]=15091341552,["itemname"]="Steel",["itemtype"]="Gun",["rarity"]="Uncommon"}},
+    {"Gun","StickersX_G_2022",{["itemid"]=11834432971,["itemname"]="Stickers",["itemtype"]="Gun",["rarity"]="Common"}},
+    {"Gun","StickersX_G_2025",{["itemid"]=127489830827583,["itemname"]="Stickers",["itemtype"]="Gun",["rarity"]="Common"}},
+    {"Gun","Stickers_G_2021",{["itemid"]=7800257010,["itemname"]="Stickers",["itemtype"]="Gun",["rarity"]="Common"}},
+    {"Gun","Stickers_G_2024",{["itemid"]=108122054293502,["itemname"]="Stickers",["itemtype"]="Gun",["rarity"]="Common"}},
+    {"Gun","Stickers_G_2025",{["itemid"]=75123474631661,["itemname"]="Stickers",["itemtype"]="Gun",["rarity"]="Common"}},
+    {"Gun","Stickers_X_G_2024",{["itemid"]=91224254479440,["itemname"]="Stickers",["itemtype"]="Gun",["rarity"]="Common"}},
+    {"Gun","Stockings_G_2022",{["itemid"]=11834440319,["itemname"]="Stockings",["itemtype"]="Gun",["rarity"]="Uncommon"}},
+    {"Gun","Stockings_G_2024",{["itemid"]=76288270695961,["itemname"]="Stockings",["itemtype"]="Gun",["rarity"]="Common"}},
+    {"Gun","Strawberries_G_2026",{["itemid"]=128646835922561,["itemname"]="Strawberries",["itemtype"]="Gun",["rarity"]="Common"}},
+    {"Gun","Striped_G_2025",{["itemid"]=118530164125152,["itemname"]="Striped",["itemtype"]="Gun",["rarity"]="Common"}},
+    {"Gun","Sugar",{["itemid"]=332848695,["itemname"]="Sugar",["itemtype"]="Gun",["rarity"]="Godly"}},
+    {"Gun","Summer_Stickers_G_2023",{["itemid"]=13944151514,["itemname"]="Stickers",["itemtype"]="Gun",["rarity"]="Common"}},
+    {"Gun","Sunny_G_2025",{["itemid"]=93906279038399,["itemname"]="Sunny",["itemtype"]="Gun",["rarity"]="Rare"}},
+    {"Gun","SunsetGun",{["itemid"]=129480661108374,["itemname"]="Sunrise",["itemtype"]="Gun",["rarity"]="Godly"}},
+    {"Gun","SunsetGunChroma",{["chroma"]=true,["itemid"]=129480661108374,["itemname"]="Sunrise",["itemtype"]="Gun",["rarity"]="Godly"}},
+    {"Gun","Sunset_G_2023",{["itemid"]=13944155639,["itemname"]="Sun",["itemtype"]="Gun",["rarity"]="Rare"}},
+    {"Gun","Sunset_G_2026",{["itemid"]=120907601916735,["itemname"]="Sunset",["itemtype"]="Gun",["rarity"]="Rare"}},
+    {"Gun","Sweater_G_2018",{["itemid"]=2669787088,["itemname"]="Sweater",["itemtype"]="Gun",["rarity"]="Uncommon"}},
+    {"Gun","Sweater_G_2025",{["itemid"]=118557229750245,["itemname"]="Sweater",["itemtype"]="Gun",["rarity"]="Uncommon"}},
+    {"Gun","SwirlyGun",{["itemid"]=8305264097,["itemname"]="Swirly Gun",["itemtype"]="Gun",["rarity"]="Godly"}},
+    {"Gun","SwirlyGunBlue",{["itemid"]=9552060741,["itemname"]="Blue Swirly",["itemtype"]="Gun",["rarity"]="Unique"}},
+    {"Gun","SwirlyGunBronze",{["itemid"]=9552063524,["itemname"]="Bronze Swirly",["itemtype"]="Gun",["rarity"]="Unique"}},
+    {"Gun","SwirlyGunChroma",{["chroma"]=true,["itemid"]=8311393414,["itemname"]="Swirly Gun",["itemtype"]="Gun",["rarity"]="Godly"}},
+    {"Gun","SwirlyGunGold",{["itemid"]=9552065167,["itemname"]="Gold Swirly",["itemtype"]="Gun",["rarity"]="Unique"}},
+    {"Gun","SwirlyGunSilver",{["itemid"]=9552064240,["itemname"]="Silver Swirly",["itemtype"]="Gun",["rarity"]="Unique"}},
+    {"Gun","ToxicG",{["itemid"]=2513742519,["itemname"]="Toxic",["itemtype"]="Gun",["rarity"]="Rare"}},
+    {"Gun","Toy_G_2023",{["itemid"]=13944152795,["itemname"]="Toy",["itemtype"]="Gun",["rarity"]="Common"}},
+    {"Gun","TravelerGun",{["itemid"]=15091442039,["itemname"]="Traveler's Gun",["itemtype"]="Gun",["rarity"]="Godly"}},
+    {"Gun","TravelerGunChroma",{["chroma"]=true,["itemid"]=15097897227,["itemname"]="Traveler's Gun",["itemtype"]="Gun",["rarity"]="Godly"}},
+    {"Gun","Traveler_G_2023",{["itemid"]=15091344462,["itemname"]="Traveler",["itemtype"]="Gun",["rarity"]="Legendary"}},
+    {"Gun","Treat",{["itemid"]=131626924640663,["itemname"]="Treat",["itemtype"]="Gun",["rarity"]="Godly"}},
+    {"Gun","TreatChroma",{["chroma"]=true,["itemid"]=131626924640663,["itemname"]="Treat",["itemtype"]="Gun",["rarity"]="Godly"}},
+    {"Gun","Treats_G_2025",{["itemid"]=76537883908961,["itemname"]="Treats",["itemtype"]="Gun",["rarity"]="Uncommon"}},
+    {"Gun","TreeGun",{["itemid"]=332497688,["itemname"]="Tree",["itemtype"]="Gun",["rarity"]="Legendary"}},
+    {"Gun","TreeGun2023",{["itemid"]=15682703596,["itemname"]="Evergun",["itemtype"]="Gun",["rarity"]="Godly"}},
+    {"Gun","TreeGun2023Chroma",{["chroma"]=true,["itemid"]=15682703596,["itemname"]="Evergun",["itemtype"]="Gun",["rarity"]="Godly"}},
+    {"Gun","Tree_G_2022",{["itemid"]=11834441321,["itemname"]="Tree",["itemtype"]="Gun",["rarity"]="Rare"}},
+    {"Gun","UFOs_G_2025",{["itemid"]=84030107970606,["itemname"]="UFOs",["itemtype"]="Gun",["rarity"]="Common"}},
+    {"Gun","Universe",{["itemid"]=238546660,["itemname"]="Universe",["itemtype"]="Gun",["rarity"]="Legendary"}},
+    {"Gun","VampireG2018",{["itemid"]=2513742751,["itemname"]="Vampire",["itemtype"]="Gun",["rarity"]="Rare"}},
+    {"Gun","VampireGun",{["itemid"]=90274872705656,["itemname"]="Vampire's Gun",["itemtype"]="Gun",["rarity"]="Godly"}},
+    {"Gun","VampireGunChroma",{["chroma"]=true,["itemid"]=90274872705656,["itemname"]="Vampire's Gun",["itemtype"]="Gun",["rarity"]="Godly"}},
+    {"Gun","Vampire_G_2022",{["itemid"]=11255503583,["itemname"]="Vampire",["itemtype"]="Gun",["rarity"]="Legendary"}},
+    {"Gun","Vines_G_2023",{["itemid"]=15091402817,["itemname"]="Vines",["itemtype"]="Gun",["rarity"]="Common"}},
+    {"Gun","Viper",{["itemid"]=196752926,["itemname"]="Viper",["itemtype"]="Gun",["rarity"]="Legendary"}},
+    {"Gun","Watcher_G_2021",{["itemid"]=7800256309,["itemname"]="Watcher",["itemtype"]="Gun",["rarity"]="Rare"}},
+    {"Gun","WaterBalloons_G_2024",{["itemid"]=18323751962,["itemname"]="Balloons",["itemtype"]="Gun",["rarity"]="Common"}},
+    {"Gun","Watergun",{["itemid"]=18351388416,["itemname"]="Watergun",["itemtype"]="Gun",["rarity"]="Godly"}},
+    {"Gun","WatergunChroma",{["chroma"]=true,["itemid"]=18351401528,["itemname"]="Watergun",["itemtype"]="Gun",["rarity"]="Godly"}},
+    {"Gun","Wavy_G_2024",{["itemid"]=16960077712,["itemname"]="Wavy",["itemtype"]="Gun",["rarity"]="Common"}},
+    {"Gun","WebbedG",{["itemid"]=4210936652,["itemname"]="Webbed",["itemtype"]="Gun",["rarity"]="Common"}},
+    {"Gun","Webs_G_2022",{["itemid"]=11284147880,["itemname"]="Webs",["itemtype"]="Gun",["rarity"]="Common"}},
+    {"Gun","Wooden",{["itemid"]=238546356,["itemname"]="Wooden",["itemtype"]="Gun",["rarity"]="Uncommon"}},
+    {"Gun","WraithGun",{["itemid"]=75233248021696,["itemname"]="Soul",["itemtype"]="Gun",["rarity"]="Godly"}},
+    {"Gun","Wraith_G_2022",{["itemid"]=11255504462,["itemname"]="Wraith",["itemtype"]="Gun",["rarity"]="Rare"}},
+    {"Gun","WrappedGun",{["itemid"]=332497103,["itemname"]="Wrapped",["itemtype"]="Gun",["rarity"]="Uncommon"}},
+    {"Gun","Wrapped_G_2018",{["itemid"]=2669787533,["itemname"]="Wrapped",["itemtype"]="Gun",["rarity"]="Common"}},
+    {"Gun","Wrapped_G_2024",{["itemid"]=109929760056853,["itemname"]="Wrapped",["itemtype"]="Gun",["rarity"]="Uncommon"}},
+    {"Gun","XenoGun",{["itemid"]=79722325448464,["itemname"]="Xenoshot",["itemtype"]="Gun",["rarity"]="Godly"}},
+    {"Gun","Xeno_G_2025",{["itemid"]=139755862211442,["itemname"]="Xeno",["itemtype"]="Gun",["rarity"]="Rare"}},
+    {"Gun","XmasStickers_G_2021",{["itemid"]=8304770115,["itemname"]="Stickers",["itemtype"]="Gun",["rarity"]="Common"}},
+    {"Gun","ZombieG2018",{["itemid"]=2513743298,["itemname"]="Zombie",["itemtype"]="Gun",["rarity"]="Uncommon"}},
+    {"Gun","ZombifiedG",{["itemid"]=4210944924,["itemname"]="Zombified",["itemtype"]="Gun",["rarity"]="Uncommon"}},
+    {"Gun","iRevolver",{["itemid"]=203809168,["itemname"]="iRevolver",["itemtype"]="Gun",["rarity"]="Rare"}},
+    {"Knife","2015",{["itemid"]=199026945,["itemname"]="2015",["itemtype"]="Knife",["rarity"]="Common"}},
+    {"Knife","8bit",{["itemid"]=198438554,["itemname"]="8bit",["itemtype"]="Knife",["rarity"]="Common"}},
+    {"Knife","Abduction_K_2025",{["itemid"]=107510647616718,["itemname"]="Abduction",["itemtype"]="Knife",["rarity"]="Uncommon"}},
+    {"Knife","Abstract",{["itemid"]=365569428,["itemname"]="Abstract",["itemtype"]="Knife",["rarity"]="Rare"}},
+    {"Knife","Adurite",{["itemid"]=196749885,["itemname"]="Adurite",["itemtype"]="Knife",["rarity"]="Uncommon"}},
+    {"Knife","Alex",{["itemid"]=546159020,["itemname"]="Alex",["itemtype"]="Knife",["rarity"]="Common"}},
+    {"Knife","AmericaSword",{["itemid"]=473570051,["itemname"]="Old Glory",["itemtype"]="Knife",["offset"]={["X"]=-0.1,["Y"]=0,["Z"]=0.55},["rarity"]="Godly"}},
+    {"Knife","Apoc_K_2022",{["itemid"]=11254172968,["itemname"]="Apocalypse",["itemtype"]="Knife",["rarity"]="Common"}},
+    {"Knife","Aqua",{["itemid"]=315501208,["itemname"]="Aqua",["itemtype"]="Knife",["rarity"]="Common"}},
+    {"Knife","Aquarium_K_2025",{["itemid"]=80900354672590,["itemname"]="Aquarium",["itemtype"]="Knife",["rarity"]="Legendary"}},
+    {"Knife","Arctic_K_2022",{["itemid"]=11834401547,["itemname"]="Arctic",["itemtype"]="Knife",["rarity"]="Legendary"}},
+    {"Knife","AuroraKnife",{["itemid"]=101343256002049,["itemname"]="Australis",["itemtype"]="Knife",["rarity"]="Godly"}},
+    {"Knife","Aurora_K_2019",{["itemid"]=4534860689,["itemname"]="Aurora",["itemtype"]="Knife",["rarity"]="Rare"}},
+    {"Knife","Aurora_K_2021",{["itemid"]=8304750877,["itemname"]="Aurora",["itemtype"]="Knife",["rarity"]="Legendary"}},
+    {"Knife","Bats",{["itemid"]=531873625,["itemname"]="Bats",["itemtype"]="Knife",["rarity"]="Rare"}},
+    {"Knife","BatsK",{["itemid"]=2513732731,["itemname"]="Bats",["itemtype"]="Knife",["rarity"]="Common"}},
+    {"Knife","Bats_K_2020",{["itemid"]=5930729222,["itemname"]="Bats",["itemtype"]="Knife",["rarity"]="Common"}},
+    {"Knife","Bats_K_2024",{["itemid"]=104747488009018,["itemname"]="Bats",["itemtype"]="Knife",["rarity"]="Common"}},
+    {"Knife","Bats_K_2025",{["itemid"]=140366567839959,["itemname"]="Cats",["itemtype"]="Knife",["rarity"]="Common"}},
+    {"Knife","BattleAxe",{["itemid"]=1133237368,["itemname"]="BattleAxe",["itemtype"]="Knife",["rarity"]="Godly"}},
+    {"Knife","BattleAxe2",{["itemid"]=2513535503,["itemname"]="BattleAxe II",["itemtype"]="Knife",["rarity"]="Godly"}},
+    {"Knife","Batwing",{["itemid"]=196751515,["itemname"]="Glitch1",["itemtype"]="Knife",["rarity"]="Common"}},
+    {"Knife","BaubleKnife",{["itemid"]=111092946728824,["itemname"]="Ornament",["itemtype"]="Knife",["rarity"]="Godly"}},
+    {"Knife","BaubleKnifeChroma",{["chroma"]=true,["itemid"]=111092946728824,["itemname"]="Ornament",["itemtype"]="Knife",["rarity"]="Godly"}},
+    {"Knife","Beach_K_2023",{["itemid"]=13944135892,["itemname"]="Beach",["itemtype"]="Knife",["rarity"]="Legendary"}},
+    {"Knife","Beachy",{["itemid"]=120888453565511,["itemname"]="Beachy",["itemtype"]="Knife",["rarity"]="Godly"}},
+    {"Knife","BeachyChroma",{["chroma"]=true,["itemid"]=120888453565511,["itemname"]="Beachy",["itemtype"]="Knife",["rarity"]="Godly"}},
+    {"Knife","Bells_K_2023",{["itemid"]=15635570486,["itemname"]="Bells",["itemtype"]="Knife",["rarity"]="Common"}},
+    {"Knife","Bio_K_2023",{["itemid"]=12965298174,["itemname"]="Bio",["itemtype"]="Knife",["rarity"]="Rare"}},
+    {"Knife","Bioblade",{["itemid"]=4751539262,["itemname"]="Bioblade",["itemtype"]="Knife",["offset"]={["X"]=-0.1,["Y"]=-0.2,["Z"]=0.6},["rarity"]="Godly"}},
+    {"Knife","Bleached",{["itemid"]=315500879,["itemname"]="Bleached",["itemtype"]="Knife",["rarity"]="Common"}},
+    {"Knife","BloodKnife",{["itemid"]=473573464,["itemname"]="Blood",["itemtype"]="Knife",["rarity"]="Classic"}},
+    {"Knife","Bloom",{["itemid"]=128553215441980,["itemname"]="Bloom",["itemtype"]="Knife",["rarity"]="Godly"}},
+    {"Knife","Blossom",{["itemid"]=363150561,["itemname"]="Blossom",["itemtype"]="Knife",["rarity"]="Common"}},
+    {"Knife","Blossom_K_2026",{["itemid"]=110160120309916,["itemname"]="Blossom",["itemtype"]="Knife",["rarity"]="Uncommon"}},
+    {"Knife","BlueCamo_K_2022",{["itemid"]=11254146743,["itemname"]="Survivor Camo",["itemtype"]="Knife",["rarity"]="Common"}},
+    {"Knife","BlueCandy",{["itemid"]=1489495701,["itemname"]="Blue Candy",["itemtype"]="Knife",["rarity"]="Unique"}},
+    {"Knife","BlueSeer",{["itemid"]=3184125087,["itemname"]="Blue Seer",["itemtype"]="Knife",["rarity"]="Godly"}},
+    {"Knife","BlueVampiresEdge",{["itemid"]=6084854835,["itemname"]="Blue Vamp's Edge",["itemtype"]="Knife",["rarity"]="Unique"}},
+    {"Knife","Bluesteel",{["itemid"]=196750197,["itemname"]="Bluesteel",["itemtype"]="Knife",["rarity"]="Uncommon"}},
+    {"Knife","Boneblade",{["itemid"]=2513505477,["itemname"]="Boneblade",["itemtype"]="Knife",["rarity"]="Godly"}},
+    {"Knife","BonebladeChroma",{["chroma"]=true,["itemid"]=2513598419,["itemname"]="Boneblade",["itemtype"]="Knife",["rarity"]="Godly"}},
+    {"Knife","Bones",{["itemid"]=531873816,["itemname"]="Bones",["itemtype"]="Knife",["rarity"]="Common"}},
+    {"Knife","Bones_K_2020",{["itemid"]=5872492951,["itemname"]="Bones",["itemtype"]="Knife",["rarity"]="Rare"}},
+    {"Knife","Bones_K_2022",{["itemid"]=11254152435,["itemname"]="Boney",["itemtype"]="Knife",["rarity"]="Common"}},
+    {"Knife","Bones_K_2024",{["itemid"]=76461209737867,["itemname"]="Bones",["itemtype"]="Knife",["rarity"]="Uncommon"}},
+    {"Knife","Borders",{["itemid"]=198434881,["itemname"]="Borders",["itemtype"]="Knife",["rarity"]="Common"}},
+    {"Knife","Brains",{["itemid"]=531873956,["itemname"]="Brains",["itemtype"]="Knife",["rarity"]="Common"}},
+    {"Knife","Brains2019",{["itemid"]=4210929184,["itemname"]="Brains",["itemtype"]="Knife",["rarity"]="Uncommon"}},
+    {"Knife","Branches",{["itemid"]=4210943691,["itemname"]="Branches",["itemtype"]="Knife",["rarity"]="Uncommon"}},
+    {"Knife","Broken_K_2023",{["itemid"]=12339323856,["itemname"]="Broken",["itemtype"]="Knife",["rarity"]="Legendary"}},
+    {"Knife","BronzeCandy",{["itemid"]=1520189487,["itemname"]="Bronze Candy",["itemtype"]="Knife",["rarity"]="Unique"}},
+    {"Knife","BronzeHallow",{["itemid"]=2511342846,["itemname"]="Bronze Hallow",["itemtype"]="Knife",["rarity"]="Unique"}},
+    {"Knife","BronzeIcebreaker",{["itemid"]=6404127119,["itemname"]="Bronze Icebreaker",["itemtype"]="Knife",["rarity"]="Unique"}},
+    {"Knife","BronzeVampiresEdge",{["itemid"]=6084842077,["itemname"]="Bronze Vamp's Edge",["itemtype"]="Knife",["rarity"]="Unique"}},
+    {"Knife","Brush",{["itemid"]=365568602,["itemname"]="Brush",["itemtype"]="Knife",["rarity"]="Uncommon"}},
+    {"Knife","Bubbles_K_2026",{["itemid"]=138388933477235,["itemname"]="Bubbles",["itemtype"]="Knife",["rarity"]="Legendary"}},
+    {"Knife","Bunnies_K_2025",{["itemid"]=90549252812333,["itemname"]="Bunnies",["itemtype"]="Knife",["rarity"]="Legendary"}},
+    {"Knife","Bunny",{["itemid"]=387874365,["itemname"]="Bunny",["itemtype"]="Knife",["rarity"]="Common"}},
+    {"Knife","CamoKnife",{["itemid"]=3183606225,["itemname"]="Camo",["itemtype"]="Knife",["rarity"]="Uncommon"}},
+    {"Knife","Candied_K_2022",{["itemid"]=11834384755,["itemname"]="Candied",["itemtype"]="Knife",["rarity"]="Common"}},
+    {"Knife","Candle_K_2020",{["itemid"]=5872491708,["itemname"]="Candle",["itemtype"]="Knife",["rarity"]="Common"}},
+    {"Knife","Candleflame",{["itemid"]=7805833970,["itemname"]="Candleflame",["itemtype"]="Knife",["rarity"]="Godly"}},
+    {"Knife","CandleflameChroma",{["chroma"]=true,["itemid"]=7806121918,["itemname"]="Candleflame",["itemtype"]="Knife",["rarity"]="Godly"}},
+    {"Knife","Candles_K_2024",{["itemid"]=133654810681274,["itemname"]="Candles",["itemtype"]="Knife",["rarity"]="Common"}},
+    {"Knife","Candy",{["itemid"]=332021011,["itemname"]="Candy",["itemtype"]="Knife",["rarity"]="Godly"}},
+    {"Knife","CandyCorn",{["itemid"]=1133337797,["itemname"]="CandyCorn",["itemtype"]="Knife",["rarity"]="Common"}},
+    {"Knife","CandyCorn2019",{["itemid"]=4210934082,["itemname"]="Candy Corn",["itemtype"]="Knife",["rarity"]="Common"}},
+    {"Knife","CandyCorn_K_2020",{["itemid"]=5866435364,["itemname"]="Candy Corn",["itemtype"]="Knife",["rarity"]="Common"}},
+    {"Knife","CandyCorn_K_2022",{["itemid"]=11254057417,["itemname"]="Candy Corn",["itemtype"]="Knife",["rarity"]="Common"}},
+    {"Knife","CandyCorn_K_2024",{["itemid"]=115093067149752,["itemname"]="Candy Corn",["itemtype"]="Knife",["rarity"]="Common"}},
+    {"Knife","CandyCorn_K_2025",{["itemid"]=86405207895194,["itemname"]="Candy Corn",["itemtype"]="Knife",["rarity"]="Common"}},
+    {"Knife","CandySwirl_K_2019",{["itemid"]=4534860226,["itemname"]="Candy Swirl",["itemtype"]="Knife",["rarity"]="Rare"}},
+    {"Knife","Cane",{["itemid"]=331140746,["itemname"]="Cane",["itemtype"]="Knife",["rarity"]="Rare"}},
+    {"Knife","Cane_K_2018",{["itemid"]=2669638508,["itemname"]="Cane",["itemtype"]="Knife",["rarity"]="Rare"}},
+    {"Knife","Cane_K_2021",{["itemid"]=8304750295,["itemname"]="Cane",["itemtype"]="Knife",["rarity"]="Common"}},
+    {"Knife","Canes_K_2023",{["itemid"]=15635574962,["itemname"]="Canes",["itemtype"]="Knife",["rarity"]="Uncommon"}},
+    {"Knife","Cardboard",{["itemid"]=235366729,["itemname"]="Cardboard",["itemtype"]="Knife",["rarity"]="Common"}},
+    {"Knife","Carrot",{["itemid"]=387874071,["itemname"]="Carrot",["itemtype"]="Knife",["rarity"]="Common"}},
+    {"Knife","Carrot_K_2023",{["itemid"]=12965307410,["itemname"]="Carrot",["itemtype"]="Knife",["rarity"]="Uncommon"}},
+    {"Knife","Carrot_K_2024",{["itemid"]=16959771850,["itemname"]="Carrot",["itemtype"]="Knife",["rarity"]="Uncommon"}},
+    {"Knife","Carrots_K_2025",{["itemid"]=76914260444878,["itemname"]="Carrots",["itemtype"]="Knife",["rarity"]="Common"}},
+    {"Knife","Carved_K_2020",{["itemid"]=5866436906,["itemname"]="Carved",["itemtype"]="Knife",["rarity"]="Common"}},
+    {"Knife","Cavern_K_2019",{["itemid"]=4534861110,["itemname"]="Cavern",["itemtype"]="Knife",["rarity"]="Legendary"}},
+    {"Knife","Celestial",{["itemid"]=136673966529736,["itemname"]="Celestial",["itemtype"]="Knife",["rarity"]="Ancient"}},
+    {"Knife","Celestial_Bronze",{["itemid"]=119399643874968,["itemname"]="Bronze Celestial",["itemtype"]="Knife",["rarity"]="Unique"}},
+    {"Knife","Celestial_Gold",{["itemid"]=104229967982042,["itemname"]="Gold Celestial",["itemtype"]="Knife",["rarity"]="Unique"}},
+    {"Knife","Celestial_Red",{["itemid"]=119157529694972,["itemname"]="Red Celestial",["itemtype"]="Knife",["rarity"]="Unique"}},
+    {"Knife","Celestial_Silver",{["itemid"]=90241292303974,["itemname"]="Silver Celestial",["itemtype"]="Knife",["rarity"]="Unique"}},
+    {"Knife","Checker",{["itemid"]=198443382,["itemname"]="Checker",["itemtype"]="Knife",["rarity"]="Uncommon"}},
+    {"Knife","Cheesy",{["itemid"]=198440101,["itemname"]="Cheesy",["itemtype"]="Knife",["rarity"]="Uncommon"}},
+    {"Knife","Cherry",{["itemid"]=6711852603,["itemname"]="Cherry",["itemtype"]="Knife",["rarity"]="Common"}},
+    {"Knife","Chick_K_2025",{["itemid"]=116361515042274,["itemname"]="Chick",["itemtype"]="Knife",["rarity"]="Common"}},
+    {"Knife","Chill",{["itemid"]=332022166,["itemname"]="Chill",["itemtype"]="Knife",["rarity"]="Godly"}},
+    {"Knife","Chips",{["itemid"]=473626317,["itemname"]="Blue",["itemtype"]="Knife",["rarity"]="Uncommon"}},
+    {"Knife","Choco",{["itemid"]=387874991,["itemname"]="Choco",["itemtype"]="Knife",["rarity"]="Common"}},
+    {"Knife","Chromatic_K_2023",{["itemid"]=12965304445,["itemname"]="Chromatic",["itemtype"]="Knife",["rarity"]="Legendary"}},
+    {"Knife","Circuit",{["itemid"]=235366945,["itemname"]="Circuit",["itemtype"]="Knife",["rarity"]="Uncommon"}},
+    {"Knife","Clan",{["itemid"]=235366460,["itemname"]="Clan",["itemtype"]="Knife",["rarity"]="Common"}},
+    {"Knife","Clockwork",{["itemid"]=473570519,["itemname"]="Clockwork",["itemtype"]="Knife",["rarity"]="Godly"}},
+    {"Knife","Clown",{["itemid"]=315501118,["itemname"]="Clown",["itemtype"]="Knife",["rarity"]="Common"}},
+    {"Knife","Clownfish_K_2024",{["itemid"]=18322183619,["itemname"]="Clownfish",["itemtype"]="Knife",["rarity"]="Common"}},
+    {"Knife","Coal",{["itemid"]=1268699677,["itemname"]="Coal",["itemtype"]="Knife",["rarity"]="Common"}},
+    {"Knife","Coal_K_2018",{["itemid"]=2669638285,["itemname"]="Coal",["itemtype"]="Knife",["rarity"]="Common"}},
+    {"Knife","Coal_K_2021",{["itemid"]=8304751659,["itemname"]="Coal",["itemtype"]="Knife",["rarity"]="Common"}},
+    {"Knife","Coal_K_2022",{["itemid"]=11834390120,["itemname"]="Coal",["itemtype"]="Knife",["rarity"]="Common"}},
+    {"Knife","Coconut_K_2025",{["itemid"]=75237025203058,["itemname"]="Coconut",["itemtype"]="Knife",["rarity"]="Common"}},
+    {"Knife","Combat",{["itemid"]=3183604570,["itemname"]="Combat",["itemtype"]="Knife",["rarity"]="Common"}},
+    {"Knife","Combat2",{["itemid"]=4972196241,["itemname"]="Combat II",["itemtype"]="Knife",["rarity"]="Common"}},
+    {"Knife","Constellation_K_2024",{["itemid"]=113979322866878,["itemname"]="Nightstar",["itemtype"]="Knife",["rarity"]="Legendary"}},
+    {"Knife","Cookie_K_2021",{["itemid"]=8304752586,["itemname"]="Cookie",["itemtype"]="Knife",["rarity"]="Uncommon"}},
+    {"Knife","Cookieblade",{["itemid"]=6125733703,["itemname"]="Cookieblade",["itemtype"]="Knife",["rarity"]="Godly"}},
+    {"Knife","Copper",{["itemid"]=3183605392,["itemname"]="Copper",["itemtype"]="Knife",["rarity"]="Common"}},
+    {"Knife","Corl",{["itemid"]=546161858,["itemname"]="Corl",["itemtype"]="Knife",["rarity"]="Common"}},
+    {"Knife","CottonCandy",{["itemid"]=435933179,["itemname"]="Cotton Candy",["itemtype"]="Knife",["rarity"]="Legendary"}},
+    {"Knife","Cowboy_K_2026",{["itemid"]=137905346768007,["itemname"]="Cowboy",["itemtype"]="Knife",["rarity"]="Rare"}},
+    {"Knife","Cracks_K_2021",{["itemid"]=7800224981,["itemname"]="Cracks",["itemtype"]="Knife",["rarity"]="Common"}},
+    {"Knife","Cupid_K_2026",{["itemid"]=123955324398353,["itemname"]="Cupid",["itemtype"]="Knife",["rarity"]="Legendary"}},
+    {"Knife","Cursed_K_2024",{["itemid"]=132565936309463,["itemname"]="Cursed",["itemtype"]="Knife",["rarity"]="Legendary"}},
+    {"Knife","Damp",{["itemid"]=198443956,["itemname"]="Damp",["itemtype"]="Knife",["rarity"]="Rare"}},
+    {"Knife","Dark_K_2023",{["itemid"]=15091343579,["itemname"]="Darkknife",["itemtype"]="Knife",["rarity"]="Rare"}},
+    {"Knife","Darkness_K_2022",{["itemid"]=11254081561,["itemname"]="Darkness",["itemtype"]="Knife",["rarity"]="Common"}},
+    {"Knife","Darksword",{["itemid"]=15080267070,["itemname"]="Darksword",["itemtype"]="Knife",["rarity"]="Godly"}},
+    {"Knife","Deathshard",{["itemid"]=196750305,["itemname"]="Deathshard",["itemtype"]="Knife",["rarity"]="Godly"}},
+    {"Knife","DeathshardChroma",{["chroma"]=true,["itemid"]=3187390667,["itemname"]="Deathshard",["itemtype"]="Knife",["rarity"]="Godly"}},
+    {"Knife","Decorated_K_2025",{["itemid"]=124860763249593,["itemname"]="Decorated",["itemtype"]="Knife",["rarity"]="Uncommon"}},
+    {"Knife","DeepSea",{["itemid"]=4659634072,["itemname"]="Deep Sea",["itemtype"]="Knife",["rarity"]="Rare"}},
+    {"Knife","Denis",{["itemid"]=546161062,["itemname"]="Denis",["itemtype"]="Knife",["rarity"]="Common"}},
+    {"Knife","Dew",{["itemid"]=473626646,["itemname"]="Black",["itemtype"]="Knife",["rarity"]="Rare"}},
+    {"Knife","Doge",{["itemid"]=235371276,["itemname"]="Doge",["itemtype"]="Knife",["rarity"]="Uncommon"}},
+    {"Knife","Dolphins_K_2025",{["itemid"]=133219566412887,["itemname"]="Dolphins",["itemtype"]="Knife",["rarity"]="Common"}},
+    {"Knife","Donut",{["itemid"]=235366815,["itemname"]="Donut",["itemtype"]="Knife",["rarity"]="Uncommon"}},
+    {"Knife","Doritos",{["itemid"]=473626740,["itemname"]="Purple",["itemtype"]="Knife",["rarity"]="Rare"}},
+    {"Knife","Dungeon",{["itemid"]=4210920512,["itemname"]="Dungeon",["itemtype"]="Knife",["rarity"]="Rare"}},
+    {"Knife","Eclipse_K_2023",{["itemid"]=15091404278,["itemname"]="Eclipse",["itemtype"]="Knife",["rarity"]="Uncommon"}},
+    {"Knife","Eco",{["itemid"]=365567889,["itemname"]="Eco",["itemtype"]="Knife",["rarity"]="Common"}},
+    {"Knife","Ecto",{["itemid"]=1133331679,["itemname"]="Ecto",["itemtype"]="Knife",["rarity"]="Common"}},
+    {"Knife","Eggblade",{["itemid"]=6607277825,["itemname"]="Eggblade",["itemtype"]="Knife",["rarity"]="Godly"}},
+    {"Knife","Eggs",{["itemid"]=387875405,["itemname"]="Egg",["itemtype"]="Knife",["rarity"]="Common"}},
+    {"Knife","ElderwoodKnife",{["itemid"]=11262771067,["itemname"]="Elderwood Blade",["itemtype"]="Knife",["rarity"]="Godly"}},
+    {"Knife","ElderwoodKnifeBlue",{["itemid"]=11505913287,["itemname"]="Blue Elderwood",["itemtype"]="Knife",["rarity"]="Unique"}},
+    {"Knife","ElderwoodKnifeBronze",{["itemid"]=11505914752,["itemname"]="Bronze Elderwood",["itemtype"]="Knife",["rarity"]="Unique"}},
+    {"Knife","ElderwoodKnifeChroma",{["chroma"]=true,["itemid"]=11254975176,["itemname"]="Elderwood Blade",["itemtype"]="Knife",["rarity"]="Godly"}},
+    {"Knife","ElderwoodKnifeGold",{["itemid"]=11505917850,["itemname"]="Gold Elderwood",["itemtype"]="Knife",["rarity"]="Unique"}},
+    {"Knife","ElderwoodKnifeSilver",{["itemid"]=11505916486,["itemname"]="Silver Elderwood",["itemtype"]="Knife",["rarity"]="Unique"}},
+    {"Knife","ElderwoodScythe",{["itemid"]=4211148191,["itemname"]="Elderwood Scythe",["itemtype"]="Knife",["rarity"]="Ancient"}},
+    {"Knife","Elf",{["itemid"]=331746317,["itemname"]="Elf",["itemtype"]="Knife",["rarity"]="Common"}},
+    {"Knife","Elf2017",{["itemid"]=1268703023,["itemname"]="Elf",["itemtype"]="Knife",["rarity"]="Common"}},
+    {"Knife","Elite",{["itemid"]=241095344,["itemname"]="Elite",["itemtype"]="Knife",["rarity"]="Legendary"}},
+    {"Knife","EliteBlue",{["itemid"]=1269374321,["itemname"]="Blue Elite",["itemtype"]="Knife",["rarity"]="Legendary"}},
+    {"Knife","EliteGreen",{["itemid"]=332731156,["itemname"]="Green Elite",["itemtype"]="Knife",["rarity"]="Legendary"}},
+    {"Knife","Emerald",{["itemid"]=198444909,["itemname"]="Emerald",["itemtype"]="Knife",["rarity"]="Legendary"}},
+    {"Knife","Energized_K_2025",{["itemid"]=86258299490709,["itemname"]="Energized",["itemtype"]="Knife",["rarity"]="Legendary"}},
+    {"Knife","Eternal",{["itemid"]=619605312,["itemname"]="Eternal",["itemtype"]="Knife",["rarity"]="Godly"}},
+    {"Knife","Eternal2",{["itemid"]=2545253030,["itemname"]="Eternal II",["itemtype"]="Knife",["rarity"]="Godly"}},
+    {"Knife","Eternal3",{["itemid"]=3279011390,["itemname"]="Eternal III",["itemtype"]="Knife",["rarity"]="Godly"}},
+    {"Knife","Eternal4",{["itemid"]=4999958740,["itemname"]="Eternal IV",["itemtype"]="Knife",["rarity"]="Godly"}},
+    {"Knife","EternalCane",{["itemid"]=4488391411,["itemname"]="Eternalcane",["itemtype"]="Knife",["rarity"]="Godly"}},
+    {"Knife","Euro",{["itemid"]=305504173,["itemname"]="Euro",["itemtype"]="Knife",["rarity"]="Common"}},
+    {"Knife","Eyeball_K_2022",{["itemid"]=11254065007,["itemname"]="Eyeball",["itemtype"]="Knife",["rarity"]="Common"}},
+    {"Knife","Eyes_K_2020",{["itemid"]=5866438542,["itemname"]="Watcher",["itemtype"]="Knife",["rarity"]="Common"}},
+    {"Knife","Fade",{["itemid"]=315501640,["itemname"]="Fade",["itemtype"]="Knife",["rarity"]="Legendary"}},
+    {"Knife","Fang",{["itemid"]=198442811,["itemname"]="Fang",["itemtype"]="Knife",["rarity"]="Godly"}},
+    {"Knife","FangChroma",{["chroma"]=true,["itemid"]=3187392501,["itemname"]="Fang",["itemtype"]="Knife",["rarity"]="Godly"}},
+    {"Knife","Fanta",{["itemid"]=473626025,["itemname"]="Orange",["itemtype"]="Knife",["rarity"]="Common"}},
+    {"Knife","Fireplace_K_2023",{["itemid"]=15635558021,["itemname"]="Fireplace",["itemtype"]="Knife",["rarity"]="Uncommon"}},
+    {"Knife","Flames",{["itemid"]=585873746,["itemname"]="Flames",["itemtype"]="Knife",["rarity"]="Godly"}},
+    {"Knife","Floral_K_2023",{["itemid"]=13944134705,["itemname"]="Floral",["itemtype"]="Knife",["rarity"]="Rare"}},
+    {"Knife","FlowerwoodKnife",{["itemid"]=16963860501,["itemname"]="Flowerwood",["itemtype"]="Knife",["rarity"]="Godly"}},
+    {"Knife","Fragile_K_2023",{["itemid"]=12965294432,["itemname"]="Fragile",["itemtype"]="Knife",["rarity"]="Common"}},
+    {"Knife","Frostbite",{["itemid"]=4528484880,["itemname"]="Frostbite",["itemtype"]="Knife",["rarity"]="Godly"}},
+    {"Knife","Frosted_K_2019",{["itemid"]=4534853444,["itemname"]="Frosted",["itemtype"]="Knife",["rarity"]="Common"}},
+    {"Knife","Frostfade_K_2023",{["itemid"]=15635565488,["itemname"]="Frostfade",["itemtype"]="Knife",["rarity"]="Legendary"}},
+    {"Knife","Frostflame_K_2024",{["itemid"]=104988218477551,["itemname"]="Frostflame",["itemtype"]="Knife",["rarity"]="Rare"}},
+    {"Knife","Frostsaber",{["itemid"]=1269580035,["itemname"]="Frostsaber",["itemtype"]="Knife",["rarity"]="Godly"}},
+    {"Knife","Frosty",{["itemid"]=1268704507,["itemname"]="Frosty",["itemtype"]="Knife",["rarity"]="Uncommon"}},
+    {"Knife","Frozen_K_2019",{["itemid"]=4534857523,["itemname"]="Frozen",["itemtype"]="Knife",["rarity"]="Uncommon"}},
+    {"Knife","Frozen_K_2022",{["itemid"]=11834404402,["itemname"]="Frozen",["itemtype"]="Knife",["rarity"]="Common"}},
+    {"Knife","Frozen_K_2023",{["itemid"]=15635556891,["itemname"]="Frozen",["itemtype"]="Knife",["rarity"]="Common"}},
+    {"Knife","Frozen_K_2025",{["itemid"]=108996627787763,["itemname"]="Frozen",["itemtype"]="Knife",["rarity"]="Legendary"}},
+    {"Knife","Fusion",{["itemid"]=365569686,["itemname"]="Fusion",["itemtype"]="Knife",["rarity"]="Legendary"}},
+    {"Knife","Future",{["itemid"]=197638833,["itemname"]="Future",["itemtype"]="Knife",["rarity"]="Uncommon"}},
+    {"Knife","Galaxy",{["itemid"]=196750422,["itemname"]="Galaxy",["itemtype"]="Knife",["rarity"]="Rare"}},
+    {"Knife","Gemstone",{["itemid"]=3183598040,["itemname"]="Gemstone",["itemtype"]="Knife",["rarity"]="Godly"}},
+    {"Knife","GemstoneChroma",{["chroma"]=true,["itemid"]=3183597816,["itemname"]="Gemstone",["itemtype"]="Knife",["rarity"]="Godly"}},
+    {"Knife","Ghastly_K_2023",{["itemid"]=15091407068,["itemname"]="Ghastly",["itemtype"]="Knife",["rarity"]="Rare"}},
+    {"Knife","GhostK2018",{["itemid"]=2513732969,["itemname"]="Ghost",["itemtype"]="Knife",["rarity"]="Legendary"}},
+    {"Knife","GhostKnife",{["itemid"]=473574401,["itemname"]="Ghost",["itemtype"]="Knife",["rarity"]="Classic"}},
+    {"Knife","GhostRbx_K_2022",{["itemid"]=11117375743,["itemname"]="Ghostly",["itemtype"]="Knife",["rarity"]="Uncommon"}},
+    {"Knife","Ghostblade",{["itemid"]=4221789003,["itemname"]="Ghostblade",["itemtype"]="Knife",["rarity"]="Godly"}},
+    {"Knife","Ghosts_K_2020",{["itemid"]=5866442790,["itemname"]="Ghosts",["itemtype"]="Knife",["rarity"]="Uncommon"}},
+    {"Knife","Ghosts_K_2021",{["itemid"]=7808362279,["itemname"]="Wraiths",["itemtype"]="Knife",["rarity"]="Uncommon"}},
+    {"Knife","Ghosts_K_2023",{["itemid"]=15091326116,["itemname"]="Ghosts",["itemtype"]="Knife",["rarity"]="Common"}},
+    {"Knife","Ghosts_K_2024",{["itemid"]=134681523511387,["itemname"]="Ghosts",["itemtype"]="Knife",["rarity"]="Common"}},
+    {"Knife","Ghosty",{["itemid"]=531873080,["itemname"]="Ghosty",["itemtype"]="Knife",["rarity"]="Common"}},
+    {"Knife","Gift_K_2020",{["itemid"]=6121854816,["itemname"]="Wrap",["itemtype"]="Knife",["rarity"]="Uncommon"}},
+    {"Knife","Giftbag_K_2020",{["itemid"]=6121847170,["itemname"]="Gift Bag",["itemtype"]="Knife",["rarity"]="Common"}},
+    {"Knife","Gifted",{["itemid"]=197626358,["itemname"]="Gifted",["itemtype"]="Knife",["rarity"]="Uncommon"}},
+    {"Knife","Gifts_K_2019",{["itemid"]=4534856285,["itemname"]="Gifts",["itemtype"]="Knife",["rarity"]="Common"}},
+    {"Knife","Gifts_K_2024",{["itemid"]=129290011017110,["itemname"]="Gifts",["itemtype"]="Knife",["rarity"]="Common"}},
+    {"Knife","Giftwrap_K_2021",{["itemid"]=8304754179,["itemname"]="Giftwrap",["itemtype"]="Knife",["rarity"]="Common"}},
+    {"Knife","Ginger",{["itemid"]=331744703,["itemname"]="Ginger",["itemtype"]="Knife",["rarity"]="Rare"}},
+    {"Knife","Ginger_K_2018",{["itemid"]=2669638742,["itemname"]="Ginger",["itemtype"]="Knife",["rarity"]="Legendary"}},
+    {"Knife","Gingerblade",{["itemid"]=2669336659,["itemname"]="Gingerblade",["itemtype"]="Knife",["rarity"]="Godly"}},
+    {"Knife","GingerbladeChroma",{["chroma"]=true,["itemid"]=2672349340,["itemname"]="Gingerblade",["itemtype"]="Knife",["rarity"]="Godly"}},
+    {"Knife","Gingerbread2017",{["itemid"]=1268705527,["itemname"]="Gingerbread",["itemtype"]="Knife",["rarity"]="Rare"}},
+    {"Knife","Gingerbread_K_2019",{["itemid"]=4534856940,["itemname"]="Gingerbread",["itemtype"]="Knife",["rarity"]="Uncommon"}},
+    {"Knife","Gingerbread_K_2020",{["itemid"]=6121850031,["itemname"]="Gingerbread",["itemtype"]="Knife",["rarity"]="Uncommon"}},
+    {"Knife","Gingerbread_K_2022",{["itemid"]=11834399071,["itemname"]="Gingerbread",["itemtype"]="Knife",["rarity"]="Rare"}},
+    {"Knife","Gingerbread_K_2025",{["itemid"]=134478959354477,["itemname"]="Gingerbread",["itemtype"]="Knife",["rarity"]="Uncommon"}},
+    {"Knife","Gingercookie_K_2025",{["itemid"]=111408683823094,["itemname"]="Gingercookie",["itemtype"]="Knife",["rarity"]="Rare"}},
+    {"Knife","Gingerheart_K_2024",{["itemid"]=115273559455814,["itemname"]="Gingerheart",["itemtype"]="Knife",["rarity"]="Uncommon"}},
+    {"Knife","Gingermint_K",{["itemid"]=11855306927,["itemname"]="Cookiecane",["itemtype"]="Knife",["rarity"]="Godly"}},
+    {"Knife","Gingermint_KChroma",{["chroma"]=true,["itemid"]=11873640255,["itemname"]="Cookiecane",["itemtype"]="Knife",["rarity"]="Godly"}},
+    {"Knife","Gingerscythe",{["itemid"]=15683138101,["itemname"]="Gingerscythe",["itemtype"]="Knife",["rarity"]="Rare"}},
+    {"Knife","Gingerscythe_Ancient",{["itemid"]=15683188776,["itemname"]="Gingerscythe",["itemtype"]="Knife",["rarity"]="Ancient"}},
+    {"Knife","Gingerscythe_Blue",{["itemid"]=16964448042,["itemname"]="Blue Gingerscythe",["itemtype"]="Knife",["rarity"]="Unique"}},
+    {"Knife","Gingerscythe_Bronze",{["itemid"]=16964449392,["itemname"]="Bronze Gingerscythe",["itemtype"]="Knife",["rarity"]="Unique"}},
+    {"Knife","Gingerscythe_Godly",{["itemid"]=15683175970,["itemname"]="Gingerscythe",["itemtype"]="Knife",["rarity"]="Godly"}},
+    {"Knife","Gingerscythe_Gold",{["itemid"]=16964452491,["itemname"]="Gold Gingerscythe",["itemtype"]="Knife",["rarity"]="Unique"}},
+    {"Knife","Gingerscythe_Legendary",{["itemid"]=15683140564,["itemname"]="Gingerscythe",["itemtype"]="Knife",["rarity"]="Legendary"}},
+    {"Knife","Gingerscythe_Silver",{["itemid"]=16964450895,["itemname"]="Silver Gingerscythe",["itemtype"]="Knife",["rarity"]="Unique"}},
+    {"Knife","Glowy_K_2023",{["itemid"]=15091403551,["itemname"]="Glowy",["itemtype"]="Knife",["rarity"]="Uncommon"}},
+    {"Knife","GoldCandy",{["itemid"]=1520188792,["itemname"]="Gold Candy",["itemtype"]="Knife",["rarity"]="Unique"}},
+    {"Knife","GoldHallow",{["itemid"]=2511340308,["itemname"]="Gold Hallow",["itemtype"]="Knife",["rarity"]="Unique"}},
+    {"Knife","GoldIcebreaker",{["itemid"]=6404115112,["itemname"]="Gold Icebreaker",["itemtype"]="Knife",["rarity"]="Unique"}},
+    {"Knife","GoldVampiresEdge",{["itemid"]=6084838617,["itemname"]="Gold Vamp's Edge",["itemtype"]="Knife",["rarity"]="Unique"}},
+    {"Knife","Golden_K_2026",{["itemid"]=117280525154459,["itemname"]="Golden",["itemtype"]="Knife",["rarity"]="Legendary"}},
+    {"Knife","Goo",{["itemid"]=237336076,["itemname"]="Goo",["itemtype"]="Knife",["rarity"]="Common"}},
+    {"Knife","Gothic_K_2021",{["itemid"]=7800221141,["itemname"]="Gothic",["itemtype"]="Knife",["rarity"]="Uncommon"}},
+    {"Knife","Graffiti",{["itemid"]=4659634630,["itemname"]="Graffiti",["itemtype"]="Knife",["rarity"]="Uncommon"}},
+    {"Knife","GraveK",{["itemid"]=2513728474,["itemname"]="Grave",["itemtype"]="Knife",["rarity"]="Common"}},
+    {"Knife","GreenCamo_K_2022",{["itemid"]=11254145154,["itemname"]="Zombie Camo",["itemtype"]="Knife",["rarity"]="Common"}},
+    {"Knife","GreenFire",{["itemid"]=1268706374,["itemname"]="Green Fire",["itemtype"]="Knife",["rarity"]="Legendary"}},
+    {"Knife","GreenMarble",{["itemid"]=1133366830,["itemname"]="Green Marble",["itemtype"]="Knife",["rarity"]="Rare"}},
+    {"Knife","Grind",{["itemid"]=305503942,["itemname"]="Grind",["itemtype"]="Knife",["rarity"]="Common"}},
+    {"Knife","Hallow",{["itemid"]=531878205,["itemname"]="Hallow's Edge",["itemtype"]="Knife",["rarity"]="Godly"}},
+    {"Knife","HallowsBlade",{["itemid"]=1132775323,["itemname"]="Hallow's Blade",["itemtype"]="Knife",["rarity"]="Godly"}},
+    {"Knife","Hallowscythe",{["itemid"]=5877016863,["itemname"]="Hallowscythe",["itemtype"]="Knife",["rarity"]="Ancient"}},
+    {"Knife","Handsaw",{["itemid"]=473572138,["itemname"]="Handsaw",["itemtype"]="Knife",["rarity"]="Godly"}},
+    {"Knife","Hardened",{["itemid"]=3183605810,["itemname"]="Hardened",["itemtype"]="Knife",["rarity"]="Common"}},
+    {"Knife","HauntedHouse_K_2025",{["itemid"]=90194465176219,["itemname"]="Haunted",["itemtype"]="Knife",["rarity"]="Common"}},
+    {"Knife","HauntedK",{["itemid"]=2513733741,["itemname"]="Haunted",["itemtype"]="Knife",["rarity"]="Common"}},
+    {"Knife","Haunted_K_2021",{["itemid"]=7800222135,["itemname"]="Haunted",["itemtype"]="Knife",["rarity"]="Common"}},
+    {"Knife","Hazard_K_2022",{["itemid"]=11254083234,["itemname"]="Hazard",["itemtype"]="Knife",["rarity"]="Uncommon"}},
+    {"Knife","Hazmat",{["itemid"]=315501297,["itemname"]="Hazmat",["itemtype"]="Knife",["rarity"]="Uncommon"}},
+    {"Knife","HeartWand",{["itemid"]=118334707962654,["itemname"]="Heart Wand",["itemtype"]="Knife",["rarity"]="Godly"}},
+    {"Knife","HeartWandChroma",{["chroma"]=true,["itemid"]=78479059410850,["itemname"]="Heart Wand",["itemtype"]="Knife",["rarity"]="Godly"}},
+    {"Knife","Heart_K_2023",{["itemid"]=12339327069,["itemname"]="Heart",["itemtype"]="Knife",["rarity"]="Rare"}},
+    {"Knife","Heartblade",{["itemid"]=6413145922,["itemname"]="Heartblade",["itemtype"]="Knife",["rarity"]="Godly"}},
+    {"Knife","Hearts",{["itemid"]=363352211,["itemname"]="Hearts",["itemtype"]="Knife",["rarity"]="Common"}},
+    {"Knife","Hearts_K_2026",{["itemid"]=99939659856909,["itemname"]="Hearts",["itemtype"]="Knife",["rarity"]="Common"}},
+    {"Knife","Heat",{["itemid"]=201238541,["itemname"]="Heat",["itemtype"]="Knife",["rarity"]="Godly"}},
+    {"Knife","HeatChroma",{["chroma"]=true,["itemid"]=3187395238,["itemname"]="Heat",["itemtype"]="Knife",["rarity"]="Godly"}},
+    {"Knife","HighTech",{["itemid"]=4659635055,["itemname"]="High Tech",["itemtype"]="Knife",["rarity"]="Uncommon"}},
+    {"Knife","Hive",{["itemid"]=315501434,["itemname"]="Hive",["itemtype"]="Knife",["rarity"]="Uncommon"}},
+    {"Knife","Holly_K_2018",{["itemid"]=2669638990,["itemname"]="Holly",["itemtype"]="Knife",["rarity"]="Uncommon"}},
+    {"Knife","Hologram_K_2025",{["itemid"]=77773918675860,["itemname"]="Hologram",["itemtype"]="Knife",["rarity"]="Rare"}},
+    {"Knife","HotChocolate_K_2024",{["itemid"]=133307062463653,["itemname"]="Hot Chocolate",["itemtype"]="Knife",["rarity"]="Common"}},
+    {"Knife","Hunter_K_2022",{["itemid"]=11254154978,["itemname"]="Hunter",["itemtype"]="Knife",["rarity"]="Common"}},
+    {"Knife","Ice",{["itemid"]=196750668,["itemname"]="Ice",["itemtype"]="Knife",["rarity"]="Common"}},
+    {"Knife","IceDragon",{["itemid"]=585872642,["itemname"]="Ice Dragon",["itemtype"]="Knife",["offset"]={["X"]=0,["Y"]=0,["Z"]=0.55},["rarity"]="Godly"}},
+    {"Knife","IceHammer",{["itemid"]=11855360152,["itemname"]="Icecrusher",["itemtype"]="Knife",["rarity"]="Rare"}},
+    {"Knife","IceHammerBronze",{["itemid"]=12227148356,["itemname"]="Bronze Icecrusher",["itemtype"]="Knife",["rarity"]="Unique"}},
+    {"Knife","IceHammerGold",{["itemid"]=12227137860,["itemname"]="Gold Icecrusher",["itemtype"]="Knife",["rarity"]="Unique"}},
+    {"Knife","IceHammerRed",{["itemid"]=12227186408,["itemname"]="Red Icecrusher",["itemtype"]="Knife",["rarity"]="Unique"}},
+    {"Knife","IceHammerSilver",{["itemid"]=12227142478,["itemname"]="Silver Icecrusher",["itemtype"]="Knife",["rarity"]="Unique"}},
+    {"Knife","IceHammer_Ancient",{["itemid"]=11855274019,["itemname"]="Icecrusher",["itemtype"]="Knife",["rarity"]="Ancient"}},
+    {"Knife","IceHammer_Godly",{["itemid"]=11855282546,["itemname"]="Icecrusher",["itemtype"]="Knife",["rarity"]="Godly"}},
+    {"Knife","IceHammer_Legendary",{["itemid"]=11855361567,["itemname"]="Icecrusher",["itemtype"]="Knife",["rarity"]="Legendary"}},
+    {"Knife","IceShard",{["itemid"]=1268710824,["itemname"]="Ice Shard",["itemtype"]="Knife",["rarity"]="Godly"}},
+    {"Knife","Icebreaker",{["itemid"]=6125729383,["itemname"]="Icebreaker",["itemtype"]="Knife",["rarity"]="Ancient"}},
+    {"Knife","Icecracker_K_2020",{["itemid"]=6121848805,["itemname"]="Icecracker",["itemtype"]="Knife",["rarity"]="Legendary"}},
+    {"Knife","Icecream",{["itemid"]=87189663191639,["itemname"]="Icecream",["itemtype"]="Knife",["rarity"]="Godly"}},
+    {"Knife","IcecreamChroma",{["chroma"]=true,["itemid"]=87189663191639,["itemname"]="Icecream",["itemtype"]="Knife",["rarity"]="Godly"}},
+    {"Knife","Iceflake",{["itemid"]=8304818186,["itemname"]="Iceflake",["itemtype"]="Knife",["rarity"]="Godly"}},
+    {"Knife","Icewing",{["itemid"]=3183085102,["itemname"]="Icewing",["itemtype"]="Knife",["rarity"]="Ancient"}},
+    {"Knife","Icicles_K_2018",{["itemid"]=2669639638,["itemname"]="Icicles",["itemtype"]="Knife",["rarity"]="Rare"}},
+    {"Knife","Igloo_K_2024",{["itemid"]=73203940450745,["itemname"]="Igloo",["itemtype"]="Knife",["rarity"]="Common"}},
+    {"Knife","Indy",{["itemid"]=305506951,["itemname"]="Indy",["itemtype"]="Knife",["rarity"]="Common"}},
+    {"Knife","Infected",{["itemid"]=200953094,["itemname"]="Infected",["itemtype"]="Knife",["rarity"]="Common"}},
+    {"Knife","Infected_K_2022",{["itemid"]=11254175272,["itemname"]="Infected",["itemtype"]="Knife",["rarity"]="Common"}},
+    {"Knife","JD",{["itemid"]=566867312,["itemname"]="JD",["itemtype"]="Knife",["rarity"]="Legendary"}},
+    {"Knife","Jack",{["itemid"]=315099010,["itemname"]="Jack",["itemtype"]="Knife",["rarity"]="Rare"}},
+    {"Knife","Jack_K_2022",{["itemid"]=11254093910,["itemname"]="Lantern",["itemtype"]="Knife",["rarity"]="Uncommon"}},
+    {"Knife","Jellyfish_K_2024",{["itemid"]=18322181701,["itemname"]="Jellyfish",["itemtype"]="Knife",["rarity"]="Uncommon"}},
+    {"Knife","Jigsaw",{["itemid"]=365569126,["itemname"]="Jigsaw",["itemtype"]="Knife",["rarity"]="Uncommon"}},
+    {"Knife","Knife1",{["itemid"]=473574001,["itemname"]="Splitter",["itemtype"]="Knife",["rarity"]="Classic"}},
+    {"Knife","Kool",{["itemid"]=473625906,["itemname"]="Yellow",["itemtype"]="Knife",["rarity"]="Common"}},
+    {"Knife","Korblox",{["itemid"]=315501501,["itemname"]="Korblox",["itemtype"]="Knife",["rarity"]="Rare"}},
+    {"Knife","Kraken_K_2024",{["itemid"]=116059045830205,["itemname"]="Kraken",["itemtype"]="Knife",["rarity"]="Rare"}},
+    {"Knife","Krypto",{["itemid"]=198440414,["itemname"]="Krypto",["itemtype"]="Knife",["rarity"]="Rare"}},
+    {"Knife","LMFAO",{["itemid"]=473626473,["itemname"]="Pink",["itemtype"]="Knife",["rarity"]="Uncommon"}},
+    {"Knife","Laser_K_2026",{["itemid"]=76785021563290,["itemname"]="Laser",["itemtype"]="Knife",["rarity"]="Rare"}},
+    {"Knife","Latte_K_2023",{["itemid"]=15413114703,["itemname"]="Latte",["itemtype"]="Knife",["rarity"]="Legendary"}},
+    {"Knife","Lava_K_2025",{["itemid"]=131417913843701,["itemname"]="Lava",["itemtype"]="Knife",["rarity"]="Uncommon"}},
+    {"Knife","Leaf",{["itemid"]=4659636452,["itemname"]="Leaf",["itemtype"]="Knife",["rarity"]="Common"}},
+    {"Knife","Leaves_K_2023",{["itemid"]=15091400883,["itemname"]="Leaves",["itemtype"]="Knife",["rarity"]="Common"}},
+    {"Knife","Leaves_K_2025",{["itemid"]=73486056426142,["itemname"]="Leaves",["itemtype"]="Knife",["rarity"]="Common"}},
+    {"Knife","Lights_K_2019",{["itemid"]=4534858185,["itemname"]="Lights",["itemtype"]="Knife",["rarity"]="Uncommon"}},
+    {"Knife","Lights_K_2025",{["itemid"]=71228862432065,["itemname"]="Lights",["itemtype"]="Knife",["rarity"]="Common"}},
+    {"Knife","Linked",{["itemid"]=198433893,["itemname"]="Linked",["itemtype"]="Knife",["rarity"]="Common"}},
+    {"Knife","Log",{["itemid"]=365567962,["itemname"]="Log",["itemtype"]="Knife",["rarity"]="Common"}},
+    {"Knife","Logchopper",{["itemid"]=4535644282,["itemname"]="Logchopper",["itemtype"]="Knife",["rarity"]="Ancient"}},
+    {"Knife","LogchopperBlue",{["itemid"]=4753353471,["itemname"]="Blue Logchopper",["itemtype"]="Knife",["rarity"]="Unique"}},
+    {"Knife","LogchopperBronze",{["itemid"]=4753354123,["itemname"]="Bronze Logchopper",["itemtype"]="Knife",["rarity"]="Unique"}},
+    {"Knife","LogchopperGold",{["itemid"]=4753354638,["itemname"]="Gold Logchopper",["itemtype"]="Knife",["rarity"]="Unique"}},
+    {"Knife","LogchopperSilver",{["itemid"]=4753352581,["itemname"]="Silver Logchopper",["itemtype"]="Knife",["rarity"]="Unique"}},
+    {"Knife","Logcutter_K_2024",{["itemid"]=71088901904009,["itemname"]="Logcutter",["itemtype"]="Knife",["rarity"]="Rare"}},
+    {"Knife","Love",{["itemid"]=196750845,["itemname"]="Love",["itemtype"]="Knife",["rarity"]="Common"}},
+    {"Knife","Love_K_2023",{["itemid"]=12339328595,["itemname"]="Love",["itemtype"]="Knife",["rarity"]="Common"}},
+    {"Knife","Lovely",{["itemid"]=4659635584,["itemname"]="Lovely",["itemtype"]="Knife",["rarity"]="Common"}},
+    {"Knife","Lucky",{["itemid"]=365569265,["itemname"]="Lucky",["itemtype"]="Knife",["rarity"]="Uncommon"}},
+    {"Knife","MLG",{["itemid"]=473626979,["itemname"]="Shiny",["itemtype"]="Knife",["rarity"]="Legendary"}},
+    {"Knife","MagmaK",{["itemid"]=1133317890,["itemname"]="Magma",["itemtype"]="Knife",["rarity"]="Rare"}},
+    {"Knife","Magma_K_2021",{["itemid"]=7800225996,["itemname"]="Magma",["itemtype"]="Knife",["rarity"]="Rare"}},
+    {"Knife","Marble_K_2023",{["itemid"]=12965302237,["itemname"]="Marble",["itemtype"]="Knife",["rarity"]="Uncommon"}},
+    {"Knife","Marley",{["itemid"]=473625785,["itemname"]="Green",["itemtype"]="Knife",["rarity"]="Common"}},
+    {"Knife","Melon",{["itemid"]=315501369,["itemname"]="Melon",["itemtype"]="Knife",["rarity"]="Uncommon"}},
+    {"Knife","Meltdown_K_2023",{["itemid"]=15091340751,["itemname"]="Meltdown",["itemtype"]="Knife",["rarity"]="Uncommon"}},
+    {"Knife","Midnight",{["itemid"]=197663897,["itemname"]="Midnight",["itemtype"]="Knife",["rarity"]="Legendary"}},
+    {"Knife","Missing",{["itemid"]=198439692,["itemname"]="Missing",["itemtype"]="Knife",["rarity"]="Uncommon"}},
+    {"Knife","Mistletoe_K_2022",{["itemid"]=11834394793,["itemname"]="Mistletoe",["itemtype"]="Knife",["rarity"]="Uncommon"}},
+    {"Knife","MoltenKnife",{["itemid"]=235371809,["itemname"]="Molten",["itemtype"]="Knife",["rarity"]="Rare"}},
+    {"Knife","Monster_K_2024",{["itemid"]=109292073070223,["itemname"]="Monster",["itemtype"]="Knife",["rarity"]="Uncommon"}},
+    {"Knife","Moon_K_2021",{["itemid"]=7800224197,["itemname"]="Moon",["itemtype"]="Knife",["rarity"]="Common"}},
+    {"Knife","Moons",{["itemid"]=531873154,["itemname"]="Moons",["itemtype"]="Knife",["rarity"]="Uncommon"}},
+    {"Knife","Moons_K_2024",{["itemid"]=91446990047399,["itemname"]="Moons",["itemtype"]="Knife",["rarity"]="Uncommon"}},
+    {"Knife","Mummified",{["itemid"]=4210946577,["itemname"]="Mummified",["itemtype"]="Knife",["rarity"]="Common"}},
+    {"Knife","MummyK",{["itemid"]=1133352032,["itemname"]="Mummy",["itemtype"]="Knife",["rarity"]="Uncommon"}},
+    {"Knife","MummyK2018",{["itemid"]=2513733542,["itemname"]="Mummy",["itemtype"]="Knife",["rarity"]="Uncommon"}},
+    {"Knife","Mummy_K_2020",{["itemid"]=5866447521,["itemname"]="Mummy",["itemtype"]="Knife",["rarity"]="Uncommon"}},
+    {"Knife","Musical",{["itemid"]=365569566,["itemname"]="Musical",["itemtype"]="Knife",["rarity"]="Rare"}},
+    {"Knife","Nebula",{["itemid"]=6598123521,["itemname"]="Nebula",["itemtype"]="Knife",["rarity"]="Godly"}},
+    {"Knife","Neon",{["itemid"]=198566885,["itemname"]="Neon",["itemtype"]="Knife",["rarity"]="Common"}},
+    {"Knife","Neopolitan_K_2026",{["itemid"]=73980008491741,["itemname"]="Neopolitan",["itemtype"]="Knife",["rarity"]="Uncommon"}},
+    {"Knife","Nether",{["itemid"]=197656593,["itemname"]="Nether",["itemtype"]="Knife",["rarity"]="Rare"}},
+    {"Knife","Nightblade",{["itemid"]=475478854,["itemname"]="Nightblade",["itemtype"]="Knife",["rarity"]="Godly"}},
+    {"Knife","NikKnife",{["itemid"]=2533351841,["itemname"]="Nik's Scythe",["itemtype"]="Knife",["rarity"]="Ancient"}},
+    {"Knife","Noodle_K_2023",{["itemid"]=13944132845,["itemname"]="Pool Noodle",["itemtype"]="Knife",["rarity"]="Uncommon"}},
+    {"Knife","Nova",{["itemid"]=235371686,["itemname"]="Nova",["itemtype"]="Knife",["rarity"]="Rare"}},
+    {"Knife","Oily",{["itemid"]=315501170,["itemname"]="Oily",["itemtype"]="Knife",["rarity"]="Common"}},
+    {"Knife","Ollie",{["itemid"]=305504399,["itemname"]="Ollie",["itemtype"]="Knife",["rarity"]="Common"}},
+    {"Knife","OrangeMarble",{["itemid"]=531873011,["itemname"]="Orange Marble",["itemtype"]="Knife",["rarity"]="Rare"}},
+    {"Knife","OrangeSeer",{["itemid"]=3184124504,["itemname"]="Orange Seer",["itemtype"]="Knife",["rarity"]="Godly"}},
+    {"Knife","Ornament1",{["itemid"]=331745428,["itemname"]="Ornament",["itemtype"]="Knife",["rarity"]="Common"}},
+    {"Knife","Ornament2",{["itemid"]=331745341,["itemname"]="Ornament2",["itemtype"]="Knife",["rarity"]="Common"}},
+    {"Knife","Ornaments_K_2020",{["itemid"]=6121853160,["itemname"]="Ornaments",["itemtype"]="Knife",["rarity"]="Common"}},
+    {"Knife","Ornaments_K_2025",{["itemid"]=132504094164819,["itemname"]="Ornaments",["itemtype"]="Knife",["rarity"]="Uncommon"}},
+    {"Knife","OverseerKnife",{["itemid"]=198441413,["itemname"]="Overseer",["itemtype"]="Knife",["rarity"]="Legendary"}},
+    {"Knife","Painted_K_2023",{["itemid"]=12965311567,["itemname"]="Painted",["itemtype"]="Knife",["rarity"]="Rare"}},
+    {"Knife","Palms_K_2024",{["itemid"]=18322137551,["itemname"]="Palms",["itemtype"]="Knife",["rarity"]="Legendary"}},
+    {"Knife","Paper",{["itemid"]=235366870,["itemname"]="Paper",["itemtype"]="Knife",["rarity"]="Uncommon"}},
+    {"Knife","Passion",{["itemid"]=363150334,["itemname"]="Passion",["itemtype"]="Knife",["rarity"]="Common"}},
+    {"Knife","Patrick",{["itemid"]=383476085,["itemname"]="Patrick",["itemtype"]="Knife",["rarity"]="Common"}},
+    {"Knife","Pearl_K",{["itemid"]=18322621319,["itemname"]="Pearl",["itemtype"]="Knife",["rarity"]="Godly"}},
+    {"Knife","Penguin_K_2025",{["itemid"]=93320180084418,["itemname"]="Penguin",["itemtype"]="Knife",["rarity"]="Common"}},
+    {"Knife","Pepper",{["itemid"]=473625645,["itemname"]="Brown",["itemtype"]="Knife",["rarity"]="Common"}},
+    {"Knife","Peppermint",{["itemid"]=6085035357,["itemname"]="Peppermint",["itemtype"]="Knife",["rarity"]="Godly"}},
+    {"Knife","Peppermint_K_2025",{["itemid"]=84605926178412,["itemname"]="Peppermint",["itemtype"]="Knife",["rarity"]="Common"}},
+    {"Knife","Phantom",{["itemid"]=1133332075,["itemname"]="Phantom",["itemtype"]="Knife",["rarity"]="Common"}},
+    {"Knife","Phantom2022",{["itemid"]=11229732037,["itemname"]="Phantom",["itemtype"]="Knife",["rarity"]="Godly"}},
+    {"Knife","Phaser_K_2026",{["itemid"]=88433569053641,["itemname"]="Phaser",["itemtype"]="Knife",["rarity"]="Rare"}},
+    {"Knife","Pier_K_2026",{["itemid"]=127570773123670,["itemname"]="Pier",["itemtype"]="Knife",["rarity"]="Rare"}},
+    {"Knife","Pine_K_2019",{["itemid"]=4534855710,["itemname"]="Pine",["itemtype"]="Knife",["rarity"]="Common"}},
+    {"Knife","Pixel",{["itemid"]=473573054,["itemname"]="Pixel",["itemtype"]="Knife",["offset"]={["X"]=0,["Y"]=0.2,["Z"]=0.5},["rarity"]="Godly"}},
+    {"Knife","Plasmablade",{["itemid"]=10014680882,["itemname"]="Plasmablade",["itemtype"]="Knife",["rarity"]="Godly"}},
+    {"Knife","Plasmite",{["itemid"]=196750899,["itemname"]="Plasmite",["itemtype"]="Knife",["rarity"]="Legendary"}},
+    {"Knife","PolarBear_K_2025",{["itemid"]=120422092957504,["itemname"]="Polar Bear",["itemtype"]="Knife",["rarity"]="Uncommon"}},
+    {"Knife","Pool_K_2025",{["itemid"]=112511843095202,["itemname"]="Pool",["itemtype"]="Knife",["rarity"]="Uncommon"}},
+    {"Knife","PopArt_K_2025",{["itemid"]=123269723073737,["itemname"]="Pop Art",["itemtype"]="Knife",["rarity"]="Rare"}},
+    {"Knife","Popsicle_K_2023",{["itemid"]=13944131195,["itemname"]="Popsicle",["itemtype"]="Knife",["rarity"]="Uncommon"}},
+    {"Knife","Portal_K_2020",{["itemid"]=5866444722,["itemname"]="Portal",["itemtype"]="Knife",["rarity"]="Rare"}},
+    {"Knife","Potion",{["itemid"]=1133366632,["itemname"]="Potion",["itemtype"]="Knife",["rarity"]="Uncommon"}},
+    {"Knife","PotionK2018",{["itemid"]=2513733987,["itemname"]="Potion",["itemtype"]="Knife",["rarity"]="Uncommon"}},
+    {"Knife","PredatorKnife",{["itemid"]=235372015,["itemname"]="Predator",["itemtype"]="Knife",["rarity"]="Legendary"}},
+    {"Knife","Present",{["itemid"]=1268699212,["itemname"]="Present",["itemtype"]="Knife",["rarity"]="Common"}},
+    {"Knife","Present_K_2023",{["itemid"]=15635553149,["itemname"]="Present",["itemtype"]="Knife",["rarity"]="Common"}},
+    {"Knife","Prism",{["itemid"]=306046703,["itemname"]="Prism",["itemtype"]="Knife",["rarity"]="Common"}},
+    {"Knife","Prismatic",{["itemid"]=5360359935,["itemname"]="Prismatic",["itemtype"]="Knife",["rarity"]="Godly"}},
+    {"Knife","PumpkinPatch",{["itemid"]=4210931354,["itemname"]="Pumpkin",["itemtype"]="Knife",["rarity"]="Common"}},
+    {"Knife","PumpkinPatch_K_2025",{["itemid"]=119626042140839,["itemname"]="Pumpkin",["itemtype"]="Knife",["rarity"]="Uncommon"}},
+    {"Knife","PumpkinPie_K_2023",{["itemid"]=15413117611,["itemname"]="Pumpkin Pie",["itemtype"]="Knife",["rarity"]="Uncommon"}},
+    {"Knife","Pumpkin_K_2020",{["itemid"]=5872490600,["itemname"]="Pumpkin",["itemtype"]="Knife",["rarity"]="Uncommon"}},
+    {"Knife","Pumpking",{["itemid"]=1138143590,["itemname"]="Pumpking",["itemtype"]="Knife",["rarity"]="Godly"}},
+    {"Knife","PurpleSeer",{["itemid"]=3184125244,["itemname"]="Purple Seer",["itemtype"]="Knife",["rarity"]="Godly"}},
+    {"Knife","RBKnife",{["itemid"]=5984754897,["itemname"]="RB Knife",["itemtype"]="Knife",["rarity"]="Common"}},
+    {"Knife","Rainbow",{["itemid"]=196750963,["itemname"]="Rainbow",["itemtype"]="Knife",["rarity"]="Rare"}},
+    {"Knife","Rainbow_K",{["itemid"]=12966184630,["itemname"]="Rainbow",["itemtype"]="Knife",["rarity"]="Godly"}},
+    {"Knife","RandLuger",{["itemid"]=196751515,["itemname"]="Glitch2",["itemtype"]="Knife",["rarity"]="Common"}},
+    {"Knife","RbxScary_K_2023",{["itemid"]=14967668214,["itemname"]="Ghoulish",["itemtype"]="Knife",["rarity"]="Common"}},
+    {"Knife","Reaver",{["itemid"]=7791484774,["itemname"]="Reaver",["itemtype"]="Knife",["rarity"]="Rare"}},
+    {"Knife","Reaver_Ancient",{["itemid"]=7791640819,["itemname"]="Reaver",["itemtype"]="Knife",["rarity"]="Ancient"}},
+    {"Knife","Reaver_Godly",{["itemid"]=7791511648,["itemname"]="Reaver",["itemtype"]="Knife",["rarity"]="Godly"}},
+    {"Knife","Reaver_Legendary",{["itemid"]=7791485669,["itemname"]="Reaver",["itemtype"]="Knife",["rarity"]="Legendary"}},
+    {"Knife","RedFire",{["itemid"]=1269256860,["itemname"]="Red Fire",["itemtype"]="Knife",["rarity"]="Legendary"}},
+    {"Knife","RedHallow",{["itemid"]=2511343130,["itemname"]="Red Hallow",["itemtype"]="Knife",["rarity"]="Unique"}},
+    {"Knife","RedIcebreaker",{["itemid"]=6404129111,["itemname"]="Red Icebreaker",["itemtype"]="Knife",["rarity"]="Unique"}},
+    {"Knife","RedSeer",{["itemid"]=3184122829,["itemname"]="Red Seer",["itemtype"]="Knife",["rarity"]="Godly"}},
+    {"Knife","Reindeer_K_2024",{["itemid"]=109101361674956,["itemname"]="Reindeer",["itemtype"]="Knife",["rarity"]="Common"}},
+    {"Knife","Reindeer_K_2025",{["itemid"]=122078592955794,["itemname"]="Reindeer",["itemtype"]="Knife",["rarity"]="Common"}},
+    {"Knife","Reptile",{["itemid"]=197499641,["itemname"]="Reptile",["itemtype"]="Knife",["rarity"]="Common"}},
+    {"Knife","Retro_K_2025",{["itemid"]=85299848190695,["itemname"]="Retro",["itemtype"]="Knife",["rarity"]="Uncommon"}},
+    {"Knife","Ribbon_K_2023",{["itemid"]=15635552019,["itemname"]="Ribbon",["itemtype"]="Knife",["rarity"]="Common"}},
+    {"Knife","Ribbons_K_2021",{["itemid"]=8304754882,["itemname"]="Ribbons",["itemtype"]="Knife",["rarity"]="Common"}},
+    {"Knife","Ripper_K_2020",{["itemid"]=5866441301,["itemname"]="Ripper",["itemtype"]="Knife",["rarity"]="Legendary"}},
+    {"Knife","Robot_K_2024",{["itemid"]=16959778188,["itemname"]="Robot",["itemtype"]="Knife",["rarity"]="Rare"}},
+    {"Knife","Rose_K_2023",{["itemid"]=12339325736,["itemname"]="Rose",["itemtype"]="Knife",["rarity"]="Uncommon"}},
+    {"Knife","Roses",{["itemid"]=363352002,["itemname"]="Roses",["itemtype"]="Knife",["rarity"]="Common"}},
+    {"Knife","Rune",{["itemid"]=3183607894,["itemname"]="Rune",["itemtype"]="Knife",["rarity"]="Legendary"}},
+    {"Knife","Runic_K_2022",{["itemid"]=11254123390,["itemname"]="Curse",["itemtype"]="Knife",["rarity"]="Rare"}},
+    {"Knife","Sakura_K",{["itemid"]=12339366064,["itemname"]="Sakura",["itemtype"]="Knife",["rarity"]="Godly"}},
+    {"Knife","Sand_K_2026",{["itemid"]=138109619662236,["itemname"]="Sand",["itemtype"]="Knife",["rarity"]="Common"}},
+    {"Knife","Sandy",{["itemid"]=365568056,["itemname"]="Sandy",["itemtype"]="Knife",["rarity"]="Common"}},
+    {"Knife","Santa",{["itemid"]=331746096,["itemname"]="Santa",["itemtype"]="Knife",["rarity"]="Common"}},
+    {"Knife","Santa2017",{["itemid"]=1268703618,["itemname"]="Santa",["itemtype"]="Knife",["rarity"]="Common"}},
+    {"Knife","Santa_K_2018",{["itemid"]=2669637780,["itemname"]="Santa",["itemtype"]="Knife",["rarity"]="Common"}},
+    {"Knife","SantasMagic",{["itemid"]=4535483042,["itemname"]="Santa's Magic",["itemtype"]="Knife",["rarity"]="Legendary"}},
+    {"Knife","SantasSpirit",{["itemid"]=6123357775,["itemname"]="Santa's Spirit",["itemtype"]="Knife",["rarity"]="Legendary"}},
+    {"Knife","Saw",{["itemid"]=235381341,["itemname"]="Saw",["itemtype"]="Knife",["rarity"]="Godly"}},
+    {"Knife","SawChroma",{["chroma"]=true,["itemid"]=3187392992,["itemname"]="Saw",["itemtype"]="Knife",["rarity"]="Godly"}},
+    {"Knife","Scarf_K_2023",{["itemid"]=15415482999,["itemname"]="Scarf",["itemtype"]="Knife",["rarity"]="Common"}},
+    {"Knife","Scratch",{["itemid"]=531873371,["itemname"]="Scratch",["itemtype"]="Knife",["rarity"]="Legendary"}},
+    {"Knife","ScratchBlue",{["itemid"]=1133316381,["itemname"]="Scratch",["itemtype"]="Knife",["rarity"]="Legendary"}},
+    {"Knife","Scythe",{["itemid"]=2511791893,["itemname"]="Batwing",["itemtype"]="Knife",["rarity"]="Ancient"}},
+    {"Knife","Season1TestKnife",{["itemid"]=196751515,["itemname"]="S1 Test Knife",["itemtype"]="Knife",["rarity"]="Common"}},
+    {"Knife","SeerChroma",{["chroma"]=true,["itemid"]=3184125538,["itemname"]="Seer",["itemtype"]="Knife",["rarity"]="Godly"}},
+    {"Knife","Shaded",{["itemid"]=4659636085,["itemname"]="Shaded",["itemtype"]="Knife",["rarity"]="Common"}},
+    {"Knife","ShadowKnife",{["itemid"]=474030882,["itemname"]="Shadow",["itemtype"]="Knife",["rarity"]="Classic"}},
+    {"Knife","Sharky_K_2024",{["itemid"]=18322179563,["itemname"]="Sharky",["itemtype"]="Knife",["rarity"]="Rare"}},
+    {"Knife","Sidewinder",{["itemid"]=305503783,["itemname"]="Sidewinder",["itemtype"]="Knife",["rarity"]="Common"}},
+    {"Knife","SilentNight_K_2020",{["itemid"]=6121851313,["itemname"]="Silent Night",["itemtype"]="Knife",["rarity"]="Rare"}},
+    {"Knife","SilverCandy",{["itemid"]=1520190188,["itemname"]="Silver Candy",["itemtype"]="Knife",["rarity"]="Unique"}},
+    {"Knife","SilverHallow",{["itemid"]=2511341094,["itemname"]="Silver Hallow",["itemtype"]="Knife",["rarity"]="Unique"}},
+    {"Knife","SilverIcebreaker",{["itemid"]=6404126280,["itemname"]="Silver Icebreaker",["itemtype"]="Knife",["rarity"]="Unique"}},
+    {"Knife","SilverVampiresEdge",{["itemid"]=6084840560,["itemname"]="Silver Vamp's Edge",["itemtype"]="Knife",["rarity"]="Unique"}},
+    {"Knife","SketchYT",{["itemid"]=546161470,["itemname"]="Sketchy",["itemtype"]="Knife",["rarity"]="Common"}},
+    {"Knife","Skool",{["itemid"]=295269977,["itemname"]="Skool",["itemtype"]="Knife",["rarity"]="Common"}},
+    {"Knife","Skull_K_2023",{["itemid"]=15091321393,["itemname"]="Etched",["itemtype"]="Knife",["rarity"]="Common"}},
+    {"Knife","Skulls",{["itemid"]=4210915060,["itemname"]="Skulls",["itemtype"]="Knife",["rarity"]="Legendary"}},
+    {"Knife","Skulls_K_2021",{["itemid"]=7800220325,["itemname"]="Skulls",["itemtype"]="Knife",["rarity"]="Uncommon"}},
+    {"Knife","Skyline_K_2025",{["itemid"]=75608370390005,["itemname"]="Skyline",["itemtype"]="Knife",["rarity"]="Common"}},
+    {"Knife","Slashed_K_2020",{["itemid"]=5929317433,["itemname"]="Slashed",["itemtype"]="Knife",["rarity"]="Common"}},
+    {"Knife","Slasher",{["itemid"]=315506122,["itemname"]="Slasher",["itemtype"]="Knife",["rarity"]="Godly"}},
+    {"Knife","SlasherChroma",{["chroma"]=true,["itemid"]=3187393285,["itemname"]="Slasher",["itemtype"]="Knife",["rarity"]="Godly"}},
+    {"Knife","Slate",{["itemid"]=198434520,["itemname"]="Slate",["itemtype"]="Knife",["rarity"]="Common"}},
+    {"Knife","Sleigh_K_2024",{["itemid"]=74917318027165,["itemname"]="Sleigh",["itemtype"]="Knife",["rarity"]="Rare"}},
+    {"Knife","SlimeK",{["itemid"]=2513734227,["itemname"]="Slime",["itemtype"]="Knife",["rarity"]="Common"}},
+    {"Knife","SlimyK",{["itemid"]=4210932676,["itemname"]="Slimy",["itemtype"]="Knife",["rarity"]="Common"}},
+    {"Knife","SlouseClown",{["itemid"]=315501118,["itemname"]="Clown",["itemtype"]="Knife",["rarity"]="Unique"}},
+    {"Knife","SnakebiteK",{["itemid"]=4210939388,["itemname"]="Snakebite",["itemtype"]="Knife",["rarity"]="Rare"}},
+    {"Knife","Snoop",{["itemid"]=473626150,["itemname"]="Red",["itemtype"]="Knife",["rarity"]="Uncommon"}},
+    {"Knife","SnowDagger",{["itemid"]=95328449981238,["itemname"]="Snow Dagger",["itemtype"]="Knife",["rarity"]="Godly"}},
+    {"Knife","SnowDaggerBronze",{["itemid"]=134312132943601,["itemname"]="Bronze Snow Dagger",["itemtype"]="Knife",["rarity"]="Unique"}},
+    {"Knife","SnowDaggerChroma",{["chroma"]=true,["itemid"]=95328449981238,["itemname"]="Snow Dagger",["itemtype"]="Knife",["rarity"]="Godly"}},
+    {"Knife","SnowDaggerGold",{["itemid"]=70701057041846,["itemname"]="Gold Snow Dagger",["itemtype"]="Knife",["rarity"]="Unique"}},
+    {"Knife","SnowDaggerRed",{["itemid"]=87617250559234,["itemname"]="Red Snow Dagger",["itemtype"]="Knife",["rarity"]="Unique"}},
+    {"Knife","SnowDaggerSilver",{["itemid"]=128427983277729,["itemname"]="Silver Snow Dagger",["itemtype"]="Knife",["rarity"]="Unique"}},
+    {"Knife","Snowball_K_2025",{["itemid"]=119914093248842,["itemname"]="Snowball",["itemtype"]="Knife",["rarity"]="Common"}},
+    {"Knife","Snowfall_K_2023",{["itemid"]=15635568751,["itemname"]="Snowfall",["itemtype"]="Knife",["rarity"]="Common"}},
+    {"Knife","Snowflake",{["itemid"]=1268932977,["itemname"]="Snowflake",["itemtype"]="Knife",["rarity"]="Godly"}},
+    {"Knife","Snowflake_K_2018",{["itemid"]=2669639913,["itemname"]="Snowflake",["itemtype"]="Knife",["rarity"]="Uncommon"}},
+    {"Knife","Snowflake_K_2022",{["itemid"]=11834397133,["itemname"]="Snowflake",["itemtype"]="Knife",["rarity"]="Uncommon"}},
+    {"Knife","Snowflakes_K_2019",{["itemid"]=4534855045,["itemname"]="Snowflakes",["itemtype"]="Knife",["rarity"]="Common"}},
+    {"Knife","Snowflakes_K_2020",{["itemid"]=6123338102,["itemname"]="Snowflakes",["itemtype"]="Knife",["rarity"]="Rare"}},
+    {"Knife","Snowglobe_K_2023",{["itemid"]=15635576863,["itemname"]="Snowglobe",["itemtype"]="Knife",["rarity"]="Rare"}},
+    {"Knife","Snowman",{["itemid"]=331745799,["itemname"]="Snowman",["itemtype"]="Knife",["rarity"]="Uncommon"}},
+    {"Knife","Snowman_K_2018",{["itemid"]=2669640152,["itemname"]="Snowman",["itemtype"]="Knife",["rarity"]="Common"}},
+    {"Knife","Snowman_K_2021",{["itemid"]=8304753468,["itemname"]="Snowman",["itemtype"]="Knife",["rarity"]="Uncommon"}},
+    {"Knife","Snowman_K_2022",{["itemid"]=11834391469,["itemname"]="Snowman",["itemtype"]="Knife",["rarity"]="Common"}},
+    {"Knife","Snowman_K_2024",{["itemid"]=85751270338066,["itemname"]="Snowman",["itemtype"]="Knife",["rarity"]="Uncommon"}},
+    {"Knife","Snowstorm",{["itemid"]=70973050894155,["itemname"]="Snowstorm",["itemtype"]="Knife",["rarity"]="Godly"}},
+    {"Knife","SnowstormChroma",{["chroma"]=true,["itemid"]=70973050894155,["itemname"]="Snowstorm",["itemtype"]="Knife",["rarity"]="Godly"}},
+    {"Knife","Snowy",{["itemid"]=332011125,["itemname"]="Snowy",["itemtype"]="Knife",["rarity"]="Uncommon"}},
+    {"Knife","Snowy2017",{["itemid"]=1268705947,["itemname"]="Snowy",["itemtype"]="Knife",["rarity"]="Rare"}},
+    {"Knife","Soda_K_2025",{["itemid"]=89899263078420,["itemname"]="Soda",["itemtype"]="Knife",["rarity"]="Uncommon"}},
+    {"Knife","Sorry",{["itemid"]=197879343,["itemname"]="Corrupt",["itemtype"]="Knife",["rarity"]="Unique"}},
+    {"Knife","Space",{["itemid"]=3183607442,["itemname"]="Space",["itemtype"]="Knife",["rarity"]="Rare"}},
+    {"Knife","Sparkle1",{["itemid"]=310709709,["itemname"]="Sparkle1",["itemtype"]="Knife",["rarity"]="Common"}},
+    {"Knife","Sparkle10",{["itemid"]=310715768,["itemname"]="Sparkle10",["itemtype"]="Knife",["rarity"]="Common"}},
+    {"Knife","Sparkle2",{["itemid"]=310710191,["itemname"]="Sparkle2",["itemtype"]="Knife",["rarity"]="Common"}},
+    {"Knife","Sparkle3",{["itemid"]=310710694,["itemname"]="Sparkle3",["itemtype"]="Knife",["rarity"]="Common"}},
+    {"Knife","Sparkle4",{["itemid"]=310712788,["itemname"]="Sparkle4",["itemtype"]="Knife",["rarity"]="Common"}},
+    {"Knife","Sparkle5",{["itemid"]=310713235,["itemname"]="Sparkle5",["itemtype"]="Knife",["rarity"]="Common"}},
+    {"Knife","Sparkle6",{["itemid"]=310713648,["itemname"]="Sparkle6",["itemtype"]="Knife",["rarity"]="Common"}},
+    {"Knife","Sparkle7",{["itemid"]=310714089,["itemname"]="Sparkle7",["itemtype"]="Knife",["rarity"]="Common"}},
+    {"Knife","Sparkle8",{["itemid"]=310714407,["itemname"]="Sparkle8",["itemtype"]="Knife",["rarity"]="Common"}},
+    {"Knife","Sparkle9",{["itemid"]=310715104,["itemname"]="Sparkle9",["itemtype"]="Knife",["rarity"]="Common"}},
+    {"Knife","Spearmint_K_2025",{["itemid"]=98506456649552,["itemname"]="Spearmint",["itemtype"]="Knife",["rarity"]="Rare"}},
+    {"Knife","Spectral_K_2021",{["itemid"]=7800226793,["itemname"]="Spectral",["itemtype"]="Knife",["rarity"]="Legendary"}},
+    {"Knife","Spectrum",{["itemid"]=198441038,["itemname"]="Spectrum",["itemtype"]="Knife",["rarity"]="Rare"}},
+    {"Knife","Spider",{["itemid"]=473571549,["itemname"]="Spider",["itemtype"]="Knife",["offset"]={["X"]=0,["Y"]=0,["Z"]=0.55},["rarity"]="Godly"}},
+    {"Knife","Spider_K_2023",{["itemid"]=15091399982,["itemname"]="Spider",["itemtype"]="Knife",["rarity"]="Common"}},
+    {"Knife","Splash",{["itemid"]=235371439,["itemname"]="Splash",["itemtype"]="Knife",["rarity"]="Legendary"}},
+    {"Knife","Splatter",{["itemid"]=16964346058,["itemname"]="Splatter",["itemtype"]="Knife",["rarity"]="Common"}},
+    {"Knife","Spring_K_2024",{["itemid"]=16959775902,["itemname"]="Spring",["itemtype"]="Knife",["rarity"]="Rare"}},
+    {"Knife","Squire",{["itemid"]=315501560,["itemname"]="Squire",["itemtype"]="Knife",["rarity"]="Rare"}},
+    {"Knife","Stainless",{["itemid"]=235366771,["itemname"]="Stainless",["itemtype"]="Knife",["rarity"]="Common"}},
+    {"Knife","Stalker",{["itemid"]=198439107,["itemname"]="Stalker",["itemtype"]="Knife",["rarity"]="Uncommon"}},
+    {"Knife","Starfish_K_2024",{["itemid"]=18322176343,["itemname"]="Starfish",["itemtype"]="Knife",["rarity"]="Common"}},
+    {"Knife","Starry_K_2021",{["itemid"]=8304757707,["itemname"]="Starry",["itemtype"]="Knife",["rarity"]="Rare"}},
+    {"Knife","Starry_K_2026",{["itemid"]=130537925107449,["itemname"]="Starry",["itemtype"]="Knife",["rarity"]="Uncommon"}},
+    {"Knife","Stars_K_2023",{["itemid"]=15635559978,["itemname"]="Stars",["itemtype"]="Knife",["rarity"]="Uncommon"}},
+    {"Knife","Static",{["itemid"]=365568163,["itemname"]="Static",["itemtype"]="Knife",["rarity"]="Common"}},
+    {"Knife","Steel_K_2023",{["itemid"]=15091405483,["itemname"]="Steel",["itemtype"]="Knife",["rarity"]="Uncommon"}},
+    {"Knife","StickersH_K_2025",{["itemid"]=100461386281007,["itemname"]="Stickers",["itemtype"]="Knife",["rarity"]="Common"}},
+    {"Knife","StickersT2025",{["itemid"]=115280072896190,["itemname"]="Stickers",["itemtype"]="Knife",["rarity"]="Common"}},
+    {"Knife","StickersX25",{["itemid"]=115280072896190,["itemname"]="Stickers",["itemtype"]="Knife",["rarity"]="Common"}},
+    {"Knife","StickersX_K_2022",{["itemid"]=11834387858,["itemname"]="Stickers",["itemtype"]="Knife",["rarity"]="Common"}},
+    {"Knife","StickersX_K_2025",{["itemid"]=102283625659356,["itemname"]="Stickers",["itemtype"]="Knife",["rarity"]="Common"}},
+    {"Knife","Stickers_K_2021",{["itemid"]=7800229084,["itemname"]="Stickers",["itemtype"]="Knife",["rarity"]="Common"}},
+    {"Knife","Stickers_K_2022",{["itemid"]=11254067158,["itemname"]="Stickers",["itemtype"]="Knife",["rarity"]="Common"}},
+    {"Knife","Stickers_K_2024",{["itemid"]=120248733900674,["itemname"]="Stickers",["itemtype"]="Knife",["rarity"]="Common"}},
+    {"Knife","Stickers_K_2025",{["itemid"]=98868784444742,["itemname"]="Stickers",["itemtype"]="Knife",["rarity"]="Common"}},
+    {"Knife","Stickers_X_K_2024",{["itemid"]=83843575465564,["itemname"]="Stickers",["itemtype"]="Knife",["rarity"]="Common"}},
+    {"Knife","Stockings_K_2020",{["itemid"]=6123335682,["itemname"]="Stockings",["itemtype"]="Knife",["rarity"]="Common"}},
+    {"Knife","Stockings_K_2022",{["itemid"]=11834392930,["itemname"]="Stockings",["itemtype"]="Knife",["rarity"]="Uncommon"}},
+    {"Knife","Storm_K_2024",{["itemid"]=97369825731567,["itemname"]="Storm",["itemtype"]="Knife",["rarity"]="Rare"}},
+    {"Knife","Strawberries_K_2026",{["itemid"]=73897192147749,["itemname"]="Strawberries",["itemtype"]="Knife",["rarity"]="Common"}},
+    {"Knife","Striped_K_2025",{["itemid"]=136747578920542,["itemname"]="Striped",["itemtype"]="Knife",["rarity"]="Common"}},
+    {"Knife","Sub",{["itemid"]=546159250,["itemname"]="Sub",["itemtype"]="Knife",["rarity"]="Common"}},
+    {"Knife","Summer_Stickers_K_2023",{["itemid"]=13944129596,["itemname"]="Stickers",["itemtype"]="Knife",["rarity"]="Common"}},
+    {"Knife","SunsetKnife",{["itemid"]=103526268515240,["itemname"]="Sunset",["itemtype"]="Knife",["rarity"]="Godly"}},
+    {"Knife","SunsetKnifeChroma",{["chroma"]=true,["itemid"]=103526268515240,["itemname"]="Sunset",["itemtype"]="Knife",["rarity"]="Godly"}},
+    {"Knife","Survivors_K_2022",{["itemid"]=11254180750,["itemname"]="Makeshift",["itemtype"]="Knife",["rarity"]="Rare"}},
+    {"Knife","Sweater",{["itemid"]=1268704902,["itemname"]="Sweater",["itemtype"]="Knife",["rarity"]="Uncommon"}},
+    {"Knife","Sweater_K_2018",{["itemid"]=2669640567,["itemname"]="Sweater",["itemtype"]="Knife",["rarity"]="Uncommon"}},
+    {"Knife","Sweater_K_2025",{["itemid"]=102130993592804,["itemname"]="Sweater",["itemtype"]="Knife",["rarity"]="Uncommon"}},
+    {"Knife","Sweet",{["itemid"]=126937716954396,["itemname"]="Sweet",["itemtype"]="Knife",["rarity"]="Godly"}},
+    {"Knife","SweetChroma",{["chroma"]=true,["itemid"]=126937716954396,["itemname"]="Sweet",["itemtype"]="Knife",["rarity"]="Godly"}},
+    {"Knife","Sweet_K_2026",{["itemid"]=113677688954146,["itemname"]="Yummy",["itemtype"]="Knife",["rarity"]="Rare"}},
+    {"Knife","Sweetheart",{["itemid"]=363150761,["itemname"]="Sweetheart",["itemtype"]="Knife",["rarity"]="Common"}},
+    {"Knife","Swirl_K_2021",{["itemid"]=8304757110,["itemname"]="Swirl",["itemtype"]="Knife",["rarity"]="Rare"}},
+    {"Knife","SwirlyAxe",{["itemid"]=8304801000,["itemname"]="Swirly Axe",["itemtype"]="Knife",["rarity"]="Ancient"}},
+    {"Knife","SwirlyAxeBlue",{["itemid"]=9552048857,["itemname"]="Blue Swirly",["itemtype"]="Knife",["rarity"]="Unique"}},
+    {"Knife","SwirlyAxeBronze",{["itemid"]=9552050165,["itemname"]="Bronze Swirly",["itemtype"]="Knife",["rarity"]="Unique"}},
+    {"Knife","SwirlyAxeGold",{["itemid"]=9552054920,["itemname"]="Gold Swirly",["itemtype"]="Knife",["rarity"]="Unique"}},
+    {"Knife","SwirlyAxeSilver",{["itemid"]=9552051805,["itemname"]="Silver Swirly",["itemtype"]="Knife",["rarity"]="Unique"}},
+    {"Knife","SwirlyBlade",{["itemid"]=8304805693,["itemname"]="Swirly Blade",["itemtype"]="Knife",["rarity"]="Godly"}},
+    {"Knife","Synthwave",{["itemid"]=84935740002917,["itemname"]="Synthwave",["itemtype"]="Knife",["rarity"]="Rare"}},
+    {"Knife","Synthwave_Ancient",{["itemid"]=133828016595037,["itemname"]="Synthwave",["itemtype"]="Knife",["rarity"]="Ancient"}},
+    {"Knife","Synthwave_Blue",{["itemid"]=122762984016505,["itemname"]="Blue Synthwave",["itemtype"]="Knife",["rarity"]="Unique"}},
+    {"Knife","Synthwave_Bronze",{["itemid"]=72230744607038,["itemname"]="Bronze Synthwave",["itemtype"]="Knife",["rarity"]="Unique"}},
+    {"Knife","Synthwave_Godly",{["itemid"]=15683175970,["itemname"]="Synthwave",["itemtype"]="Knife",["rarity"]="Godly"}},
+    {"Knife","Synthwave_Gold",{["itemid"]=138834911796124,["itemname"]="Gold Synthwave",["itemtype"]="Knife",["rarity"]="Unique"}},
+    {"Knife","Synthwave_Legendary",{["itemid"]=132040985617451,["itemname"]="Synthwave",["itemtype"]="Knife",["rarity"]="Legendary"}},
+    {"Knife","Synthwave_Silver",{["itemid"]=103455022994358,["itemname"]="Silver Synthwave",["itemtype"]="Knife",["rarity"]="Unique"}},
+    {"Knife","TNL",{["itemid"]=201542790,["itemname"]="TNL",["itemtype"]="Knife",["rarity"]="Common"}},
+    {"Knife","Tailslide",{["itemid"]=305506822,["itemname"]="Tailslide",["itemtype"]="Knife",["rarity"]="Common"}},
+    {"Knife","TheSeer",{["itemid"]=198441783,["itemname"]="Seer",["itemtype"]="Knife",["rarity"]="Godly"}},
+    {"Knife","Tides",{["itemid"]=473569625,["itemname"]="Tides",["itemtype"]="Knife",["rarity"]="Godly"}},
+    {"Knife","TidesChroma",{["chroma"]=true,["itemid"]=3187394934,["itemname"]="Tides",["itemtype"]="Knife",["rarity"]="Godly"}},
+    {"Knife","Tiger",{["itemid"]=3183606579,["itemname"]="Tiger",["itemtype"]="Knife",["rarity"]="Uncommon"}},
+    {"Knife","TimeKnife",{["itemid"]=473575049,["itemname"]="Prince",["itemtype"]="Knife",["rarity"]="Classic"}},
+    {"Knife","Tourist_K_2026",{["itemid"]=135606903872678,["itemname"]="Tourist",["itemtype"]="Knife",["rarity"]="Common"}},
+    {"Knife","ToxicK",{["itemid"]=2513734535,["itemname"]="Toxic",["itemtype"]="Knife",["rarity"]="Rare"}},
+    {"Knife","Toy_K_2023",{["itemid"]=13944127959,["itemname"]="Toy",["itemtype"]="Knife",["rarity"]="Common"}},
+    {"Knife","TravelerAxe",{["itemid"]=15070870271,["itemname"]="Traveler's Axe",["itemtype"]="Knife",["rarity"]="Ancient"}},
+    {"Knife","TravelerAxeBronze",{["itemid"]=15695407020,["itemname"]="Bronze Traveler's",["itemtype"]="Knife",["rarity"]="Unique"}},
+    {"Knife","TravelerAxeGold",{["itemid"]=15695408631,["itemname"]="Gold Traveler's",["itemtype"]="Knife",["rarity"]="Unique"}},
+    {"Knife","TravelerAxeRed",{["itemid"]=15695405379,["itemname"]="Red Traveler's",["itemtype"]="Knife",["rarity"]="Unique"}},
+    {"Knife","TravelerAxeSilver",{["itemid"]=15695407742,["itemname"]="Silver Traveler's",["itemtype"]="Knife",["rarity"]="Unique"}},
+    {"Knife","Traveler_K_2023",{["itemid"]=15091407901,["itemname"]="Traveler",["itemtype"]="Knife",["rarity"]="Legendary"}},
+    {"Knife","Treats_K_2025",{["itemid"]=115298865715727,["itemname"]="Treats",["itemtype"]="Knife",["rarity"]="Uncommon"}},
+    {"Knife","Tree",{["itemid"]=331745577,["itemname"]="Tree",["itemtype"]="Knife",["rarity"]="Legendary"}},
+    {"Knife","Tree2017",{["itemid"]=1268704124,["itemname"]="Tree",["itemtype"]="Knife",["rarity"]="Uncommon"}},
+    {"Knife","TreeKnife2023",{["itemid"]=15667157715,["itemname"]="Evergreen",["itemtype"]="Knife",["rarity"]="Godly"}},
+    {"Knife","TreeKnife2023Chroma",{["chroma"]=true,["itemid"]=15694110573,["itemname"]="Evergreen",["itemtype"]="Knife",["rarity"]="Godly"}},
+    {"Knife","Tree_K_2021",{["itemid"]=8304756423,["itemname"]="Tree",["itemtype"]="Knife",["rarity"]="Uncommon"}},
+    {"Knife","Tree_K_2022",{["itemid"]=11834400185,["itemname"]="Tree",["itemtype"]="Knife",["rarity"]="Rare"}},
+    {"Knife","Tree_K_2023",{["itemid"]=15635563249,["itemname"]="Tree",["itemtype"]="Knife",["rarity"]="Rare"}},
+    {"Knife","Trees_K_2020",{["itemid"]=6123336879,["itemname"]="Trees",["itemtype"]="Knife",["rarity"]="Common"}},
+    {"Knife","Tropical_K_2025",{["itemid"]=111291962899457,["itemname"]="Tropical",["itemtype"]="Knife",["rarity"]="Rare"}},
+    {"Knife","Tulip",{["itemid"]=387874661,["itemname"]="Tulip",["itemtype"]="Knife",["rarity"]="Common"}},
+    {"Knife","Turkey2023",{["itemid"]=15413149176,["itemname"]="Turkey",["itemtype"]="Knife",["rarity"]="Godly"}},
+    {"Knife","Turtle_K_2024",{["itemid"]=18322166908,["itemname"]="Turtle",["itemtype"]="Knife",["rarity"]="Uncommon"}},
+    {"Knife","Turtles_K_2026",{["itemid"]=77271917200992,["itemname"]="Turtles",["itemtype"]="Knife",["rarity"]="Uncommon"}},
+    {"Knife","UFOKnife",{["itemid"]=77607127867154,["itemname"]="Alienbeam",["itemtype"]="Knife",["rarity"]="Godly"}},
+    {"Knife","UFOKnifeChroma",{["chroma"]=true,["itemid"]=77607127867154,["itemname"]="Alienbeam",["itemtype"]="Knife",["rarity"]="Godly"}},
+    {"Knife","UFOs_K_2025",{["itemid"]=97641024072972,["itemname"]="UFOs",["itemtype"]="Knife",["rarity"]="Common"}},
+    {"Knife","Valentine",{["itemid"]=363150149,["itemname"]="Valentine",["itemtype"]="Knife",["rarity"]="Common"}},
+    {"Knife","Vampire",{["itemid"]=531873248,["itemname"]="Vampire",["itemtype"]="Knife",["rarity"]="Uncommon"}},
+    {"Knife","VampireAxe",{["itemid"]=130837676383567,["itemname"]="Vampire's Axe",["itemtype"]="Knife",["rarity"]="Ancient"}},
+    {"Knife","VampireAxe_Bronze",{["itemid"]=130837676383567,["itemname"]="Vampire's Axe",["itemtype"]="Knife",["rarity"]="Unique"}},
+    {"Knife","VampireAxe_Gold",{["itemid"]=130837676383567,["itemname"]="Vampire's Axe",["itemtype"]="Knife",["rarity"]="Unique"}},
+    {"Knife","VampireAxe_Purple",{["itemid"]=130837676383567,["itemname"]="Vampire's Axe",["itemtype"]="Knife",["rarity"]="Unique"}},
+    {"Knife","VampireAxe_Silver",{["itemid"]=130837676383567,["itemname"]="Vampire's Axe",["itemtype"]="Knife",["rarity"]="Unique"}},
+    {"Knife","VampireK2018",{["itemid"]=2513734708,["itemname"]="Vampire",["itemtype"]="Knife",["rarity"]="Rare"}},
+    {"Knife","Vampire_K_2022",{["itemid"]=11254125546,["itemname"]="Vampire",["itemtype"]="Knife",["rarity"]="Legendary"}},
+    {"Knife","VampiresEdge",{["itemid"]=5873256998,["itemname"]="Vampire's Edge",["itemtype"]="Knife",["rarity"]="Godly"}},
+    {"Knife","Vines_K_2023",{["itemid"]=15091325210,["itemname"]="Vines",["itemtype"]="Knife",["rarity"]="Common"}},
+    {"Knife","Virtual",{["itemid"]=386276987,["itemname"]="Virtual",["itemtype"]="Knife",["rarity"]="Godly"}},
+    {"Knife","VoidRbx",{["itemid"]=11548082732,["itemname"]="Void",["itemtype"]="Knife",["rarity"]="Uncommon"}},
+    {"Knife","Vortex",{["itemid"]=235371508,["itemname"]="Vortex",["itemtype"]="Knife",["rarity"]="Rare"}},
+    {"Knife","Wanwood",{["itemid"]=196751441,["itemname"]="Wanwood",["itemtype"]="Knife",["rarity"]="Uncommon"}},
+    {"Knife","Watcher_K_2021",{["itemid"]=7800227475,["itemname"]="Watcher",["itemtype"]="Knife",["rarity"]="Rare"}},
+    {"Knife","Waves_K",{["itemid"]=13945892398,["itemname"]="Waves",["itemtype"]="Knife",["rarity"]="Godly"}},
+    {"Knife","Waves_K_2024",{["itemid"]=18322178053,["itemname"]="Waves",["itemtype"]="Knife",["rarity"]="Rare"}},
+    {"Knife","Wavy_K_2024",{["itemid"]=16959755393,["itemname"]="Wavy",["itemtype"]="Knife",["rarity"]="Common"}},
+    {"Knife","Web",{["itemid"]=315104004,["itemname"]="Web",["itemtype"]="Knife",["rarity"]="Legendary"}},
+    {"Knife","WebbedK",{["itemid"]=4210949599,["itemname"]="Webbed",["itemtype"]="Knife",["rarity"]="Common"}},
+    {"Knife","Webs",{["itemid"]=1133325465,["itemname"]="Webs",["itemtype"]="Knife",["rarity"]="Uncommon"}},
+    {"Knife","Whiteout",{["itemid"]=196751515,["itemname"]="Whiteout",["itemtype"]="Knife",["rarity"]="Common"}},
+    {"Knife","WintersEdge",{["itemid"]=1268708987,["itemname"]="Winter's Edge",["itemtype"]="Knife",["rarity"]="Godly"}},
+    {"Knife","Witch",{["itemid"]=531873553,["itemname"]="Witch",["itemtype"]="Knife",["rarity"]="Common"}},
+    {"Knife","WitchBrew_K_2024",{["itemid"]=108331177567412,["itemname"]="Witch's Brew",["itemtype"]="Knife",["rarity"]="Uncommon"}},
+    {"Knife","Witch_K_2022",{["itemid"]=11254115609,["itemname"]="Witchbrew",["itemtype"]="Knife",["rarity"]="Uncommon"}},
+    {"Knife","Witched",{["itemid"]=4210938270,["itemname"]="Witched",["itemtype"]="Knife",["rarity"]="Legendary"}},
+    {"Knife","Wolf",{["itemid"]=531873487,["itemname"]="Wolf",["itemtype"]="Knife",["rarity"]="Uncommon"}},
+    {"Knife","Wood_K_2023",{["itemid"]=15091401811,["itemname"]="Wood",["itemtype"]="Knife",["rarity"]="Common"}},
+    {"Knife","WraithKnife",{["itemid"]=107190526940939,["itemname"]="Spirit",["itemtype"]="Knife",["rarity"]="Godly"}},
+    {"Knife","Wraith_K_2022",{["itemid"]=11254118399,["itemname"]="Wraith",["itemtype"]="Knife",["rarity"]="Rare"}},
+    {"Knife","Wrapped",{["itemid"]=331745500,["itemname"]="Wrapped",["itemtype"]="Knife",["rarity"]="Uncommon"}},
+    {"Knife","Wrapped_K_2018",{["itemid"]=2669640357,["itemname"]="Wrapped",["itemtype"]="Knife",["rarity"]="Common"}},
+    {"Knife","Wrapped_K_2022",{["itemid"]=11834403282,["itemname"]="Wrapped",["itemtype"]="Knife",["rarity"]="Common"}},
+    {"Knife","Wrapped_K_2024",{["itemid"]=72638846676083,["itemname"]="Wrapped",["itemtype"]="Knife",["rarity"]="Uncommon"}},
+    {"Knife","Wreaths_K_2024",{["itemid"]=78432760615312,["itemname"]="Wreaths",["itemtype"]="Knife",["rarity"]="Uncommon"}},
+    {"Knife","Xbox",{["itemid"]=439325100,["itemname"]="Xbox",["itemtype"]="Knife",["rarity"]="Common"}},
+    {"Knife","XenoKnife",{["itemid"]=100576599313371,["itemname"]="Xenoknife",["itemtype"]="Knife",["rarity"]="Godly"}},
+    {"Knife","Xeno_K_2025",{["itemid"]=80492487454400,["itemname"]="Xeno",["itemtype"]="Knife",["rarity"]="Rare"}},
+    {"Knife","Xmas",{["itemid"]=473572568,["itemname"]="Xmas",["itemtype"]="Knife",["rarity"]="Godly"}},
+    {"Knife","XmasStickers_K_2021",{["itemid"]=8304755417,["itemname"]="Stickers",["itemtype"]="Knife",["rarity"]="Common"}},
+    {"Knife","YellowSeer",{["itemid"]=3184124768,["itemname"]="Yellow Seer",["itemtype"]="Knife",["rarity"]="Godly"}},
+    {"Knife","Zombie",{["itemid"]=1133331885,["itemname"]="Zombie",["itemtype"]="Knife",["rarity"]="Common"}},
+    {"Knife","ZombieBat",{["itemid"]=11229814357,["itemname"]="Bat",["itemtype"]="Knife",["rarity"]="Godly"}},
+    {"Knife","ZombieK2018",{["itemid"]=2513734908,["itemname"]="Zombie",["itemtype"]="Knife",["rarity"]="Uncommon"}},
+    {"Knife","Zombie_K_2021",{["itemid"]=7800222975,["itemname"]="Zombie",["itemtype"]="Knife",["rarity"]="Uncommon"}},
+    {"Knife","Zombie_K_2023",{["itemid"]=15091339932,["itemname"]="Zombie",["itemtype"]="Knife",["rarity"]="Uncommon"}},
+    {"Knife","ZombifiedK",{["itemid"]=4210928053,["itemname"]="Zombified",["itemtype"]="Knife",["rarity"]="Uncommon"}},
+    {"Knife","Zombified_K_2022",{["itemid"]=11254182560,["itemname"]="Zombified",["itemtype"]="Knife",["rarity"]="Rare"}},
+    {"Knife","molten",{["itemid"]=11254158802,["itemname"]="TestItem",["itemtype"]="Knife",["rarity"]="Common"}},
+}
+local sharedScopes={
+    {"Gun","Matrixscope",{["itemid"]=117266088063706,["itemname"]="Matrixscope",["itemtype"]="Gun",["rarity"]="Secret"}},
+    {"Gun","Voidscope",{["itemid"]=84264267520629,["itemname"]="Voidscope",["itemtype"]="Gun",["rarity"]="Secret"}},
+}
+local mmv=game.GameId==10413186812 or game.PlaceId==93017634738276
+if not mmv then
+    for _,row in ipairs(staticMM2) do register(row[1],row[2],row[3]) end
+end
+for _,row in ipairs(sharedScopes) do
+    local entry=register(row[1],row[2],row[3])
+    entry.originalModelId=string.format("%.0f",row[3].itemid)
+end
+
+local ORIGINAL_SCOPE_HOLD="134818020160275"
+local scopeHoldWarnings={}
+local nativeScopeHolds={}
+local function isScope(entry)
+    if not entry or entry.kind~="Gun" then return false end
+    local name=compact(entry.id)..compact(entry.name)
+    return name:find("gingerscope",1,true)~=nil or name:find("voidscope",1,true)~=nil
+        or name:find("matrixscope",1,true)~=nil
+end
+
+local function visualRoot(object)
+    if object:IsA("BasePart") then return object end
+    local handle=object:FindFirstChild("Handle",true)
+    if handle and handle:IsA("BasePart") then return handle end
+    if object:IsA("Model") and object.PrimaryPart then return object.PrimaryPart end
+    return object:FindFirstChildWhichIsA("BasePart",true)
+end
+
+local function cloneObject(source)
+    local previous=source.Archivable
+    pcall(function() source.Archivable=true end)
+    local ok,clone=pcall(function() return source:Clone() end)
+    pcall(function() source.Archivable=previous end)
+    return ok and clone or nil
+end
+
+local function assetId(value)
+    if type(value)=="number" and value>0 then return string.format("%.0f",math.floor(value)) end
+    if type(value)=="string" then
+        return value:match("^%s*(%d+)%s*$") or value:match("rbxassetid://(%d+)")
+            or value:match("[?&]id=(%d+)")
+    end
+end
+
+local function originalHold(container)
+    if not container then return nil end
+    for _,object in ipairs(container:GetDescendants()) do
+        if object:IsA("Animation") then
+            local name=compact(object.Name)
+            if name=="customhold" or name=="scopehold" or name=="gingerscopehold" or name=="hold2" then
+                local marked=false
+                local ancestor=object
+                while ancestor and ancestor~=container do
+                    if ancestor:GetAttribute(MARKER) then marked=true; break end
+                    ancestor=ancestor.Parent
+                end
+                local id=not marked and assetId(object.AnimationId)
+                if id then return id end
+            end
+        end
+    end
+end
+
+local function vector(value,fallback)
+    if typeof(value)=="Vector3" then return value end
+    if type(value)=="table" then
+        local x,y,z=tonumber(value.X or value.x or value[1]),tonumber(value.Y or value.y or value[2]),tonumber(value.Z or value.z or value[3])
+        if x and y and z then return Vector3.new(x,y,z) end
+    end
+    return fallback
+end
+
+-- Resolve only a record's explicit original model path, without enumerating
+-- the game's assets or adding choices at runtime. Exported paths are arrays so
+-- weapon names containing periods remain intact.
+local function resolveModel(path)
+    if type(path)~="table" then return nil end
+    local current=game
+    for _,name in ipairs(path) do
+        if name~="game" then current=current and current:FindFirstChild(tostring(name)) end
+        if not current then return nil end
+    end
+    return current
+end
+
+local function buildTemplate(entry)
+    local data=entry.data
+    local modelData=type(data.model)=="table" and properties(data.model) or data
+    local source=resolveModel(data.sourcepath)
+    local loaded={}
+    local clone=source and cloneObject(source) or nil
+    if not clone then
+        local primaryId=assetId(data.modelid) or assetId(data.assetid) or assetId(data.weaponasset)
+            or assetId(data.model) or assetId(data.itemid)
+        local ids={}
+        if primaryId then ids[#ids+1]=primaryId end
+        if entry.originalModelId and entry.originalModelId~=primaryId then ids[#ids+1]=entry.originalModelId end
+        for _,id in ipairs(ids) do
+            local ok,objects=pcall(function() return game:GetObjects("rbxassetid://"..id) end)
+            if ok and type(objects)=="table" then
+                for _,object in ipairs(objects) do
+                    loaded[#loaded+1]=object
+                    if not clone and visualRoot(object) then clone=object end
+                end
+            end
+            if clone then break end
+        end
+    end
+    if not clone then
+        local meshId=assetId(modelData.meshid or data.meshid or modelData.mesh)
+        if meshId then
+            local part=Instance.new("Part")
+            part.Name="Handle"
+            part.Size=vector(modelData.size or data.size,Vector3.new(1,1,1))
+            local mesh=Instance.new("SpecialMesh")
+            mesh.MeshType=Enum.MeshType.FileMesh
+            mesh.MeshId="rbxassetid://"..meshId
+            local texture=assetId(modelData.textureid or modelData.texture or data.textureid or data.texture)
+            mesh.TextureId=texture and "rbxassetid://"..texture or ""
+            mesh.Scale=vector(modelData.meshscale or modelData.scale or data.meshscale,Vector3.new(1,1,1))
+            mesh.Offset=vector(modelData.offset,Vector3.new())
+            mesh.Parent=part
+            if typeof(modelData.color or data.color)=="Color3" then part.Color=modelData.color or data.color end
+            clone=part
+        end
+    end
+    for _,object in ipairs(loaded) do if object~=clone then pcall(function() object:Destroy() end) end end
+    if not clone then return nil,"The game did not expose a loadable model for "..entry.name end
+    local root=visualRoot(clone)
+    if not root then clone:Destroy(); return nil,"No weapon mesh was found for "..entry.name end
+    local texture=assetId(modelData.textureid or modelData.texture or data.textureid or data.texture)
+    if texture then
+        local mesh=root:FindFirstChildWhichIsA("SpecialMesh")
+        if mesh then mesh.TextureId="rbxassetid://"..texture end
+        if root:IsA("MeshPart") then root.TextureID="rbxassetid://"..texture end
+    end
+    local grip=typeof(data.grip)=="CFrame" and data.grip or nil
+    local scopeHold=isScope(entry) and originalHold(clone) or nil
+    if clone:IsA("Tool") then grip=clone.Grip end
+    local ancestor=root.Parent
+    while ancestor and ancestor~=clone do
+        if ancestor:IsA("Tool") then grip=ancestor.Grip; break end
+        ancestor=ancestor.Parent
+    end
+    -- Keep visual assets and their attachments/PBR/bones. Never run an asset's
+    -- scripts, remotes, physical joints, sounds or interaction objects.
+    local allowed={Model=true,Folder=true,Attachment=true,Bone=true,SurfaceAppearance=true,
+        Tool=true,WrapLayer=true,WrapTarget=true,ParticleEmitter=true,Trail=true,Beam=true,Fire=true,
+        Smoke=true,Sparkles=true,PointLight=true,SpotLight=true,SurfaceLight=true}
+    for _,object in ipairs(clone:GetDescendants()) do
+        if not object:IsA("BasePart") and not object:IsA("DataModelMesh")
+            and not object:IsA("Decal") and not allowed[object.ClassName] then object:Destroy() end
+    end
+    for _,object in ipairs(clone:GetDescendants()) do
+        if object:IsA("Tool") then
+            local parent=object.Parent
+            for _,child in ipairs(object:GetChildren()) do child.Parent=parent end
+            object:Destroy()
+        end
+    end
+    local model=Instance.new("Model")
+    model.Name="VisualsV2_ClientWeaponTemplate"
+    model:SetAttribute(MARKER,true)
+    if clone:IsA("BasePart") then clone.Parent=model
+    else
+        for _,object in ipairs(clone:GetChildren()) do object.Parent=model end
+        clone:Destroy()
+    end
+    if not root:IsDescendantOf(model) then model:Destroy(); return nil,"The weapon Handle is unavailable" end
+    model.PrimaryPart=root
+    return {model=model,root=root,grip=grip,scopeHold=scopeHold,chroma=data.chroma==true,
+        revision=entry.revision,lastUsed=os.clock()}
+end
+
+local cache={}
+local loading={}
+local failed={}
+local warned={}
+local function cacheKey(entry) return entry.kind..":"..entry.id end
+
+local function templateFor(entry)
+    local key=cacheKey(entry)
+    local cached=cache[key]
+    if cached and cached.revision==entry.revision then cached.lastUsed=os.clock(); return cached end
+    if cached then cached.model:Destroy(); cache[key]=nil end
+    local failure=failed[key]
+    if loading[key] or (failure and failure.revision==entry.revision and failure.untilTime>os.clock()) then return nil end
+    if failure and failure.revision~=entry.revision then warned[key]=nil end
+    loading[key]=true
+    local startedRevision=entry.revision
+    task.spawn(function()
+        local ok,result,reason=pcall(buildTemplate,entry)
+        loading[key]=nil
+        if not alive or not runtimeAlive then
+            if ok and result then result.model:Destroy() end
+            return
+        end
+        if entry.revision~=startedRevision then
+            if ok and result then result.model:Destroy() end
+            task.defer(refreshTools)
+            return
+        end
+        if ok and result then
+            failed[key]=nil
+            warned[key]=nil
+            cache[key]=result
+            local count=0
+            for _ in pairs(cache) do count=count+1 end
+            if count>6 then
+                local oldestKey,oldestTime=nil,math.huge
+                for candidate,value in pairs(cache) do
+                    local selected=false
+                    for _,state in pairs(kinds) do
+                        if candidate==state.key:gsub("^client","")..":"..state.selected then selected=true end
+                    end
+                    if not selected and value.lastUsed<oldestTime then oldestKey,oldestTime=candidate,value.lastUsed end
+                end
+                if oldestKey then cache[oldestKey].model:Destroy(); cache[oldestKey]=nil end
+            end
+            refreshTools()
+        else
+            failed[key]={untilTime=os.clock()+15,revision=entry.revision}
+            local state=kinds[entry.kind]
+            if state.enabled and state.selected==entry.id and not warned[key] then
+                warned[key]=true
+                notify(reason or "Could not load "..entry.name.."; your original weapon is still available")
+            end
+        end
+    end)
+    return cache[key]
+end
+
+local function owned(object,tool)
+    while object and object~=tool do
+        if object:GetAttribute(MARKER) then return true end
+        object=object.Parent
+    end
+    return false
+end
+
+local function stopScopeHold(state)
+    state.holdGeneration=(state.holdGeneration or 0)+1
+    state.holdPending=nil
+    local hold=state.hold
+    state.hold=nil
+    if not hold then return end
+    if hold.died then hold.died:Disconnect() end
+    for track,weight in pairs(hold.suppressed) do
+        pcall(function() if track.IsPlaying then track:AdjustWeight(weight,0.12) end end)
+    end
+    if hold.owned then
+        pcall(function() hold.track:Stop(0.12) end)
+        pcall(function() hold.track:Destroy() end)
+    end
+    if hold.animation then hold.animation:Destroy() end
+end
+
+local function playingTracks(animator)
+    local ok,tracks=pcall(function() return animator:GetPlayingAnimationTracks() end)
+    return ok and tracks or {}
+end
+
+local function suppressToolHold(tool,hold)
+    local ids={}
+    local nativeId=originalHold(tool)
+    if nativeId then ids[nativeId]=true end
+    local animate=player.Character and player.Character:FindFirstChild("Animate")
+    local toolNone=animate and animate:FindFirstChild("toolnone")
+    if toolNone then
+        for _,animation in ipairs(toolNone:GetDescendants()) do
+            if animation:IsA("Animation") then
+                local id=assetId(animation.AnimationId)
+                if id then ids[id]=true end
+            end
+        end
+    end
+    for _,track in ipairs(playingTracks(hold.animator)) do
+        local animation=track.Animation
+        if track~=hold.track and animation and ids[assetId(animation.AnimationId)] then
+            -- Affect only the competing tool-hold clips, preserving movement,
+            -- emotes, the gun's firing/reloading and all unrelated animations.
+            if hold.suppressed[track]==nil then
+                hold.suppressed[track]=tonumber(track.WeightTarget) or tonumber(track.WeightCurrent) or 1
+            end
+            pcall(function() track:AdjustWeight(0,0.08) end)
+        end
+    end
+end
+
+local function updateScopeHold(tool,state,entry)
+    local character=player.Character
+    local humanoid=character and character:FindFirstChildOfClass("Humanoid")
+    local animator=humanoid and humanoid:FindFirstChildOfClass("Animator")
+    if not isScope(entry) or tool.Parent~=character or not state.model or not animator
+        or humanoid.Health<=0 then
+        if state.hold or state.holdPending then stopScopeHold(state) end
+        return
+    end
+    local rig=tostring(humanoid.RigType)
+    local mmv=game.GameId==10413186812 or game.PlaceId==93017634738276
+    local nativeId=originalHold(tool) or (not nativeScopeHolds[rig] and state.scopeTemplateHold)
+    if nativeId and not mmv then nativeScopeHolds[rig]=nativeId end
+    -- MMV uses the confirmed shared Hold2 clip for every scope variant.
+    -- MM2 can supply its own authorized original CustomHold; share that clip
+    -- across the other colours/trophies instead of changing it per model.
+    local id=not mmv and nativeScopeHolds[rig] or ORIGINAL_SCOPE_HOLD
+    id=id or ORIGINAL_SCOPE_HOLD
+    local signature=state.applied..":"..id
+    local hold=state.hold
+    if hold and hold.animator==animator and hold.signature==signature and hold.track.IsPlaying then
+        suppressToolHold(tool,hold)
+        return
+    end
+    local pending=state.holdPending
+    if pending and pending.animator==animator and pending.signature==signature then return end
+    if state.holdRetry and state.holdRetry.signature==signature and state.holdRetry.untilTime>os.clock() then return end
+    stopScopeHold(state)
+    local generation=state.holdGeneration
+    local model=state.model
+    pending={animator=animator,signature=signature}
+    state.holdPending=pending
+    local function current()
+        return alive and runtimeAlive and toolStates[tool]==state and state.holdGeneration==generation
+            and state.holdPending==pending and state.model==model and tool.Parent==character
+            and player.Character==character and humanoid.Health>0
+            and humanoid:FindFirstChildOfClass("Animator")==animator
+    end
+    task.spawn(function()
+        local track=nil
+        local animation=nil
+        local ownsTrack=false
+        -- Reuse the game's original hold if it is already playing. Disabling
+        -- the cosmetic must never stop a track owned by the gun's own scripts.
+        for _,candidate in ipairs(playingTracks(animator)) do
+            if candidate.IsPlaying and candidate.Animation and assetId(candidate.Animation.AnimationId)==id then
+                track=candidate; break
+            end
+        end
+        if not track then
+            ownsTrack=true
+            animation=Instance.new("Animation")
+            animation.Name="VisualsV2ScopeHold"
+            animation:SetAttribute(MARKER,true)
+            animation.AnimationId="rbxassetid://"..id
+            animation.Parent=model
+            local ok,result=pcall(function() return animator:LoadAnimation(animation) end)
+            if ok then track=result end
+            local deadline=os.clock()+6
+            while track and current() and track.Length<=0 and os.clock()<deadline do task.wait(0.1) end
+        end
+        local function discard()
+            if ownsTrack and track then
+                pcall(function() track:Stop(0) end)
+                pcall(function() track:Destroy() end)
+            end
+            if animation then animation:Destroy() end
+        end
+        if not current() then discard(); return end
+        local ok=track and (not ownsTrack or track.Length>0)
+        if ok and ownsTrack then
+            ok=pcall(function()
+                track.Priority=Enum.AnimationPriority.Action
+                track.Looped=true
+                track:Play(0.12,1,1)
+            end)
+        end
+        if not ok then
+            discard()
+            state.holdPending=nil
+            state.holdRetry={signature=signature,untilTime=os.clock()+30}
+            local warning=rig..":"..id
+            if not scopeHoldWarnings[warning] then
+                scopeHoldWarnings[warning]=true
+                notify("The original scope hold could not load in this game ("..id.."); the scope skin is still enabled.")
+            end
+            return
+        end
+        state.holdPending=nil
+        state.holdRetry=nil
+        hold={track=track,animation=animation,animator=animator,signature=signature,
+            owned=ownsTrack,suppressed={}}
+        state.hold=hold
+        model:SetAttribute("ScopeHoldAnimationID",id)
+        hold.died=humanoid.Died:Connect(function()
+            if state.hold==hold then stopScopeHold(state) end
+        end)
+        suppressToolHold(tool,hold)
+    end)
+end
+
+local function restoreVisuals(state)
+    stopScopeHold(state)
+    state.holdRetry=nil
+    state.scopeTemplateHold=nil
+    if state.model then state.model:Destroy(); state.model=nil end
+    for object,record in pairs(state.originals) do
+        pcall(function() object[record.property]=record.value end)
+    end
+    table.clear(state.originals)
+    state.applied=nil
+    state.handle=nil
+    state.appliedGrip=nil
+    state.chromaTargets=nil
+end
+
+local function chromaTargets(model,root)
+    local targets={}
+    for _,part in ipairs(model:GetDescendants()) do
+        if part:IsA("BasePart") then
+            local marked=part:GetAttribute("Chroma")==true or compact(part.Name):find("chroma",1,true)~=nil
+            for _,child in ipairs(part:GetChildren()) do
+                if child:IsA("DataModelMesh") and compact(child.Name):find("chroma",1,true) then marked=true end
+            end
+            if marked then targets[#targets+1]=part end
+        end
+    end
+    if #targets==0 then targets[1]=root end
+    return targets
+end
+
+local function updateChroma(state)
+    if not state.chromaTargets then return end
+    local color=Color3.fromHSV((os.clock()*0.15)%1,1,1)
+    for _,part in ipairs(state.chromaTargets) do
+        local mesh=part:FindFirstChildWhichIsA("SpecialMesh")
+        if mesh then
+            part.Color=Color3.new(1,1,1)
+            mesh.VertexColor=Vector3.new(color.R,color.G,color.B)
+        else part.Color=color end
+    end
+end
+
+local function hideOriginals(tool,state)
+    for _,object in ipairs(tool:GetDescendants()) do
+        if not owned(object,tool) then
+            local property,value=nil,nil
+            if object:IsA("BasePart") then property,value="LocalTransparencyModifier",1
+            elseif object:IsA("Decal") then property,value="Transparency",1
+            elseif object:IsA("ParticleEmitter") or object:IsA("Trail") or object:IsA("Beam")
+                or object:IsA("Fire") or object:IsA("Smoke") or object:IsA("Sparkles")
+                or object:IsA("Light") then property,value="Enabled",false end
+            if property then
+                if not state.originals[object] then state.originals[object]={property=property,value=object[property]} end
+                pcall(function() object[property]=value end)
+            end
+        end
+    end
+end
+
+local function localTool(tool)
+    return tool.Parent==player.Character or tool.Parent==player:FindFirstChildOfClass("Backpack")
+end
+
+local function actualKind(tool)
+    return weaponKind(tool.Name) or weaponKind(tool:GetAttribute("WeaponType") or tool:GetAttribute("ItemType"))
+end
+
+local function apply(tool,state)
+    local kind=actualKind(tool)
+    local settings=kind and kinds[kind]
+    local entry=settings and catalog[kind][settings.selected]
+    if not settings or not settings.enabled or not entry or not localTool(tool) then
+        if state.model or state.hold or state.holdPending then restoreVisuals(state) end
+        return
+    end
+    local handle=tool:FindFirstChild("Handle") or visualRoot(tool)
+    if not handle or not handle:IsA("BasePart") then restoreVisuals(state); return end
+    local signature=cacheKey(entry)..":"..entry.revision
+    if state.applied==signature and state.handle==handle and state.appliedGrip==tool.Grip
+        and state.model and state.model.Parent==tool then
+        updateScopeHold(tool,state,entry)
+        return
+    end
+    local template=templateFor(entry)
+    if not template then
+        -- Never leave the previous selection or an invisible Handle behind.
+        if state.model then restoreVisuals(state) end
+        return
+    end
+    local model=cloneObject(template.model)
+    if not model then return end
+    local root=model.PrimaryPart or visualRoot(model)
+    if not root then model:Destroy(); return end
+    local origin=root.CFrame
+    local offset=template.grip and tool.Grip*template.grip:Inverse() or CFrame.new()
+    local partCount=0
+    for _,part in ipairs(model:GetDescendants()) do
+        if part:IsA("BasePart") then
+            local relative=offset*origin:ToObjectSpace(part.CFrame)
+            part.Anchored=false; part.CanCollide=false; part.CanTouch=false; part.CanQuery=false
+            part.Massless=true; part.CastShadow=false; part.LocalTransparencyModifier=0
+            part.CFrame=handle.CFrame*relative
+            local weld=Instance.new("Weld")
+            weld.Name="VisualsV2_ClientSkinWeld"
+            weld.Part0=handle; weld.Part1=part; weld.C0=relative; weld.C1=CFrame.new()
+            weld.Parent=part
+            partCount=partCount+1
+        end
+    end
+    if partCount==0 then model:Destroy(); return end
+    restoreVisuals(state)
+    model.Name="VisualsV2_Client"..kind.."Skin"
+    model:SetAttribute("WeaponID",entry.id)
+    state.model=model; state.handle=handle; state.applied=signature
+    state.appliedGrip=tool.Grip
+    state.scopeTemplateHold=template.scopeHold
+    state.chromaTargets=template.chroma and chromaTargets(model,root) or nil
+    model.Parent=tool
+    updateChroma(state)
+    hideOriginals(tool,state)
+    updateScopeHold(tool,state,entry)
+end
+
+local function forgetTool(tool)
+    local state=toolStates[tool]
+    if not state then return end
+    toolStates[tool]=nil
+    for _,connection in ipairs(state.connections) do connection:Disconnect() end
+    restoreVisuals(state)
+end
+
+local function trackTool(tool)
+    if not tool:IsA("Tool") or not actualKind(tool) then return end
+    local state=toolStates[tool]
+    if not state then
+        state={originals={},connections={},queued=false}
+        toolStates[tool]=state
+        local function changed(object)
+            if object and owned(object,tool) then return end
+            if state.queued then return end
+            state.queued=true
+            task.defer(function()
+                state.queued=false
+                if alive and runtimeAlive and toolStates[tool]==state then
+                    if localTool(tool) then
+                        if state.model then hideOriginals(tool,state) end
+                        apply(tool,state)
+                    else forgetTool(tool) end
+                end
+            end)
+        end
+        state.connections[1]=tool.DescendantAdded:Connect(changed)
+        state.connections[2]=tool.DescendantRemoving:Connect(changed)
+        state.connections[3]=tool.AncestryChanged:Connect(function() changed() end)
+    end
+    apply(tool,state)
+end
+
+refreshTools=function()
+    if not alive or not runtimeAlive then return end
+    for tool,state in pairs(toolStates) do
+        if localTool(tool) then apply(tool,state) else forgetTool(tool) end
+    end
+    if not kinds.Gun.enabled and not kinds.Knife.enabled then return end
+    local function scan(container)
+        if container then for _,tool in ipairs(container:GetChildren()) do trackTool(tool) end end
+    end
+    scan(player.Character)
+    scan(player:FindFirstChildOfClass("Backpack"))
+end
+
+updateWatching=function()
+    if heartbeat then heartbeat:Disconnect(); heartbeat=nil end
+    if hideFrame then hideFrame:Disconnect(); hideFrame=nil end
+    refreshTools()
+    if not alive or not runtimeAlive or (not kinds.Gun.enabled and not kinds.Knife.enabled) then
+        for tool in pairs(toolStates) do forgetTool(tool) end
+        return
+    end
+    local elapsed=0
+    heartbeat=RunService.Heartbeat:Connect(function(dt)
+        elapsed=elapsed+math.max(tonumber(dt) or 0,0)
+        if elapsed>=0.25 then elapsed=0; refreshTools() end
+    end)
+    hideFrame=RunService.RenderStepped:Connect(function()
+        -- Roblox's first-person transparency controller can change the original
+        -- Handle every frame. Enforce only the saved originals, never the skin.
+        for tool,state in pairs(toolStates) do
+            if state.model then updateChroma(state) end
+            if state.model and tool.Parent==player.Character then
+                for object,record in pairs(state.originals) do
+                    pcall(function()
+                        if record.property=="Enabled" then object.Enabled=false else object[record.property]=1 end
+                    end)
+                end
+            end
+        end
+    end)
+end
+
+local function setDropdown(controller,method,value)
+    if type(controller)~="table" or type(controller[method])~="function" then return end
+    local ok=pcall(controller[method],value)
+    if not ok then pcall(controller[method],controller,value) end
+end
+
+for _,kind in ipairs({"Gun","Knife"}) do
+    local state=kinds[kind]
+    local entries={}
+    for _,entry in pairs(catalog[kind]) do entries[#entries+1]=entry end
+    table.sort(entries,function(a,b)
+        if a.name:lower()==b.name:lower() then return a.id<b.id end
+        return a.name:lower()<b.name:lower()
+    end)
+    local options={NONE}
+    state.labels={}
+    local names={}
+    for _,entry in ipairs(entries) do names[entry.name:lower()]=(names[entry.name:lower()] or 0)+1 end
+    for _,entry in ipairs(entries) do
+        entry.label=names[entry.name:lower()]>1 and entry.name.." ["..entry.id.."]" or entry.name
+        options[#options+1]=entry.label
+        state.labels[entry.label]=entry.id
+    end
+    local selected=catalog[kind][state.selected]
+    state.dropdown=addDropdown(section,kind.." Skin",options,selected and selected.label or nil,function(value)
+        if refreshing then return end
+        if type(value)=="table" then value=value[1] or value.Value or value.value end
+        local id=value==NONE and NONE or state.labels[value]
+        if not id and type(value)=="string" and catalog[kind][value] then id=value end
+        if not id then return end
+        state.selected=id
+        SetCfg(state.key.."Skin",id)
+        refreshTools()
+    end)
+    state.toggle=addToggle(section,"Enable Custom Client "..kind,state.enabled,function(value)
+        state.enabled=value
+        SetCfg(state.key.."Enabled",value)
+        updateWatching()
+    end)
+end
+
+connections[#connections+1]=player.CharacterAdded:Connect(function()
+    task.defer(function() if alive and runtimeAlive then refreshTools() end end)
+end)
+connections[#connections+1]=player.ChildAdded:Connect(function(child)
+    if child:IsA("Backpack") then task.defer(function() if alive and runtimeAlive then refreshTools() end end) end
+end)
+env.VisualsV2Runtime.ClientWeaponSkins={
+    Catalog=catalog,
+    GetCounts=function()
+        local counts={Gun=0,Knife=0}
+        for kind,entries in pairs(catalog) do for _ in pairs(entries) do counts[kind]=counts[kind]+1 end end
+        return counts
+    end,
+}
+env.VisualsV2Runtime.RegisterReset(function()
+    for _,state in pairs(kinds) do
+        state.enabled=false; state.selected=NONE
+        state.toggle:Set(false)
+    end
+    updateWatching()
+    refreshing=true
+    for _,state in pairs(kinds) do setDropdown(state.dropdown,"Select",NONE) end
+    refreshing=false
+    if not runtimeAlive then
+        alive=false
+        for _,connection in ipairs(connections) do connection:Disconnect() end
+        for _,template in pairs(cache) do template.model:Destroy() end
+        table.clear(cache)
+        table.clear(nativeScopeHolds)
+    end
+end)
+updateWatching()
+end)()
+
+-- =========================================================
+-- UTILITIES: NATIVE SHIFT LOCK AIM FOR THROWABLES (MM2 / MMV)
+-- Reads the game's lock state. Never changes the camera, cursor, character
+-- rotation, input bindings or lock UI. Native tools still perform the throw.
+-- =========================================================
+;(function()
+local section=mainTab:AddSection("Shift Lock & Throwables","Utilities")
+local GuiService=game:GetService("GuiService")
+local mouse=player:GetMouse()
+local alive=true
+local aimEnabled=C("vv2ThrowableCentreAim",false)
+local frameBound=false
+local activeAim=nil
+local nativeCameras=nil
+local aimToggle
+local FRAME="VisualsV2_ShiftLockFrame"
+local castParams=RaycastParams.new()
+castParams.FilterType=Enum.RaycastFilterType.Exclude
+castParams.IgnoreWater=true
+local checkCaller=checkcaller or env.checkcaller
+local callingScript=getcallingscript or env.getcallingscript
+local namecallMethod=getnamecallmethod or env.getnamecallmethod
+local hookMeta=hookmetamethod or env.hookmetamethod
+local makeClosure=newcclosure or env.newcclosure
+local callbackValue=getcallbackvalue or env.getcallbackvalue
+local callbackRecords={}
+local hookReady=false
+local refresh
+
+local function notify(message)
+    if alive and runtimeAlive then pcall(function() shared.Notify(message,4) end) end
+end
+local function compact(value) return type(value)=="string" and value:lower():gsub("[^%w]","") or "" end
+local function throwable(tool)
+    if not tool or not tool:IsA("Tool") then return false end
+    local name=compact(tool.Name)
+    if name=="knife" or name=="gun" then return false end
+    return tool:GetAttribute("Throwable")==true or tool:GetAttribute("IsThrowable")==true
+        or name:find("bomb",1,true)~=nil or name:find("grenade",1,true)~=nil
+        or name:find("snowball",1,true)~=nil or name:find("dynamite",1,true)~=nil
+        or name:find("throwable",1,true)~=nil or name=="fakec4" or name=="c4"
+end
+
+local function equippedThrowable(character)
+    if character then
+        for _,tool in ipairs(character:GetChildren()) do if throwable(tool) then return tool end end
+    end
+end
+
+local function nativeCrosshair()
+    local gui=player:FindFirstChildOfClass("PlayerGui")
+    local topbar=gui and gui:FindFirstChild("GameTopbar")
+    local crosshair=topbar and topbar:FindFirstChild("Crosshair")
+    if not crosshair or not crosshair:IsA("GuiObject") then return nil,false end
+    local current=crosshair
+    while current and current~=gui do
+        if current:IsA("GuiObject") and not current.Visible then return crosshair,false end
+        if current:IsA("ScreenGui") and not current.Enabled then return crosshair,false end
+        current=current.Parent
+    end
+    return crosshair,true
+end
+
+local function nativeLocked()
+    -- MMV's original crosshair distinguishes shift lock from camera dragging
+    -- and first-person cursor locking. Respect its visible state when present.
+    local crosshair,visible=nativeCrosshair()
+    if crosshair then return visible end
+    if nativeCameras then
+        for _,key in ipairs({"activeMouseLockController","activeCameraController"}) do
+            local controller=nativeCameras[key]
+            if type(controller)=="table" and type(controller.GetIsMouseLocked)=="function" then
+                local ok,value=pcall(controller.GetIsMouseLocked,controller)
+                if ok and value==true then return true end
+            end
+        end
+    end
+    for _,object in pairs({player,player.Character,player:FindFirstChildOfClass("PlayerGui")}) do
+        for _,key in ipairs({"ShiftLocked","ShiftLock","IsShiftLocked","MouseLocked"}) do
+            if object:GetAttribute(key)==true then return true end
+            local flag=object:FindFirstChild(key,true)
+            if flag and flag:IsA("BoolValue") and flag.Value then return true end
+        end
+    end
+    return UserInputService.MouseBehavior==Enum.MouseBehavior.LockCenter
+end
+
+local function allowedCamera(character,humanoid,cam)
+    if not character or not humanoid or humanoid.Health<=0 or not cam
+        or cam.CameraType==Enum.CameraType.Scriptable or UserInputService:GetFocusedTextBox()
+        or GuiService.MenuIsOpen then return false end
+    local subject=cam.CameraSubject
+    return subject==humanoid or (subject and subject:IsDescendantOf(character)) or false
+end
+
+local function centreAim(cam,character,tool)
+    local size=cam.ViewportSize
+    if size.X<=0 or size.Y<=0 then return nil end
+    local ok,inset=pcall(function() return GuiService:GetGuiInset() end)
+    if not ok or typeof(inset)~="Vector2" then inset=Vector2.new(0,0) end
+    local x,y=size.X/2,size.Y/2
+    local guiX,guiY=x-inset.X,y-inset.Y
+    local crosshair,visible=nativeCrosshair()
+    if visible then
+        local position,extent=crosshair.AbsolutePosition,crosshair.AbsoluteSize
+        if typeof(position)=="Vector2" and typeof(extent)=="Vector2" and extent.X>0 and extent.Y>0 then
+            local candidateX,candidateY=position.X+extent.X/2,position.Y+extent.Y/2
+            local viewportX,viewportY=candidateX+inset.X,candidateY+inset.Y
+            if viewportX>=0 and viewportX<=size.X and viewportY>=0 and viewportY<=size.Y then
+                guiX,guiY=candidateX,candidateY
+                x,y=viewportX,viewportY
+            end
+        end
+    end
+    -- AbsolutePosition/Mouse.X/Y use inset GUI coordinates. Camera viewport
+    -- rays and GetMouseLocation use the corresponding viewport coordinates.
+    -- The captured MMV reticle (384,122) plus inset (0,58) targets (384,180).
+    local ray=cam:ViewportPointToRay(x,y,0)
+    local ignore={character,cam}
+    local targetFilter=mouse.TargetFilter
+    if targetFilter then ignore[#ignore+1]=targetFilter end
+    castParams.FilterDescendantsInstances=ignore
+    local result=workspace:Raycast(ray.Origin,ray.Direction*1000,castParams)
+    local position=result and result.Position or ray.Origin+ray.Direction*1000
+    local handle=tool:FindFirstChild("Handle")
+    local root=character:FindFirstChild("HumanoidRootPart")
+    local origin=(handle and handle:IsA("BasePart") and handle.Position) or (root and root.Position) or ray.Origin
+    local towards=position-origin
+    return {tool=tool,camera=cam,ray=ray,position=position,
+        hit=CFrame.new(position)*cam.CFrame.Rotation,target=result and result.Instance or nil,
+        origin=origin,direction=towards.Magnitude>0.001 and towards.Unit or ray.Direction,
+        x=x,y=y,mouseX=guiX,mouseY=guiY,screenX=x,screenY=y}
+end
+
+local function sampleAim()
+    if not alive or not runtimeAlive or not aimEnabled or not nativeLocked() then return nil end
+    local character=player.Character
+    local humanoid=character and character:FindFirstChildOfClass("Humanoid")
+    local cam=workspace.CurrentCamera
+    if not allowedCamera(character,humanoid,cam) then return nil end
+    local tool=equippedThrowable(character)
+    if not tool then return nil end
+    return centreAim(cam,character,tool)
+end
+
+local function gameCaller(aim,toolRemote)
+    if not alive or not runtimeAlive or not aimEnabled or not aim then return false end
+    if type(checkCaller)=="function" then
+        local ok,result=pcall(checkCaller)
+        if not ok or result then return false end
+    end
+    -- An exact remote inside the currently equipped throwable is enough to
+    -- identify its native request, even when a shared module owns the caller.
+    if toolRemote then return true end
+    if type(callingScript)=="function" then
+        local ok,source=pcall(callingScript)
+        return ok and typeof(source)=="Instance" and source:IsDescendantOf(aim.tool) or false
+    end
+    return false
+end
+
+local function targetValue(value,aim,direction)
+    local valueType=typeof(value)
+    if valueType=="Vector3" then return direction and aim.direction*value.Magnitude or aim.position end
+    if valueType=="CFrame" then return aim.hit end
+    if valueType=="Ray" then return Ray.new(value.Origin,aim.direction*value.Direction.Magnitude) end
+    return value
+end
+
+local function rewritePayload(payload,aim)
+    if type(payload)~="table" then return nil end
+    local result=nil
+    local positions={position=true,targetposition=true,mouseposition=true,mouselocation=true,
+        mousehit=true,hit=true,target=true}
+    for key,value in pairs(payload) do
+        local name=compact(key)
+        local valueType=typeof(value)
+        if (positions[name] or name=="direction" or name=="throwdirection")
+            and (valueType=="Vector3" or valueType=="CFrame" or valueType=="Ray") then
+            if not result then result=table.clone(payload) end
+            result[key]=targetValue(value,aim,name=="direction" or name=="throwdirection")
+        end
+    end
+    return result
+end
+
+local function rewriteArguments(remote,args,aim)
+    local toolLocal=remote:IsDescendantOf(aim.tool)
+    local name=compact(remote.Name)
+    local command=type(args[1])=="string" and compact(args[1]) or ""
+    local function aimOperation(value)
+        return value:find("throw",1,true)~=nil or value:find("toss",1,true)~=nil
+            or value:find("launch",1,true)~=nil or value:find("mousepos",1,true)~=nil
+            or value:find("mouseloc",1,true)~=nil or value=="aim" or value=="settarget"
+            or value=="plantbomb" or value=="leftdown" or value=="leftclick"
+            or value=="button1down" or value=="mouseclick" or value=="click"
+            or value=="activated" or value=="activate"
+    end
+    local operation=aimOperation(name) or aimOperation(command)
+    -- The MMV export exposes FakeBomb.Remote inside the equipped tool. Do not
+    -- infer another remote's protocol from a generic "Throw" command alone.
+    if not toolLocal then return nil end
+    -- Generic gear remotes must carry a throw/aim command or an unambiguous
+    -- target payload. Explode, equip, purchase and cooldown messages pass through.
+    if not operation and command~="" then return nil end
+    if not operation and name~="remoteevent" and name~="remotefunction"
+        and name~="remote" and name~="clientcontrol" and name~="servercontrol" then return nil end
+    local output=nil
+    local candidates={}
+    for index=1,args.n do
+        local value=args[index]
+        local valueType=typeof(value)
+        if valueType=="table" then
+            local payload=rewritePayload(value,aim)
+            if payload then
+                output=output or table.clone(args)
+                output[index]=payload
+            end
+        elseif valueType=="Vector3" or valueType=="CFrame" or valueType=="Ray" then
+            candidates[#candidates+1]=index
+        end
+    end
+    if #candidates==1 then
+        local index=candidates[1]
+        output=output or table.clone(args)
+        local value=args[index]
+        local direction=name:find("direction",1,true)~=nil or command:find("direction",1,true)~=nil
+            or (operation and typeof(value)=="Vector3" and math.abs(value.Magnitude-1)<=0.001)
+        output[index]=targetValue(value,aim,direction)
+    elseif #candidates==2 and operation then
+        -- Known origin + target/direction layouts: preserve the launch origin.
+        -- Ambiguous multi-vector layouts are left to the Mouse/ray input path.
+        local first,second=args[candidates[1]],args[candidates[2]]
+        local origin=typeof(first)=="Vector3" and first or (typeof(first)=="CFrame" and first.Position)
+        if origin and (origin-aim.origin).Magnitude<=8 then
+            output=output or table.clone(args)
+            local isDirection=typeof(second)=="Vector3" and second.Magnitude<=1.01
+            output[candidates[2]]=targetValue(second,aim,isDirection)
+        end
+    end
+    return output
+end
+
+-- One persistent bridge is reused across add-on executions. Wrappers are
+-- installed once and become pass-through when their current owner is reset.
+-- This preserves other add-ons' hooks and avoids an ever-growing hook chain.
+local bridge=env.VisualsV2ThrowableAimBridge
+if type(bridge)~="table" or bridge.version~=1 then
+    bridge={version=1}
+    env.VisualsV2ThrowableAimBridge=bridge
+end
+local handler={}
+handler.Index=function(object,key)
+    -- Touch input objects are shared with the camera, movement and menus.
+    -- Leave them untouched and redirect the native tool's aim reads instead.
+    if typeof(object)~="Instance" or not object:IsA("Mouse") then return false end
+    local aim=sampleAim()
+    if not gameCaller(aim) or type(key)~="string" then return false end
+    local name=key:lower()
+    if name=="hit" then return true,aim.hit end
+    if name=="target" then return true,aim.target end
+    if name=="unitray" then return true,aim.ray end
+    if name=="origin" then return true,CFrame.lookAt(aim.ray.Origin,aim.ray.Origin+aim.ray.Direction) end
+    if name=="x" then return true,aim.mouseX end
+    if name=="y" then return true,aim.mouseY end
+    return false
+end
+handler.Namecall=function(object,method,args)
+    local remoteRequest=(method=="FireServer" and object:IsA("RemoteEvent"))
+        or (method=="InvokeServer" and object:IsA("RemoteFunction"))
+    local cameraRequest=method=="ScreenPointToRay" or method=="ViewportPointToRay"
+    if not remoteRequest and not cameraRequest and method~="GetMouseLocation" then return nil end
+    if type(checkCaller)=="function" then
+        local ok,result=pcall(checkCaller)
+        if not ok or result then return nil end
+    end
+    local aim=sampleAim()
+    if not aim then return nil end
+    local toolRemote=remoteRequest and object:IsDescendantOf(aim.tool)
+    if not gameCaller(aim,toolRemote) then return nil end
+    if object==aim.camera and (method=="ScreenPointToRay" or method=="ViewportPointToRay") then
+        local depth=tonumber(args[3]) or 0
+        return "value",Ray.new(aim.ray.Origin+aim.ray.Direction*depth,aim.ray.Direction)
+    end
+    if object==UserInputService and method=="GetMouseLocation" then
+        return "value",Vector2.new(aim.screenX,aim.screenY)
+    end
+    if remoteRequest then
+        local rewritten=rewriteArguments(object,args,aim)
+        if rewritten then return "args",rewritten end
+    end
+end
+bridge.handler=handler
+
+local function installHooks()
+    if bridge.indexReady and bridge.namecallReady then return true end
+    if type(namecallMethod)~="function" or (type(checkCaller)~="function" and type(callingScript)~="function") then return false end
+    local hook=hookMeta
+    if type(hook)~="function" then
+        local rawMeta=getrawmetatable or env.getrawmetatable
+        local readOnly=setreadonly or env.setreadonly
+        local isReadOnly=isreadonly or env.isreadonly
+        if type(rawMeta)~="function" or type(readOnly)~="function" then return false end
+        hook=function(object,key,replacement)
+            local mt=rawMeta(object)
+            local old=mt[key]
+            local previous=true
+            if type(isReadOnly)=="function" then previous=isReadOnly(mt) end
+            readOnly(mt,false)
+            mt[key]=replacement
+            readOnly(mt,previous)
+            return old
+        end
+    end
+    if not bridge.indexReady then
+        local previous
+        local wrapper=function(object,key)
+            local current=bridge.handler
+            if current and not bridge.dispatching then
+                bridge.dispatching=true
+                local ok,handled,value=pcall(current.Index,object,key)
+                bridge.dispatching=false
+                if ok and handled then return value end
+            end
+            return previous(object,key)
+        end
+        if type(makeClosure)=="function" then wrapper=makeClosure(wrapper) end
+        local ok,original=pcall(hook,game,"__index",wrapper)
+        if not ok or type(original)~="function" then return false end
+        previous=original
+        bridge.indexReady=true
+    end
+    if not bridge.namecallReady then
+        local previous
+        local wrapper=function(object,...)
+            local method=namecallMethod()
+            local current=bridge.handler
+            if current and not bridge.dispatching then
+                bridge.dispatching=true
+                local ok,action,value=pcall(current.Namecall,object,method,table.pack(...))
+                bridge.dispatching=false
+                if ok and action=="value" then return value end
+                if ok and action=="args" then return previous(object,table.unpack(value,1,value.n)) end
+            end
+            return previous(object,...)
+        end
+        if type(makeClosure)=="function" then wrapper=makeClosure(wrapper) end
+        local ok,original=pcall(hook,game,"__namecall",wrapper)
+        if not ok or type(original)~="function" then return false end
+        previous=original
+        bridge.namecallReady=true
+    end
+    return true
+end
+
+-- Classic Roblox toys ask the client for MousePosition through
+-- ClientControl.OnClientInvoke instead of sending a position in FireServer.
+-- Preserve that callback's execution and every non-aim return value.
+local function readCallback(remote)
+    if type(callbackValue)=="function" then
+        local ok,value=pcall(callbackValue,remote,"OnClientInvoke")
+        if ok and type(value)=="function" then return value end
+    end
+    local ok,value=pcall(function() return remote.OnClientInvoke end)
+    return ok and type(value)=="function" and value or nil
+end
+
+local function releaseCallback(remote,record)
+    record.active=false
+    if readCallback(remote)==record.wrapper then
+        pcall(function() remote.OnClientInvoke=record.original end)
+    end
+    callbackRecords[remote]=nil
+end
+
+local function wrapCallback(remote,tool)
+    local original=readCallback(remote)
+    if not original then return end
+    local existing=callbackRecords[remote]
+    if existing and original==existing.wrapper then return end
+    if existing then releaseCallback(remote,existing) end
+    local record={original=original,tool=tool,active=true}
+    record.wrapper=function(...)
+        local args=table.pack(...)
+        local results=table.pack(original(...))
+        if not record.active then return table.unpack(results,1,results.n) end
+        local mode=args[1]
+        if type(mode)=="table" then mode=mode.Mode or mode.mode or mode.Action or mode.action end
+        local name=compact(mode)
+        local position=name=="mouseposition" or name=="getmouseposition" or name=="targetposition"
+        local hit=name=="mousehit" or name=="getmousehit"
+        local location=name=="mouselocation" or name=="getmouselocation"
+        local ray=name=="unitray" or name=="mouseunitray"
+        if position or hit or location or ray then
+            local aim=sampleAim()
+            if aim and aim.tool==tool then
+                local kind=typeof(results[1])
+                if kind=="Vector2" then
+                    results[1]=location and Vector2.new(aim.screenX,aim.screenY)
+                        or Vector2.new(aim.mouseX,aim.mouseY)
+                elseif kind=="Vector3" or kind=="CFrame" or kind=="Ray" then
+                    results[1]=targetValue(results[1],aim,false)
+                elseif results[1]==nil then
+                    results[1]=hit and aim.hit or (ray and aim.ray)
+                        or (location and Vector2.new(aim.screenX,aim.screenY)) or aim.position
+                    results.n=math.max(results.n,1)
+                end
+            end
+        end
+        return table.unpack(results,1,results.n)
+    end
+    local ok=pcall(function() remote.OnClientInvoke=record.wrapper end)
+    if ok then callbackRecords[remote]=record end
+end
+
+local function refreshCallbacks()
+    local seen={}
+    if aimEnabled and alive and runtimeAlive then
+        for _,container in pairs({player.Character,player:FindFirstChildOfClass("Backpack")}) do
+            for _,tool in ipairs(container:GetChildren()) do
+                if throwable(tool) then
+                    for _,remote in ipairs(tool:GetDescendants()) do
+                        if remote:IsA("RemoteFunction") then seen[remote]=true; wrapCallback(remote,tool) end
+                    end
+                end
+            end
+        end
+    end
+    for remote,record in pairs(callbackRecords) do
+        if not seen[remote] then releaseCallback(remote,record) end
+    end
+end
+
+local elapsed=0
+refresh=function()
+    activeAim=nil
+    refreshCallbacks()
+    if not alive or not runtimeAlive or not aimEnabled then
+        if frameBound then RunService:UnbindFromRenderStep(FRAME); frameBound=false end
+        return
+    end
+    if not frameBound then
+        RunService:BindToRenderStep(FRAME,Enum.RenderPriority.Camera.Value+1,function(dt)
+            local ok,aim=pcall(sampleAim)
+            activeAim=ok and aim or nil
+            elapsed=elapsed+(tonumber(dt) or 0.016)
+            if elapsed>=0.25 then elapsed=0; pcall(refreshCallbacks) end
+        end)
+        frameBound=true
+    end
+end
+
+aimToggle=addToggle(section,"Centre Aim for Throwables",aimEnabled,function(value)
+    hookReady=installHooks()
+    if value and not hookReady and type(callbackValue)~="function" then
+        aimEnabled=false
+        SetCfg("vv2ThrowableCentreAim",false)
+        task.defer(function() if aimToggle then aimToggle:Set(false) end end)
+        notify("This executor cannot redirect the native throwable aim.")
+    else aimEnabled=value; SetCfg("vv2ThrowableCentreAim",value) end
+    refresh()
+end)
+
+env.VisualsV2Runtime.ShiftLockThrowables={
+    IsLocked=nativeLocked,
+    GetAim=function() return activeAim end,
+}
+env.VisualsV2Runtime.RegisterReset(function()
+    aimEnabled=false; activeAim=nil
+    aimToggle:Set(false)
+    refresh()
+    if not runtimeAlive then
+        alive=false
+        if bridge.handler==handler then bridge.handler=nil end
+    end
+end)
+task.spawn(function()
+    local scripts=player:FindFirstChild("PlayerScripts")
+    local module=scripts and scripts:FindFirstChild("PlayerModule")
+    if module and module:IsA("ModuleScript") then
+        local ok,result=pcall(require,module)
+        if ok and type(result)=="table" and type(result.GetCameras)=="function" then
+            local cameraOk,cameras=pcall(result.GetCameras,result)
+            if cameraOk and type(cameras)=="table" and alive and runtimeAlive then nativeCameras=cameras end
+        end
+    end
+end)
+hookReady=installHooks()
+if aimEnabled and not hookReady and type(callbackValue)~="function" then
+    aimEnabled=false; SetCfg("vv2ThrowableCentreAim",false)
+end
+refresh()
 end)()
 
 ;(function()
