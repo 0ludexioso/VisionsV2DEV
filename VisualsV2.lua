@@ -1,4 +1,6 @@
 -- Visuals V2
+-- 2026-10-13: Native SprayPaint ForceField replacement, restored toy appearance overrides, and crosshair world targets for VolleyBall2025.
+-- 2026-10-13: Detect Volleyball and centre the captured SnowballToy2020/WaterBalloon2024 origin-plus-target packets.
 -- 2026-10-13: Use crosshair surface targets for beach balls/water balloons; separate SprayPaint's visible ForceField shell.
 -- 2026-10-13: Restore supplied material/viewport chams, protect SprayPaint visibility, and preserve native projectile range.
 -- 2026-10-13: Cover direct/cached native throwable requests alongside the namecall route; expose transport checks.
@@ -4841,7 +4843,7 @@ end)()
 -- =========================================================
 -- VISUALS: EQUIPPED WEAPON / TOOL CHAMS
 -- ForceField, Flat and Chromatic renderers adapted from anya_bts's Tool Chams.
--- Original material and viewport effects; native paint data stays protected.
+-- Original material and viewport effects; tool geometry and native input stay intact.
 -- =========================================================
 
 ;(function()
@@ -4854,7 +4856,6 @@ local heartbeatConnection,chromConnection,shellConnection
 local chromHost,chromView,chromWorld,chromCamera
 local dirty,queued,resetting=true,false,false
 local CHROM_SCALE,CHROM_ALPHA=1.012,0.025
-local PAINT_FORCE_SCALE=1.025
 local ownedSurfaces=setmetatable({}, {__mode="k"})
 
 local function disconnectAll(connections)
@@ -4897,6 +4898,7 @@ local function clearForceField(state)
                 source.Material=record.material
                 source.Color=record.color
             end
+            if record.materialVariant~=nil then source.MaterialVariant=record.materialVariant end
             if record.physicsPinned and source.CustomPhysicalProperties==record.pinnedPhysics then
                 source.CustomPhysicalProperties=record.customPhysics
             end
@@ -4906,8 +4908,13 @@ local function clearForceField(state)
         pcall(function() appearance.Parent=parent end)
         ownedSurfaces[appearance]=nil
     end
-    if state.force then state.force:Destroy() end
-    state.force,state.forceEntries,state.forceNative,state.forceSurfaces=nil,nil,nil,nil
+    for decal,alpha in pairs(state.forceDecals or {}) do
+        pcall(function() decal.Transparency=alpha end)
+    end
+    for mesh,color in pairs(state.forceMeshColors or {}) do
+        pcall(function() mesh.VertexColor=color end)
+    end
+    state.forceNative,state.forceSurfaces,state.forceDecals,state.forceMeshColors=nil,nil,nil,nil
 end
 
 local function clearState(state)
@@ -5022,64 +5029,10 @@ local function shell(source,scale)
     return clone
 end
 
-local function paintTool(tool)
-    local name=tool.Name:lower():gsub("[^%w]","")
-    return name:find("spray",1,true)~=nil or name:find("graffiti",1,true)~=nil
-end
-
--- Keep the native brush visible and untouched. An expanded cosmetic copy
--- avoids sharing its depth with the opaque can and retains the shader texture.
-local function paintForceShell(source)
-    local archivable=source.Archivable
-    if not archivable and not pcall(function() source.Archivable=true end) then return nil end
-    local ok,clone=pcall(function() return source:Clone() end)
-    if not archivable then pcall(function() source.Archivable=archivable end) end
-    if not ok or not clone then return nil end
-    if source:IsA("MeshPart") then
-        local appearance=source:FindFirstChildWhichIsA("SurfaceAppearance")
-        if clone.TextureID=="" and appearance then
-            pcall(function() clone.TextureID=appearance.ColorMap end)
-        end
-    end
-    for _,child in ipairs(clone:GetChildren()) do
-        if not child:IsA("DataModelMesh") then child:Destroy() end
-    end
-    for _,child in ipairs(clone:GetDescendants()) do
-        if child:IsA("Script") or child:IsA("LocalScript") or child:IsA("ModuleScript") then child:Destroy() end
-    end
-    local mesh=clone:FindFirstChildWhichIsA("DataModelMesh")
-    if mesh then mesh.Scale=mesh.Scale*PAINT_FORCE_SCALE
-    else clone.Size=source.Size*PAINT_FORCE_SCALE end
-    pcall(function() clone.MaterialVariant="" end)
-    clone.Anchored=true; clone.CanCollide=false; clone.CanQuery=false; clone.CanTouch=false
-    clone.Massless=true; clone.CastShadow=false; clone.LocalTransparencyModifier=0
-    return clone
-end
-
-local function syncForceField(tool,state,color)
-    for _,entry in ipairs(state.forceEntries or {}) do
-        local source,clone=entry.source,entry.clone
-        local visible=source.Parent and tool.Parent==player.Character
-        if visible then
-            clone.CFrame=source.CFrame
-            if entry.mesh and entry.sourceMesh and entry.sourceMesh.Parent then
-                entry.mesh.Scale=entry.sourceMesh.Scale*PAINT_FORCE_SCALE
-                entry.mesh.Offset=entry.sourceMesh.Offset
-            else clone.Size=source.Size*PAINT_FORCE_SCALE end
-            clone.Transparency=source.Transparency
-            clone.LocalTransparencyModifier=source.LocalTransparencyModifier
-            if clone.Color~=color then clone.Color=color end
-        else clone.Transparency=1 end
-    end
-    -- The original SprayPaint handle stays visible and fully usable. Never
-    -- move its appearance, change its paint colour or hide it with LTM=1.
-end
-
 local function ensureShellSync()
     if shellConnection then return end
     shellConnection=RunService.RenderStepped:Connect(function()
         for tool,state in pairs(states) do
-            if state.forceEntries then syncForceField(tool,state,state.group.color()) end
             for _,entry in ipairs(state.flatEntries or {}) do
                 local source,clone=entry[1],entry[2]
                 local visible=source.Parent and tool.Parent==player.Character
@@ -5157,40 +5110,36 @@ local function applyChromatic(tool,state,color)
 end
 
 local function applyForceField(tool,state,color)
-    if paintTool(tool) then
-        if not state.force or not state.force.Parent then
-            clearForceField(state)
-            local model=Instance.new("Model")
-            model.Name="VisualsV2_ForceFieldChams_"..tool.Name
-            model:SetAttribute("VisualsV2_ChamsVisual",true)
-            local entries={}
-            for _,source in ipairs(state.parts) do
-                local clone=paintForceShell(source)
-                if clone then
-                    clone.Material=Enum.Material.ForceField
-                    clone.Color=color
-                    clone.CFrame=source.CFrame
-                    clone.Parent=model
-                    entries[#entries+1]={source=source,clone=clone,
-                        mesh=clone:FindFirstChildWhichIsA("DataModelMesh"),
-                        sourceMesh=source:FindFirstChildWhichIsA("DataModelMesh")}
-                end
-            end
-            model.Parent=workspace
-            state.force,state.forceEntries=model,entries
-        end
-        ensureShellSync(); syncForceField(tool,state,color)
-        return
-    end
-    -- Original ForceField renderer: actual material, original mesh textures,
-    -- and detached SurfaceAppearance on the equipped tool. No tint substitute.
+    -- One native renderer for every tool, including SprayPaint and TeddyBear.
+    -- Never hide the real handle, resize it, clone its logic or change input.
+    -- Keep mesh textures for the ForceField shader; suppress opaque overlays.
     state.forceNative=state.forceNative or {}
     state.forceSurfaces=state.forceSurfaces or {}
+    state.forceDecals=state.forceDecals or {}
+    state.forceMeshColors=state.forceMeshColors or {}
     for _,appearance in ipairs(state.appearances) do
         if appearance.Parent and not state.forceSurfaces[appearance] then
             state.forceSurfaces[appearance]=appearance.Parent
             ownedSurfaces[appearance]=true
             appearance.Parent=nil
+        end
+    end
+    for _,decal in ipairs(state.decals) do
+        if decal.Parent then
+            if state.forceDecals[decal]==nil then state.forceDecals[decal]=decal.Transparency end
+            if decal.Transparency~=1 then decal.Transparency=1 end
+        end
+    end
+    -- Teddy meshes can carry an extra baked tint. The same part colour must
+    -- reach its ForceField material without multiplying that tint a second time.
+    local teddy=tool.Name:lower():gsub("[^%w]",""):find("teddy",1,true)~=nil
+    if teddy then
+        for _,mesh in ipairs(state.meshes) do
+            if mesh.Parent then
+                if not state.forceMeshColors[mesh] then state.forceMeshColors[mesh]=mesh.VertexColor end
+                local white=Vector3.new(1,1,1)
+                if mesh.VertexColor~=white then mesh.VertexColor=white end
+            end
         end
     end
     for _,source in ipairs(state.parts) do
@@ -5206,8 +5155,11 @@ local function applyForceField(tool,state,color)
                     record.pinnedPhysics=physics
                     record.physicsPinned=pcall(function() source.CustomPhysicalProperties=physics end)
                 end
+                local variantOK,variant=pcall(function() return source.MaterialVariant end)
+                if variantOK and type(variant)=="string" then record.materialVariant=variant end
                 state.forceNative[source]=record
             end
+            if record.materialVariant~=nil and source.MaterialVariant~="" then source.MaterialVariant="" end
             if source.Material~=Enum.Material.ForceField then source.Material=Enum.Material.ForceField end
             if source.Color~=color then source.Color=color end
         end
@@ -5225,7 +5177,7 @@ local function queueUpdate()
 end
 
 local function relevantChange(object)
-    if object:IsA("Tool") or object:IsA("BasePart") or object:IsA("DataModelMesh")
+    if object:IsA("Tool") or object:IsA("BasePart") or object:IsA("DataModelMesh") or object:IsA("Decal")
         or object:IsA("Bone") or object:IsA("WrapLayer")
         or (object:IsA("SurfaceAppearance") and not ownedSurfaces[object]) then
         dirty=true
@@ -5272,10 +5224,12 @@ update=function()
             for _,tool in ipairs(trackedCharacter:GetChildren()) do
                 local group=groupFor(tool)
                 if group then
-                    local state={group=group,preset=group.preset,parts={},appearances={}}
+                    local state={group=group,preset=group.preset,parts={},appearances={},decals={},meshes={}}
                     for _,object in ipairs(tool:GetDescendants()) do
                         if object:IsA("BasePart") then state.parts[#state.parts+1]=object
-                        elseif object:IsA("SurfaceAppearance") then state.appearances[#state.appearances+1]=object end
+                        elseif object:IsA("SurfaceAppearance") then state.appearances[#state.appearances+1]=object
+                        elseif object:IsA("Decal") then state.decals[#state.decals+1]=object
+                        elseif object:IsA("DataModelMesh") then state.meshes[#state.meshes+1]=object end
                     end
                     states[tool]=state
                 end
@@ -5292,7 +5246,7 @@ update=function()
             elseif state.preset=="Chromatic" then
                 applyChromatic(tool,state,color)
                 chromatic=state.chrom~=nil or chromatic
-            else applyForceField(tool,state,color); shells=true end
+            else applyForceField(tool,state,color) end
         end
     end
     if not chromatic then destroyViewport() end
@@ -7158,6 +7112,7 @@ local callbackValue=getcallbackvalue or env.getcallbackvalue
 local callbackRecords={}
 local hookReady=false
 local refresh
+local positionPairTools={snowballtoy2020=true,waterballoon2024=true}
 
 -- Cache native method functions before attaching the hook. Calling these with
 -- dot syntax avoids nested __namecall dispatch replacing FireServer/InvokeServer
@@ -7181,6 +7136,7 @@ local function throwable(tool)
         or name:find("snowball",1,true)~=nil or name:find("dynamite",1,true)~=nil
         or name:find("beachball",1,true)~=nil or name:find("basketball",1,true)~=nil
         or name:find("football",1,true)~=nil or name:find("soccerball",1,true)~=nil
+        or name:find("volleyball",1,true)~=nil
         or name:find("tennisball",1,true)~=nil or name:find("bouncyball",1,true)~=nil
         or name:find("superball",1,true)~=nil or name:find("waterballoon",1,true)~=nil
         or name:find("throwable",1,true)~=nil or name=="fakec4" or name=="c4"
@@ -7272,10 +7228,12 @@ local function centreAim(cam,character,tool)
     local origin=(handle and handle:IsA("BasePart") and handle.Position) or (root and root.Position) or ray.Origin
     local name=compact(tool.Name)
     local pointTarget=name:find("beachball",1,true) or name:find("waterballoon",1,true)
+        or name:find("volleyball",1,true)
     return {tool=tool,camera=cam,ray=ray,position=position,
         hit=CFrame.new(position)*cam.CFrame.Rotation,target=result and result.Instance or nil,
         origin=origin,direction=ray.Direction,
         targetMode=pointTarget and "Position" or "LaunchRay",
+        positionPair=positionPairTools[name]==true,
         x=x,y=y,mouseX=guiX,mouseY=guiY,screenX=x,screenY=y}
 end
 
@@ -7413,6 +7371,11 @@ local function rewriteArguments(remote,args,aim)
             candidates[#candidates+1]=index
         end
     end
+    -- The supplied MMV captures send Remote(origin, mouse.Hit.Position),
+    -- with no command string. Accept only those exact observed toy layouts.
+    local pointPair=aim.positionPair and name=="remote" and args.n==2
+        and typeof(args[1])=="Vector3" and typeof(args[2])=="Vector3"
+        and remote.Parent==aim.tool and instanceIsA(remote,"RemoteEvent")
     if #candidates==1 then
         local index=candidates[1]
         output=output or table.clone(args)
@@ -7422,7 +7385,7 @@ local function rewriteArguments(remote,args,aim)
         if typeof(value)=="Vector2" and (name:find("mouseloc",1,true) or command:find("mouseloc",1,true)) then
             output[index]=Vector2.new(aim.screenX,aim.screenY)
         else output[index]=targetValue(value,aim,direction) end
-    elseif #candidates==2 and operation then
+    elseif #candidates==2 and (operation or pointPair) then
         -- Known origin + target/direction layouts: preserve the launch origin.
         -- Ambiguous multi-vector layouts keep their original native payload.
         local first,second=args[candidates[1]],args[candidates[2]]
@@ -7430,7 +7393,7 @@ local function rewriteArguments(remote,args,aim)
         if origin and (origin-aim.origin).Magnitude<=8 then
             output=output or table.clone(args)
             local isDirection=typeof(second)=="Vector3" and second.Magnitude<=1.01
-            output[candidates[2]]=targetValue(second,aim,isDirection,origin)
+            output[candidates[2]]=pointPair and aim.position or targetValue(second,aim,isDirection,origin)
         end
     end
     return output
