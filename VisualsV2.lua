@@ -1,4 +1,5 @@
 -- Visuals V2
+-- 2026-10-13: Restore snowball launch range, clear dense paint/teddy texture masks, and expose live build/aim failures.
 -- 2026-10-13: Native SprayPaint ForceField replacement, restored toy appearance overrides, and crosshair world targets for VolleyBall2025.
 -- 2026-10-13: Detect Volleyball and centre the captured SnowballToy2020/WaterBalloon2024 origin-plus-target packets.
 -- 2026-10-13: Use crosshair surface targets for beach balls/water balloons; separate SprayPaint's visible ForceField shell.
@@ -237,7 +238,7 @@ if type(previousRuntime) == "table" and type(previousRuntime.Cleanup) == "functi
 end
 
 -- Runtime reset registry.
-env.VisualsV2Runtime = {Resetters = {}}
+env.VisualsV2Runtime = {Resetters = {}, Build = "2026-10-13-r16"}
 env.VisualsV2Runtime.RegisterReset = function(callback)
     if type(callback) == "function" then table.insert(env.VisualsV2Runtime.Resetters, callback) end
 end
@@ -4899,6 +4900,7 @@ local function clearForceField(state)
                 source.Color=record.color
             end
             if record.materialVariant~=nil then source.MaterialVariant=record.materialVariant end
+            if record.textureID~=nil then source.TextureID=record.textureID end
             if record.physicsPinned and source.CustomPhysicalProperties==record.pinnedPhysics then
                 source.CustomPhysicalProperties=record.customPhysics
             end
@@ -4914,7 +4916,10 @@ local function clearForceField(state)
     for mesh,color in pairs(state.forceMeshColors or {}) do
         pcall(function() mesh.VertexColor=color end)
     end
-    state.forceNative,state.forceSurfaces,state.forceDecals,state.forceMeshColors=nil,nil,nil,nil
+    for mesh,texture in pairs(state.forceMeshTextures or {}) do
+        pcall(function() mesh.TextureId=texture end)
+    end
+    state.forceNative,state.forceSurfaces,state.forceDecals,state.forceMeshColors,state.forceMeshTextures=nil,nil,nil,nil,nil
 end
 
 local function clearState(state)
@@ -5117,6 +5122,7 @@ local function applyForceField(tool,state,color)
     state.forceSurfaces=state.forceSurfaces or {}
     state.forceDecals=state.forceDecals or {}
     state.forceMeshColors=state.forceMeshColors or {}
+    state.forceMeshTextures=state.forceMeshTextures or {}
     for _,appearance in ipairs(state.appearances) do
         if appearance.Parent and not state.forceSurfaces[appearance] then
             state.forceSurfaces[appearance]=appearance.Parent
@@ -5132,7 +5138,20 @@ local function applyForceField(tool,state,color)
     end
     -- Teddy meshes can carry an extra baked tint. The same part colour must
     -- reach its ForceField material without multiplying that tint a second time.
-    local teddy=tool.Name:lower():gsub("[^%w]",""):find("teddy",1,true)~=nil
+    local toolName=tool.Name:lower():gsub("[^%w]","")
+    local teddy=toolName:find("teddy",1,true)~=nil
+    local plainField=teddy or toolName:find("spray",1,true)~=nil or toolName:find("graffiti",1,true)~=nil
+    if plainField then
+        for _,mesh in ipairs(state.meshes) do
+            if mesh.Parent then
+                local ok,texture=pcall(function() return mesh.TextureId end)
+                if ok and type(texture)=="string" then
+                    if state.forceMeshTextures[mesh]==nil then state.forceMeshTextures[mesh]=texture end
+                    if texture~="" then mesh.TextureId="" end
+                end
+            end
+        end
+    end
     if teddy then
         for _,mesh in ipairs(state.meshes) do
             if mesh.Parent then
@@ -5157,8 +5176,13 @@ local function applyForceField(tool,state,color)
                 end
                 local variantOK,variant=pcall(function() return source.MaterialVariant end)
                 if variantOK and type(variant)=="string" then record.materialVariant=variant end
+                if plainField then
+                    local textureOK,texture=pcall(function() return source.TextureID end)
+                    if textureOK and type(texture)=="string" then record.textureID=texture end
+                end
                 state.forceNative[source]=record
             end
+            if record.textureID~=nil and source.TextureID~="" then source.TextureID="" end
             if record.materialVariant~=nil and source.MaterialVariant~="" then source.MaterialVariant="" end
             if source.Material~=Enum.Material.ForceField then source.Material=Enum.Material.ForceField end
             if source.Color~=color then source.Color=color end
@@ -7097,6 +7121,7 @@ local alive=true
 local aimEnabled=C("vv2ThrowableCentreAim",false)
 local frameBound=false
 local activeAim=nil
+local lastAimError=nil
 local nativeCameras=nil
 local aimToggle
 local FRAME="VisualsV2_ShiftLockFrame"
@@ -7393,7 +7418,8 @@ local function rewriteArguments(remote,args,aim)
         if origin and (origin-aim.origin).Magnitude<=8 then
             output=output or table.clone(args)
             local isDirection=typeof(second)=="Vector3" and second.Magnitude<=1.01
-            output[candidates[2]]=pointPair and aim.position or targetValue(second,aim,isDirection,origin)
+            output[candidates[2]]=pointPair and aim.targetMode=="Position" and aim.position
+                or targetValue(second,aim,isDirection,origin)
         end
     end
     return output
@@ -7631,6 +7657,7 @@ refresh=function()
         RunService:BindToRenderStep(FRAME,Enum.RenderPriority.Camera.Value+1,function(dt)
             local ok,aim=pcall(sampleAim)
             activeAim=ok and aim or nil
+            lastAimError=not ok and tostring(aim) or nil
             elapsed=elapsed+(tonumber(dt) or 0.016)
             if elapsed>=0.25 then elapsed=0; pcall(refreshCallbacks) end
         end)
@@ -7650,6 +7677,7 @@ aimToggle=addToggle(section,"Centre Aim for Throwables",aimEnabled,function(valu
 end)
 
 env.VisualsV2Runtime.ShiftLockThrowables={
+    Build="2026-10-13-r16",
     IsLocked=nativeLocked,
     GetAim=currentAim,
     IsThrowable=throwable,
@@ -7657,7 +7685,7 @@ env.VisualsV2Runtime.ShiftLockThrowables={
     GetTransport=function()
         local event=bridge.remoteMethods.FireServer or {}
         local invoke=bridge.remoteMethods.InvokeServer or {}
-        return {namecallReady=bridge.namecallReady==true,indexReady=bridge.indexReady==true,
+        return {build="2026-10-13-r16",aimError=lastAimError,namecallReady=bridge.namecallReady==true,indexReady=bridge.indexReady==true,
             nativeFireServerReady=event.ready==true,nativeInvokeServerReady=invoke.ready==true,
             namecallRequests=bridge.namecallRequests or 0,
             nativeFireServerRequests=event.calls or 0,nativeInvokeServerRequests=invoke.calls or 0,
