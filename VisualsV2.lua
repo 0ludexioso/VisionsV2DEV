@@ -1,5 +1,5 @@
 -- Visuals V2
--- 2026-10-13: Centre captured bomb requests regardless of executor caller flags; keep toy input native and restore blue Tool ForceField.
+-- 2026-10-13: Restore supplied material/viewport chams, protect SprayPaint visibility, and preserve native projectile range.
 -- 2026-10-13: Cover direct/cached native throwable requests alongside the namecall route; expose transport checks.
 -- 2026-10-13: Detach disabled throwable handlers and preserve native request forwarding across nested method checks.
 -- 2026-10-13: Preserve native camera touch input; align throwable aim with the game's crosshair and GUI inset.
@@ -4840,7 +4840,7 @@ end)()
 -- =========================================================
 -- VISUALS: EQUIPPED WEAPON / TOOL CHAMS
 -- ForceField, Flat and Chromatic renderers adapted from anya_bts's Tool Chams.
--- Chams own their colour/rainbow settings; source colours are untouched.
+-- Original material and viewport effects; native paint data stays protected.
 -- =========================================================
 
 ;(function()
@@ -4853,8 +4853,7 @@ local heartbeatConnection,chromConnection,shellConnection
 local chromHost,chromView,chromWorld,chromCamera
 local dirty,queued,resetting=true,false,false
 local CHROM_SCALE,CHROM_ALPHA=1.012,0.025
-local TOOL_FORCE_FIELD_COLOR=Color3.fromRGB(85,170,255)
-local TOOL_FORCE_FIELD_ALPHA=0.35
+local ownedSurfaces=setmetatable({}, {__mode="k"})
 
 local function disconnectAll(connections)
     for _,connection in ipairs(connections) do connection:Disconnect() end
@@ -4885,17 +4884,28 @@ local function clearChromatic(state)
 end
 
 local function clearForceField(state)
-    for _,entry in ipairs(state.forceEntries or {}) do
+    for source,record in pairs(state.forceNative or {}) do
         pcall(function()
-            -- Restore only our local visibility layer. Native materials,
-            -- textures, appearances and paint colours were never changed.
-            if entry.source.LocalTransparencyModifier==1 then
-                entry.source.LocalTransparencyModifier=entry.alpha
+            if runtimeAlive and not configResetting and C("ffEnabled",false) then
+                local saved=source:GetAttribute("VisualsV2_OriginalMaterial")
+                if saved=="ForceField" and record.material~=Enum.Material.ForceField then
+                    source:SetAttribute("VisualsV2_OriginalMaterial",record.material.Name)
+                end
+            else
+                source.Material=record.material
+                source.Color=record.color
+            end
+            if record.physicsPinned and source.CustomPhysicalProperties==record.pinnedPhysics then
+                source.CustomPhysicalProperties=record.customPhysics
             end
         end)
     end
+    for appearance,parent in pairs(state.forceSurfaces or {}) do
+        pcall(function() appearance.Parent=parent end)
+        ownedSurfaces[appearance]=nil
+    end
     if state.force then state.force:Destroy() end
-    state.force,state.forceEntries=nil,nil
+    state.force,state.forceEntries,state.forceNative,state.forceSurfaces=nil,nil,nil,nil
 end
 
 local function clearState(state)
@@ -4939,9 +4949,13 @@ local function ensureViewport()
     chromView.LightColor=Color3.new(1,1,1)
     chromView.LightDirection=Vector3.new(-1,-1,-1)
     chromView.ZIndex=999
+    chromView.Visible=true
+    chromView.Active=false
     chromView.Parent=chromHost
     chromCamera=Instance.new("Camera")
-    chromCamera.Name="VisualsV2_ChamsCamera"
+    chromCamera.Name="ToolChamsCamera"
+    chromCamera.FieldOfView=workspace.CurrentCamera and workspace.CurrentCamera.FieldOfView or 70
+    chromCamera.CFrame=workspace.CurrentCamera and workspace.CurrentCamera.CFrame or CFrame.new()
     chromCamera.Parent=chromView
     chromView.CurrentCamera=chromCamera
     local sky=Lighting:FindFirstChildOfClass("Sky")
@@ -4954,7 +4968,6 @@ local function ensureViewport()
         if cameraNow and chromCamera then
             chromCamera.CFrame=cameraNow.CFrame
             chromCamera.FieldOfView=cameraNow.FieldOfView
-            chromCamera.FieldOfViewMode=cameraNow.FieldOfViewMode
         end
         for tool,state in pairs(states) do
             if state.chromEntries then
@@ -4971,8 +4984,15 @@ local function ensureViewport()
     return true
 end
 
+-- The supplied plugin's deformability rules are shared by Flat/Chromatic.
+local CHAMS_BODY={Head=true,UpperTorso=true,LowerTorso=true,Torso=true,
+    LeftUpperArm=true,LeftLowerArm=true,LeftHand=true,RightUpperArm=true,RightLowerArm=true,RightHand=true,
+    LeftUpperLeg=true,LeftLowerLeg=true,LeftFoot=true,RightUpperLeg=true,RightLowerLeg=true,RightFoot=true,
+    ["Left Arm"]=true,["Right Arm"]=true,["Left Leg"]=true,["Right Leg"]=true}
 local function deformable(part)
-    if part:FindFirstChildWhichIsA("WrapLayer") or part:FindFirstChildWhichIsA("Bone") then return true end
+    if part:FindFirstChildWhichIsA("WrapLayer") then return true end
+    if CHAMS_BODY[part.Name] then return false end
+    if part:FindFirstChildWhichIsA("Bone") then return true end
     local ok,skinned=pcall(function() return part.HasSkinnedMesh end)
     return ok and skinned==true
 end
@@ -5000,22 +5020,43 @@ local function shell(source,scale)
     return clone
 end
 
+local function paintTool(tool)
+    local name=tool.Name:lower():gsub("[^%w]","")
+    return name:find("spray",1,true)~=nil or name:find("graffiti",1,true)~=nil
+end
+
+-- ForceField keeps original texture IDs, sizes and mesh vertex colours, as
+-- the supplied plugin does. Its texture-stripping shell is only for Foil/Flat.
+local function paintForceShell(source)
+    local archivable=source.Archivable
+    if not archivable and not pcall(function() source.Archivable=true end) then return nil end
+    local ok,clone=pcall(function() return source:Clone() end)
+    if not archivable then pcall(function() source.Archivable=archivable end) end
+    if not ok or not clone then return nil end
+    for _,child in ipairs(clone:GetChildren()) do
+        if not child:IsA("DataModelMesh") then child:Destroy() end
+    end
+    for _,child in ipairs(clone:GetDescendants()) do
+        if child:IsA("Script") or child:IsA("LocalScript") or child:IsA("ModuleScript") then child:Destroy() end
+    end
+    clone.Anchored=true; clone.CanCollide=false; clone.CanQuery=false; clone.CanTouch=false
+    clone.Massless=true; clone.CastShadow=false; clone.LocalTransparencyModifier=0
+    return clone
+end
+
 local function syncForceField(tool,state,color)
-    local fixedBlue=state.group.key=="toolChams"
-    if fixedBlue then color=TOOL_FORCE_FIELD_COLOR end
     for _,entry in ipairs(state.forceEntries or {}) do
         local source,clone=entry.source,entry.clone
-        if source.Parent then
-            local alpha=source.LocalTransparencyModifier
-            if alpha~=1 then entry.alpha=alpha end
-            local visible=tool.Parent==player.Character and math.max(source.Transparency,entry.alpha)<1
+        local visible=source.Parent and tool.Parent==player.Character
+        if visible then
             clone.CFrame=source.CFrame
-            clone.Transparency=visible and math.max(source.Transparency,entry.alpha,fixedBlue and TOOL_FORCE_FIELD_ALPHA or 0) or 1
+            clone.Transparency=source.Transparency
+            clone.LocalTransparencyModifier=source.LocalTransparencyModifier
             if clone.Color~=color then clone.Color=color end
-            -- Avoid repeatedly signalling native Handle.Changed listeners.
-            if source.LocalTransparencyModifier~=1 then source.LocalTransparencyModifier=1 end
         else clone.Transparency=1 end
     end
+    -- The original SprayPaint handle stays visible and fully usable. Never
+    -- move its appearance, change its paint colour or hide it with LTM=1.
 end
 
 local function ensureShellSync()
@@ -5100,33 +5141,59 @@ local function applyChromatic(tool,state,color)
 end
 
 local function applyForceField(tool,state,color)
-    if not state.force or not state.force.Parent then
-        clearForceField(state)
-        local model=Instance.new("Model")
-        model.Name="VisualsV2_ForceFieldChams_"..tool.Name
-        model:SetAttribute("VisualsV2_ChamsVisual",true)
-        local entries={}
-        -- Clone visual geometry only. The real SprayPaint Handle and its
-        -- SurfaceAppearance/Decal/Texture children remain where its script
-        -- expects them, with their native material and paint colour intact.
-        for _,source in ipairs(state.parts) do
-            local clone=not deformable(source) and shell(source,1.005) or nil
-            if clone then
-                clone.Anchored=true
-                clone.Material=Enum.Material.ForceField
-                clone.Color=state.group.key=="toolChams" and TOOL_FORCE_FIELD_COLOR or color
-                local mesh=clone:FindFirstChildWhichIsA("SpecialMesh")
-                if mesh then mesh.VertexColor=Vector3.new(1,1,1) end
-                clone.CFrame=source.CFrame
-                clone.Parent=model
-                entries[#entries+1]={source=source,clone=clone,alpha=source.LocalTransparencyModifier}
+    if paintTool(tool) then
+        if not state.force or not state.force.Parent then
+            clearForceField(state)
+            local model=Instance.new("Model")
+            model.Name="VisualsV2_ForceFieldChams_"..tool.Name
+            model:SetAttribute("VisualsV2_ChamsVisual",true)
+            local entries={}
+            for _,source in ipairs(state.parts) do
+                local clone=paintForceShell(source)
+                if clone then
+                    clone.Material=Enum.Material.ForceField
+                    clone.Color=color
+                    clone.CFrame=source.CFrame
+                    clone.Parent=model
+                    entries[#entries+1]={source=source,clone=clone}
+                end
             end
+            model.Parent=workspace
+            state.force,state.forceEntries=model,entries
         end
-        model.Parent=workspace
-        state.force,state.forceEntries=model,entries
+        ensureShellSync(); syncForceField(tool,state,color)
+        return
     end
-    ensureShellSync()
-    syncForceField(tool,state,color)
+    -- Original ForceField renderer: actual material, original mesh textures,
+    -- and detached SurfaceAppearance on the equipped tool. No tint substitute.
+    state.forceNative=state.forceNative or {}
+    state.forceSurfaces=state.forceSurfaces or {}
+    for _,appearance in ipairs(state.appearances) do
+        if appearance.Parent and not state.forceSurfaces[appearance] then
+            state.forceSurfaces[appearance]=appearance.Parent
+            ownedSurfaces[appearance]=true
+            appearance.Parent=nil
+        end
+    end
+    for _,source in ipairs(state.parts) do
+        if source.Parent then
+            local record=state.forceNative[source]
+            if not record then
+                record={material=source.Material,color=source.Color}
+                local saved=source:GetAttribute("VisualsV2_OriginalMaterial")
+                if saved and Enum.Material[saved] then record.material=Enum.Material[saved] end
+                local ok,physics=pcall(function() return source.CurrentPhysicalProperties end)
+                if ok and typeof(physics)=="PhysicalProperties" and source.CustomPhysicalProperties==nil then
+                    record.customPhysics=source.CustomPhysicalProperties
+                    record.pinnedPhysics=physics
+                    record.physicsPinned=pcall(function() source.CustomPhysicalProperties=physics end)
+                end
+                state.forceNative[source]=record
+            end
+            if source.Material~=Enum.Material.ForceField then source.Material=Enum.Material.ForceField end
+            if source.Color~=color then source.Color=color end
+        end
+    end
 end
 
 local update
@@ -5142,7 +5209,7 @@ end
 local function relevantChange(object)
     if object:IsA("Tool") or object:IsA("BasePart") or object:IsA("DataModelMesh")
         or object:IsA("Bone") or object:IsA("WrapLayer")
-        or object:IsA("SurfaceAppearance") then
+        or (object:IsA("SurfaceAppearance") and not ownedSurfaces[object]) then
         dirty=true
         queueUpdate()
     end
@@ -5187,10 +5254,10 @@ update=function()
             for _,tool in ipairs(trackedCharacter:GetChildren()) do
                 local group=groupFor(tool)
                 if group then
-                    local state={group=group,preset=group.preset,parts={}}
+                    local state={group=group,preset=group.preset,parts={},appearances={}}
                     for _,object in ipairs(tool:GetDescendants()) do
                         if object:IsA("BasePart") then state.parts[#state.parts+1]=object
-                        end
+                        elseif object:IsA("SurfaceAppearance") then state.appearances[#state.appearances+1]=object end
                     end
                     states[tool]=state
                 end
@@ -5242,11 +5309,13 @@ runtime.ToolForceFieldActive=function(tool)
     local group=groupFor(tool)
     return group and group.key=="toolChams" and group.preset=="ForceField" or false
 end
+runtime.ToolChamsActive=function(tool)
+    local group=groupFor(tool)
+    return group and group.key=="toolChams" or false
+end
 
 runtime.RegisterChamsFeature=function(section,key,label,matches)
-    section:AddParagraph(label.." Chams",key=="toolChams"
-        and "ForceField uses transparent blue. Flat and Chromatic use Chams Color."
-        or "All presets use Chams Color. Tint controls are separate.")
+    section:AddParagraph(label.." Chams","ForceField uses the original material effect. Chromatic uses the original Foil viewport effect.")
     local group={
         key=key,
         enabled=C(key.."Enabled",false),
@@ -7092,6 +7161,10 @@ local function throwable(tool)
     return tool:GetAttribute("Throwable")==true or tool:GetAttribute("IsThrowable")==true
         or name:find("bomb",1,true)~=nil or name:find("grenade",1,true)~=nil
         or name:find("snowball",1,true)~=nil or name:find("dynamite",1,true)~=nil
+        or name:find("beachball",1,true)~=nil or name:find("basketball",1,true)~=nil
+        or name:find("football",1,true)~=nil or name:find("soccerball",1,true)~=nil
+        or name:find("tennisball",1,true)~=nil or name:find("bouncyball",1,true)~=nil
+        or name:find("superball",1,true)~=nil or name:find("waterballoon",1,true)~=nil
         or name:find("throwable",1,true)~=nil or name=="fakec4" or name=="c4"
 end
 
@@ -7179,10 +7252,9 @@ local function centreAim(cam,character,tool)
     local handle=tool:FindFirstChild("Handle")
     local root=character:FindFirstChild("HumanoidRootPart")
     local origin=(handle and handle:IsA("BasePart") and handle.Position) or (root and root.Position) or ray.Origin
-    local towards=position-origin
     return {tool=tool,camera=cam,ray=ray,position=position,
         hit=CFrame.new(position)*cam.CFrame.Rotation,target=result and result.Instance or nil,
-        origin=origin,direction=towards.Magnitude>0.001 and towards.Unit or ray.Direction,
+        origin=origin,direction=ray.Direction,
         x=x,y=y,mouseX=guiX,mouseY=guiY,screenX=x,screenY=y}
 end
 
@@ -7213,52 +7285,88 @@ local function currentAim()
     return aim
 end
 
-local function targetValue(value,aim,direction)
-    local valueType=typeof(value)
-    if valueType=="Vector3" then return direction and aim.direction*value.Magnitude or aim.position end
-    if valueType=="CFrame" then return aim.hit end
-    if valueType=="Ray" then return Ray.new(value.Origin,aim.direction*value.Direction.Magnitude) end
-    return value
+-- Preserve the native request's range and magnitude. A nearby raycast hit
+-- must not turn the same throw into a steep dive from the tool's handle.
+local function targetValue(value,aim,direction,launchOrigin)
+    local kind=typeof(value)
+    local origin=launchOrigin or aim.origin
+    if kind=="Vector2" then return Vector2.new(aim.mouseX,aim.mouseY) end
+    if kind=="Vector3" and direction then return aim.ray.Direction*value.Magnitude end
+    if kind=="Ray" then return Ray.new(value.Origin,aim.ray.Direction*value.Direction.Magnitude) end
+    local position=kind=="CFrame" and value.Position or (kind=="Vector3" and value)
+    if not position then return value end
+    local distance=(position-origin).Magnitude
+    if distance<0.001 or distance~=distance or distance==math.huge then return value end
+    local centred=origin+aim.ray.Direction*distance
+    if kind=="CFrame" then return CFrame.lookAt(centred,centred+aim.ray.Direction,aim.camera.CFrame.UpVector) end
+    return centred
+end
+
+local function toolBoundRemote(remote,args,tool)
+    if instanceDescendant(remote,tool) then return true end
+    local name=compact(tool.Name)
+    for i=1,args.n do
+        local value=args[i]
+        if value==tool then return true end
+        if i==1 and type(value)=="string" and compact(value)==name then return true end
+        if typeof(value)=="table" then
+            for _,key in ipairs({"Tool","tool","Toy","toy","ToolName","toolName","ToyName","toyName"}) do
+                local bound=rawget(value,key)
+                if bound==tool or (type(bound)=="string" and compact(bound)==name) then return true end
+            end
+        end
+    end
+    return false
 end
 
 local function rewritePayload(payload,aim)
     if type(payload)~="table" then return nil end
     local result=nil
-    local positions={position=true,targetposition=true,mouseposition=true,mouselocation=true,
-        mousehit=true,hit=true,target=true}
+    local positions={position=true,targetposition=true,targetpos=true,mouseposition=true,mousepos=true,
+        mouselocation=true,mousehit=true,mousetarget=true,mouse=true,hit=true,target=true,destination=true}
+    local origin=payload.Origin or payload.origin or payload.LaunchOrigin or payload.launchOrigin
+    if typeof(origin)=="CFrame" then origin=origin.Position end
+    if typeof(origin)~="Vector3" then origin=nil end
     for key,value in pairs(payload) do
         local name=compact(key)
         local valueType=typeof(value)
         if (positions[name] or name=="direction" or name=="throwdirection")
-            and (valueType=="Vector3" or valueType=="CFrame" or valueType=="Ray") then
+            and (valueType=="Vector2" or valueType=="Vector3" or valueType=="CFrame" or valueType=="Ray") then
             if not result then result=table.clone(payload) end
-            result[key]=targetValue(value,aim,name=="direction" or name=="throwdirection")
+            result[key]=name=="mouselocation" and valueType=="Vector2" and Vector2.new(aim.screenX,aim.screenY)
+                or targetValue(value,aim,name=="direction" or name=="throwdirection",origin)
         end
     end
     return result
 end
 
 local function rewriteArguments(remote,args,aim)
-    local toolLocal=instanceDescendant(remote,aim.tool)
+    local toolLocal=toolBoundRemote(remote,args,aim.tool)
     local name=compact(remote.Name)
     local command=type(args[1])=="string" and compact(args[1]) or ""
+    if command==compact(aim.tool.Name) then command="" end
     local function aimOperation(value)
         return value:find("throw",1,true)~=nil or value:find("toss",1,true)~=nil
             or value:find("launch",1,true)~=nil or value:find("mousepos",1,true)~=nil
-            or value:find("mouseloc",1,true)~=nil or value=="aim" or value=="settarget"
+            or value:find("mouseloc",1,true)~=nil or value:find("mousehit",1,true)~=nil
+            or value:find("mousetarget",1,true)~=nil or value=="aim" or value=="settarget"
+            or value=="fire" or value=="shoot" or value=="onclick" or value=="updateaim"
             or value=="plantbomb" or value=="leftdown" or value=="leftclick"
             or value=="button1down" or value=="mouseclick" or value=="click"
             or value=="activated" or value=="activate"
     end
     local operation=aimOperation(name) or aimOperation(command)
-    -- The MMV export exposes FakeBomb.Remote inside the equipped tool. Do not
-    -- infer another remote's protocol from a generic "Throw" command alone.
+    -- Shared toy remotes are accepted only with an explicit binding to the
+    -- exact equipped throwable, never from a generic Throw command alone.
     if not toolLocal then return nil end
     -- Generic gear remotes must carry a throw/aim command or an unambiguous
     -- target payload. Explode, equip, purchase and cooldown messages pass through.
     if not operation and command~="" then return nil end
-    if not operation and name~="remoteevent" and name~="remotefunction"
-        and name~="remote" and name~="clientcontrol" and name~="servercontrol" then return nil end
+    if not operation then
+        for _,excluded in ipairs({"explode","equip","purchase","cooldown","sound","reload","texture","color"}) do
+            if name:find(excluded,1,true) then return nil end
+        end
+    end
     local output=nil
     local candidates={}
     for index=1,args.n do
@@ -7270,7 +7378,7 @@ local function rewriteArguments(remote,args,aim)
                 output=output or table.clone(args)
                 output[index]=payload
             end
-        elseif valueType=="Vector3" or valueType=="CFrame" or valueType=="Ray" then
+        elseif valueType=="Vector2" or valueType=="Vector3" or valueType=="CFrame" or valueType=="Ray" then
             candidates[#candidates+1]=index
         end
     end
@@ -7280,7 +7388,9 @@ local function rewriteArguments(remote,args,aim)
         local value=args[index]
         local direction=name:find("direction",1,true)~=nil or command:find("direction",1,true)~=nil
             or (operation and typeof(value)=="Vector3" and math.abs(value.Magnitude-1)<=0.001)
-        output[index]=targetValue(value,aim,direction)
+        if typeof(value)=="Vector2" and (name:find("mouseloc",1,true) or command:find("mouseloc",1,true)) then
+            output[index]=Vector2.new(aim.screenX,aim.screenY)
+        else output[index]=targetValue(value,aim,direction) end
     elseif #candidates==2 and operation then
         -- Known origin + target/direction layouts: preserve the launch origin.
         -- Ambiguous multi-vector layouts keep their original native payload.
@@ -7289,7 +7399,7 @@ local function rewriteArguments(remote,args,aim)
         if origin and (origin-aim.origin).Magnitude<=8 then
             output=output or table.clone(args)
             local isDirection=typeof(second)=="Vector3" and second.Magnitude<=1.01
-            output[candidates[2]]=targetValue(second,aim,isDirection)
+            output[candidates[2]]=targetValue(second,aim,isDirection,origin)
         end
     end
     return output
@@ -7311,7 +7421,7 @@ handler.Remote=function(object,method,args)
     local aim=currentAim()
     -- The captured FakeBomb request is CFrame + power 50. Native detours mark
     -- it checkcaller=true, so identify it by its exact equipped-tool remote.
-    if not aim or not instanceDescendant(object,aim.tool) then return nil end
+    if not aim or not toolBoundRemote(object,args,aim.tool) then return nil end
     if (method=="FireServer" and instanceIsA(object,"RemoteEvent"))
         or (method=="InvokeServer" and instanceIsA(object,"RemoteFunction")) then
         local rewritten=rewriteArguments(object,args,aim)
@@ -7333,6 +7443,7 @@ bridge.handler=nil
 -- Direct/cached FireServer and InvokeServer calls can bypass __namecall.
 -- Hook their native method functions too, without generating any new request.
 -- These shared wrappers forward exactly once and are inert with no owner.
+bridge.callbackLog={}
 bridge.remoteMethods=bridge.remoteMethods or {}
 local function installNativeRemoteMethods()
     if type(hookFunction)~="function" then return false end
@@ -7463,8 +7574,12 @@ local function wrapCallback(remote,tool)
         local mode=args[1]
         if type(mode)=="table" then mode=mode.Mode or mode.mode or mode.Action or mode.action end
         local name=compact(mode)
+        if #bridge.callbackLog<8 then
+            bridge.callbackLog[#bridge.callbackLog+1]={tool=tool,remote=remote,mode=tostring(mode),
+                originalType=typeof(results[1]),count=results.n}
+        end
         local position=name=="mouseposition" or name=="getmouseposition" or name=="targetposition"
-        local hit=name=="mousehit" or name=="getmousehit"
+        local hit=name=="mousehit" or name=="getmousehit" or name=="getmouse" or name=="mouse"
         local location=name=="mouselocation" or name=="getmouselocation"
         local ray=name=="unitray" or name=="mouseunitray"
         if position or hit or location or ray then
@@ -7542,6 +7657,8 @@ end)
 env.VisualsV2Runtime.ShiftLockThrowables={
     IsLocked=nativeLocked,
     GetAim=currentAim,
+    IsThrowable=throwable,
+    GetCallbacks=function() return table.clone(bridge.callbackLog) end,
     GetTransport=function()
         local event=bridge.remoteMethods.FireServer or {}
         local invoke=bridge.remoteMethods.InvokeServer or {}
@@ -8045,7 +8162,7 @@ end
 
 local function apply(tool)
     if not enabled or not tool or not tool:IsA("Tool") then return end
-    local forceField=env.VisualsV2Runtime.ToolForceFieldActive
+    local forceField=env.VisualsV2Runtime.ToolChamsActive or env.VisualsV2Runtime.ToolForceFieldActive
     if isGunKnife(tool) or (type(forceField)=="function" and forceField(tool)) then
         removeHighlight(tool); return
     end
