@@ -5193,7 +5193,9 @@ end)
 end)()
 
 ;(function()
-local section=mainTab:AddSection("Client Gun & Knife Skins","Cosmetic")
+local gunSection=mainTab:AddSection("Gun Skins","Cosmetic")
+local knifeSection=mainTab:AddSection("Knife Skins","Cosmetic")
+local scopeSection=mainTab:AddSection("MMV Scopes","Cosmetic")
 local MARKER="VisualsV2_ClientWeaponSkin"
 local NONE="None"
 local alive=true
@@ -5269,481 +5271,481 @@ local staticMM2={
     {"Gun","Ace",{["itemid"]=238546577,["itemname"]="Ace",["itemtype"]="Gun",["rarity"]="Rare"}},
     {"Gun","AduriteGun",{["itemid"]=196752289,["itemname"]="Adurite",["itemtype"]="Gun",["rarity"]="Uncommon"}},
     {"Gun","Aid",{["itemid"]=203807397,["itemname"]="Juice",["itemtype"]="Gun",["rarity"]="Common"}},
-    {"Gun","Aliens_G_2021",{["itemid"]=7800250906,["itemname"]="Aliens",["itemtype"]="Gun",["rarity"]="Common"}},
+    {"Gun","Aliens_G_2021",{["itemid"]=7800250906,["itemname"]="Aliens",["itemtype"]="Gun",["rarity"]="Common",["year"]="2021"}},
     {"Gun","AmericaGun",{["itemid"]=196751752,["itemname"]="America",["itemtype"]="Gun",["rarity"]="Classic"}},
     {"Gun","Amerilaser",{["itemid"]=446050753,["itemname"]="Amerilaser",["itemtype"]="Gun",["rarity"]="Godly"}},
-    {"Gun","Apoc_G_2022",{["itemid"]=11255501940,["itemname"]="Apocalypse",["itemtype"]="Gun",["rarity"]="Common"}},
-    {"Gun","Aquarium_G_2025",{["itemid"]=129460052425837,["itemname"]="Aquarium",["itemtype"]="Gun",["rarity"]="Legendary"}},
-    {"Gun","Arctic_G_2022",{["itemid"]=11834443783,["itemname"]="Arctic",["itemtype"]="Gun",["rarity"]="Legendary"}},
+    {"Gun","Apoc_G_2022",{["itemid"]=11255501940,["itemname"]="Apocalypse",["itemtype"]="Gun",["rarity"]="Common",["year"]="2022"}},
+    {"Gun","Aquarium_G_2025",{["itemid"]=129460052425837,["itemname"]="Aquarium",["itemtype"]="Gun",["rarity"]="Legendary",["year"]="2025"}},
+    {"Gun","Arctic_G_2022",{["itemid"]=11834443783,["itemname"]="Arctic",["itemtype"]="Gun",["rarity"]="Legendary",["year"]="2022"}},
     {"Gun","Asteroid",{["itemid"]=476599365,["itemname"]="Asteroid",["itemtype"]="Gun",["rarity"]="Common"}},
-    {"Gun","AuroraGun",{["itemid"]=108635848059846,["itemname"]="Borealis",["itemtype"]="Gun",["rarity"]="Godly"}},
-    {"Gun","Aurora_G_2019",{["itemid"]=4534875165,["itemname"]="Aurora",["itemtype"]="Gun",["rarity"]="Rare"}},
-    {"Gun","Aurora_G_2021",{["itemid"]=8304766165,["itemname"]="Aurora",["itemtype"]="Gun",["rarity"]="Legendary"}},
+    {"Gun","AuroraGun",{["itemid"]=108635848059846,["itemname"]="Borealis",["itemtype"]="Gun",["rarity"]="Godly",["year"]="2024"}},
+    {"Gun","Aurora_G_2019",{["itemid"]=4534875165,["itemname"]="Aurora",["itemtype"]="Gun",["rarity"]="Rare",["year"]="2019"}},
+    {"Gun","Aurora_G_2021",{["itemid"]=8304766165,["itemname"]="Aurora",["itemtype"]="Gun",["rarity"]="Legendary",["year"]="2021"}},
     {"Gun","Bacon",{["itemid"]=238546467,["itemname"]="Bacon",["itemtype"]="Gun",["rarity"]="Rare"}},
-    {"Gun","BatsG",{["itemid"]=2513741174,["itemname"]="Bats",["itemtype"]="Gun",["rarity"]="Common"}},
-    {"Gun","Bats_G_2024",{["itemid"]=71258273720666,["itemname"]="Bats",["itemtype"]="Gun",["rarity"]="Common"}},
-    {"Gun","Bauble",{["itemid"]=84481559639371,["itemname"]="Bauble",["itemtype"]="Gun",["rarity"]="Godly"}},
-    {"Gun","BaubleChroma",{["chroma"]=true,["itemid"]=84481559639371,["itemname"]="Bauble",["itemtype"]="Gun",["rarity"]="Godly"}},
+    {"Gun","BatsG",{["itemid"]=2513741174,["itemname"]="Bats",["itemtype"]="Gun",["rarity"]="Common",["year"]="2018"}},
+    {"Gun","Bats_G_2024",{["itemid"]=71258273720666,["itemname"]="Bats",["itemtype"]="Gun",["rarity"]="Common",["year"]="2024"}},
+    {"Gun","Bauble",{["itemid"]=84481559639371,["itemname"]="Bauble",["itemtype"]="Gun",["rarity"]="Godly",["year"]="2024"}},
+    {"Gun","BaubleChroma",{["chroma"]=true,["itemid"]=84481559639371,["itemname"]="Bauble",["itemtype"]="Gun",["rarity"]="Godly",["year"]="2024"}},
     {"Gun","BigKill",{["itemid"]=196752330,["itemname"]="Big Kill",["itemtype"]="Gun",["rarity"]="Common"}},
     {"Gun","Biogun",{["itemid"]=4659627458,["itemname"]="Biogun",["itemtype"]="Gun",["rarity"]="Uncommon"}},
     {"Gun","Bit",{["itemid"]=238549030,["itemname"]="Bit",["itemtype"]="Gun",["rarity"]="Common"}},
     {"Gun","Blaster",{["itemid"]=386277381,["itemname"]="Blaster",["itemtype"]="Gun",["rarity"]="Godly"}},
-    {"Gun","Bleed",{["itemid"]=315100702,["itemname"]="Rupture",["itemtype"]="Gun",["rarity"]="Legendary"}},
-    {"Gun","Blizzard",{["itemid"]=88928894807422,["itemname"]="Blizzard",["itemtype"]="Gun",["rarity"]="Godly"}},
-    {"Gun","BlizzardChroma",{["chroma"]=true,["itemid"]=88928894807422,["itemname"]="Blizzard",["itemtype"]="Gun",["rarity"]="Godly"}},
+    {"Gun","Bleed",{["itemid"]=315100702,["itemname"]="Rupture",["itemtype"]="Gun",["rarity"]="Legendary",["year"]="2015"}},
+    {"Gun","Blizzard",{["itemid"]=88928894807422,["itemname"]="Blizzard",["itemtype"]="Gun",["rarity"]="Godly",["year"]="2025"}},
+    {"Gun","BlizzardChroma",{["chroma"]=true,["itemid"]=88928894807422,["itemname"]="Blizzard",["itemtype"]="Gun",["rarity"]="Godly",["year"]="2025"}},
     {"Gun","Blossom_G",{["itemid"]=12339377105,["itemname"]="Blossom",["itemtype"]="Gun",["rarity"]="Godly"}},
-    {"Gun","BlueHarvester",{["itemid"]=8194219645,["itemname"]="Blue Harvester",["itemtype"]="Gun",["rarity"]="Unique"}},
-    {"Gun","BlueSugar",{["itemid"]=3215262120,["itemname"]="Blue Sugar",["itemtype"]="Gun",["rarity"]="Unique"}},
+    {"Gun","BlueHarvester",{["itemid"]=8194219645,["itemname"]="Blue Harvester",["itemtype"]="Gun",["rarity"]="Unique",["year"]="2021"}},
+    {"Gun","BlueSugar",{["itemid"]=3215262120,["itemname"]="Blue Sugar",["itemtype"]="Gun",["rarity"]="Unique",["year"]="2018"}},
     {"Gun","BluesteelGun",{["itemid"]=196752379,["itemname"]="Bluesteel",["itemtype"]="Gun",["rarity"]="Uncommon"}},
-    {"Gun","Bones2019",{["itemid"]=4210926347,["itemname"]="Bones",["itemtype"]="Gun",["rarity"]="Uncommon"}},
-    {"Gun","Brains_G_2022",{["itemid"]=11284145298,["itemname"]="Brains",["itemtype"]="Gun",["rarity"]="Uncommon"}},
-    {"Gun","BronzeHarvester",{["itemid"]=8194221072,["itemname"]="Bronze Harvester",["itemtype"]="Gun",["rarity"]="Unique"}},
-    {"Gun","BronzeIceblaster",{["itemid"]=6404167442,["itemname"]="Bronze Iceblaster",["itemtype"]="Gun",["rarity"]="Unique"}},
-    {"Gun","BronzeSugar",{["itemid"]=3215261913,["itemname"]="Bronze Sugar",["itemtype"]="Gun",["rarity"]="Unique"}},
+    {"Gun","Bones2019",{["itemid"]=4210926347,["itemname"]="Bones",["itemtype"]="Gun",["rarity"]="Uncommon",["year"]="2019"}},
+    {"Gun","Brains_G_2022",{["itemid"]=11284145298,["itemname"]="Brains",["itemtype"]="Gun",["rarity"]="Uncommon",["year"]="2022"}},
+    {"Gun","BronzeHarvester",{["itemid"]=8194221072,["itemname"]="Bronze Harvester",["itemtype"]="Gun",["rarity"]="Unique",["year"]="2021"}},
+    {"Gun","BronzeIceblaster",{["itemid"]=6404167442,["itemname"]="Bronze Iceblaster",["itemtype"]="Gun",["rarity"]="Unique",["year"]="2020"}},
+    {"Gun","BronzeSugar",{["itemid"]=3215261913,["itemname"]="Bronze Sugar",["itemtype"]="Gun",["rarity"]="Unique",["year"]="2018"}},
     {"Gun","Butterflies_G_2025",{["itemid"]=135662872427976,["itemname"]="Butterflies",["itemtype"]="Gun",["rarity"]="Rare"}},
     {"Gun","Camo",{["itemid"]=196752456,["itemname"]="Camo",["itemtype"]="Gun",["rarity"]="Uncommon"}},
-    {"Gun","Candied_G_2022",{["itemid"]=11834435627,["itemname"]="Candied",["itemtype"]="Gun",["rarity"]="Common"}},
-    {"Gun","Candleflame_G_2024",{["itemid"]=90595111293037,["itemname"]="Candleflame",["itemtype"]="Gun",["rarity"]="Rare"}},
-    {"Gun","CandyCorn_G_2020",{["itemid"]=5866454590,["itemname"]="Candy Corn",["itemtype"]="Gun",["rarity"]="Common"}},
-    {"Gun","CandyCorn_G_2022",{["itemid"]=11255558166,["itemname"]="Candy Corn",["itemtype"]="Gun",["rarity"]="Common"}},
-    {"Gun","CandyCorn_G_2024",{["itemid"]=117473869340749,["itemname"]="Candy Corn",["itemtype"]="Gun",["rarity"]="Common"}},
-    {"Gun","CandyCorn_G_2025",{["itemid"]=129781304866793,["itemname"]="Candy Corn",["itemtype"]="Gun",["rarity"]="Common"}},
-    {"Gun","CandySwirl_G_2019",{["itemid"]=4534874602,["itemname"]="Candy Swirl",["itemtype"]="Gun",["rarity"]="Rare"}},
-    {"Gun","CaneGun",{["itemid"]=332497187,["itemname"]="Cane",["itemtype"]="Gun",["rarity"]="Rare"}},
-    {"Gun","Cane_G_2018",{["itemid"]=2669785546,["itemname"]="Cane",["itemtype"]="Gun",["rarity"]="Rare"}},
-    {"Gun","Cane_G_2021",{["itemid"]=8304768700,["itemname"]="Cane",["itemtype"]="Gun",["rarity"]="Common"}},
-    {"Gun","Canes_G_2023",{["itemid"]=15635558982,["itemname"]="Canes",["itemtype"]="Gun",["rarity"]="Uncommon"}},
+    {"Gun","Candied_G_2022",{["itemid"]=11834435627,["itemname"]="Candied",["itemtype"]="Gun",["rarity"]="Common",["year"]="2022"}},
+    {"Gun","Candleflame_G_2024",{["itemid"]=90595111293037,["itemname"]="Candleflame",["itemtype"]="Gun",["rarity"]="Rare",["year"]="2024"}},
+    {"Gun","CandyCorn_G_2020",{["itemid"]=5866454590,["itemname"]="Candy Corn",["itemtype"]="Gun",["rarity"]="Common",["year"]="2020"}},
+    {"Gun","CandyCorn_G_2022",{["itemid"]=11255558166,["itemname"]="Candy Corn",["itemtype"]="Gun",["rarity"]="Common",["year"]="2022"}},
+    {"Gun","CandyCorn_G_2024",{["itemid"]=117473869340749,["itemname"]="Candy Corn",["itemtype"]="Gun",["rarity"]="Common",["year"]="2024"}},
+    {"Gun","CandyCorn_G_2025",{["itemid"]=129781304866793,["itemname"]="Candy Corn",["itemtype"]="Gun",["rarity"]="Common",["year"]="2025"}},
+    {"Gun","CandySwirl_G_2019",{["itemid"]=4534874602,["itemname"]="Candy Swirl",["itemtype"]="Gun",["rarity"]="Rare",["year"]="2019"}},
+    {"Gun","CaneGun",{["itemid"]=332497187,["itemname"]="Cane",["itemtype"]="Gun",["rarity"]="Rare",["year"]="2015"}},
+    {"Gun","Cane_G_2018",{["itemid"]=2669785546,["itemname"]="Cane",["itemtype"]="Gun",["rarity"]="Rare",["year"]="2018"}},
+    {"Gun","Cane_G_2021",{["itemid"]=8304768700,["itemname"]="Cane",["itemtype"]="Gun",["rarity"]="Common",["year"]="2021"}},
+    {"Gun","Canes_G_2023",{["itemid"]=15635558982,["itemname"]="Canes",["itemtype"]="Gun",["rarity"]="Uncommon",["year"]="2023"}},
     {"Gun","Carrot_G_2024",{["itemid"]=16960082652,["itemname"]="Carrot",["itemtype"]="Gun",["rarity"]="Uncommon"}},
-    {"Gun","Carved_G_2020",{["itemid"]=5866457985,["itemname"]="Carved",["itemtype"]="Gun",["rarity"]="Common"}},
-    {"Gun","Cat_G_2021",{["itemid"]=7800253444,["itemname"]="Cat",["itemtype"]="Gun",["rarity"]="Common"}},
+    {"Gun","Carved_G_2020",{["itemid"]=5866457985,["itemname"]="Carved",["itemtype"]="Gun",["rarity"]="Common",["year"]="2020"}},
+    {"Gun","Cat_G_2021",{["itemid"]=7800253444,["itemname"]="Cat",["itemtype"]="Gun",["rarity"]="Common",["year"]="2021"}},
     {"Gun","Caution",{["itemid"]=238546422,["itemname"]="Caution",["itemtype"]="Gun",["rarity"]="Uncommon"}},
-    {"Gun","Cavern_G_2019",{["itemid"]=4534875511,["itemname"]="Cavern",["itemtype"]="Gun",["rarity"]="Legendary"}},
+    {"Gun","Cavern_G_2019",{["itemid"]=4534875511,["itemname"]="Cavern",["itemtype"]="Gun",["rarity"]="Legendary",["year"]="2019"}},
     {"Gun","Cheddar",{["itemid"]=203808317,["itemname"]="Cheddar",["itemtype"]="Gun",["rarity"]="Uncommon"}},
-    {"Gun","Cherries_G_2026",{["itemid"]=96164363513384,["itemname"]="Cherries",["itemtype"]="Gun",["rarity"]="Common"}},
+    {"Gun","Cherries_G_2026",{["itemid"]=96164363513384,["itemname"]="Cherries",["itemtype"]="Gun",["rarity"]="Common",["year"]="2026"}},
     {"Gun","ChromaDarkbringer",{["chroma"]=true,["itemid"]=4751501078,["itemname"]="Darkbringer",["itemtype"]="Gun",["rarity"]="Godly"}},
     {"Gun","ChromaLightbringer",{["chroma"]=true,["itemid"]=4751500761,["itemname"]="Lightbringer",["itemtype"]="Gun",["rarity"]="Godly"}},
     {"Gun","Chromatic_G_2023",{["itemid"]=12965339774,["itemname"]="Chromatic",["itemtype"]="Gun",["rarity"]="Legendary"}},
     {"Gun","Clown_G",{["itemid"]=4659627976,["itemname"]="Clown",["itemtype"]="Gun",["rarity"]="Common"}},
-    {"Gun","Clown_G_2024",{["itemid"]=71982363966070,["itemname"]="Clown",["itemtype"]="Gun",["rarity"]="Uncommon"}},
+    {"Gun","Clown_G_2024",{["itemid"]=71982363966070,["itemname"]="Clown",["itemtype"]="Gun",["rarity"]="Uncommon",["year"]="2024"}},
     {"Gun","Clownfish_G_2024",{["itemid"]=18322197952,["itemname"]="Clownfish",["itemtype"]="Gun",["rarity"]="Common"}},
-    {"Gun","Coal_G_2018",{["itemid"]=2669784920,["itemname"]="Coal",["itemtype"]="Gun",["rarity"]="Common"}},
-    {"Gun","Coal_G_2021",{["itemid"]=8304769409,["itemname"]="Coal",["itemtype"]="Gun",["rarity"]="Common"}},
-    {"Gun","Coal_G_2022",{["itemid"]=11834434264,["itemname"]="Coal",["itemtype"]="Gun",["rarity"]="Common"}},
+    {"Gun","Coal_G_2018",{["itemid"]=2669784920,["itemname"]="Coal",["itemtype"]="Gun",["rarity"]="Common",["year"]="2018"}},
+    {"Gun","Coal_G_2021",{["itemid"]=8304769409,["itemname"]="Coal",["itemtype"]="Gun",["rarity"]="Common",["year"]="2021"}},
+    {"Gun","Coal_G_2022",{["itemid"]=11834434264,["itemname"]="Coal",["itemtype"]="Gun",["rarity"]="Common",["year"]="2022"}},
     {"Gun","Cola",{["itemid"]=238546400,["itemname"]="Soda",["itemtype"]="Gun",["rarity"]="Uncommon"}},
     {"Gun","Cold",{["itemid"]=196752499,["itemname"]="Cold",["itemtype"]="Gun",["rarity"]="Common"}},
-    {"Gun","Constellation",{["itemid"]=114197436469014,["itemname"]="Constellation",["itemtype"]="Gun",["rarity"]="Godly"}},
-    {"Gun","ConstellationChroma",{["chroma"]=true,["itemid"]=114197436469014,["itemname"]="Constellation",["itemtype"]="Gun",["rarity"]="Godly"}},
-    {"Gun","Constellation_Bronze",{["itemid"]=112811587103866,["itemname"]="Bronze Constellation",["itemtype"]="Gun",["rarity"]="Unique"}},
-    {"Gun","Constellation_G_2024",{["itemid"]=94311965719769,["itemname"]="Nightsky",["itemtype"]="Gun",["rarity"]="Legendary"}},
-    {"Gun","Constellation_Gold",{["itemid"]=132975248521820,["itemname"]="Gold Constellation",["itemtype"]="Gun",["rarity"]="Unique"}},
-    {"Gun","Constellation_Red",{["itemid"]=85766514163212,["itemname"]="Red Constellation",["itemtype"]="Gun",["rarity"]="Unique"}},
-    {"Gun","Constellation_Silver",{["itemid"]=100747436297625,["itemname"]="Silver Constellation",["itemtype"]="Gun",["rarity"]="Unique"}},
-    {"Gun","Cookie_G_2021",{["itemid"]=8304771148,["itemname"]="Cookie",["itemtype"]="Gun",["rarity"]="Uncommon"}},
-    {"Gun","Cracks_G_2021",{["itemid"]=7800254737,["itemname"]="Cracks",["itemtype"]="Gun",["rarity"]="Common"}},
-    {"Gun","Cursed_G_2024",{["itemid"]=122855768693454,["itemname"]="Cursed",["itemtype"]="Gun",["rarity"]="Legendary"}},
-    {"Gun","Dark_G_2023",{["itemid"]=15091406343,["itemname"]="Darkgun",["itemtype"]="Gun",["rarity"]="Rare"}},
+    {"Gun","Constellation",{["itemid"]=114197436469014,["itemname"]="Constellation",["itemtype"]="Gun",["rarity"]="Godly",["year"]="2024"}},
+    {"Gun","ConstellationChroma",{["chroma"]=true,["itemid"]=114197436469014,["itemname"]="Constellation",["itemtype"]="Gun",["rarity"]="Godly",["year"]="2024"}},
+    {"Gun","Constellation_Bronze",{["itemid"]=112811587103866,["itemname"]="Bronze Constellation",["itemtype"]="Gun",["rarity"]="Unique",["year"]="2024"}},
+    {"Gun","Constellation_G_2024",{["itemid"]=94311965719769,["itemname"]="Nightsky",["itemtype"]="Gun",["rarity"]="Legendary",["year"]="2024"}},
+    {"Gun","Constellation_Gold",{["itemid"]=132975248521820,["itemname"]="Gold Constellation",["itemtype"]="Gun",["rarity"]="Unique",["year"]="2024"}},
+    {"Gun","Constellation_Red",{["itemid"]=85766514163212,["itemname"]="Red Constellation",["itemtype"]="Gun",["rarity"]="Unique",["year"]="2024"}},
+    {"Gun","Constellation_Silver",{["itemid"]=100747436297625,["itemname"]="Silver Constellation",["itemtype"]="Gun",["rarity"]="Unique",["year"]="2024"}},
+    {"Gun","Cookie_G_2021",{["itemid"]=8304771148,["itemname"]="Cookie",["itemtype"]="Gun",["rarity"]="Uncommon",["year"]="2021"}},
+    {"Gun","Cracks_G_2021",{["itemid"]=7800254737,["itemname"]="Cracks",["itemtype"]="Gun",["rarity"]="Common",["year"]="2021"}},
+    {"Gun","Cursed_G_2024",{["itemid"]=122855768693454,["itemname"]="Cursed",["itemtype"]="Gun",["rarity"]="Legendary",["year"]="2024"}},
+    {"Gun","Dark_G_2023",{["itemid"]=15091406343,["itemname"]="Darkgun",["itemtype"]="Gun",["rarity"]="Rare",["year"]="2023"}},
     {"Gun","Darkbringer",{["itemid"]=4749071819,["itemname"]="Darkbringer",["itemtype"]="Gun",["rarity"]="Godly"}},
-    {"Gun","Darkness_G_2022",{["itemid"]=11255507374,["itemname"]="Darkness",["itemtype"]="Gun",["rarity"]="Common"}},
-    {"Gun","Darkshot",{["itemid"]=15080280688,["itemname"]="Darkshot",["itemtype"]="Gun",["rarity"]="Godly"}},
-    {"Gun","Dartbringer",{["itemid"]=8626617523,["itemname"]="Dartbringer",["itemtype"]="Gun",["rarity"]="Unique"}},
+    {"Gun","Darkness_G_2022",{["itemid"]=11255507374,["itemname"]="Darkness",["itemtype"]="Gun",["rarity"]="Common",["year"]="2022"}},
+    {"Gun","Darkshot",{["itemid"]=15080280688,["itemname"]="Darkshot",["itemtype"]="Gun",["rarity"]="Godly",["year"]="2023"}},
+    {"Gun","Dartbringer",{["itemid"]=8626617523,["itemname"]="Dartbringer",["itemtype"]="Gun",["rarity"]="Unique",["year"]="2021"}},
     {"Gun","Disint",{["itemid"]=196751943,["itemname"]="Laser",["itemtype"]="Gun",["rarity"]="Classic"}},
-    {"Gun","Duckies_G_2026",{["itemid"]=124567820488562,["itemname"]="Duckies",["itemtype"]="Gun",["rarity"]="Common"}},
-    {"Gun","ElderwoodGun",{["itemid"]=4211142894,["itemname"]="Elderwood Revolver",["itemtype"]="Gun",["rarity"]="Godly"}},
-    {"Gun","ElderwoodGunBlue",{["itemid"]=4468574885,["itemname"]="Blue Elderwood",["itemtype"]="Gun",["rarity"]="Unique"}},
-    {"Gun","ElderwoodGunBronze",{["itemid"]=4468585407,["itemname"]="Bronze Elderwood",["itemtype"]="Gun",["rarity"]="Unique"}},
-    {"Gun","ElderwoodGunGold",{["itemid"]=4468584345,["itemname"]="Gold Elderwood",["itemtype"]="Gun",["rarity"]="Unique"}},
-    {"Gun","ElderwoodGunSilver",{["itemid"]=4468583758,["itemname"]="Silver Elderwood",["itemtype"]="Gun",["rarity"]="Unique"}},
-    {"Gun","ElfGun",{["itemid"]=332767999,["itemname"]="Elf",["itemtype"]="Gun",["rarity"]="Common"}},
-    {"Gun","Elf_G_2023",{["itemid"]=15635569893,["itemname"]="Elf",["itemtype"]="Gun",["rarity"]="Common"}},
+    {"Gun","Duckies_G_2026",{["itemid"]=124567820488562,["itemname"]="Duckies",["itemtype"]="Gun",["rarity"]="Common",["year"]="2026"}},
+    {"Gun","ElderwoodGun",{["itemid"]=4211142894,["itemname"]="Elderwood Revolver",["itemtype"]="Gun",["rarity"]="Godly",["year"]="2019"}},
+    {"Gun","ElderwoodGunBlue",{["itemid"]=4468574885,["itemname"]="Blue Elderwood",["itemtype"]="Gun",["rarity"]="Unique",["year"]="2019"}},
+    {"Gun","ElderwoodGunBronze",{["itemid"]=4468585407,["itemname"]="Bronze Elderwood",["itemtype"]="Gun",["rarity"]="Unique",["year"]="2019"}},
+    {"Gun","ElderwoodGunGold",{["itemid"]=4468584345,["itemname"]="Gold Elderwood",["itemtype"]="Gun",["rarity"]="Unique",["year"]="2019"}},
+    {"Gun","ElderwoodGunSilver",{["itemid"]=4468583758,["itemname"]="Silver Elderwood",["itemtype"]="Gun",["rarity"]="Unique",["year"]="2019"}},
+    {"Gun","ElfGun",{["itemid"]=332767999,["itemname"]="Elf",["itemtype"]="Gun",["rarity"]="Common",["year"]="2015"}},
+    {"Gun","Elf_G_2023",{["itemid"]=15635569893,["itemname"]="Elf",["itemtype"]="Gun",["rarity"]="Common",["year"]="2023"}},
     {"Gun","Emptybringer",{["itemid"]=4749071819,["itemname"]="???",["itemtype"]="Gun",["rarity"]="Godly"}},
     {"Gun","EmptybringerChroma",{["chroma"]=true,["itemid"]=4749071819,["itemname"]="???",["itemtype"]="Gun",["rarity"]="Godly"}},
-    {"Gun","Energized_G_2025",{["itemid"]=114403390530326,["itemname"]="Energized",["itemtype"]="Gun",["rarity"]="Legendary"}},
+    {"Gun","Energized_G_2025",{["itemid"]=114403390530326,["itemname"]="Energized",["itemtype"]="Gun",["rarity"]="Legendary",["year"]="2025"}},
     {"Gun","Engraved",{["itemid"]=203807690,["itemname"]="Engraved",["itemtype"]="Gun",["rarity"]="Common"}},
-    {"Gun","Eyes_G_2020",{["itemid"]=5866459380,["itemname"]="Watcher",["itemtype"]="Gun",["rarity"]="Common"}},
-    {"Gun","Eyes_G_2025",{["itemid"]=90751163516480,["itemname"]="Eyes",["itemtype"]="Gun",["rarity"]="Uncommon"}},
-    {"Gun","FallCamo_G_2021",{["itemid"]=7800257544,["itemname"]="Fall Camo",["itemtype"]="Gun",["rarity"]="Uncommon"}},
-    {"Gun","Fall_G_2025",{["itemid"]=78153346812503,["itemname"]="Fall",["itemtype"]="Gun",["rarity"]="Common"}},
+    {"Gun","Eyes_G_2020",{["itemid"]=5866459380,["itemname"]="Watcher",["itemtype"]="Gun",["rarity"]="Common",["year"]="2020"}},
+    {"Gun","Eyes_G_2025",{["itemid"]=90751163516480,["itemname"]="Eyes",["itemtype"]="Gun",["rarity"]="Uncommon",["year"]="2025"}},
+    {"Gun","FallCamo_G_2021",{["itemid"]=7800257544,["itemname"]="Fall Camo",["itemtype"]="Gun",["rarity"]="Uncommon",["year"]="2021"}},
+    {"Gun","Fall_G_2025",{["itemid"]=78153346812503,["itemname"]="Fall",["itemtype"]="Gun",["rarity"]="Common",["year"]="2025"}},
     {"Gun","Fallout",{["itemid"]=196752601,["itemname"]="Fallout",["itemtype"]="Gun",["rarity"]="Common"}},
     {"Gun","Floatie_G_2024",{["itemid"]=18322194067,["itemname"]="Floatie",["itemtype"]="Gun",["rarity"]="Uncommon"}},
     {"Gun","Flora",{["itemid"]=138204709945147,["itemname"]="Flora",["itemtype"]="Gun",["rarity"]="Godly"}},
     {"Gun","Floral_G_2024",{["itemid"]=18323751219,["itemname"]="Floral",["itemtype"]="Gun",["rarity"]="Rare"}},
-    {"Gun","Floral_G_2026",{["itemid"]=107508982214346,["itemname"]="Floral",["itemtype"]="Gun",["rarity"]="Uncommon"}},
+    {"Gun","Floral_G_2026",{["itemid"]=107508982214346,["itemname"]="Floral",["itemtype"]="Gun",["rarity"]="Uncommon",["year"]="2026"}},
     {"Gun","FlowerwoodGun",{["itemid"]=16963894455,["itemname"]="Flowerwood Gun",["itemtype"]="Gun",["rarity"]="Godly"}},
-    {"Gun","Forest_G_2024",{["itemid"]=78199422065424,["itemname"]="Forest",["itemtype"]="Gun",["rarity"]="Uncommon"}},
+    {"Gun","Forest_G_2024",{["itemid"]=78199422065424,["itemname"]="Forest",["itemtype"]="Gun",["rarity"]="Uncommon",["year"]="2024"}},
     {"Gun","Fragile_G_2023",{["itemid"]=12965349193,["itemname"]="Fragile",["itemtype"]="Gun",["rarity"]="Common"}},
-    {"Gun","Frosted_G_2019",{["itemid"]=4534866678,["itemname"]="Frosted",["itemtype"]="Gun",["rarity"]="Common"}},
-    {"Gun","Frostfade_G_2023",{["itemid"]=15635577623,["itemname"]="Frostfade",["itemtype"]="Gun",["rarity"]="Legendary"}},
-    {"Gun","Frostflame_G_2024",{["itemid"]=114781759936576,["itemname"]="Frostflame",["itemtype"]="Gun",["rarity"]="Rare"}},
-    {"Gun","Frozen_G_2019",{["itemid"]=4534873956,["itemname"]="Frozen",["itemtype"]="Gun",["rarity"]="Uncommon"}},
-    {"Gun","Frozen_G_2022",{["itemid"]=11834445016,["itemname"]="Frozen",["itemtype"]="Gun",["rarity"]="Common"}},
-    {"Gun","Frozen_G_2023",{["itemid"]=15635571468,["itemname"]="Frozen",["itemtype"]="Gun",["rarity"]="Common"}},
-    {"Gun","Frozen_G_2025",{["itemid"]=90622014285727,["itemname"]="Frozen",["itemtype"]="Gun",["rarity"]="Legendary"}},
+    {"Gun","Frosted_G_2019",{["itemid"]=4534866678,["itemname"]="Frosted",["itemtype"]="Gun",["rarity"]="Common",["year"]="2019"}},
+    {"Gun","Frostfade_G_2023",{["itemid"]=15635577623,["itemname"]="Frostfade",["itemtype"]="Gun",["rarity"]="Legendary",["year"]="2023"}},
+    {"Gun","Frostflame_G_2024",{["itemid"]=114781759936576,["itemname"]="Frostflame",["itemtype"]="Gun",["rarity"]="Rare",["year"]="2024"}},
+    {"Gun","Frozen_G_2019",{["itemid"]=4534873956,["itemname"]="Frozen",["itemtype"]="Gun",["rarity"]="Uncommon",["year"]="2019"}},
+    {"Gun","Frozen_G_2022",{["itemid"]=11834445016,["itemname"]="Frozen",["itemtype"]="Gun",["rarity"]="Common",["year"]="2022"}},
+    {"Gun","Frozen_G_2023",{["itemid"]=15635571468,["itemname"]="Frozen",["itemtype"]="Gun",["rarity"]="Common",["year"]="2023"}},
+    {"Gun","Frozen_G_2025",{["itemid"]=90622014285727,["itemname"]="Frozen",["itemtype"]="Gun",["rarity"]="Legendary",["year"]="2025"}},
     {"Gun","Galactic",{["itemid"]=196752683,["itemname"]="Galactic",["itemtype"]="Gun",["rarity"]="Rare"}},
-    {"Gun","Ghastly_G_2023",{["itemid"]=15091342564,["itemname"]="Ghastly",["itemtype"]="Gun",["rarity"]="Rare"}},
-    {"Gun","GhostG2018",{["itemid"]=2513741407,["itemname"]="Ghost",["itemtype"]="Gun",["rarity"]="Legendary"}},
+    {"Gun","Ghastly_G_2023",{["itemid"]=15091342564,["itemname"]="Ghastly",["itemtype"]="Gun",["rarity"]="Rare",["year"]="2023"}},
+    {"Gun","GhostG2018",{["itemid"]=2513741407,["itemname"]="Ghost",["itemtype"]="Gun",["rarity"]="Legendary",["year"]="2018"}},
     {"Gun","Ghost_G_2026",{["itemid"]=120512330305244,["itemname"]="Ghost",["itemtype"]="Gun",["rarity"]="Uncommon"}},
-    {"Gun","Ghostfire_G_2022",{["itemid"]=11284140034,["itemname"]="Ghostfire",["itemtype"]="Gun",["rarity"]="Rare"}},
-    {"Gun","Ghosts_G_2020",{["itemid"]=5866465099,["itemname"]="Ghosts",["itemtype"]="Gun",["rarity"]="Rare"}},
-    {"Gun","Ghosts_G_2021",{["itemid"]=7800251557,["itemname"]="Wraiths",["itemtype"]="Gun",["rarity"]="Uncommon"}},
-    {"Gun","Gift_G_2020",{["itemid"]=6121867603,["itemname"]="Wrap",["itemtype"]="Gun",["rarity"]="Uncommon"}},
-    {"Gun","Giftbag_G_2020",{["itemid"]=6121864813,["itemname"]="Gift Bag",["itemtype"]="Gun",["rarity"]="Common"}},
-    {"Gun","Gifts_G_2019",{["itemid"]=4534867381,["itemname"]="Gifts",["itemtype"]="Gun",["rarity"]="Common"}},
-    {"Gun","GingerGun",{["itemid"]=332497038,["itemname"]="Ginger",["itemtype"]="Gun",["rarity"]="Rare"}},
-    {"Gun","GingerLuger",{["itemid"]=2674983099,["itemname"]="Ginger Luger",["itemtype"]="Gun",["rarity"]="Godly"}},
-    {"Gun","Ginger_G_2018",{["itemid"]=2669785821,["itemname"]="Ginger",["itemtype"]="Gun",["rarity"]="Legendary"}},
-    {"Gun","Gingerbread_G_2019",{["itemid"]=4534872116,["itemname"]="Gingerbread",["itemtype"]="Gun",["rarity"]="Uncommon"}},
-    {"Gun","Gingerbread_G_2020",{["itemid"]=6121860619,["itemname"]="Gingerbread",["itemtype"]="Gun",["rarity"]="Uncommon"}},
-    {"Gun","Gingerbread_G_2021",{["itemid"]=8304772140,["itemname"]="Gingerbread",["itemtype"]="Gun",["rarity"]="Uncommon"}},
-    {"Gun","Gingerbread_G_2022",{["itemid"]=11834442414,["itemname"]="Gingerbread",["itemtype"]="Gun",["rarity"]="Rare"}},
-    {"Gun","Gingerbread_G_2025",{["itemid"]=74908113882525,["itemname"]="Gingerbread",["itemtype"]="Gun",["rarity"]="Uncommon"}},
-    {"Gun","Gingercookie_G_2025",{["itemid"]=99160839686845,["itemname"]="Gingercookie",["itemtype"]="Gun",["rarity"]="Rare"}},
-    {"Gun","Gingermint_G",{["itemid"]=11872179646,["itemname"]="Gingermint",["itemtype"]="Gun",["rarity"]="Godly"}},
-    {"Gun","Gingerscope",{["itemid"]=15666469505,["itemname"]="Gingerscope",["itemtype"]="Gun",["rarity"]="Ancient"}},
-    {"Gun","Gingerscope_Blue",{["itemid"]=16964462231,["itemname"]="Blue Gingerscope",["itemtype"]="Gun",["rarity"]="Unique"}},
-    {"Gun","Gingerscope_Bronze",{["itemid"]=16964465320,["itemname"]="Bronze Gingerscope",["itemtype"]="Gun",["rarity"]="Unique"}},
-    {"Gun","Gingerscope_Gold",{["itemid"]=16964471890,["itemname"]="Gold Gingerscope",["itemtype"]="Gun",["rarity"]="Unique"}},
-    {"Gun","Gingerscope_Silver",{["itemid"]=16964468980,["itemname"]="Silver Gingerscope",["itemtype"]="Gun",["rarity"]="Unique"}},
-    {"Gun","GoldHarvester",{["itemid"]=8194222523,["itemname"]="Gold Harvester",["itemtype"]="Gun",["rarity"]="Unique"}},
-    {"Gun","GoldIceblaster",{["itemid"]=6404165933,["itemname"]="Gold Iceblaster",["itemtype"]="Gun",["rarity"]="Unique"}},
-    {"Gun","GoldSugar",{["itemid"]=3215260149,["itemname"]="Gold Sugar",["itemtype"]="Gun",["rarity"]="Unique"}},
+    {"Gun","Ghostfire_G_2022",{["itemid"]=11284140034,["itemname"]="Ghostfire",["itemtype"]="Gun",["rarity"]="Rare",["year"]="2022"}},
+    {"Gun","Ghosts_G_2020",{["itemid"]=5866465099,["itemname"]="Ghosts",["itemtype"]="Gun",["rarity"]="Rare",["year"]="2020"}},
+    {"Gun","Ghosts_G_2021",{["itemid"]=7800251557,["itemname"]="Wraiths",["itemtype"]="Gun",["rarity"]="Uncommon",["year"]="2021"}},
+    {"Gun","Gift_G_2020",{["itemid"]=6121867603,["itemname"]="Wrap",["itemtype"]="Gun",["rarity"]="Uncommon",["year"]="2020"}},
+    {"Gun","Giftbag_G_2020",{["itemid"]=6121864813,["itemname"]="Gift Bag",["itemtype"]="Gun",["rarity"]="Common",["year"]="2020"}},
+    {"Gun","Gifts_G_2019",{["itemid"]=4534867381,["itemname"]="Gifts",["itemtype"]="Gun",["rarity"]="Common",["year"]="2019"}},
+    {"Gun","GingerGun",{["itemid"]=332497038,["itemname"]="Ginger",["itemtype"]="Gun",["rarity"]="Rare",["year"]="2015"}},
+    {"Gun","GingerLuger",{["itemid"]=2674983099,["itemname"]="Ginger Luger",["itemtype"]="Gun",["rarity"]="Godly",["year"]="2018"}},
+    {"Gun","Ginger_G_2018",{["itemid"]=2669785821,["itemname"]="Ginger",["itemtype"]="Gun",["rarity"]="Legendary",["year"]="2018"}},
+    {"Gun","Gingerbread_G_2019",{["itemid"]=4534872116,["itemname"]="Gingerbread",["itemtype"]="Gun",["rarity"]="Uncommon",["year"]="2019"}},
+    {"Gun","Gingerbread_G_2020",{["itemid"]=6121860619,["itemname"]="Gingerbread",["itemtype"]="Gun",["rarity"]="Uncommon",["year"]="2020"}},
+    {"Gun","Gingerbread_G_2021",{["itemid"]=8304772140,["itemname"]="Gingerbread",["itemtype"]="Gun",["rarity"]="Uncommon",["year"]="2021"}},
+    {"Gun","Gingerbread_G_2022",{["itemid"]=11834442414,["itemname"]="Gingerbread",["itemtype"]="Gun",["rarity"]="Rare",["year"]="2022"}},
+    {"Gun","Gingerbread_G_2025",{["itemid"]=74908113882525,["itemname"]="Gingerbread",["itemtype"]="Gun",["rarity"]="Uncommon",["year"]="2025"}},
+    {"Gun","Gingercookie_G_2025",{["itemid"]=99160839686845,["itemname"]="Gingercookie",["itemtype"]="Gun",["rarity"]="Rare",["year"]="2025"}},
+    {"Gun","Gingermint_G",{["itemid"]=11872179646,["itemname"]="Gingermint",["itemtype"]="Gun",["rarity"]="Godly",["year"]="2022"}},
+    {"Gun","Gingerscope",{["itemid"]=15666469505,["itemname"]="Gingerscope",["itemtype"]="Gun",["rarity"]="Ancient",["year"]="2023"}},
+    {"Gun","Gingerscope_Blue",{["itemid"]=16964462231,["itemname"]="Blue Gingerscope",["itemtype"]="Gun",["rarity"]="Unique",["year"]="2023"}},
+    {"Gun","Gingerscope_Bronze",{["itemid"]=16964465320,["itemname"]="Bronze Gingerscope",["itemtype"]="Gun",["rarity"]="Unique",["year"]="2023"}},
+    {"Gun","Gingerscope_Gold",{["itemid"]=16964471890,["itemname"]="Gold Gingerscope",["itemtype"]="Gun",["rarity"]="Unique",["year"]="2023"}},
+    {"Gun","Gingerscope_Silver",{["itemid"]=16964468980,["itemname"]="Silver Gingerscope",["itemtype"]="Gun",["rarity"]="Unique",["year"]="2023"}},
+    {"Gun","GoldHarvester",{["itemid"]=8194222523,["itemname"]="Gold Harvester",["itemtype"]="Gun",["rarity"]="Unique",["year"]="2021"}},
+    {"Gun","GoldIceblaster",{["itemid"]=6404165933,["itemname"]="Gold Iceblaster",["itemtype"]="Gun",["rarity"]="Unique",["year"]="2020"}},
+    {"Gun","GoldSugar",{["itemid"]=3215260149,["itemname"]="Gold Sugar",["itemtype"]="Gun",["rarity"]="Unique",["year"]="2018"}},
     {"Gun","GoldenGun",{["itemid"]=196751989,["itemname"]="Golden",["itemtype"]="Gun",["rarity"]="Classic"}},
-    {"Gun","Gothic_G_2021",{["itemid"]=7800253970,["itemname"]="Gothic",["itemtype"]="Gun",["rarity"]="Uncommon"}},
-    {"Gun","GraveG",{["itemid"]=2513731746,["itemname"]="Grave",["itemtype"]="Gun",["rarity"]="Common"}},
-    {"Gun","GreenLuger",{["itemid"]=332044679,["itemname"]="Green Luger",["itemtype"]="Gun",["rarity"]="Godly"}},
+    {"Gun","Gothic_G_2021",{["itemid"]=7800253970,["itemname"]="Gothic",["itemtype"]="Gun",["rarity"]="Uncommon",["year"]="2021"}},
+    {"Gun","GraveG",{["itemid"]=2513731746,["itemname"]="Grave",["itemtype"]="Gun",["rarity"]="Common",["year"]="2018"}},
+    {"Gun","GreenLuger",{["itemid"]=332044679,["itemname"]="Green Luger",["itemtype"]="Gun",["rarity"]="Godly",["year"]="2015"}},
     {"Gun","Gun1",{["itemid"]=196752052,["itemname"]="Cowboy",["itemtype"]="Gun",["rarity"]="Classic"}},
     {"Gun","HL2",{["itemid"]=238546100,["itemname"]="HL2",["itemtype"]="Gun",["rarity"]="Common"}},
     {"Gun","Hacker",{["itemid"]=203819271,["itemname"]="Hacker",["itemtype"]="Gun",["rarity"]="Rare"}},
-    {"Gun","Hallowgun",{["itemid"]=5878721461,["itemname"]="Hallowgun",["itemtype"]="Gun",["rarity"]="Godly"}},
-    {"Gun","Harvester",{["itemid"]=7800847534,["itemname"]="Harvester",["itemtype"]="Gun",["rarity"]="Ancient"}},
-    {"Gun","HauntedG",{["itemid"]=2513741901,["itemname"]="Haunted",["itemtype"]="Gun",["rarity"]="Common"}},
-    {"Gun","Hazard_G_2022",{["itemid"]=11255505449,["itemname"]="Hazard",["itemtype"]="Gun",["rarity"]="Uncommon"}},
-    {"Gun","Heartbreak_G_2026",{["itemid"]=79235438948261,["itemname"]="Heartbreak",["itemtype"]="Gun",["rarity"]="Rare"}},
-    {"Gun","Holly_G_2018",{["itemid"]=2669786261,["itemname"]="Holly",["itemtype"]="Gun",["rarity"]="Uncommon"}},
-    {"Gun","Hologram_G_2025",{["itemid"]=108751717527377,["itemname"]="Hologram",["itemtype"]="Gun",["rarity"]="Rare"}},
-    {"Gun","IceCamo_G_2021",{["itemid"]=8304767724,["itemname"]="Ice Camo",["itemtype"]="Gun",["rarity"]="Rare"}},
-    {"Gun","Icebeam",{["itemid"]=8311005531,["itemname"]="Icebeam",["itemtype"]="Gun",["rarity"]="Godly"}},
-    {"Gun","Iceblaster",{["itemid"]=6125814417,["itemname"]="Iceblaster",["itemtype"]="Gun",["rarity"]="Godly"}},
-    {"Gun","Icedriller_G_2020",{["itemid"]=6121866490,["itemname"]="Icedriller",["itemtype"]="Gun",["rarity"]="Legendary"}},
-    {"Gun","Icepiercer",{["itemid"]=11874071041,["itemname"]="Icepiercer",["itemtype"]="Gun",["rarity"]="Ancient"}},
-    {"Gun","IcepiercerBronze",{["itemid"]=12226920195,["itemname"]="Bronze Icepiercer",["itemtype"]="Gun",["rarity"]="Unique"}},
-    {"Gun","IcepiercerGold",{["itemid"]=12226688172,["itemname"]="Gold Icepiercer",["itemtype"]="Gun",["rarity"]="Unique"}},
-    {"Gun","IcepiercerRed",{["itemid"]=12227133450,["itemname"]="Red Icepiercer",["itemtype"]="Gun",["rarity"]="Unique"}},
-    {"Gun","IcepiercerSilver",{["itemid"]=12226843957,["itemname"]="Silver Icepiercer",["itemtype"]="Gun",["rarity"]="Unique"}},
-    {"Gun","Icicles_G_2018",{["itemid"]=2669786044,["itemname"]="Icicles",["itemtype"]="Gun",["rarity"]="Rare"}},
-    {"Gun","Igloo_G_2024",{["itemid"]=95517099886712,["itemname"]="Igloo",["itemtype"]="Gun",["rarity"]="Common"}},
+    {"Gun","Hallowgun",{["itemid"]=5878721461,["itemname"]="Hallowgun",["itemtype"]="Gun",["rarity"]="Godly",["year"]="2020"}},
+    {"Gun","Harvester",{["itemid"]=7800847534,["itemname"]="Harvester",["itemtype"]="Gun",["rarity"]="Ancient",["year"]="2021"}},
+    {"Gun","HauntedG",{["itemid"]=2513741901,["itemname"]="Haunted",["itemtype"]="Gun",["rarity"]="Common",["year"]="2018"}},
+    {"Gun","Hazard_G_2022",{["itemid"]=11255505449,["itemname"]="Hazard",["itemtype"]="Gun",["rarity"]="Uncommon",["year"]="2022"}},
+    {"Gun","Heartbreak_G_2026",{["itemid"]=79235438948261,["itemname"]="Heartbreak",["itemtype"]="Gun",["rarity"]="Rare",["year"]="2026"}},
+    {"Gun","Holly_G_2018",{["itemid"]=2669786261,["itemname"]="Holly",["itemtype"]="Gun",["rarity"]="Uncommon",["year"]="2018"}},
+    {"Gun","Hologram_G_2025",{["itemid"]=108751717527377,["itemname"]="Hologram",["itemtype"]="Gun",["rarity"]="Rare",["year"]="2025"}},
+    {"Gun","IceCamo_G_2021",{["itemid"]=8304767724,["itemname"]="Ice Camo",["itemtype"]="Gun",["rarity"]="Rare",["year"]="2021"}},
+    {"Gun","Icebeam",{["itemid"]=8311005531,["itemname"]="Icebeam",["itemtype"]="Gun",["rarity"]="Godly",["year"]="2021"}},
+    {"Gun","Iceblaster",{["itemid"]=6125814417,["itemname"]="Iceblaster",["itemtype"]="Gun",["rarity"]="Godly",["year"]="2020"}},
+    {"Gun","Icedriller_G_2020",{["itemid"]=6121866490,["itemname"]="Icedriller",["itemtype"]="Gun",["rarity"]="Legendary",["year"]="2020"}},
+    {"Gun","Icepiercer",{["itemid"]=11874071041,["itemname"]="Icepiercer",["itemtype"]="Gun",["rarity"]="Ancient",["year"]="2022"}},
+    {"Gun","IcepiercerBronze",{["itemid"]=12226920195,["itemname"]="Bronze Icepiercer",["itemtype"]="Gun",["rarity"]="Unique",["year"]="2022"}},
+    {"Gun","IcepiercerGold",{["itemid"]=12226688172,["itemname"]="Gold Icepiercer",["itemtype"]="Gun",["rarity"]="Unique",["year"]="2022"}},
+    {"Gun","IcepiercerRed",{["itemid"]=12227133450,["itemname"]="Red Icepiercer",["itemtype"]="Gun",["rarity"]="Unique",["year"]="2022"}},
+    {"Gun","IcepiercerSilver",{["itemid"]=12226843957,["itemname"]="Silver Icepiercer",["itemtype"]="Gun",["rarity"]="Unique",["year"]="2022"}},
+    {"Gun","Icicles_G_2018",{["itemid"]=2669786044,["itemname"]="Icicles",["itemtype"]="Gun",["rarity"]="Rare",["year"]="2018"}},
+    {"Gun","Igloo_G_2024",{["itemid"]=95517099886712,["itemname"]="Igloo",["itemtype"]="Gun",["rarity"]="Common",["year"]="2024"}},
     {"Gun","Imbued",{["itemid"]=196752718,["itemname"]="Imbued",["itemtype"]="Gun",["rarity"]="Rare"}},
-    {"Gun","Infected_G_2022",{["itemid"]=11255502768,["itemname"]="Infected",["itemtype"]="Gun",["rarity"]="Common"}},
+    {"Gun","Infected_G_2022",{["itemid"]=11255502768,["itemname"]="Infected",["itemtype"]="Gun",["rarity"]="Common",["year"]="2022"}},
     {"Gun","Infiltrator",{["itemid"]=203806022,["itemname"]="Infiltrator",["itemtype"]="Gun",["rarity"]="Common"}},
     {"Gun","Iron",{["itemid"]=196752812,["itemname"]="Iron",["itemtype"]="Gun",["rarity"]="Common"}},
-    {"Gun","Jinglegun",{["itemid"]=6125742758,["itemname"]="Jinglegun",["itemtype"]="Gun",["rarity"]="Godly"}},
+    {"Gun","Jinglegun",{["itemid"]=6125742758,["itemname"]="Jinglegun",["itemtype"]="Gun",["rarity"]="Godly",["year"]="2020"}},
     {"Gun","Laser",{["itemid"]=238546983,["itemname"]="Laser",["itemtype"]="Gun",["rarity"]="Godly"}},
     {"Gun","LaserChroma",{["chroma"]=true,["itemid"]=3187395952,["itemname"]="Laser",["itemtype"]="Gun",["rarity"]="Godly"}},
     {"Gun","Latte_G_2023",{["itemid"]=15413116029,["itemname"]="Latte",["itemtype"]="Gun",["rarity"]="Legendary"}},
-    {"Gun","Lava_G_2025",{["itemid"]=90170220549489,["itemname"]="Lava",["itemtype"]="Gun",["rarity"]="Uncommon"}},
-    {"Gun","Leaves_G_2024",{["itemid"]=129970927613267,["itemname"]="Leaves",["itemtype"]="Gun",["rarity"]="Uncommon"}},
+    {"Gun","Lava_G_2025",{["itemid"]=90170220549489,["itemname"]="Lava",["itemtype"]="Gun",["rarity"]="Uncommon",["year"]="2025"}},
+    {"Gun","Leaves_G_2024",{["itemid"]=129970927613267,["itemname"]="Leaves",["itemtype"]="Gun",["rarity"]="Uncommon",["year"]="2024"}},
     {"Gun","Lightbringer",{["itemid"]=4749070432,["itemname"]="Lightbringer",["itemtype"]="Gun",["rarity"]="Godly"}},
-    {"Gun","Lights_G_2019",{["itemid"]=4534872673,["itemname"]="Lights",["itemtype"]="Gun",["rarity"]="Uncommon"}},
-    {"Gun","Lights_G_2025",{["itemid"]=104258636970738,["itemname"]="Lights",["itemtype"]="Gun",["rarity"]="Common"}},
+    {"Gun","Lights_G_2019",{["itemid"]=4534872673,["itemname"]="Lights",["itemtype"]="Gun",["rarity"]="Uncommon",["year"]="2019"}},
+    {"Gun","Lights_G_2025",{["itemid"]=104258636970738,["itemname"]="Lights",["itemtype"]="Gun",["rarity"]="Common",["year"]="2025"}},
     {"Gun","LoveGun",{["itemid"]=203867650,["itemname"]="Love",["itemtype"]="Gun",["rarity"]="Uncommon"}},
     {"Gun","Luger",{["itemid"]=198042673,["itemname"]="Luger",["itemtype"]="Gun",["rarity"]="Godly"}},
     {"Gun","LugerChroma",{["chroma"]=true,["itemid"]=3187395551,["itemname"]="Luger",["itemtype"]="Gun",["rarity"]="Godly"}},
-    {"Gun","Lugercane",{["itemid"]=4535482609,["itemname"]="Lugercane",["itemtype"]="Gun",["rarity"]="Godly"}},
-    {"Gun","Magma_G_2021",{["itemid"]=7800252572,["itemname"]="Magma",["itemtype"]="Gun",["rarity"]="Rare"}},
-    {"Gun","Makeshift",{["itemid"]=11229837140,["itemname"]="Makeshift",["itemtype"]="Gun",["rarity"]="Godly"}},
+    {"Gun","Lugercane",{["itemid"]=4535482609,["itemname"]="Lugercane",["itemtype"]="Gun",["rarity"]="Godly",["year"]="2019"}},
+    {"Gun","Magma_G_2021",{["itemid"]=7800252572,["itemname"]="Magma",["itemtype"]="Gun",["rarity"]="Rare",["year"]="2021"}},
+    {"Gun","Makeshift",{["itemid"]=11229837140,["itemname"]="Makeshift",["itemtype"]="Gun",["rarity"]="Godly",["year"]="2022"}},
     {"Gun","Marina",{["itemid"]=203808190,["itemname"]="Marina",["itemtype"]="Gun",["rarity"]="Uncommon"}},
     {"Gun","Meadow_G_2025",{["itemid"]=107321881182350,["itemname"]="Meadow",["itemtype"]="Gun",["rarity"]="Uncommon"}},
     {"Gun","Melon_G_2023",{["itemid"]=13944153861,["itemname"]="Melon",["itemtype"]="Gun",["rarity"]="Uncommon"}},
-    {"Gun","Minty",{["itemid"]=4535408229,["itemname"]="Minty",["itemtype"]="Gun",["rarity"]="Godly"}},
-    {"Gun","MintyBlue",{["itemid"]=4753347062,["itemname"]="Blue Minty",["itemtype"]="Gun",["rarity"]="Unique"}},
-    {"Gun","MintyBronze",{["itemid"]=4753348263,["itemname"]="Bronze Minty",["itemtype"]="Gun",["rarity"]="Unique"}},
-    {"Gun","MintyGold",{["itemid"]=4753347636,["itemname"]="Gold Minty",["itemtype"]="Gun",["rarity"]="Unique"}},
-    {"Gun","MintySilver",{["itemid"]=4753346087,["itemname"]="Silver Minty",["itemtype"]="Gun",["rarity"]="Unique"}},
-    {"Gun","Mistletoe_G_2022",{["itemid"]=11834438982,["itemname"]="Mistletoe",["itemtype"]="Gun",["rarity"]="Uncommon"}},
+    {"Gun","Minty",{["itemid"]=4535408229,["itemname"]="Minty",["itemtype"]="Gun",["rarity"]="Godly",["year"]="2019"}},
+    {"Gun","MintyBlue",{["itemid"]=4753347062,["itemname"]="Blue Minty",["itemtype"]="Gun",["rarity"]="Unique",["year"]="2019"}},
+    {"Gun","MintyBronze",{["itemid"]=4753348263,["itemname"]="Bronze Minty",["itemtype"]="Gun",["rarity"]="Unique",["year"]="2019"}},
+    {"Gun","MintyGold",{["itemid"]=4753347636,["itemname"]="Gold Minty",["itemtype"]="Gun",["rarity"]="Unique",["year"]="2019"}},
+    {"Gun","MintySilver",{["itemid"]=4753346087,["itemname"]="Silver Minty",["itemtype"]="Gun",["rarity"]="Unique",["year"]="2019"}},
+    {"Gun","Mistletoe_G_2022",{["itemid"]=11834438982,["itemname"]="Mistletoe",["itemtype"]="Gun",["rarity"]="Uncommon",["year"]="2022"}},
     {"Gun","Molten",{["itemid"]=203869308,["itemname"]="Molten",["itemtype"]="Gun",["rarity"]="Rare"}},
-    {"Gun","Monster",{["itemid"]=4210941474,["itemname"]="Monster",["itemtype"]="Gun",["rarity"]="Rare"}},
-    {"Gun","Moonlight_G_2022",{["itemid"]=11284143055,["itemname"]="Moonlight",["itemtype"]="Gun",["rarity"]="Uncommon"}},
-    {"Gun","Mummy",{["itemid"]=315155591,["itemname"]="Mummy",["itemtype"]="Gun",["rarity"]="Rare"}},
-    {"Gun","MummyG2018",{["itemid"]=2513741663,["itemname"]="Mummy",["itemtype"]="Gun",["rarity"]="Uncommon"}},
-    {"Gun","Mummy_G_2020",{["itemid"]=5866463755,["itemname"]="Mummy",["itemtype"]="Gun",["rarity"]="Uncommon"}},
-    {"Gun","Neon_G_2023",{["itemid"]=15635560825,["itemname"]="Neon",["itemtype"]="Gun",["rarity"]="Rare"}},
-    {"Gun","Neon_G_2025",{["itemid"]=134429631587448,["itemname"]="Neon",["itemtype"]="Gun",["rarity"]="Rare"}},
+    {"Gun","Monster",{["itemid"]=4210941474,["itemname"]="Monster",["itemtype"]="Gun",["rarity"]="Rare",["year"]="2019"}},
+    {"Gun","Moonlight_G_2022",{["itemid"]=11284143055,["itemname"]="Moonlight",["itemtype"]="Gun",["rarity"]="Uncommon",["year"]="2022"}},
+    {"Gun","Mummy",{["itemid"]=315155591,["itemname"]="Mummy",["itemtype"]="Gun",["rarity"]="Rare",["year"]="2015"}},
+    {"Gun","MummyG2018",{["itemid"]=2513741663,["itemname"]="Mummy",["itemtype"]="Gun",["rarity"]="Uncommon",["year"]="2018"}},
+    {"Gun","Mummy_G_2020",{["itemid"]=5866463755,["itemname"]="Mummy",["itemtype"]="Gun",["rarity"]="Uncommon",["year"]="2020"}},
+    {"Gun","Neon_G_2023",{["itemid"]=15635560825,["itemname"]="Neon",["itemtype"]="Gun",["rarity"]="Rare",["year"]="2023"}},
+    {"Gun","Neon_G_2025",{["itemid"]=134429631587448,["itemname"]="Neon",["itemtype"]="Gun",["rarity"]="Rare",["year"]="2025"}},
     {"Gun","News",{["itemid"]=238546032,["itemname"]="News",["itemtype"]="Gun",["rarity"]="Common"}},
     {"Gun","Night",{["itemid"]=197829003,["itemname"]="Night",["itemtype"]="Gun",["rarity"]="Uncommon"}},
     {"Gun","Nightfire",{["itemid"]=4659626966,["itemname"]="Nightfire",["itemtype"]="Gun",["rarity"]="Rare"}},
     {"Gun","Nuke_G_2023",{["itemid"]=12965335931,["itemname"]="Nuke",["itemtype"]="Gun",["rarity"]="Rare"}},
-    {"Gun","Nutcracker",{["itemid"]=332497657,["itemname"]="Nutcracker",["itemtype"]="Gun",["rarity"]="Uncommon"}},
+    {"Gun","Nutcracker",{["itemid"]=332497657,["itemname"]="Nutcracker",["itemtype"]="Gun",["rarity"]="Uncommon",["year"]="2015"}},
     {"Gun","Ocean_G",{["itemid"]=13945898892,["itemname"]="Ocean",["itemtype"]="Gun",["rarity"]="Godly"}},
-    {"Gun","Ornament1Gun",{["itemid"]=332497144,["itemname"]="Ornament1",["itemtype"]="Gun",["rarity"]="Common"}},
-    {"Gun","Ornament2Gun",{["itemid"]=332497550,["itemname"]="Ornament2",["itemtype"]="Gun",["rarity"]="Common"}},
-    {"Gun","Ornaments_G_2020",{["itemid"]=6121863515,["itemname"]="Ornaments",["itemtype"]="Gun",["rarity"]="Common"}},
+    {"Gun","Ornament1Gun",{["itemid"]=332497144,["itemname"]="Ornament1",["itemtype"]="Gun",["rarity"]="Common",["year"]="2015"}},
+    {"Gun","Ornament2Gun",{["itemid"]=332497550,["itemname"]="Ornament2",["itemtype"]="Gun",["rarity"]="Common",["year"]="2015"}},
+    {"Gun","Ornaments_G_2020",{["itemid"]=6121863515,["itemname"]="Ornaments",["itemtype"]="Gun",["rarity"]="Common",["year"]="2020"}},
     {"Gun","Overseer",{["itemid"]=197830043,["itemname"]="Overseer",["itemtype"]="Gun",["rarity"]="Legendary"}},
     {"Gun","Painted_G_2023",{["itemid"]=12965344675,["itemname"]="Painted",["itemtype"]="Gun",["rarity"]="Uncommon"}},
     {"Gun","Palms_G_2024",{["itemid"]=18322192817,["itemname"]="Palms",["itemtype"]="Gun",["rarity"]="Legendary"}},
-    {"Gun","Paws_G_2026",{["itemid"]=120089556380493,["itemname"]="Paws",["itemtype"]="Gun",["rarity"]="Uncommon"}},
+    {"Gun","Paws_G_2026",{["itemid"]=120089556380493,["itemname"]="Paws",["itemtype"]="Gun",["rarity"]="Uncommon",["year"]="2026"}},
     {"Gun","Pea",{["itemid"]=238545971,["itemname"]="Pea",["itemtype"]="Gun",["rarity"]="Common"}},
     {"Gun","Pearl_G",{["itemid"]=18322646152,["itemname"]="Pearlshine",["itemtype"]="Gun",["rarity"]="Godly"}},
-    {"Gun","Peppermint_G_2025",{["itemid"]=73148873488539,["itemname"]="Peppermint",["itemtype"]="Gun",["rarity"]="Common"}},
+    {"Gun","Peppermint_G_2025",{["itemid"]=73148873488539,["itemname"]="Peppermint",["itemtype"]="Gun",["rarity"]="Common",["year"]="2025"}},
     {"Gun","Phaser",{["itemid"]=196752144,["itemname"]="Phaser",["itemtype"]="Gun",["rarity"]="Classic"}},
-    {"Gun","Pine_G_2019",{["itemid"]=4534871260,["itemname"]="Pine",["itemtype"]="Gun",["rarity"]="Common"}},
+    {"Gun","Pine_G_2019",{["itemid"]=4534871260,["itemname"]="Pine",["itemtype"]="Gun",["rarity"]="Common",["year"]="2019"}},
     {"Gun","Pirate",{["itemid"]=3183639867,["itemname"]="Pirate",["itemtype"]="Gun",["rarity"]="Uncommon"}},
-    {"Gun","Plaid_G_2026",{["itemid"]=121681210724670,["itemname"]="Plaid",["itemtype"]="Gun",["rarity"]="Common"}},
+    {"Gun","Plaid_G_2026",{["itemid"]=121681210724670,["itemname"]="Plaid",["itemtype"]="Gun",["rarity"]="Common",["year"]="2026"}},
     {"Gun","Plasmabeam",{["itemid"]=10014717343,["itemname"]="Plasmabeam",["itemtype"]="Gun",["rarity"]="Godly"}},
-    {"Gun","PopArt_G_2025",{["itemid"]=90526048501163,["itemname"]="Pop Art",["itemtype"]="Gun",["rarity"]="Rare"}},
+    {"Gun","PopArt_G_2025",{["itemid"]=90526048501163,["itemname"]="Pop Art",["itemtype"]="Gun",["rarity"]="Rare",["year"]="2025"}},
     {"Gun","Popsicle_G_2024",{["itemid"]=18322191060,["itemname"]="Popsicle",["itemtype"]="Gun",["rarity"]="Uncommon"}},
-    {"Gun","Portal_G_2020",{["itemid"]=5866461926,["itemname"]="Portal",["itemtype"]="Gun",["rarity"]="Uncommon"}},
-    {"Gun","PotionG2018",{["itemid"]=2513742133,["itemname"]="Potion",["itemtype"]="Gun",["rarity"]="Uncommon"}},
+    {"Gun","Portal_G_2020",{["itemid"]=5866461926,["itemname"]="Portal",["itemtype"]="Gun",["rarity"]="Uncommon",["year"]="2020"}},
+    {"Gun","PotionG2018",{["itemid"]=2513742133,["itemname"]="Potion",["itemtype"]="Gun",["rarity"]="Uncommon",["year"]="2018"}},
     {"Gun","Predator",{["itemid"]=203810176,["itemname"]="Predator",["itemtype"]="Gun",["rarity"]="Legendary"}},
     {"Gun","Prince_G_2026",{["itemid"]=87296563281923,["itemname"]="Prince",["itemtype"]="Gun",["rarity"]="Rare"}},
-    {"Gun","PumpkinPatch_G_2025",{["itemid"]=117088166092009,["itemname"]="Pumpkin Patch",["itemtype"]="Gun",["rarity"]="Uncommon"}},
-    {"Gun","Pumpkin_G_2023",{["itemid"]=15091327743,["itemname"]="Pumpkin",["itemtype"]="Gun",["rarity"]="Common"}},
-    {"Gun","RIP",{["itemid"]=4210947993,["itemname"]="RIP",["itemtype"]="Gun",["rarity"]="Common"}},
+    {"Gun","PumpkinPatch_G_2025",{["itemid"]=117088166092009,["itemname"]="Pumpkin Patch",["itemtype"]="Gun",["rarity"]="Uncommon",["year"]="2025"}},
+    {"Gun","Pumpkin_G_2023",{["itemid"]=15091327743,["itemname"]="Pumpkin",["itemtype"]="Gun",["rarity"]="Common",["year"]="2023"}},
+    {"Gun","RIP",{["itemid"]=4210947993,["itemname"]="RIP",["itemtype"]="Gun",["rarity"]="Common",["year"]="2019"}},
     {"Gun","RainbowGun",{["itemid"]=3183640145,["itemname"]="Rainbow",["itemtype"]="Gun",["rarity"]="Rare"}},
     {"Gun","Rainbow_G",{["itemid"]=12966354606,["itemname"]="Rainbow Gun",["itemtype"]="Gun",["rarity"]="Godly"}},
-    {"Gun","Raygun",{["itemid"]=139431943195380,["itemname"]="Raygun",["itemtype"]="Gun",["rarity"]="Godly"}},
-    {"Gun","RaygunBronze",{["itemid"]=138881346504998,["itemname"]="Bronze Raygun",["itemtype"]="Gun",["rarity"]="Unique"}},
-    {"Gun","RaygunChroma",{["chroma"]=true,["itemid"]=139431943195380,["itemname"]="Raygun",["itemtype"]="Gun",["rarity"]="Godly"}},
-    {"Gun","RaygunGold",{["itemid"]=76250851065456,["itemname"]="Gold Raygun",["itemtype"]="Gun",["rarity"]="Unique"}},
-    {"Gun","RaygunRed",{["itemid"]=132354489228618,["itemname"]="Red Raygun",["itemtype"]="Gun",["rarity"]="Unique"}},
-    {"Gun","RaygunSilver",{["itemid"]=71511736314707,["itemname"]="Silver Raygun",["itemtype"]="Gun",["rarity"]="Unique"}},
-    {"Gun","RedIceblaster",{["itemid"]=6404168049,["itemname"]="Red Iceblaster",["itemtype"]="Gun",["rarity"]="Unique"}},
-    {"Gun","RedLuger",{["itemid"]=332044583,["itemname"]="Red Luger",["itemtype"]="Gun",["rarity"]="Godly"}},
-    {"Gun","Ripper_G_2020",{["itemid"]=5866460591,["itemname"]="Ripper",["itemtype"]="Gun",["rarity"]="Legendary"}},
-    {"Gun","Ritual_G_2024",{["itemid"]=122021199074749,["itemname"]="Ritual",["itemtype"]="Gun",["rarity"]="Rare"}},
-    {"Gun","Sands",{["itemid"]=119213058412452,["itemname"]="Sands",["itemtype"]="Gun",["rarity"]="Godly"}},
-    {"Gun","SandsChroma",{["chroma"]=true,["itemid"]=119213058412452,["itemname"]="Sands",["itemtype"]="Gun",["rarity"]="Godly"}},
+    {"Gun","Raygun",{["itemid"]=139431943195380,["itemname"]="Raygun",["itemtype"]="Gun",["rarity"]="Godly",["year"]="2025"}},
+    {"Gun","RaygunBronze",{["itemid"]=138881346504998,["itemname"]="Bronze Raygun",["itemtype"]="Gun",["rarity"]="Unique",["year"]="2025"}},
+    {"Gun","RaygunChroma",{["chroma"]=true,["itemid"]=139431943195380,["itemname"]="Raygun",["itemtype"]="Gun",["rarity"]="Godly",["year"]="2025"}},
+    {"Gun","RaygunGold",{["itemid"]=76250851065456,["itemname"]="Gold Raygun",["itemtype"]="Gun",["rarity"]="Unique",["year"]="2025"}},
+    {"Gun","RaygunRed",{["itemid"]=132354489228618,["itemname"]="Red Raygun",["itemtype"]="Gun",["rarity"]="Unique",["year"]="2025"}},
+    {"Gun","RaygunSilver",{["itemid"]=71511736314707,["itemname"]="Silver Raygun",["itemtype"]="Gun",["rarity"]="Unique",["year"]="2025"}},
+    {"Gun","RedIceblaster",{["itemid"]=6404168049,["itemname"]="Red Iceblaster",["itemtype"]="Gun",["rarity"]="Unique",["year"]="2020"}},
+    {"Gun","RedLuger",{["itemid"]=332044583,["itemname"]="Red Luger",["itemtype"]="Gun",["rarity"]="Godly",["year"]="2015"}},
+    {"Gun","Ripper_G_2020",{["itemid"]=5866460591,["itemname"]="Ripper",["itemtype"]="Gun",["rarity"]="Legendary",["year"]="2020"}},
+    {"Gun","Ritual_G_2024",{["itemid"]=122021199074749,["itemname"]="Ritual",["itemtype"]="Gun",["rarity"]="Rare",["year"]="2024"}},
+    {"Gun","Sands",{["itemid"]=119213058412452,["itemname"]="Sands",["itemtype"]="Gun",["rarity"]="Godly",["year"]="2026"}},
+    {"Gun","SandsChroma",{["chroma"]=true,["itemid"]=119213058412452,["itemname"]="Sands",["itemtype"]="Gun",["rarity"]="Godly",["year"]="2026"}},
     {"Gun","Sandy_G_2024",{["itemid"]=18323752709,["itemname"]="Sandy",["itemtype"]="Gun",["rarity"]="Common"}},
-    {"Gun","SantaGun",{["itemid"]=332496861,["itemname"]="Santa",["itemtype"]="Gun",["rarity"]="Common"}},
-    {"Gun","Santa_G_2018",{["itemid"]=2669785184,["itemname"]="Elf",["itemtype"]="Gun",["rarity"]="Common"}},
-    {"Gun","Santa_G_2023",{["itemid"]=15635550625,["itemname"]="Santa",["itemtype"]="Gun",["rarity"]="Common"}},
+    {"Gun","SantaGun",{["itemid"]=332496861,["itemname"]="Santa",["itemtype"]="Gun",["rarity"]="Common",["year"]="2015"}},
+    {"Gun","Santa_G_2018",{["itemid"]=2669785184,["itemname"]="Elf",["itemtype"]="Gun",["rarity"]="Common",["year"]="2018"}},
+    {"Gun","Santa_G_2023",{["itemid"]=15635550625,["itemname"]="Santa",["itemtype"]="Gun",["rarity"]="Common",["year"]="2023"}},
     {"Gun","Shadow_G_2026",{["itemid"]=131289807674112,["itemname"]="Shadow",["itemtype"]="Gun",["rarity"]="Legendary"}},
     {"Gun","Shark",{["itemid"]=203858533,["itemname"]="Shark",["itemtype"]="Gun",["rarity"]="Godly"}},
     {"Gun","SharkChroma",{["chroma"]=true,["itemid"]=3187395738,["itemname"]="Shark",["itemtype"]="Gun",["rarity"]="Godly"}},
-    {"Gun","SharkSeeker",{["itemid"]=6967771328,["itemname"]="SharkSeeker",["itemtype"]="Gun",["rarity"]="Unique"}},
-    {"Gun","SilentNight_G_2020",{["itemid"]=6121862034,["itemname"]="Silent Night",["itemtype"]="Gun",["rarity"]="Rare"}},
-    {"Gun","SilverHarvester",{["itemid"]=8194217388,["itemname"]="Silver Harvester",["itemtype"]="Gun",["rarity"]="Unique"}},
-    {"Gun","SilverIceblaster",{["itemid"]=6404166698,["itemname"]="Silver Iceblaster",["itemtype"]="Gun",["rarity"]="Unique"}},
-    {"Gun","SilverSugar",{["itemid"]=3215261680,["itemname"]="Silver Sugar",["itemtype"]="Gun",["rarity"]="Unique"}},
+    {"Gun","SharkSeeker",{["itemid"]=6967771328,["itemname"]="SharkSeeker",["itemtype"]="Gun",["rarity"]="Unique",["year"]="2021"}},
+    {"Gun","SilentNight_G_2020",{["itemid"]=6121862034,["itemname"]="Silent Night",["itemtype"]="Gun",["rarity"]="Rare",["year"]="2020"}},
+    {"Gun","SilverHarvester",{["itemid"]=8194217388,["itemname"]="Silver Harvester",["itemtype"]="Gun",["rarity"]="Unique",["year"]="2021"}},
+    {"Gun","SilverIceblaster",{["itemid"]=6404166698,["itemname"]="Silver Iceblaster",["itemtype"]="Gun",["rarity"]="Unique",["year"]="2020"}},
+    {"Gun","SilverSugar",{["itemid"]=3215261680,["itemname"]="Silver Sugar",["itemtype"]="Gun",["rarity"]="Unique",["year"]="2018"}},
     {"Gun","Sketch",{["itemid"]=203808108,["itemname"]="Sketch",["itemtype"]="Gun",["rarity"]="Uncommon"}},
-    {"Gun","SlimeG",{["itemid"]=2513742319,["itemname"]="Slime",["itemtype"]="Gun",["rarity"]="Common"}},
-    {"Gun","SlouseClownGun",{["itemid"]=4659627976,["itemname"]="Clown",["itemtype"]="Gun",["rarity"]="Unique"}},
-    {"Gun","SnakebiteG",{["itemid"]=4210925026,["itemname"]="Snakebite",["itemtype"]="Gun",["rarity"]="Rare"}},
-    {"Gun","Snowball_G_2025",{["itemid"]=104416405402940,["itemname"]="Snowball",["itemtype"]="Gun",["rarity"]="Common"}},
-    {"Gun","Snowcannon",{["itemid"]=129186939023729,["itemname"]="Snowcannon",["itemtype"]="Gun",["rarity"]="Godly"}},
-    {"Gun","SnowcannonBronze",{["itemid"]=84743767811732,["itemname"]="Bronze Snowcannon",["itemtype"]="Gun",["rarity"]="Unique"}},
-    {"Gun","SnowcannonChroma",{["chroma"]=true,["itemid"]=129186939023729,["itemname"]="Snowcannon",["itemtype"]="Gun",["rarity"]="Godly"}},
-    {"Gun","SnowcannonGold",{["itemid"]=115609046800090,["itemname"]="Gold Snowcannon",["itemtype"]="Gun",["rarity"]="Unique"}},
-    {"Gun","SnowcannonRed",{["itemid"]=110812086479763,["itemname"]="Red Snowcannon",["itemtype"]="Gun",["rarity"]="Unique"}},
-    {"Gun","SnowcannonSilver",{["itemid"]=83838802472095,["itemname"]="Silver Snowcannon",["itemtype"]="Gun",["rarity"]="Unique"}},
-    {"Gun","Snowflake_G_2018",{["itemid"]=2669786515,["itemname"]="Snowflake",["itemtype"]="Gun",["rarity"]="Uncommon"}},
-    {"Gun","Snowflake_G_2022",{["itemid"]=11834437796,["itemname"]="Snowflake",["itemtype"]="Gun",["rarity"]="Uncommon"}},
-    {"Gun","Snowflake_G_2023",{["itemid"]=15635575718,["itemname"]="Snowflake",["itemtype"]="Gun",["rarity"]="Rare"}},
-    {"Gun","Snowflakes_G_2019",{["itemid"]=4534866065,["itemname"]="Snowflakes",["itemtype"]="Gun",["rarity"]="Common"}},
-    {"Gun","SnowmanGun",{["itemid"]=332497603,["itemname"]="Snowman",["itemtype"]="Gun",["rarity"]="Uncommon"}},
-    {"Gun","Snowman_G_2018",{["itemid"]=2669786846,["itemname"]="Snowman",["itemtype"]="Gun",["rarity"]="Common"}},
-    {"Gun","Snowman_G_2021",{["itemid"]=8304766932,["itemname"]="Snowman",["itemtype"]="Gun",["rarity"]="Uncommon"}},
-    {"Gun","Snowman_G_2022",{["itemid"]=11834436620,["itemname"]="Snowman",["itemtype"]="Gun",["rarity"]="Common"}},
-    {"Gun","Snowman_G_2023",{["itemid"]=15635572427,["itemname"]="Snowman",["itemtype"]="Gun",["rarity"]="Uncommon"}},
-    {"Gun","Soda_G_2025",{["itemid"]=132525981806780,["itemname"]="Soda",["itemtype"]="Gun",["rarity"]="Uncommon"}},
+    {"Gun","SlimeG",{["itemid"]=2513742319,["itemname"]="Slime",["itemtype"]="Gun",["rarity"]="Common",["year"]="2018"}},
+    {"Gun","SlouseClownGun",{["itemid"]=4659627976,["itemname"]="Clown",["itemtype"]="Gun",["rarity"]="Unique",["year"]=""}},
+    {"Gun","SnakebiteG",{["itemid"]=4210925026,["itemname"]="Snakebite",["itemtype"]="Gun",["rarity"]="Rare",["year"]="2019"}},
+    {"Gun","Snowball_G_2025",{["itemid"]=104416405402940,["itemname"]="Snowball",["itemtype"]="Gun",["rarity"]="Common",["year"]="2025"}},
+    {"Gun","Snowcannon",{["itemid"]=129186939023729,["itemname"]="Snowcannon",["itemtype"]="Gun",["rarity"]="Godly",["year"]="2025"}},
+    {"Gun","SnowcannonBronze",{["itemid"]=84743767811732,["itemname"]="Bronze Snowcannon",["itemtype"]="Gun",["rarity"]="Unique",["year"]="2025"}},
+    {"Gun","SnowcannonChroma",{["chroma"]=true,["itemid"]=129186939023729,["itemname"]="Snowcannon",["itemtype"]="Gun",["rarity"]="Godly",["year"]="2025"}},
+    {"Gun","SnowcannonGold",{["itemid"]=115609046800090,["itemname"]="Gold Snowcannon",["itemtype"]="Gun",["rarity"]="Unique",["year"]="2025"}},
+    {"Gun","SnowcannonRed",{["itemid"]=110812086479763,["itemname"]="Red Snowcannon",["itemtype"]="Gun",["rarity"]="Unique",["year"]="2025"}},
+    {"Gun","SnowcannonSilver",{["itemid"]=83838802472095,["itemname"]="Silver Snowcannon",["itemtype"]="Gun",["rarity"]="Unique",["year"]="2025"}},
+    {"Gun","Snowflake_G_2018",{["itemid"]=2669786515,["itemname"]="Snowflake",["itemtype"]="Gun",["rarity"]="Uncommon",["year"]="2018"}},
+    {"Gun","Snowflake_G_2022",{["itemid"]=11834437796,["itemname"]="Snowflake",["itemtype"]="Gun",["rarity"]="Uncommon",["year"]="2022"}},
+    {"Gun","Snowflake_G_2023",{["itemid"]=15635575718,["itemname"]="Snowflake",["itemtype"]="Gun",["rarity"]="Rare",["year"]="2023"}},
+    {"Gun","Snowflakes_G_2019",{["itemid"]=4534866065,["itemname"]="Snowflakes",["itemtype"]="Gun",["rarity"]="Common",["year"]="2019"}},
+    {"Gun","SnowmanGun",{["itemid"]=332497603,["itemname"]="Snowman",["itemtype"]="Gun",["rarity"]="Uncommon",["year"]="2015"}},
+    {"Gun","Snowman_G_2018",{["itemid"]=2669786846,["itemname"]="Snowman",["itemtype"]="Gun",["rarity"]="Common",["year"]="2018"}},
+    {"Gun","Snowman_G_2021",{["itemid"]=8304766932,["itemname"]="Snowman",["itemtype"]="Gun",["rarity"]="Uncommon",["year"]="2021"}},
+    {"Gun","Snowman_G_2022",{["itemid"]=11834436620,["itemname"]="Snowman",["itemtype"]="Gun",["rarity"]="Common",["year"]="2022"}},
+    {"Gun","Snowman_G_2023",{["itemid"]=15635572427,["itemname"]="Snowman",["itemtype"]="Gun",["rarity"]="Uncommon",["year"]="2023"}},
+    {"Gun","Soda_G_2025",{["itemid"]=132525981806780,["itemname"]="Soda",["itemtype"]="Gun",["rarity"]="Uncommon",["year"]="2025"}},
     {"Gun","Sparkle",{["itemid"]=203869110,["itemname"]="Sparkle",["itemtype"]="Gun",["rarity"]="Legendary"}},
-    {"Gun","Spearmint_G_2025",{["itemid"]=81352860339620,["itemname"]="Spearmint",["itemtype"]="Gun",["rarity"]="Rare"}},
-    {"Gun","Spectral_G_2021",{["itemid"]=7800255531,["itemname"]="Spectral",["itemtype"]="Gun",["rarity"]="Legendary"}},
-    {"Gun","Spectre2022",{["itemid"]=11229779932,["itemname"]="Spectre",["itemtype"]="Gun",["rarity"]="Godly"}},
+    {"Gun","Spearmint_G_2025",{["itemid"]=81352860339620,["itemname"]="Spearmint",["itemtype"]="Gun",["rarity"]="Rare",["year"]="2025"}},
+    {"Gun","Spectral_G_2021",{["itemid"]=7800255531,["itemname"]="Spectral",["itemtype"]="Gun",["rarity"]="Legendary",["year"]="2021"}},
+    {"Gun","Spectre2022",{["itemid"]=11229779932,["itemname"]="Spectre",["itemtype"]="Gun",["rarity"]="Godly",["year"]="2022"}},
     {"Gun","Spitfire",{["itemid"]=197829561,["itemname"]="Spitfire",["itemtype"]="Gun",["rarity"]="Rare"}},
     {"Gun","Splash_G",{["itemid"]=4659626370,["itemname"]="Splash",["itemtype"]="Gun",["rarity"]="Legendary"}},
     {"Gun","Splat",{["itemid"]=3183639522,["itemname"]="Splat",["itemtype"]="Gun",["rarity"]="Common"}},
     {"Gun","Star",{["itemid"]=203807904,["itemname"]="Star",["itemtype"]="Gun",["rarity"]="Common"}},
     {"Gun","Starfish_G_2024",{["itemid"]=18322189584,["itemname"]="Starfish",["itemtype"]="Gun",["rarity"]="Common"}},
-    {"Gun","Starry_G_2020",{["itemid"]=5930731295,["itemname"]="Starry",["itemtype"]="Gun",["rarity"]="Common"}},
-    {"Gun","Starry_G_2021",{["itemid"]=8304772774,["itemname"]="Starry",["itemtype"]="Gun",["rarity"]="Rare"}},
-    {"Gun","Stars_G_2023",{["itemid"]=15635574031,["itemname"]="Stars",["itemtype"]="Gun",["rarity"]="Uncommon"}},
-    {"Gun","Steel_G_2023",{["itemid"]=15091341552,["itemname"]="Steel",["itemtype"]="Gun",["rarity"]="Uncommon"}},
-    {"Gun","StickersX_G_2022",{["itemid"]=11834432971,["itemname"]="Stickers",["itemtype"]="Gun",["rarity"]="Common"}},
-    {"Gun","StickersX_G_2025",{["itemid"]=127489830827583,["itemname"]="Stickers",["itemtype"]="Gun",["rarity"]="Common"}},
-    {"Gun","Stickers_G_2021",{["itemid"]=7800257010,["itemname"]="Stickers",["itemtype"]="Gun",["rarity"]="Common"}},
-    {"Gun","Stickers_G_2024",{["itemid"]=108122054293502,["itemname"]="Stickers",["itemtype"]="Gun",["rarity"]="Common"}},
-    {"Gun","Stickers_G_2025",{["itemid"]=75123474631661,["itemname"]="Stickers",["itemtype"]="Gun",["rarity"]="Common"}},
-    {"Gun","Stickers_X_G_2024",{["itemid"]=91224254479440,["itemname"]="Stickers",["itemtype"]="Gun",["rarity"]="Common"}},
-    {"Gun","Stockings_G_2022",{["itemid"]=11834440319,["itemname"]="Stockings",["itemtype"]="Gun",["rarity"]="Uncommon"}},
-    {"Gun","Stockings_G_2024",{["itemid"]=76288270695961,["itemname"]="Stockings",["itemtype"]="Gun",["rarity"]="Common"}},
-    {"Gun","Strawberries_G_2026",{["itemid"]=128646835922561,["itemname"]="Strawberries",["itemtype"]="Gun",["rarity"]="Common"}},
-    {"Gun","Striped_G_2025",{["itemid"]=118530164125152,["itemname"]="Striped",["itemtype"]="Gun",["rarity"]="Common"}},
-    {"Gun","Sugar",{["itemid"]=332848695,["itemname"]="Sugar",["itemtype"]="Gun",["rarity"]="Godly"}},
+    {"Gun","Starry_G_2020",{["itemid"]=5930731295,["itemname"]="Starry",["itemtype"]="Gun",["rarity"]="Common",["year"]="2020"}},
+    {"Gun","Starry_G_2021",{["itemid"]=8304772774,["itemname"]="Starry",["itemtype"]="Gun",["rarity"]="Rare",["year"]="2021"}},
+    {"Gun","Stars_G_2023",{["itemid"]=15635574031,["itemname"]="Stars",["itemtype"]="Gun",["rarity"]="Uncommon",["year"]="2023"}},
+    {"Gun","Steel_G_2023",{["itemid"]=15091341552,["itemname"]="Steel",["itemtype"]="Gun",["rarity"]="Uncommon",["year"]="2023"}},
+    {"Gun","StickersX_G_2022",{["itemid"]=11834432971,["itemname"]="Stickers",["itemtype"]="Gun",["rarity"]="Common",["year"]="2022"}},
+    {"Gun","StickersX_G_2025",{["itemid"]=127489830827583,["itemname"]="Stickers",["itemtype"]="Gun",["rarity"]="Common",["year"]="2025"}},
+    {"Gun","Stickers_G_2021",{["itemid"]=7800257010,["itemname"]="Stickers",["itemtype"]="Gun",["rarity"]="Common",["year"]="2021"}},
+    {"Gun","Stickers_G_2024",{["itemid"]=108122054293502,["itemname"]="Stickers",["itemtype"]="Gun",["rarity"]="Common",["year"]="2024"}},
+    {"Gun","Stickers_G_2025",{["itemid"]=75123474631661,["itemname"]="Stickers",["itemtype"]="Gun",["rarity"]="Common",["year"]="2025"}},
+    {"Gun","Stickers_X_G_2024",{["itemid"]=91224254479440,["itemname"]="Stickers",["itemtype"]="Gun",["rarity"]="Common",["year"]="2024"}},
+    {"Gun","Stockings_G_2022",{["itemid"]=11834440319,["itemname"]="Stockings",["itemtype"]="Gun",["rarity"]="Uncommon",["year"]="2022"}},
+    {"Gun","Stockings_G_2024",{["itemid"]=76288270695961,["itemname"]="Stockings",["itemtype"]="Gun",["rarity"]="Common",["year"]="2024"}},
+    {"Gun","Strawberries_G_2026",{["itemid"]=128646835922561,["itemname"]="Strawberries",["itemtype"]="Gun",["rarity"]="Common",["year"]="2026"}},
+    {"Gun","Striped_G_2025",{["itemid"]=118530164125152,["itemname"]="Striped",["itemtype"]="Gun",["rarity"]="Common",["year"]="2025"}},
+    {"Gun","Sugar",{["itemid"]=332848695,["itemname"]="Sugar",["itemtype"]="Gun",["rarity"]="Godly",["year"]="2015"}},
     {"Gun","Summer_Stickers_G_2023",{["itemid"]=13944151514,["itemname"]="Stickers",["itemtype"]="Gun",["rarity"]="Common"}},
     {"Gun","Sunny_G_2025",{["itemid"]=93906279038399,["itemname"]="Sunny",["itemtype"]="Gun",["rarity"]="Rare"}},
-    {"Gun","SunsetGun",{["itemid"]=129480661108374,["itemname"]="Sunrise",["itemtype"]="Gun",["rarity"]="Godly"}},
-    {"Gun","SunsetGunChroma",{["chroma"]=true,["itemid"]=129480661108374,["itemname"]="Sunrise",["itemtype"]="Gun",["rarity"]="Godly"}},
+    {"Gun","SunsetGun",{["itemid"]=129480661108374,["itemname"]="Sunrise",["itemtype"]="Gun",["rarity"]="Godly",["year"]="2025"}},
+    {"Gun","SunsetGunChroma",{["chroma"]=true,["itemid"]=129480661108374,["itemname"]="Sunrise",["itemtype"]="Gun",["rarity"]="Godly",["year"]="2025"}},
     {"Gun","Sunset_G_2023",{["itemid"]=13944155639,["itemname"]="Sun",["itemtype"]="Gun",["rarity"]="Rare"}},
-    {"Gun","Sunset_G_2026",{["itemid"]=120907601916735,["itemname"]="Sunset",["itemtype"]="Gun",["rarity"]="Rare"}},
-    {"Gun","Sweater_G_2018",{["itemid"]=2669787088,["itemname"]="Sweater",["itemtype"]="Gun",["rarity"]="Uncommon"}},
-    {"Gun","Sweater_G_2025",{["itemid"]=118557229750245,["itemname"]="Sweater",["itemtype"]="Gun",["rarity"]="Uncommon"}},
-    {"Gun","SwirlyGun",{["itemid"]=8305264097,["itemname"]="Swirly Gun",["itemtype"]="Gun",["rarity"]="Godly"}},
-    {"Gun","SwirlyGunBlue",{["itemid"]=9552060741,["itemname"]="Blue Swirly",["itemtype"]="Gun",["rarity"]="Unique"}},
-    {"Gun","SwirlyGunBronze",{["itemid"]=9552063524,["itemname"]="Bronze Swirly",["itemtype"]="Gun",["rarity"]="Unique"}},
-    {"Gun","SwirlyGunChroma",{["chroma"]=true,["itemid"]=8311393414,["itemname"]="Swirly Gun",["itemtype"]="Gun",["rarity"]="Godly"}},
-    {"Gun","SwirlyGunGold",{["itemid"]=9552065167,["itemname"]="Gold Swirly",["itemtype"]="Gun",["rarity"]="Unique"}},
-    {"Gun","SwirlyGunSilver",{["itemid"]=9552064240,["itemname"]="Silver Swirly",["itemtype"]="Gun",["rarity"]="Unique"}},
-    {"Gun","ToxicG",{["itemid"]=2513742519,["itemname"]="Toxic",["itemtype"]="Gun",["rarity"]="Rare"}},
+    {"Gun","Sunset_G_2026",{["itemid"]=120907601916735,["itemname"]="Sunset",["itemtype"]="Gun",["rarity"]="Rare",["year"]="2026"}},
+    {"Gun","Sweater_G_2018",{["itemid"]=2669787088,["itemname"]="Sweater",["itemtype"]="Gun",["rarity"]="Uncommon",["year"]="2018"}},
+    {"Gun","Sweater_G_2025",{["itemid"]=118557229750245,["itemname"]="Sweater",["itemtype"]="Gun",["rarity"]="Uncommon",["year"]="2025"}},
+    {"Gun","SwirlyGun",{["itemid"]=8305264097,["itemname"]="Swirly Gun",["itemtype"]="Gun",["rarity"]="Godly",["year"]="2021"}},
+    {"Gun","SwirlyGunBlue",{["itemid"]=9552060741,["itemname"]="Blue Swirly",["itemtype"]="Gun",["rarity"]="Unique",["year"]="2021"}},
+    {"Gun","SwirlyGunBronze",{["itemid"]=9552063524,["itemname"]="Bronze Swirly",["itemtype"]="Gun",["rarity"]="Unique",["year"]="2021"}},
+    {"Gun","SwirlyGunChroma",{["chroma"]=true,["itemid"]=8311393414,["itemname"]="Swirly Gun",["itemtype"]="Gun",["rarity"]="Godly",["year"]="2021"}},
+    {"Gun","SwirlyGunGold",{["itemid"]=9552065167,["itemname"]="Gold Swirly",["itemtype"]="Gun",["rarity"]="Unique",["year"]="2021"}},
+    {"Gun","SwirlyGunSilver",{["itemid"]=9552064240,["itemname"]="Silver Swirly",["itemtype"]="Gun",["rarity"]="Unique",["year"]="2021"}},
+    {"Gun","ToxicG",{["itemid"]=2513742519,["itemname"]="Toxic",["itemtype"]="Gun",["rarity"]="Rare",["year"]="2018"}},
     {"Gun","Toy_G_2023",{["itemid"]=13944152795,["itemname"]="Toy",["itemtype"]="Gun",["rarity"]="Common"}},
-    {"Gun","TravelerGun",{["itemid"]=15091442039,["itemname"]="Traveler's Gun",["itemtype"]="Gun",["rarity"]="Godly"}},
-    {"Gun","TravelerGunChroma",{["chroma"]=true,["itemid"]=15097897227,["itemname"]="Traveler's Gun",["itemtype"]="Gun",["rarity"]="Godly"}},
-    {"Gun","Traveler_G_2023",{["itemid"]=15091344462,["itemname"]="Traveler",["itemtype"]="Gun",["rarity"]="Legendary"}},
-    {"Gun","Treat",{["itemid"]=131626924640663,["itemname"]="Treat",["itemtype"]="Gun",["rarity"]="Godly"}},
-    {"Gun","TreatChroma",{["chroma"]=true,["itemid"]=131626924640663,["itemname"]="Treat",["itemtype"]="Gun",["rarity"]="Godly"}},
-    {"Gun","Treats_G_2025",{["itemid"]=76537883908961,["itemname"]="Treats",["itemtype"]="Gun",["rarity"]="Uncommon"}},
-    {"Gun","TreeGun",{["itemid"]=332497688,["itemname"]="Tree",["itemtype"]="Gun",["rarity"]="Legendary"}},
-    {"Gun","TreeGun2023",{["itemid"]=15682703596,["itemname"]="Evergun",["itemtype"]="Gun",["rarity"]="Godly"}},
-    {"Gun","TreeGun2023Chroma",{["chroma"]=true,["itemid"]=15682703596,["itemname"]="Evergun",["itemtype"]="Gun",["rarity"]="Godly"}},
-    {"Gun","Tree_G_2022",{["itemid"]=11834441321,["itemname"]="Tree",["itemtype"]="Gun",["rarity"]="Rare"}},
-    {"Gun","UFOs_G_2025",{["itemid"]=84030107970606,["itemname"]="UFOs",["itemtype"]="Gun",["rarity"]="Common"}},
+    {"Gun","TravelerGun",{["itemid"]=15091442039,["itemname"]="Traveler's Gun",["itemtype"]="Gun",["rarity"]="Godly",["year"]="2023"}},
+    {"Gun","TravelerGunChroma",{["chroma"]=true,["itemid"]=15097897227,["itemname"]="Traveler's Gun",["itemtype"]="Gun",["rarity"]="Godly",["year"]="2023"}},
+    {"Gun","Traveler_G_2023",{["itemid"]=15091344462,["itemname"]="Traveler",["itemtype"]="Gun",["rarity"]="Legendary",["year"]="2023"}},
+    {"Gun","Treat",{["itemid"]=131626924640663,["itemname"]="Treat",["itemtype"]="Gun",["rarity"]="Godly",["year"]="2026"}},
+    {"Gun","TreatChroma",{["chroma"]=true,["itemid"]=131626924640663,["itemname"]="Treat",["itemtype"]="Gun",["rarity"]="Godly",["year"]="2026"}},
+    {"Gun","Treats_G_2025",{["itemid"]=76537883908961,["itemname"]="Treats",["itemtype"]="Gun",["rarity"]="Uncommon",["year"]="2025"}},
+    {"Gun","TreeGun",{["itemid"]=332497688,["itemname"]="Tree",["itemtype"]="Gun",["rarity"]="Legendary",["year"]="2015"}},
+    {"Gun","TreeGun2023",{["itemid"]=15682703596,["itemname"]="Evergun",["itemtype"]="Gun",["rarity"]="Godly",["year"]="2023"}},
+    {"Gun","TreeGun2023Chroma",{["chroma"]=true,["itemid"]=15682703596,["itemname"]="Evergun",["itemtype"]="Gun",["rarity"]="Godly",["year"]="2023"}},
+    {"Gun","Tree_G_2022",{["itemid"]=11834441321,["itemname"]="Tree",["itemtype"]="Gun",["rarity"]="Rare",["year"]="2022"}},
+    {"Gun","UFOs_G_2025",{["itemid"]=84030107970606,["itemname"]="UFOs",["itemtype"]="Gun",["rarity"]="Common",["year"]="2025"}},
     {"Gun","Universe",{["itemid"]=238546660,["itemname"]="Universe",["itemtype"]="Gun",["rarity"]="Legendary"}},
-    {"Gun","VampireG2018",{["itemid"]=2513742751,["itemname"]="Vampire",["itemtype"]="Gun",["rarity"]="Rare"}},
-    {"Gun","VampireGun",{["itemid"]=90274872705656,["itemname"]="Vampire's Gun",["itemtype"]="Gun",["rarity"]="Godly"}},
-    {"Gun","VampireGunChroma",{["chroma"]=true,["itemid"]=90274872705656,["itemname"]="Vampire's Gun",["itemtype"]="Gun",["rarity"]="Godly"}},
-    {"Gun","Vampire_G_2022",{["itemid"]=11255503583,["itemname"]="Vampire",["itemtype"]="Gun",["rarity"]="Legendary"}},
-    {"Gun","Vines_G_2023",{["itemid"]=15091402817,["itemname"]="Vines",["itemtype"]="Gun",["rarity"]="Common"}},
+    {"Gun","VampireG2018",{["itemid"]=2513742751,["itemname"]="Vampire",["itemtype"]="Gun",["rarity"]="Rare",["year"]="2018"}},
+    {"Gun","VampireGun",{["itemid"]=90274872705656,["itemname"]="Vampire's Gun",["itemtype"]="Gun",["rarity"]="Godly",["year"]="2024"}},
+    {"Gun","VampireGunChroma",{["chroma"]=true,["itemid"]=90274872705656,["itemname"]="Vampire's Gun",["itemtype"]="Gun",["rarity"]="Godly",["year"]="2024"}},
+    {"Gun","Vampire_G_2022",{["itemid"]=11255503583,["itemname"]="Vampire",["itemtype"]="Gun",["rarity"]="Legendary",["year"]="2022"}},
+    {"Gun","Vines_G_2023",{["itemid"]=15091402817,["itemname"]="Vines",["itemtype"]="Gun",["rarity"]="Common",["year"]="2023"}},
     {"Gun","Viper",{["itemid"]=196752926,["itemname"]="Viper",["itemtype"]="Gun",["rarity"]="Legendary"}},
-    {"Gun","Watcher_G_2021",{["itemid"]=7800256309,["itemname"]="Watcher",["itemtype"]="Gun",["rarity"]="Rare"}},
+    {"Gun","Watcher_G_2021",{["itemid"]=7800256309,["itemname"]="Watcher",["itemtype"]="Gun",["rarity"]="Rare",["year"]="2021"}},
     {"Gun","WaterBalloons_G_2024",{["itemid"]=18323751962,["itemname"]="Balloons",["itemtype"]="Gun",["rarity"]="Common"}},
     {"Gun","Watergun",{["itemid"]=18351388416,["itemname"]="Watergun",["itemtype"]="Gun",["rarity"]="Godly"}},
     {"Gun","WatergunChroma",{["chroma"]=true,["itemid"]=18351401528,["itemname"]="Watergun",["itemtype"]="Gun",["rarity"]="Godly"}},
     {"Gun","Wavy_G_2024",{["itemid"]=16960077712,["itemname"]="Wavy",["itemtype"]="Gun",["rarity"]="Common"}},
-    {"Gun","WebbedG",{["itemid"]=4210936652,["itemname"]="Webbed",["itemtype"]="Gun",["rarity"]="Common"}},
-    {"Gun","Webs_G_2022",{["itemid"]=11284147880,["itemname"]="Webs",["itemtype"]="Gun",["rarity"]="Common"}},
+    {"Gun","WebbedG",{["itemid"]=4210936652,["itemname"]="Webbed",["itemtype"]="Gun",["rarity"]="Common",["year"]="2019"}},
+    {"Gun","Webs_G_2022",{["itemid"]=11284147880,["itemname"]="Webs",["itemtype"]="Gun",["rarity"]="Common",["year"]="2022"}},
     {"Gun","Wooden",{["itemid"]=238546356,["itemname"]="Wooden",["itemtype"]="Gun",["rarity"]="Uncommon"}},
-    {"Gun","WraithGun",{["itemid"]=75233248021696,["itemname"]="Soul",["itemtype"]="Gun",["rarity"]="Godly"}},
-    {"Gun","Wraith_G_2022",{["itemid"]=11255504462,["itemname"]="Wraith",["itemtype"]="Gun",["rarity"]="Rare"}},
-    {"Gun","WrappedGun",{["itemid"]=332497103,["itemname"]="Wrapped",["itemtype"]="Gun",["rarity"]="Uncommon"}},
-    {"Gun","Wrapped_G_2018",{["itemid"]=2669787533,["itemname"]="Wrapped",["itemtype"]="Gun",["rarity"]="Common"}},
-    {"Gun","Wrapped_G_2024",{["itemid"]=109929760056853,["itemname"]="Wrapped",["itemtype"]="Gun",["rarity"]="Uncommon"}},
-    {"Gun","XenoGun",{["itemid"]=79722325448464,["itemname"]="Xenoshot",["itemtype"]="Gun",["rarity"]="Godly"}},
-    {"Gun","Xeno_G_2025",{["itemid"]=139755862211442,["itemname"]="Xeno",["itemtype"]="Gun",["rarity"]="Rare"}},
-    {"Gun","XmasStickers_G_2021",{["itemid"]=8304770115,["itemname"]="Stickers",["itemtype"]="Gun",["rarity"]="Common"}},
-    {"Gun","ZombieG2018",{["itemid"]=2513743298,["itemname"]="Zombie",["itemtype"]="Gun",["rarity"]="Uncommon"}},
-    {"Gun","ZombifiedG",{["itemid"]=4210944924,["itemname"]="Zombified",["itemtype"]="Gun",["rarity"]="Uncommon"}},
+    {"Gun","WraithGun",{["itemid"]=75233248021696,["itemname"]="Soul",["itemtype"]="Gun",["rarity"]="Godly",["year"]="2024"}},
+    {"Gun","Wraith_G_2022",{["itemid"]=11255504462,["itemname"]="Wraith",["itemtype"]="Gun",["rarity"]="Rare",["year"]="2022"}},
+    {"Gun","WrappedGun",{["itemid"]=332497103,["itemname"]="Wrapped",["itemtype"]="Gun",["rarity"]="Uncommon",["year"]="2015"}},
+    {"Gun","Wrapped_G_2018",{["itemid"]=2669787533,["itemname"]="Wrapped",["itemtype"]="Gun",["rarity"]="Common",["year"]="2018"}},
+    {"Gun","Wrapped_G_2024",{["itemid"]=109929760056853,["itemname"]="Wrapped",["itemtype"]="Gun",["rarity"]="Uncommon",["year"]="2024"}},
+    {"Gun","XenoGun",{["itemid"]=79722325448464,["itemname"]="Xenoshot",["itemtype"]="Gun",["rarity"]="Godly",["year"]="2025"}},
+    {"Gun","Xeno_G_2025",{["itemid"]=139755862211442,["itemname"]="Xeno",["itemtype"]="Gun",["rarity"]="Rare",["year"]="2025"}},
+    {"Gun","XmasStickers_G_2021",{["itemid"]=8304770115,["itemname"]="Stickers",["itemtype"]="Gun",["rarity"]="Common",["year"]="2021"}},
+    {"Gun","ZombieG2018",{["itemid"]=2513743298,["itemname"]="Zombie",["itemtype"]="Gun",["rarity"]="Uncommon",["year"]="2018"}},
+    {"Gun","ZombifiedG",{["itemid"]=4210944924,["itemname"]="Zombified",["itemtype"]="Gun",["rarity"]="Uncommon",["year"]="2019"}},
     {"Gun","iRevolver",{["itemid"]=203809168,["itemname"]="iRevolver",["itemtype"]="Gun",["rarity"]="Rare"}},
     {"Knife","2015",{["itemid"]=199026945,["itemname"]="2015",["itemtype"]="Knife",["rarity"]="Common"}},
     {"Knife","8bit",{["itemid"]=198438554,["itemname"]="8bit",["itemtype"]="Knife",["rarity"]="Common"}},
-    {"Knife","Abduction_K_2025",{["itemid"]=107510647616718,["itemname"]="Abduction",["itemtype"]="Knife",["rarity"]="Uncommon"}},
+    {"Knife","Abduction_K_2025",{["itemid"]=107510647616718,["itemname"]="Abduction",["itemtype"]="Knife",["rarity"]="Uncommon",["year"]="2025"}},
     {"Knife","Abstract",{["itemid"]=365569428,["itemname"]="Abstract",["itemtype"]="Knife",["rarity"]="Rare"}},
     {"Knife","Adurite",{["itemid"]=196749885,["itemname"]="Adurite",["itemtype"]="Knife",["rarity"]="Uncommon"}},
     {"Knife","Alex",{["itemid"]=546159020,["itemname"]="Alex",["itemtype"]="Knife",["rarity"]="Common"}},
     {"Knife","AmericaSword",{["itemid"]=473570051,["itemname"]="Old Glory",["itemtype"]="Knife",["offset"]={["X"]=-0.1,["Y"]=0,["Z"]=0.55},["rarity"]="Godly"}},
-    {"Knife","Apoc_K_2022",{["itemid"]=11254172968,["itemname"]="Apocalypse",["itemtype"]="Knife",["rarity"]="Common"}},
+    {"Knife","Apoc_K_2022",{["itemid"]=11254172968,["itemname"]="Apocalypse",["itemtype"]="Knife",["rarity"]="Common",["year"]="2022"}},
     {"Knife","Aqua",{["itemid"]=315501208,["itemname"]="Aqua",["itemtype"]="Knife",["rarity"]="Common"}},
-    {"Knife","Aquarium_K_2025",{["itemid"]=80900354672590,["itemname"]="Aquarium",["itemtype"]="Knife",["rarity"]="Legendary"}},
-    {"Knife","Arctic_K_2022",{["itemid"]=11834401547,["itemname"]="Arctic",["itemtype"]="Knife",["rarity"]="Legendary"}},
-    {"Knife","AuroraKnife",{["itemid"]=101343256002049,["itemname"]="Australis",["itemtype"]="Knife",["rarity"]="Godly"}},
-    {"Knife","Aurora_K_2019",{["itemid"]=4534860689,["itemname"]="Aurora",["itemtype"]="Knife",["rarity"]="Rare"}},
-    {"Knife","Aurora_K_2021",{["itemid"]=8304750877,["itemname"]="Aurora",["itemtype"]="Knife",["rarity"]="Legendary"}},
-    {"Knife","Bats",{["itemid"]=531873625,["itemname"]="Bats",["itemtype"]="Knife",["rarity"]="Rare"}},
-    {"Knife","BatsK",{["itemid"]=2513732731,["itemname"]="Bats",["itemtype"]="Knife",["rarity"]="Common"}},
-    {"Knife","Bats_K_2020",{["itemid"]=5930729222,["itemname"]="Bats",["itemtype"]="Knife",["rarity"]="Common"}},
-    {"Knife","Bats_K_2024",{["itemid"]=104747488009018,["itemname"]="Bats",["itemtype"]="Knife",["rarity"]="Common"}},
-    {"Knife","Bats_K_2025",{["itemid"]=140366567839959,["itemname"]="Cats",["itemtype"]="Knife",["rarity"]="Common"}},
-    {"Knife","BattleAxe",{["itemid"]=1133237368,["itemname"]="BattleAxe",["itemtype"]="Knife",["rarity"]="Godly"}},
-    {"Knife","BattleAxe2",{["itemid"]=2513535503,["itemname"]="BattleAxe II",["itemtype"]="Knife",["rarity"]="Godly"}},
+    {"Knife","Aquarium_K_2025",{["itemid"]=80900354672590,["itemname"]="Aquarium",["itemtype"]="Knife",["rarity"]="Legendary",["year"]="2025"}},
+    {"Knife","Arctic_K_2022",{["itemid"]=11834401547,["itemname"]="Arctic",["itemtype"]="Knife",["rarity"]="Legendary",["year"]="2022"}},
+    {"Knife","AuroraKnife",{["itemid"]=101343256002049,["itemname"]="Australis",["itemtype"]="Knife",["rarity"]="Godly",["year"]="2024"}},
+    {"Knife","Aurora_K_2019",{["itemid"]=4534860689,["itemname"]="Aurora",["itemtype"]="Knife",["rarity"]="Rare",["year"]="2019"}},
+    {"Knife","Aurora_K_2021",{["itemid"]=8304750877,["itemname"]="Aurora",["itemtype"]="Knife",["rarity"]="Legendary",["year"]="2021"}},
+    {"Knife","Bats",{["itemid"]=531873625,["itemname"]="Bats",["itemtype"]="Knife",["rarity"]="Rare",["year"]="2016"}},
+    {"Knife","BatsK",{["itemid"]=2513732731,["itemname"]="Bats",["itemtype"]="Knife",["rarity"]="Common",["year"]="2018"}},
+    {"Knife","Bats_K_2020",{["itemid"]=5930729222,["itemname"]="Bats",["itemtype"]="Knife",["rarity"]="Common",["year"]="2020"}},
+    {"Knife","Bats_K_2024",{["itemid"]=104747488009018,["itemname"]="Bats",["itemtype"]="Knife",["rarity"]="Common",["year"]="2024"}},
+    {"Knife","Bats_K_2025",{["itemid"]=140366567839959,["itemname"]="Cats",["itemtype"]="Knife",["rarity"]="Common",["year"]="2025"}},
+    {"Knife","BattleAxe",{["itemid"]=1133237368,["itemname"]="BattleAxe",["itemtype"]="Knife",["rarity"]="Godly",["year"]="2017"}},
+    {"Knife","BattleAxe2",{["itemid"]=2513535503,["itemname"]="BattleAxe II",["itemtype"]="Knife",["rarity"]="Godly",["year"]="2018"}},
     {"Knife","Batwing",{["itemid"]=196751515,["itemname"]="Glitch1",["itemtype"]="Knife",["rarity"]="Common"}},
-    {"Knife","BaubleKnife",{["itemid"]=111092946728824,["itemname"]="Ornament",["itemtype"]="Knife",["rarity"]="Godly"}},
-    {"Knife","BaubleKnifeChroma",{["chroma"]=true,["itemid"]=111092946728824,["itemname"]="Ornament",["itemtype"]="Knife",["rarity"]="Godly"}},
+    {"Knife","BaubleKnife",{["itemid"]=111092946728824,["itemname"]="Ornament",["itemtype"]="Knife",["rarity"]="Godly",["year"]="2025"}},
+    {"Knife","BaubleKnifeChroma",{["chroma"]=true,["itemid"]=111092946728824,["itemname"]="Ornament",["itemtype"]="Knife",["rarity"]="Godly",["year"]="2025"}},
     {"Knife","Beach_K_2023",{["itemid"]=13944135892,["itemname"]="Beach",["itemtype"]="Knife",["rarity"]="Legendary"}},
-    {"Knife","Beachy",{["itemid"]=120888453565511,["itemname"]="Beachy",["itemtype"]="Knife",["rarity"]="Godly"}},
-    {"Knife","BeachyChroma",{["chroma"]=true,["itemid"]=120888453565511,["itemname"]="Beachy",["itemtype"]="Knife",["rarity"]="Godly"}},
-    {"Knife","Bells_K_2023",{["itemid"]=15635570486,["itemname"]="Bells",["itemtype"]="Knife",["rarity"]="Common"}},
+    {"Knife","Beachy",{["itemid"]=120888453565511,["itemname"]="Beachy",["itemtype"]="Knife",["rarity"]="Godly",["year"]="2026"}},
+    {"Knife","BeachyChroma",{["chroma"]=true,["itemid"]=120888453565511,["itemname"]="Beachy",["itemtype"]="Knife",["rarity"]="Godly",["year"]="2026"}},
+    {"Knife","Bells_K_2023",{["itemid"]=15635570486,["itemname"]="Bells",["itemtype"]="Knife",["rarity"]="Common",["year"]="2023"}},
     {"Knife","Bio_K_2023",{["itemid"]=12965298174,["itemname"]="Bio",["itemtype"]="Knife",["rarity"]="Rare"}},
     {"Knife","Bioblade",{["itemid"]=4751539262,["itemname"]="Bioblade",["itemtype"]="Knife",["offset"]={["X"]=-0.1,["Y"]=-0.2,["Z"]=0.6},["rarity"]="Godly"}},
     {"Knife","Bleached",{["itemid"]=315500879,["itemname"]="Bleached",["itemtype"]="Knife",["rarity"]="Common"}},
     {"Knife","BloodKnife",{["itemid"]=473573464,["itemname"]="Blood",["itemtype"]="Knife",["rarity"]="Classic"}},
     {"Knife","Bloom",{["itemid"]=128553215441980,["itemname"]="Bloom",["itemtype"]="Knife",["rarity"]="Godly"}},
     {"Knife","Blossom",{["itemid"]=363150561,["itemname"]="Blossom",["itemtype"]="Knife",["rarity"]="Common"}},
-    {"Knife","Blossom_K_2026",{["itemid"]=110160120309916,["itemname"]="Blossom",["itemtype"]="Knife",["rarity"]="Uncommon"}},
-    {"Knife","BlueCamo_K_2022",{["itemid"]=11254146743,["itemname"]="Survivor Camo",["itemtype"]="Knife",["rarity"]="Common"}},
-    {"Knife","BlueCandy",{["itemid"]=1489495701,["itemname"]="Blue Candy",["itemtype"]="Knife",["rarity"]="Unique"}},
+    {"Knife","Blossom_K_2026",{["itemid"]=110160120309916,["itemname"]="Blossom",["itemtype"]="Knife",["rarity"]="Uncommon",["year"]="2026"}},
+    {"Knife","BlueCamo_K_2022",{["itemid"]=11254146743,["itemname"]="Survivor Camo",["itemtype"]="Knife",["rarity"]="Common",["year"]="2022"}},
+    {"Knife","BlueCandy",{["itemid"]=1489495701,["itemname"]="Blue Candy",["itemtype"]="Knife",["rarity"]="Unique",["year"]="2017"}},
     {"Knife","BlueSeer",{["itemid"]=3184125087,["itemname"]="Blue Seer",["itemtype"]="Knife",["rarity"]="Godly"}},
-    {"Knife","BlueVampiresEdge",{["itemid"]=6084854835,["itemname"]="Blue Vamp's Edge",["itemtype"]="Knife",["rarity"]="Unique"}},
+    {"Knife","BlueVampiresEdge",{["itemid"]=6084854835,["itemname"]="Blue Vamp's Edge",["itemtype"]="Knife",["rarity"]="Unique",["year"]="2020"}},
     {"Knife","Bluesteel",{["itemid"]=196750197,["itemname"]="Bluesteel",["itemtype"]="Knife",["rarity"]="Uncommon"}},
-    {"Knife","Boneblade",{["itemid"]=2513505477,["itemname"]="Boneblade",["itemtype"]="Knife",["rarity"]="Godly"}},
-    {"Knife","BonebladeChroma",{["chroma"]=true,["itemid"]=2513598419,["itemname"]="Boneblade",["itemtype"]="Knife",["rarity"]="Godly"}},
-    {"Knife","Bones",{["itemid"]=531873816,["itemname"]="Bones",["itemtype"]="Knife",["rarity"]="Common"}},
-    {"Knife","Bones_K_2020",{["itemid"]=5872492951,["itemname"]="Bones",["itemtype"]="Knife",["rarity"]="Rare"}},
-    {"Knife","Bones_K_2022",{["itemid"]=11254152435,["itemname"]="Boney",["itemtype"]="Knife",["rarity"]="Common"}},
-    {"Knife","Bones_K_2024",{["itemid"]=76461209737867,["itemname"]="Bones",["itemtype"]="Knife",["rarity"]="Uncommon"}},
+    {"Knife","Boneblade",{["itemid"]=2513505477,["itemname"]="Boneblade",["itemtype"]="Knife",["rarity"]="Godly",["year"]="2018"}},
+    {"Knife","BonebladeChroma",{["chroma"]=true,["itemid"]=2513598419,["itemname"]="Boneblade",["itemtype"]="Knife",["rarity"]="Godly",["year"]="2018"}},
+    {"Knife","Bones",{["itemid"]=531873816,["itemname"]="Bones",["itemtype"]="Knife",["rarity"]="Common",["year"]="2016"}},
+    {"Knife","Bones_K_2020",{["itemid"]=5872492951,["itemname"]="Bones",["itemtype"]="Knife",["rarity"]="Rare",["year"]="2020"}},
+    {"Knife","Bones_K_2022",{["itemid"]=11254152435,["itemname"]="Boney",["itemtype"]="Knife",["rarity"]="Common",["year"]="2022"}},
+    {"Knife","Bones_K_2024",{["itemid"]=76461209737867,["itemname"]="Bones",["itemtype"]="Knife",["rarity"]="Uncommon",["year"]="2024"}},
     {"Knife","Borders",{["itemid"]=198434881,["itemname"]="Borders",["itemtype"]="Knife",["rarity"]="Common"}},
-    {"Knife","Brains",{["itemid"]=531873956,["itemname"]="Brains",["itemtype"]="Knife",["rarity"]="Common"}},
-    {"Knife","Brains2019",{["itemid"]=4210929184,["itemname"]="Brains",["itemtype"]="Knife",["rarity"]="Uncommon"}},
-    {"Knife","Branches",{["itemid"]=4210943691,["itemname"]="Branches",["itemtype"]="Knife",["rarity"]="Uncommon"}},
+    {"Knife","Brains",{["itemid"]=531873956,["itemname"]="Brains",["itemtype"]="Knife",["rarity"]="Common",["year"]="2016"}},
+    {"Knife","Brains2019",{["itemid"]=4210929184,["itemname"]="Brains",["itemtype"]="Knife",["rarity"]="Uncommon",["year"]="2019"}},
+    {"Knife","Branches",{["itemid"]=4210943691,["itemname"]="Branches",["itemtype"]="Knife",["rarity"]="Uncommon",["year"]="2019"}},
     {"Knife","Broken_K_2023",{["itemid"]=12339323856,["itemname"]="Broken",["itemtype"]="Knife",["rarity"]="Legendary"}},
-    {"Knife","BronzeCandy",{["itemid"]=1520189487,["itemname"]="Bronze Candy",["itemtype"]="Knife",["rarity"]="Unique"}},
-    {"Knife","BronzeHallow",{["itemid"]=2511342846,["itemname"]="Bronze Hallow",["itemtype"]="Knife",["rarity"]="Unique"}},
-    {"Knife","BronzeIcebreaker",{["itemid"]=6404127119,["itemname"]="Bronze Icebreaker",["itemtype"]="Knife",["rarity"]="Unique"}},
-    {"Knife","BronzeVampiresEdge",{["itemid"]=6084842077,["itemname"]="Bronze Vamp's Edge",["itemtype"]="Knife",["rarity"]="Unique"}},
+    {"Knife","BronzeCandy",{["itemid"]=1520189487,["itemname"]="Bronze Candy",["itemtype"]="Knife",["rarity"]="Unique",["year"]="2017"}},
+    {"Knife","BronzeHallow",{["itemid"]=2511342846,["itemname"]="Bronze Hallow",["itemtype"]="Knife",["rarity"]="Unique",["year"]="2018"}},
+    {"Knife","BronzeIcebreaker",{["itemid"]=6404127119,["itemname"]="Bronze Icebreaker",["itemtype"]="Knife",["rarity"]="Unique",["year"]="2020"}},
+    {"Knife","BronzeVampiresEdge",{["itemid"]=6084842077,["itemname"]="Bronze Vamp's Edge",["itemtype"]="Knife",["rarity"]="Unique",["year"]="2020"}},
     {"Knife","Brush",{["itemid"]=365568602,["itemname"]="Brush",["itemtype"]="Knife",["rarity"]="Uncommon"}},
-    {"Knife","Bubbles_K_2026",{["itemid"]=138388933477235,["itemname"]="Bubbles",["itemtype"]="Knife",["rarity"]="Legendary"}},
+    {"Knife","Bubbles_K_2026",{["itemid"]=138388933477235,["itemname"]="Bubbles",["itemtype"]="Knife",["rarity"]="Legendary",["year"]="2026"}},
     {"Knife","Bunnies_K_2025",{["itemid"]=90549252812333,["itemname"]="Bunnies",["itemtype"]="Knife",["rarity"]="Legendary"}},
-    {"Knife","Bunny",{["itemid"]=387874365,["itemname"]="Bunny",["itemtype"]="Knife",["rarity"]="Common"}},
+    {"Knife","Bunny",{["itemid"]=387874365,["itemname"]="Bunny",["itemtype"]="Knife",["rarity"]="Common",["year"]="2016"}},
     {"Knife","CamoKnife",{["itemid"]=3183606225,["itemname"]="Camo",["itemtype"]="Knife",["rarity"]="Uncommon"}},
-    {"Knife","Candied_K_2022",{["itemid"]=11834384755,["itemname"]="Candied",["itemtype"]="Knife",["rarity"]="Common"}},
-    {"Knife","Candle_K_2020",{["itemid"]=5872491708,["itemname"]="Candle",["itemtype"]="Knife",["rarity"]="Common"}},
-    {"Knife","Candleflame",{["itemid"]=7805833970,["itemname"]="Candleflame",["itemtype"]="Knife",["rarity"]="Godly"}},
-    {"Knife","CandleflameChroma",{["chroma"]=true,["itemid"]=7806121918,["itemname"]="Candleflame",["itemtype"]="Knife",["rarity"]="Godly"}},
-    {"Knife","Candles_K_2024",{["itemid"]=133654810681274,["itemname"]="Candles",["itemtype"]="Knife",["rarity"]="Common"}},
-    {"Knife","Candy",{["itemid"]=332021011,["itemname"]="Candy",["itemtype"]="Knife",["rarity"]="Godly"}},
-    {"Knife","CandyCorn",{["itemid"]=1133337797,["itemname"]="CandyCorn",["itemtype"]="Knife",["rarity"]="Common"}},
-    {"Knife","CandyCorn2019",{["itemid"]=4210934082,["itemname"]="Candy Corn",["itemtype"]="Knife",["rarity"]="Common"}},
-    {"Knife","CandyCorn_K_2020",{["itemid"]=5866435364,["itemname"]="Candy Corn",["itemtype"]="Knife",["rarity"]="Common"}},
-    {"Knife","CandyCorn_K_2022",{["itemid"]=11254057417,["itemname"]="Candy Corn",["itemtype"]="Knife",["rarity"]="Common"}},
-    {"Knife","CandyCorn_K_2024",{["itemid"]=115093067149752,["itemname"]="Candy Corn",["itemtype"]="Knife",["rarity"]="Common"}},
-    {"Knife","CandyCorn_K_2025",{["itemid"]=86405207895194,["itemname"]="Candy Corn",["itemtype"]="Knife",["rarity"]="Common"}},
-    {"Knife","CandySwirl_K_2019",{["itemid"]=4534860226,["itemname"]="Candy Swirl",["itemtype"]="Knife",["rarity"]="Rare"}},
-    {"Knife","Cane",{["itemid"]=331140746,["itemname"]="Cane",["itemtype"]="Knife",["rarity"]="Rare"}},
-    {"Knife","Cane_K_2018",{["itemid"]=2669638508,["itemname"]="Cane",["itemtype"]="Knife",["rarity"]="Rare"}},
-    {"Knife","Cane_K_2021",{["itemid"]=8304750295,["itemname"]="Cane",["itemtype"]="Knife",["rarity"]="Common"}},
-    {"Knife","Canes_K_2023",{["itemid"]=15635574962,["itemname"]="Canes",["itemtype"]="Knife",["rarity"]="Uncommon"}},
+    {"Knife","Candied_K_2022",{["itemid"]=11834384755,["itemname"]="Candied",["itemtype"]="Knife",["rarity"]="Common",["year"]="2022"}},
+    {"Knife","Candle_K_2020",{["itemid"]=5872491708,["itemname"]="Candle",["itemtype"]="Knife",["rarity"]="Common",["year"]="2020"}},
+    {"Knife","Candleflame",{["itemid"]=7805833970,["itemname"]="Candleflame",["itemtype"]="Knife",["rarity"]="Godly",["year"]="2021"}},
+    {"Knife","CandleflameChroma",{["chroma"]=true,["itemid"]=7806121918,["itemname"]="Candleflame",["itemtype"]="Knife",["rarity"]="Godly",["year"]="2021"}},
+    {"Knife","Candles_K_2024",{["itemid"]=133654810681274,["itemname"]="Candles",["itemtype"]="Knife",["rarity"]="Common",["year"]="2024"}},
+    {"Knife","Candy",{["itemid"]=332021011,["itemname"]="Candy",["itemtype"]="Knife",["rarity"]="Godly",["year"]="2015"}},
+    {"Knife","CandyCorn",{["itemid"]=1133337797,["itemname"]="CandyCorn",["itemtype"]="Knife",["rarity"]="Common",["year"]="2017"}},
+    {"Knife","CandyCorn2019",{["itemid"]=4210934082,["itemname"]="Candy Corn",["itemtype"]="Knife",["rarity"]="Common",["year"]="2019"}},
+    {"Knife","CandyCorn_K_2020",{["itemid"]=5866435364,["itemname"]="Candy Corn",["itemtype"]="Knife",["rarity"]="Common",["year"]="2020"}},
+    {"Knife","CandyCorn_K_2022",{["itemid"]=11254057417,["itemname"]="Candy Corn",["itemtype"]="Knife",["rarity"]="Common",["year"]="2022"}},
+    {"Knife","CandyCorn_K_2024",{["itemid"]=115093067149752,["itemname"]="Candy Corn",["itemtype"]="Knife",["rarity"]="Common",["year"]="2024"}},
+    {"Knife","CandyCorn_K_2025",{["itemid"]=86405207895194,["itemname"]="Candy Corn",["itemtype"]="Knife",["rarity"]="Common",["year"]="2025"}},
+    {"Knife","CandySwirl_K_2019",{["itemid"]=4534860226,["itemname"]="Candy Swirl",["itemtype"]="Knife",["rarity"]="Rare",["year"]="2019"}},
+    {"Knife","Cane",{["itemid"]=331140746,["itemname"]="Cane",["itemtype"]="Knife",["rarity"]="Rare",["year"]="2015"}},
+    {"Knife","Cane_K_2018",{["itemid"]=2669638508,["itemname"]="Cane",["itemtype"]="Knife",["rarity"]="Rare",["year"]="2018"}},
+    {"Knife","Cane_K_2021",{["itemid"]=8304750295,["itemname"]="Cane",["itemtype"]="Knife",["rarity"]="Common",["year"]="2021"}},
+    {"Knife","Canes_K_2023",{["itemid"]=15635574962,["itemname"]="Canes",["itemtype"]="Knife",["rarity"]="Uncommon",["year"]="2023"}},
     {"Knife","Cardboard",{["itemid"]=235366729,["itemname"]="Cardboard",["itemtype"]="Knife",["rarity"]="Common"}},
-    {"Knife","Carrot",{["itemid"]=387874071,["itemname"]="Carrot",["itemtype"]="Knife",["rarity"]="Common"}},
+    {"Knife","Carrot",{["itemid"]=387874071,["itemname"]="Carrot",["itemtype"]="Knife",["rarity"]="Common",["year"]="2016"}},
     {"Knife","Carrot_K_2023",{["itemid"]=12965307410,["itemname"]="Carrot",["itemtype"]="Knife",["rarity"]="Uncommon"}},
     {"Knife","Carrot_K_2024",{["itemid"]=16959771850,["itemname"]="Carrot",["itemtype"]="Knife",["rarity"]="Uncommon"}},
     {"Knife","Carrots_K_2025",{["itemid"]=76914260444878,["itemname"]="Carrots",["itemtype"]="Knife",["rarity"]="Common"}},
-    {"Knife","Carved_K_2020",{["itemid"]=5866436906,["itemname"]="Carved",["itemtype"]="Knife",["rarity"]="Common"}},
-    {"Knife","Cavern_K_2019",{["itemid"]=4534861110,["itemname"]="Cavern",["itemtype"]="Knife",["rarity"]="Legendary"}},
-    {"Knife","Celestial",{["itemid"]=136673966529736,["itemname"]="Celestial",["itemtype"]="Knife",["rarity"]="Ancient"}},
-    {"Knife","Celestial_Bronze",{["itemid"]=119399643874968,["itemname"]="Bronze Celestial",["itemtype"]="Knife",["rarity"]="Unique"}},
-    {"Knife","Celestial_Gold",{["itemid"]=104229967982042,["itemname"]="Gold Celestial",["itemtype"]="Knife",["rarity"]="Unique"}},
-    {"Knife","Celestial_Red",{["itemid"]=119157529694972,["itemname"]="Red Celestial",["itemtype"]="Knife",["rarity"]="Unique"}},
-    {"Knife","Celestial_Silver",{["itemid"]=90241292303974,["itemname"]="Silver Celestial",["itemtype"]="Knife",["rarity"]="Unique"}},
+    {"Knife","Carved_K_2020",{["itemid"]=5866436906,["itemname"]="Carved",["itemtype"]="Knife",["rarity"]="Common",["year"]="2020"}},
+    {"Knife","Cavern_K_2019",{["itemid"]=4534861110,["itemname"]="Cavern",["itemtype"]="Knife",["rarity"]="Legendary",["year"]="2019"}},
+    {"Knife","Celestial",{["itemid"]=136673966529736,["itemname"]="Celestial",["itemtype"]="Knife",["rarity"]="Ancient",["year"]="2024"}},
+    {"Knife","Celestial_Bronze",{["itemid"]=119399643874968,["itemname"]="Bronze Celestial",["itemtype"]="Knife",["rarity"]="Unique",["year"]="2024"}},
+    {"Knife","Celestial_Gold",{["itemid"]=104229967982042,["itemname"]="Gold Celestial",["itemtype"]="Knife",["rarity"]="Unique",["year"]="2024"}},
+    {"Knife","Celestial_Red",{["itemid"]=119157529694972,["itemname"]="Red Celestial",["itemtype"]="Knife",["rarity"]="Unique",["year"]="2024"}},
+    {"Knife","Celestial_Silver",{["itemid"]=90241292303974,["itemname"]="Silver Celestial",["itemtype"]="Knife",["rarity"]="Unique",["year"]="2024"}},
     {"Knife","Checker",{["itemid"]=198443382,["itemname"]="Checker",["itemtype"]="Knife",["rarity"]="Uncommon"}},
     {"Knife","Cheesy",{["itemid"]=198440101,["itemname"]="Cheesy",["itemtype"]="Knife",["rarity"]="Uncommon"}},
     {"Knife","Cherry",{["itemid"]=6711852603,["itemname"]="Cherry",["itemtype"]="Knife",["rarity"]="Common"}},
     {"Knife","Chick_K_2025",{["itemid"]=116361515042274,["itemname"]="Chick",["itemtype"]="Knife",["rarity"]="Common"}},
-    {"Knife","Chill",{["itemid"]=332022166,["itemname"]="Chill",["itemtype"]="Knife",["rarity"]="Godly"}},
+    {"Knife","Chill",{["itemid"]=332022166,["itemname"]="Chill",["itemtype"]="Knife",["rarity"]="Godly",["year"]="2015"}},
     {"Knife","Chips",{["itemid"]=473626317,["itemname"]="Blue",["itemtype"]="Knife",["rarity"]="Uncommon"}},
-    {"Knife","Choco",{["itemid"]=387874991,["itemname"]="Choco",["itemtype"]="Knife",["rarity"]="Common"}},
+    {"Knife","Choco",{["itemid"]=387874991,["itemname"]="Choco",["itemtype"]="Knife",["rarity"]="Common",["year"]="2016"}},
     {"Knife","Chromatic_K_2023",{["itemid"]=12965304445,["itemname"]="Chromatic",["itemtype"]="Knife",["rarity"]="Legendary"}},
     {"Knife","Circuit",{["itemid"]=235366945,["itemname"]="Circuit",["itemtype"]="Knife",["rarity"]="Uncommon"}},
     {"Knife","Clan",{["itemid"]=235366460,["itemname"]="Clan",["itemtype"]="Knife",["rarity"]="Common"}},
     {"Knife","Clockwork",{["itemid"]=473570519,["itemname"]="Clockwork",["itemtype"]="Knife",["rarity"]="Godly"}},
     {"Knife","Clown",{["itemid"]=315501118,["itemname"]="Clown",["itemtype"]="Knife",["rarity"]="Common"}},
     {"Knife","Clownfish_K_2024",{["itemid"]=18322183619,["itemname"]="Clownfish",["itemtype"]="Knife",["rarity"]="Common"}},
-    {"Knife","Coal",{["itemid"]=1268699677,["itemname"]="Coal",["itemtype"]="Knife",["rarity"]="Common"}},
-    {"Knife","Coal_K_2018",{["itemid"]=2669638285,["itemname"]="Coal",["itemtype"]="Knife",["rarity"]="Common"}},
-    {"Knife","Coal_K_2021",{["itemid"]=8304751659,["itemname"]="Coal",["itemtype"]="Knife",["rarity"]="Common"}},
-    {"Knife","Coal_K_2022",{["itemid"]=11834390120,["itemname"]="Coal",["itemtype"]="Knife",["rarity"]="Common"}},
-    {"Knife","Coconut_K_2025",{["itemid"]=75237025203058,["itemname"]="Coconut",["itemtype"]="Knife",["rarity"]="Common"}},
+    {"Knife","Coal",{["itemid"]=1268699677,["itemname"]="Coal",["itemtype"]="Knife",["rarity"]="Common",["year"]="2017"}},
+    {"Knife","Coal_K_2018",{["itemid"]=2669638285,["itemname"]="Coal",["itemtype"]="Knife",["rarity"]="Common",["year"]="2018"}},
+    {"Knife","Coal_K_2021",{["itemid"]=8304751659,["itemname"]="Coal",["itemtype"]="Knife",["rarity"]="Common",["year"]="2021"}},
+    {"Knife","Coal_K_2022",{["itemid"]=11834390120,["itemname"]="Coal",["itemtype"]="Knife",["rarity"]="Common",["year"]="2022"}},
+    {"Knife","Coconut_K_2025",{["itemid"]=75237025203058,["itemname"]="Coconut",["itemtype"]="Knife",["rarity"]="Common",["year"]="2025"}},
     {"Knife","Combat",{["itemid"]=3183604570,["itemname"]="Combat",["itemtype"]="Knife",["rarity"]="Common"}},
     {"Knife","Combat2",{["itemid"]=4972196241,["itemname"]="Combat II",["itemtype"]="Knife",["rarity"]="Common"}},
-    {"Knife","Constellation_K_2024",{["itemid"]=113979322866878,["itemname"]="Nightstar",["itemtype"]="Knife",["rarity"]="Legendary"}},
-    {"Knife","Cookie_K_2021",{["itemid"]=8304752586,["itemname"]="Cookie",["itemtype"]="Knife",["rarity"]="Uncommon"}},
-    {"Knife","Cookieblade",{["itemid"]=6125733703,["itemname"]="Cookieblade",["itemtype"]="Knife",["rarity"]="Godly"}},
+    {"Knife","Constellation_K_2024",{["itemid"]=113979322866878,["itemname"]="Nightstar",["itemtype"]="Knife",["rarity"]="Legendary",["year"]="2024"}},
+    {"Knife","Cookie_K_2021",{["itemid"]=8304752586,["itemname"]="Cookie",["itemtype"]="Knife",["rarity"]="Uncommon",["year"]="2021"}},
+    {"Knife","Cookieblade",{["itemid"]=6125733703,["itemname"]="Cookieblade",["itemtype"]="Knife",["rarity"]="Godly",["year"]="2020"}},
     {"Knife","Copper",{["itemid"]=3183605392,["itemname"]="Copper",["itemtype"]="Knife",["rarity"]="Common"}},
     {"Knife","Corl",{["itemid"]=546161858,["itemname"]="Corl",["itemtype"]="Knife",["rarity"]="Common"}},
     {"Knife","CottonCandy",{["itemid"]=435933179,["itemname"]="Cotton Candy",["itemtype"]="Knife",["rarity"]="Legendary"}},
     {"Knife","Cowboy_K_2026",{["itemid"]=137905346768007,["itemname"]="Cowboy",["itemtype"]="Knife",["rarity"]="Rare"}},
-    {"Knife","Cracks_K_2021",{["itemid"]=7800224981,["itemname"]="Cracks",["itemtype"]="Knife",["rarity"]="Common"}},
-    {"Knife","Cupid_K_2026",{["itemid"]=123955324398353,["itemname"]="Cupid",["itemtype"]="Knife",["rarity"]="Legendary"}},
-    {"Knife","Cursed_K_2024",{["itemid"]=132565936309463,["itemname"]="Cursed",["itemtype"]="Knife",["rarity"]="Legendary"}},
+    {"Knife","Cracks_K_2021",{["itemid"]=7800224981,["itemname"]="Cracks",["itemtype"]="Knife",["rarity"]="Common",["year"]="2021"}},
+    {"Knife","Cupid_K_2026",{["itemid"]=123955324398353,["itemname"]="Cupid",["itemtype"]="Knife",["rarity"]="Legendary",["year"]="2026"}},
+    {"Knife","Cursed_K_2024",{["itemid"]=132565936309463,["itemname"]="Cursed",["itemtype"]="Knife",["rarity"]="Legendary",["year"]="2024"}},
     {"Knife","Damp",{["itemid"]=198443956,["itemname"]="Damp",["itemtype"]="Knife",["rarity"]="Rare"}},
-    {"Knife","Dark_K_2023",{["itemid"]=15091343579,["itemname"]="Darkknife",["itemtype"]="Knife",["rarity"]="Rare"}},
-    {"Knife","Darkness_K_2022",{["itemid"]=11254081561,["itemname"]="Darkness",["itemtype"]="Knife",["rarity"]="Common"}},
-    {"Knife","Darksword",{["itemid"]=15080267070,["itemname"]="Darksword",["itemtype"]="Knife",["rarity"]="Godly"}},
+    {"Knife","Dark_K_2023",{["itemid"]=15091343579,["itemname"]="Darkknife",["itemtype"]="Knife",["rarity"]="Rare",["year"]="2023"}},
+    {"Knife","Darkness_K_2022",{["itemid"]=11254081561,["itemname"]="Darkness",["itemtype"]="Knife",["rarity"]="Common",["year"]="2022"}},
+    {"Knife","Darksword",{["itemid"]=15080267070,["itemname"]="Darksword",["itemtype"]="Knife",["rarity"]="Godly",["year"]="2023"}},
     {"Knife","Deathshard",{["itemid"]=196750305,["itemname"]="Deathshard",["itemtype"]="Knife",["rarity"]="Godly"}},
     {"Knife","DeathshardChroma",{["chroma"]=true,["itemid"]=3187390667,["itemname"]="Deathshard",["itemtype"]="Knife",["rarity"]="Godly"}},
     {"Knife","Decorated_K_2025",{["itemid"]=124860763249593,["itemname"]="Decorated",["itemtype"]="Knife",["rarity"]="Uncommon"}},
@@ -5751,212 +5753,212 @@ local staticMM2={
     {"Knife","Denis",{["itemid"]=546161062,["itemname"]="Denis",["itemtype"]="Knife",["rarity"]="Common"}},
     {"Knife","Dew",{["itemid"]=473626646,["itemname"]="Black",["itemtype"]="Knife",["rarity"]="Rare"}},
     {"Knife","Doge",{["itemid"]=235371276,["itemname"]="Doge",["itemtype"]="Knife",["rarity"]="Uncommon"}},
-    {"Knife","Dolphins_K_2025",{["itemid"]=133219566412887,["itemname"]="Dolphins",["itemtype"]="Knife",["rarity"]="Common"}},
+    {"Knife","Dolphins_K_2025",{["itemid"]=133219566412887,["itemname"]="Dolphins",["itemtype"]="Knife",["rarity"]="Common",["year"]="2025"}},
     {"Knife","Donut",{["itemid"]=235366815,["itemname"]="Donut",["itemtype"]="Knife",["rarity"]="Uncommon"}},
     {"Knife","Doritos",{["itemid"]=473626740,["itemname"]="Purple",["itemtype"]="Knife",["rarity"]="Rare"}},
-    {"Knife","Dungeon",{["itemid"]=4210920512,["itemname"]="Dungeon",["itemtype"]="Knife",["rarity"]="Rare"}},
-    {"Knife","Eclipse_K_2023",{["itemid"]=15091404278,["itemname"]="Eclipse",["itemtype"]="Knife",["rarity"]="Uncommon"}},
+    {"Knife","Dungeon",{["itemid"]=4210920512,["itemname"]="Dungeon",["itemtype"]="Knife",["rarity"]="Rare",["year"]="2019"}},
+    {"Knife","Eclipse_K_2023",{["itemid"]=15091404278,["itemname"]="Eclipse",["itemtype"]="Knife",["rarity"]="Uncommon",["year"]="2023"}},
     {"Knife","Eco",{["itemid"]=365567889,["itemname"]="Eco",["itemtype"]="Knife",["rarity"]="Common"}},
-    {"Knife","Ecto",{["itemid"]=1133331679,["itemname"]="Ecto",["itemtype"]="Knife",["rarity"]="Common"}},
+    {"Knife","Ecto",{["itemid"]=1133331679,["itemname"]="Ecto",["itemtype"]="Knife",["rarity"]="Common",["year"]="2017"}},
     {"Knife","Eggblade",{["itemid"]=6607277825,["itemname"]="Eggblade",["itemtype"]="Knife",["rarity"]="Godly"}},
-    {"Knife","Eggs",{["itemid"]=387875405,["itemname"]="Egg",["itemtype"]="Knife",["rarity"]="Common"}},
-    {"Knife","ElderwoodKnife",{["itemid"]=11262771067,["itemname"]="Elderwood Blade",["itemtype"]="Knife",["rarity"]="Godly"}},
-    {"Knife","ElderwoodKnifeBlue",{["itemid"]=11505913287,["itemname"]="Blue Elderwood",["itemtype"]="Knife",["rarity"]="Unique"}},
-    {"Knife","ElderwoodKnifeBronze",{["itemid"]=11505914752,["itemname"]="Bronze Elderwood",["itemtype"]="Knife",["rarity"]="Unique"}},
-    {"Knife","ElderwoodKnifeChroma",{["chroma"]=true,["itemid"]=11254975176,["itemname"]="Elderwood Blade",["itemtype"]="Knife",["rarity"]="Godly"}},
-    {"Knife","ElderwoodKnifeGold",{["itemid"]=11505917850,["itemname"]="Gold Elderwood",["itemtype"]="Knife",["rarity"]="Unique"}},
-    {"Knife","ElderwoodKnifeSilver",{["itemid"]=11505916486,["itemname"]="Silver Elderwood",["itemtype"]="Knife",["rarity"]="Unique"}},
-    {"Knife","ElderwoodScythe",{["itemid"]=4211148191,["itemname"]="Elderwood Scythe",["itemtype"]="Knife",["rarity"]="Ancient"}},
-    {"Knife","Elf",{["itemid"]=331746317,["itemname"]="Elf",["itemtype"]="Knife",["rarity"]="Common"}},
-    {"Knife","Elf2017",{["itemid"]=1268703023,["itemname"]="Elf",["itemtype"]="Knife",["rarity"]="Common"}},
+    {"Knife","Eggs",{["itemid"]=387875405,["itemname"]="Egg",["itemtype"]="Knife",["rarity"]="Common",["year"]="2016"}},
+    {"Knife","ElderwoodKnife",{["itemid"]=11262771067,["itemname"]="Elderwood Blade",["itemtype"]="Knife",["rarity"]="Godly",["year"]="2022"}},
+    {"Knife","ElderwoodKnifeBlue",{["itemid"]=11505913287,["itemname"]="Blue Elderwood",["itemtype"]="Knife",["rarity"]="Unique",["year"]="2022"}},
+    {"Knife","ElderwoodKnifeBronze",{["itemid"]=11505914752,["itemname"]="Bronze Elderwood",["itemtype"]="Knife",["rarity"]="Unique",["year"]="2022"}},
+    {"Knife","ElderwoodKnifeChroma",{["chroma"]=true,["itemid"]=11254975176,["itemname"]="Elderwood Blade",["itemtype"]="Knife",["rarity"]="Godly",["year"]="2022"}},
+    {"Knife","ElderwoodKnifeGold",{["itemid"]=11505917850,["itemname"]="Gold Elderwood",["itemtype"]="Knife",["rarity"]="Unique",["year"]="2022"}},
+    {"Knife","ElderwoodKnifeSilver",{["itemid"]=11505916486,["itemname"]="Silver Elderwood",["itemtype"]="Knife",["rarity"]="Unique",["year"]="2022"}},
+    {"Knife","ElderwoodScythe",{["itemid"]=4211148191,["itemname"]="Elderwood Scythe",["itemtype"]="Knife",["rarity"]="Ancient",["year"]="2019"}},
+    {"Knife","Elf",{["itemid"]=331746317,["itemname"]="Elf",["itemtype"]="Knife",["rarity"]="Common",["year"]="2015"}},
+    {"Knife","Elf2017",{["itemid"]=1268703023,["itemname"]="Elf",["itemtype"]="Knife",["rarity"]="Common",["year"]="2017"}},
     {"Knife","Elite",{["itemid"]=241095344,["itemname"]="Elite",["itemtype"]="Knife",["rarity"]="Legendary"}},
-    {"Knife","EliteBlue",{["itemid"]=1269374321,["itemname"]="Blue Elite",["itemtype"]="Knife",["rarity"]="Legendary"}},
-    {"Knife","EliteGreen",{["itemid"]=332731156,["itemname"]="Green Elite",["itemtype"]="Knife",["rarity"]="Legendary"}},
+    {"Knife","EliteBlue",{["itemid"]=1269374321,["itemname"]="Blue Elite",["itemtype"]="Knife",["rarity"]="Legendary",["year"]="2017"}},
+    {"Knife","EliteGreen",{["itemid"]=332731156,["itemname"]="Green Elite",["itemtype"]="Knife",["rarity"]="Legendary",["year"]="2015"}},
     {"Knife","Emerald",{["itemid"]=198444909,["itemname"]="Emerald",["itemtype"]="Knife",["rarity"]="Legendary"}},
-    {"Knife","Energized_K_2025",{["itemid"]=86258299490709,["itemname"]="Energized",["itemtype"]="Knife",["rarity"]="Legendary"}},
+    {"Knife","Energized_K_2025",{["itemid"]=86258299490709,["itemname"]="Energized",["itemtype"]="Knife",["rarity"]="Legendary",["year"]="2025"}},
     {"Knife","Eternal",{["itemid"]=619605312,["itemname"]="Eternal",["itemtype"]="Knife",["rarity"]="Godly"}},
     {"Knife","Eternal2",{["itemid"]=2545253030,["itemname"]="Eternal II",["itemtype"]="Knife",["rarity"]="Godly"}},
     {"Knife","Eternal3",{["itemid"]=3279011390,["itemname"]="Eternal III",["itemtype"]="Knife",["rarity"]="Godly"}},
     {"Knife","Eternal4",{["itemid"]=4999958740,["itemname"]="Eternal IV",["itemtype"]="Knife",["rarity"]="Godly"}},
-    {"Knife","EternalCane",{["itemid"]=4488391411,["itemname"]="Eternalcane",["itemtype"]="Knife",["rarity"]="Godly"}},
+    {"Knife","EternalCane",{["itemid"]=4488391411,["itemname"]="Eternalcane",["itemtype"]="Knife",["rarity"]="Godly",["year"]="2019"}},
     {"Knife","Euro",{["itemid"]=305504173,["itemname"]="Euro",["itemtype"]="Knife",["rarity"]="Common"}},
-    {"Knife","Eyeball_K_2022",{["itemid"]=11254065007,["itemname"]="Eyeball",["itemtype"]="Knife",["rarity"]="Common"}},
-    {"Knife","Eyes_K_2020",{["itemid"]=5866438542,["itemname"]="Watcher",["itemtype"]="Knife",["rarity"]="Common"}},
+    {"Knife","Eyeball_K_2022",{["itemid"]=11254065007,["itemname"]="Eyeball",["itemtype"]="Knife",["rarity"]="Common",["year"]="2022"}},
+    {"Knife","Eyes_K_2020",{["itemid"]=5866438542,["itemname"]="Watcher",["itemtype"]="Knife",["rarity"]="Common",["year"]="2020"}},
     {"Knife","Fade",{["itemid"]=315501640,["itemname"]="Fade",["itemtype"]="Knife",["rarity"]="Legendary"}},
     {"Knife","Fang",{["itemid"]=198442811,["itemname"]="Fang",["itemtype"]="Knife",["rarity"]="Godly"}},
     {"Knife","FangChroma",{["chroma"]=true,["itemid"]=3187392501,["itemname"]="Fang",["itemtype"]="Knife",["rarity"]="Godly"}},
     {"Knife","Fanta",{["itemid"]=473626025,["itemname"]="Orange",["itemtype"]="Knife",["rarity"]="Common"}},
-    {"Knife","Fireplace_K_2023",{["itemid"]=15635558021,["itemname"]="Fireplace",["itemtype"]="Knife",["rarity"]="Uncommon"}},
+    {"Knife","Fireplace_K_2023",{["itemid"]=15635558021,["itemname"]="Fireplace",["itemtype"]="Knife",["rarity"]="Uncommon",["year"]="2023"}},
     {"Knife","Flames",{["itemid"]=585873746,["itemname"]="Flames",["itemtype"]="Knife",["rarity"]="Godly"}},
     {"Knife","Floral_K_2023",{["itemid"]=13944134705,["itemname"]="Floral",["itemtype"]="Knife",["rarity"]="Rare"}},
     {"Knife","FlowerwoodKnife",{["itemid"]=16963860501,["itemname"]="Flowerwood",["itemtype"]="Knife",["rarity"]="Godly"}},
     {"Knife","Fragile_K_2023",{["itemid"]=12965294432,["itemname"]="Fragile",["itemtype"]="Knife",["rarity"]="Common"}},
-    {"Knife","Frostbite",{["itemid"]=4528484880,["itemname"]="Frostbite",["itemtype"]="Knife",["rarity"]="Godly"}},
-    {"Knife","Frosted_K_2019",{["itemid"]=4534853444,["itemname"]="Frosted",["itemtype"]="Knife",["rarity"]="Common"}},
-    {"Knife","Frostfade_K_2023",{["itemid"]=15635565488,["itemname"]="Frostfade",["itemtype"]="Knife",["rarity"]="Legendary"}},
-    {"Knife","Frostflame_K_2024",{["itemid"]=104988218477551,["itemname"]="Frostflame",["itemtype"]="Knife",["rarity"]="Rare"}},
-    {"Knife","Frostsaber",{["itemid"]=1269580035,["itemname"]="Frostsaber",["itemtype"]="Knife",["rarity"]="Godly"}},
-    {"Knife","Frosty",{["itemid"]=1268704507,["itemname"]="Frosty",["itemtype"]="Knife",["rarity"]="Uncommon"}},
-    {"Knife","Frozen_K_2019",{["itemid"]=4534857523,["itemname"]="Frozen",["itemtype"]="Knife",["rarity"]="Uncommon"}},
-    {"Knife","Frozen_K_2022",{["itemid"]=11834404402,["itemname"]="Frozen",["itemtype"]="Knife",["rarity"]="Common"}},
-    {"Knife","Frozen_K_2023",{["itemid"]=15635556891,["itemname"]="Frozen",["itemtype"]="Knife",["rarity"]="Common"}},
-    {"Knife","Frozen_K_2025",{["itemid"]=108996627787763,["itemname"]="Frozen",["itemtype"]="Knife",["rarity"]="Legendary"}},
+    {"Knife","Frostbite",{["itemid"]=4528484880,["itemname"]="Frostbite",["itemtype"]="Knife",["rarity"]="Godly",["year"]="2019"}},
+    {"Knife","Frosted_K_2019",{["itemid"]=4534853444,["itemname"]="Frosted",["itemtype"]="Knife",["rarity"]="Common",["year"]="2019"}},
+    {"Knife","Frostfade_K_2023",{["itemid"]=15635565488,["itemname"]="Frostfade",["itemtype"]="Knife",["rarity"]="Legendary",["year"]="2023"}},
+    {"Knife","Frostflame_K_2024",{["itemid"]=104988218477551,["itemname"]="Frostflame",["itemtype"]="Knife",["rarity"]="Rare",["year"]="2024"}},
+    {"Knife","Frostsaber",{["itemid"]=1269580035,["itemname"]="Frostsaber",["itemtype"]="Knife",["rarity"]="Godly",["year"]="2017"}},
+    {"Knife","Frosty",{["itemid"]=1268704507,["itemname"]="Frosty",["itemtype"]="Knife",["rarity"]="Uncommon",["year"]="2017"}},
+    {"Knife","Frozen_K_2019",{["itemid"]=4534857523,["itemname"]="Frozen",["itemtype"]="Knife",["rarity"]="Uncommon",["year"]="2019"}},
+    {"Knife","Frozen_K_2022",{["itemid"]=11834404402,["itemname"]="Frozen",["itemtype"]="Knife",["rarity"]="Common",["year"]="2022"}},
+    {"Knife","Frozen_K_2023",{["itemid"]=15635556891,["itemname"]="Frozen",["itemtype"]="Knife",["rarity"]="Common",["year"]="2023"}},
+    {"Knife","Frozen_K_2025",{["itemid"]=108996627787763,["itemname"]="Frozen",["itemtype"]="Knife",["rarity"]="Legendary",["year"]="2025"}},
     {"Knife","Fusion",{["itemid"]=365569686,["itemname"]="Fusion",["itemtype"]="Knife",["rarity"]="Legendary"}},
     {"Knife","Future",{["itemid"]=197638833,["itemname"]="Future",["itemtype"]="Knife",["rarity"]="Uncommon"}},
     {"Knife","Galaxy",{["itemid"]=196750422,["itemname"]="Galaxy",["itemtype"]="Knife",["rarity"]="Rare"}},
     {"Knife","Gemstone",{["itemid"]=3183598040,["itemname"]="Gemstone",["itemtype"]="Knife",["rarity"]="Godly"}},
     {"Knife","GemstoneChroma",{["chroma"]=true,["itemid"]=3183597816,["itemname"]="Gemstone",["itemtype"]="Knife",["rarity"]="Godly"}},
-    {"Knife","Ghastly_K_2023",{["itemid"]=15091407068,["itemname"]="Ghastly",["itemtype"]="Knife",["rarity"]="Rare"}},
-    {"Knife","GhostK2018",{["itemid"]=2513732969,["itemname"]="Ghost",["itemtype"]="Knife",["rarity"]="Legendary"}},
+    {"Knife","Ghastly_K_2023",{["itemid"]=15091407068,["itemname"]="Ghastly",["itemtype"]="Knife",["rarity"]="Rare",["year"]="2023"}},
+    {"Knife","GhostK2018",{["itemid"]=2513732969,["itemname"]="Ghost",["itemtype"]="Knife",["rarity"]="Legendary",["year"]="2018"}},
     {"Knife","GhostKnife",{["itemid"]=473574401,["itemname"]="Ghost",["itemtype"]="Knife",["rarity"]="Classic"}},
-    {"Knife","GhostRbx_K_2022",{["itemid"]=11117375743,["itemname"]="Ghostly",["itemtype"]="Knife",["rarity"]="Uncommon"}},
-    {"Knife","Ghostblade",{["itemid"]=4221789003,["itemname"]="Ghostblade",["itemtype"]="Knife",["rarity"]="Godly"}},
-    {"Knife","Ghosts_K_2020",{["itemid"]=5866442790,["itemname"]="Ghosts",["itemtype"]="Knife",["rarity"]="Uncommon"}},
-    {"Knife","Ghosts_K_2021",{["itemid"]=7808362279,["itemname"]="Wraiths",["itemtype"]="Knife",["rarity"]="Uncommon"}},
-    {"Knife","Ghosts_K_2023",{["itemid"]=15091326116,["itemname"]="Ghosts",["itemtype"]="Knife",["rarity"]="Common"}},
-    {"Knife","Ghosts_K_2024",{["itemid"]=134681523511387,["itemname"]="Ghosts",["itemtype"]="Knife",["rarity"]="Common"}},
-    {"Knife","Ghosty",{["itemid"]=531873080,["itemname"]="Ghosty",["itemtype"]="Knife",["rarity"]="Common"}},
-    {"Knife","Gift_K_2020",{["itemid"]=6121854816,["itemname"]="Wrap",["itemtype"]="Knife",["rarity"]="Uncommon"}},
-    {"Knife","Giftbag_K_2020",{["itemid"]=6121847170,["itemname"]="Gift Bag",["itemtype"]="Knife",["rarity"]="Common"}},
+    {"Knife","GhostRbx_K_2022",{["itemid"]=11117375743,["itemname"]="Ghostly",["itemtype"]="Knife",["rarity"]="Uncommon",["year"]="2022"}},
+    {"Knife","Ghostblade",{["itemid"]=4221789003,["itemname"]="Ghostblade",["itemtype"]="Knife",["rarity"]="Godly",["year"]="2019"}},
+    {"Knife","Ghosts_K_2020",{["itemid"]=5866442790,["itemname"]="Ghosts",["itemtype"]="Knife",["rarity"]="Uncommon",["year"]="2020"}},
+    {"Knife","Ghosts_K_2021",{["itemid"]=7808362279,["itemname"]="Wraiths",["itemtype"]="Knife",["rarity"]="Uncommon",["year"]="2021"}},
+    {"Knife","Ghosts_K_2023",{["itemid"]=15091326116,["itemname"]="Ghosts",["itemtype"]="Knife",["rarity"]="Common",["year"]="2023"}},
+    {"Knife","Ghosts_K_2024",{["itemid"]=134681523511387,["itemname"]="Ghosts",["itemtype"]="Knife",["rarity"]="Common",["year"]="2024"}},
+    {"Knife","Ghosty",{["itemid"]=531873080,["itemname"]="Ghosty",["itemtype"]="Knife",["rarity"]="Common",["year"]="2016"}},
+    {"Knife","Gift_K_2020",{["itemid"]=6121854816,["itemname"]="Wrap",["itemtype"]="Knife",["rarity"]="Uncommon",["year"]="2020"}},
+    {"Knife","Giftbag_K_2020",{["itemid"]=6121847170,["itemname"]="Gift Bag",["itemtype"]="Knife",["rarity"]="Common",["year"]="2020"}},
     {"Knife","Gifted",{["itemid"]=197626358,["itemname"]="Gifted",["itemtype"]="Knife",["rarity"]="Uncommon"}},
-    {"Knife","Gifts_K_2019",{["itemid"]=4534856285,["itemname"]="Gifts",["itemtype"]="Knife",["rarity"]="Common"}},
-    {"Knife","Gifts_K_2024",{["itemid"]=129290011017110,["itemname"]="Gifts",["itemtype"]="Knife",["rarity"]="Common"}},
-    {"Knife","Giftwrap_K_2021",{["itemid"]=8304754179,["itemname"]="Giftwrap",["itemtype"]="Knife",["rarity"]="Common"}},
-    {"Knife","Ginger",{["itemid"]=331744703,["itemname"]="Ginger",["itemtype"]="Knife",["rarity"]="Rare"}},
-    {"Knife","Ginger_K_2018",{["itemid"]=2669638742,["itemname"]="Ginger",["itemtype"]="Knife",["rarity"]="Legendary"}},
-    {"Knife","Gingerblade",{["itemid"]=2669336659,["itemname"]="Gingerblade",["itemtype"]="Knife",["rarity"]="Godly"}},
-    {"Knife","GingerbladeChroma",{["chroma"]=true,["itemid"]=2672349340,["itemname"]="Gingerblade",["itemtype"]="Knife",["rarity"]="Godly"}},
-    {"Knife","Gingerbread2017",{["itemid"]=1268705527,["itemname"]="Gingerbread",["itemtype"]="Knife",["rarity"]="Rare"}},
-    {"Knife","Gingerbread_K_2019",{["itemid"]=4534856940,["itemname"]="Gingerbread",["itemtype"]="Knife",["rarity"]="Uncommon"}},
-    {"Knife","Gingerbread_K_2020",{["itemid"]=6121850031,["itemname"]="Gingerbread",["itemtype"]="Knife",["rarity"]="Uncommon"}},
-    {"Knife","Gingerbread_K_2022",{["itemid"]=11834399071,["itemname"]="Gingerbread",["itemtype"]="Knife",["rarity"]="Rare"}},
-    {"Knife","Gingerbread_K_2025",{["itemid"]=134478959354477,["itemname"]="Gingerbread",["itemtype"]="Knife",["rarity"]="Uncommon"}},
-    {"Knife","Gingercookie_K_2025",{["itemid"]=111408683823094,["itemname"]="Gingercookie",["itemtype"]="Knife",["rarity"]="Rare"}},
-    {"Knife","Gingerheart_K_2024",{["itemid"]=115273559455814,["itemname"]="Gingerheart",["itemtype"]="Knife",["rarity"]="Uncommon"}},
-    {"Knife","Gingermint_K",{["itemid"]=11855306927,["itemname"]="Cookiecane",["itemtype"]="Knife",["rarity"]="Godly"}},
-    {"Knife","Gingermint_KChroma",{["chroma"]=true,["itemid"]=11873640255,["itemname"]="Cookiecane",["itemtype"]="Knife",["rarity"]="Godly"}},
-    {"Knife","Gingerscythe",{["itemid"]=15683138101,["itemname"]="Gingerscythe",["itemtype"]="Knife",["rarity"]="Rare"}},
-    {"Knife","Gingerscythe_Ancient",{["itemid"]=15683188776,["itemname"]="Gingerscythe",["itemtype"]="Knife",["rarity"]="Ancient"}},
-    {"Knife","Gingerscythe_Blue",{["itemid"]=16964448042,["itemname"]="Blue Gingerscythe",["itemtype"]="Knife",["rarity"]="Unique"}},
-    {"Knife","Gingerscythe_Bronze",{["itemid"]=16964449392,["itemname"]="Bronze Gingerscythe",["itemtype"]="Knife",["rarity"]="Unique"}},
-    {"Knife","Gingerscythe_Godly",{["itemid"]=15683175970,["itemname"]="Gingerscythe",["itemtype"]="Knife",["rarity"]="Godly"}},
-    {"Knife","Gingerscythe_Gold",{["itemid"]=16964452491,["itemname"]="Gold Gingerscythe",["itemtype"]="Knife",["rarity"]="Unique"}},
-    {"Knife","Gingerscythe_Legendary",{["itemid"]=15683140564,["itemname"]="Gingerscythe",["itemtype"]="Knife",["rarity"]="Legendary"}},
-    {"Knife","Gingerscythe_Silver",{["itemid"]=16964450895,["itemname"]="Silver Gingerscythe",["itemtype"]="Knife",["rarity"]="Unique"}},
-    {"Knife","Glowy_K_2023",{["itemid"]=15091403551,["itemname"]="Glowy",["itemtype"]="Knife",["rarity"]="Uncommon"}},
-    {"Knife","GoldCandy",{["itemid"]=1520188792,["itemname"]="Gold Candy",["itemtype"]="Knife",["rarity"]="Unique"}},
-    {"Knife","GoldHallow",{["itemid"]=2511340308,["itemname"]="Gold Hallow",["itemtype"]="Knife",["rarity"]="Unique"}},
-    {"Knife","GoldIcebreaker",{["itemid"]=6404115112,["itemname"]="Gold Icebreaker",["itemtype"]="Knife",["rarity"]="Unique"}},
-    {"Knife","GoldVampiresEdge",{["itemid"]=6084838617,["itemname"]="Gold Vamp's Edge",["itemtype"]="Knife",["rarity"]="Unique"}},
+    {"Knife","Gifts_K_2019",{["itemid"]=4534856285,["itemname"]="Gifts",["itemtype"]="Knife",["rarity"]="Common",["year"]="2019"}},
+    {"Knife","Gifts_K_2024",{["itemid"]=129290011017110,["itemname"]="Gifts",["itemtype"]="Knife",["rarity"]="Common",["year"]="2024"}},
+    {"Knife","Giftwrap_K_2021",{["itemid"]=8304754179,["itemname"]="Giftwrap",["itemtype"]="Knife",["rarity"]="Common",["year"]="2021"}},
+    {"Knife","Ginger",{["itemid"]=331744703,["itemname"]="Ginger",["itemtype"]="Knife",["rarity"]="Rare",["year"]="2015"}},
+    {"Knife","Ginger_K_2018",{["itemid"]=2669638742,["itemname"]="Ginger",["itemtype"]="Knife",["rarity"]="Legendary",["year"]="2018"}},
+    {"Knife","Gingerblade",{["itemid"]=2669336659,["itemname"]="Gingerblade",["itemtype"]="Knife",["rarity"]="Godly",["year"]="2018"}},
+    {"Knife","GingerbladeChroma",{["chroma"]=true,["itemid"]=2672349340,["itemname"]="Gingerblade",["itemtype"]="Knife",["rarity"]="Godly",["year"]="2018"}},
+    {"Knife","Gingerbread2017",{["itemid"]=1268705527,["itemname"]="Gingerbread",["itemtype"]="Knife",["rarity"]="Rare",["year"]="2017"}},
+    {"Knife","Gingerbread_K_2019",{["itemid"]=4534856940,["itemname"]="Gingerbread",["itemtype"]="Knife",["rarity"]="Uncommon",["year"]="2019"}},
+    {"Knife","Gingerbread_K_2020",{["itemid"]=6121850031,["itemname"]="Gingerbread",["itemtype"]="Knife",["rarity"]="Uncommon",["year"]="2020"}},
+    {"Knife","Gingerbread_K_2022",{["itemid"]=11834399071,["itemname"]="Gingerbread",["itemtype"]="Knife",["rarity"]="Rare",["year"]="2022"}},
+    {"Knife","Gingerbread_K_2025",{["itemid"]=134478959354477,["itemname"]="Gingerbread",["itemtype"]="Knife",["rarity"]="Uncommon",["year"]="2025"}},
+    {"Knife","Gingercookie_K_2025",{["itemid"]=111408683823094,["itemname"]="Gingercookie",["itemtype"]="Knife",["rarity"]="Rare",["year"]="2025"}},
+    {"Knife","Gingerheart_K_2024",{["itemid"]=115273559455814,["itemname"]="Gingerheart",["itemtype"]="Knife",["rarity"]="Uncommon",["year"]="2024"}},
+    {"Knife","Gingermint_K",{["itemid"]=11855306927,["itemname"]="Cookiecane",["itemtype"]="Knife",["rarity"]="Godly",["year"]="2022"}},
+    {"Knife","Gingermint_KChroma",{["chroma"]=true,["itemid"]=11873640255,["itemname"]="Cookiecane",["itemtype"]="Knife",["rarity"]="Godly",["year"]="2022"}},
+    {"Knife","Gingerscythe",{["itemid"]=15683138101,["itemname"]="Gingerscythe",["itemtype"]="Knife",["rarity"]="Rare",["year"]="2023",["evoindex"]=1}},
+    {"Knife","Gingerscythe_Ancient",{["itemid"]=15683188776,["itemname"]="Gingerscythe",["itemtype"]="Knife",["rarity"]="Ancient",["year"]="2023",["evoindex"]=4}},
+    {"Knife","Gingerscythe_Blue",{["itemid"]=16964448042,["itemname"]="Blue Gingerscythe",["itemtype"]="Knife",["rarity"]="Unique",["year"]="2023"}},
+    {"Knife","Gingerscythe_Bronze",{["itemid"]=16964449392,["itemname"]="Bronze Gingerscythe",["itemtype"]="Knife",["rarity"]="Unique",["year"]="2023"}},
+    {"Knife","Gingerscythe_Godly",{["itemid"]=15683175970,["itemname"]="Gingerscythe",["itemtype"]="Knife",["rarity"]="Godly",["year"]="2023",["evoindex"]=3}},
+    {"Knife","Gingerscythe_Gold",{["itemid"]=16964452491,["itemname"]="Gold Gingerscythe",["itemtype"]="Knife",["rarity"]="Unique",["year"]="2023"}},
+    {"Knife","Gingerscythe_Legendary",{["itemid"]=15683140564,["itemname"]="Gingerscythe",["itemtype"]="Knife",["rarity"]="Legendary",["year"]="2023",["evoindex"]=2}},
+    {"Knife","Gingerscythe_Silver",{["itemid"]=16964450895,["itemname"]="Silver Gingerscythe",["itemtype"]="Knife",["rarity"]="Unique",["year"]="2023"}},
+    {"Knife","Glowy_K_2023",{["itemid"]=15091403551,["itemname"]="Glowy",["itemtype"]="Knife",["rarity"]="Uncommon",["year"]="2023"}},
+    {"Knife","GoldCandy",{["itemid"]=1520188792,["itemname"]="Gold Candy",["itemtype"]="Knife",["rarity"]="Unique",["year"]="2017"}},
+    {"Knife","GoldHallow",{["itemid"]=2511340308,["itemname"]="Gold Hallow",["itemtype"]="Knife",["rarity"]="Unique",["year"]="2018"}},
+    {"Knife","GoldIcebreaker",{["itemid"]=6404115112,["itemname"]="Gold Icebreaker",["itemtype"]="Knife",["rarity"]="Unique",["year"]="2020"}},
+    {"Knife","GoldVampiresEdge",{["itemid"]=6084838617,["itemname"]="Gold Vamp's Edge",["itemtype"]="Knife",["rarity"]="Unique",["year"]="2020"}},
     {"Knife","Golden_K_2026",{["itemid"]=117280525154459,["itemname"]="Golden",["itemtype"]="Knife",["rarity"]="Legendary"}},
     {"Knife","Goo",{["itemid"]=237336076,["itemname"]="Goo",["itemtype"]="Knife",["rarity"]="Common"}},
-    {"Knife","Gothic_K_2021",{["itemid"]=7800221141,["itemname"]="Gothic",["itemtype"]="Knife",["rarity"]="Uncommon"}},
+    {"Knife","Gothic_K_2021",{["itemid"]=7800221141,["itemname"]="Gothic",["itemtype"]="Knife",["rarity"]="Uncommon",["year"]="2021"}},
     {"Knife","Graffiti",{["itemid"]=4659634630,["itemname"]="Graffiti",["itemtype"]="Knife",["rarity"]="Uncommon"}},
-    {"Knife","GraveK",{["itemid"]=2513728474,["itemname"]="Grave",["itemtype"]="Knife",["rarity"]="Common"}},
-    {"Knife","GreenCamo_K_2022",{["itemid"]=11254145154,["itemname"]="Zombie Camo",["itemtype"]="Knife",["rarity"]="Common"}},
-    {"Knife","GreenFire",{["itemid"]=1268706374,["itemname"]="Green Fire",["itemtype"]="Knife",["rarity"]="Legendary"}},
-    {"Knife","GreenMarble",{["itemid"]=1133366830,["itemname"]="Green Marble",["itemtype"]="Knife",["rarity"]="Rare"}},
+    {"Knife","GraveK",{["itemid"]=2513728474,["itemname"]="Grave",["itemtype"]="Knife",["rarity"]="Common",["year"]="2018"}},
+    {"Knife","GreenCamo_K_2022",{["itemid"]=11254145154,["itemname"]="Zombie Camo",["itemtype"]="Knife",["rarity"]="Common",["year"]="2022"}},
+    {"Knife","GreenFire",{["itemid"]=1268706374,["itemname"]="Green Fire",["itemtype"]="Knife",["rarity"]="Legendary",["year"]="2017"}},
+    {"Knife","GreenMarble",{["itemid"]=1133366830,["itemname"]="Green Marble",["itemtype"]="Knife",["rarity"]="Rare",["year"]="2017"}},
     {"Knife","Grind",{["itemid"]=305503942,["itemname"]="Grind",["itemtype"]="Knife",["rarity"]="Common"}},
-    {"Knife","Hallow",{["itemid"]=531878205,["itemname"]="Hallow's Edge",["itemtype"]="Knife",["rarity"]="Godly"}},
-    {"Knife","HallowsBlade",{["itemid"]=1132775323,["itemname"]="Hallow's Blade",["itemtype"]="Knife",["rarity"]="Godly"}},
-    {"Knife","Hallowscythe",{["itemid"]=5877016863,["itemname"]="Hallowscythe",["itemtype"]="Knife",["rarity"]="Ancient"}},
-    {"Knife","Handsaw",{["itemid"]=473572138,["itemname"]="Handsaw",["itemtype"]="Knife",["rarity"]="Godly"}},
+    {"Knife","Hallow",{["itemid"]=531878205,["itemname"]="Hallow's Edge",["itemtype"]="Knife",["rarity"]="Godly",["year"]="2016"}},
+    {"Knife","HallowsBlade",{["itemid"]=1132775323,["itemname"]="Hallow's Blade",["itemtype"]="Knife",["rarity"]="Godly",["year"]="2017"}},
+    {"Knife","Hallowscythe",{["itemid"]=5877016863,["itemname"]="Hallowscythe",["itemtype"]="Knife",["rarity"]="Ancient",["year"]="2020"}},
+    {"Knife","Handsaw",{["itemid"]=473572138,["itemname"]="Handsaw",["itemtype"]="Knife",["rarity"]="Godly",["year"]="2015"}},
     {"Knife","Hardened",{["itemid"]=3183605810,["itemname"]="Hardened",["itemtype"]="Knife",["rarity"]="Common"}},
-    {"Knife","HauntedHouse_K_2025",{["itemid"]=90194465176219,["itemname"]="Haunted",["itemtype"]="Knife",["rarity"]="Common"}},
-    {"Knife","HauntedK",{["itemid"]=2513733741,["itemname"]="Haunted",["itemtype"]="Knife",["rarity"]="Common"}},
-    {"Knife","Haunted_K_2021",{["itemid"]=7800222135,["itemname"]="Haunted",["itemtype"]="Knife",["rarity"]="Common"}},
-    {"Knife","Hazard_K_2022",{["itemid"]=11254083234,["itemname"]="Hazard",["itemtype"]="Knife",["rarity"]="Uncommon"}},
+    {"Knife","HauntedHouse_K_2025",{["itemid"]=90194465176219,["itemname"]="Haunted",["itemtype"]="Knife",["rarity"]="Common",["year"]="2025"}},
+    {"Knife","HauntedK",{["itemid"]=2513733741,["itemname"]="Haunted",["itemtype"]="Knife",["rarity"]="Common",["year"]="2018"}},
+    {"Knife","Haunted_K_2021",{["itemid"]=7800222135,["itemname"]="Haunted",["itemtype"]="Knife",["rarity"]="Common",["year"]="2021"}},
+    {"Knife","Hazard_K_2022",{["itemid"]=11254083234,["itemname"]="Hazard",["itemtype"]="Knife",["rarity"]="Uncommon",["year"]="2022"}},
     {"Knife","Hazmat",{["itemid"]=315501297,["itemname"]="Hazmat",["itemtype"]="Knife",["rarity"]="Uncommon"}},
-    {"Knife","HeartWand",{["itemid"]=118334707962654,["itemname"]="Heart Wand",["itemtype"]="Knife",["rarity"]="Godly"}},
-    {"Knife","HeartWandChroma",{["chroma"]=true,["itemid"]=78479059410850,["itemname"]="Heart Wand",["itemtype"]="Knife",["rarity"]="Godly"}},
+    {"Knife","HeartWand",{["itemid"]=118334707962654,["itemname"]="Heart Wand",["itemtype"]="Knife",["rarity"]="Godly",["year"]="2026"}},
+    {"Knife","HeartWandChroma",{["chroma"]=true,["itemid"]=78479059410850,["itemname"]="Heart Wand",["itemtype"]="Knife",["rarity"]="Godly",["year"]="2026"}},
     {"Knife","Heart_K_2023",{["itemid"]=12339327069,["itemname"]="Heart",["itemtype"]="Knife",["rarity"]="Rare"}},
     {"Knife","Heartblade",{["itemid"]=6413145922,["itemname"]="Heartblade",["itemtype"]="Knife",["rarity"]="Godly"}},
     {"Knife","Hearts",{["itemid"]=363352211,["itemname"]="Hearts",["itemtype"]="Knife",["rarity"]="Common"}},
-    {"Knife","Hearts_K_2026",{["itemid"]=99939659856909,["itemname"]="Hearts",["itemtype"]="Knife",["rarity"]="Common"}},
+    {"Knife","Hearts_K_2026",{["itemid"]=99939659856909,["itemname"]="Hearts",["itemtype"]="Knife",["rarity"]="Common",["year"]="2026"}},
     {"Knife","Heat",{["itemid"]=201238541,["itemname"]="Heat",["itemtype"]="Knife",["rarity"]="Godly"}},
     {"Knife","HeatChroma",{["chroma"]=true,["itemid"]=3187395238,["itemname"]="Heat",["itemtype"]="Knife",["rarity"]="Godly"}},
     {"Knife","HighTech",{["itemid"]=4659635055,["itemname"]="High Tech",["itemtype"]="Knife",["rarity"]="Uncommon"}},
     {"Knife","Hive",{["itemid"]=315501434,["itemname"]="Hive",["itemtype"]="Knife",["rarity"]="Uncommon"}},
-    {"Knife","Holly_K_2018",{["itemid"]=2669638990,["itemname"]="Holly",["itemtype"]="Knife",["rarity"]="Uncommon"}},
-    {"Knife","Hologram_K_2025",{["itemid"]=77773918675860,["itemname"]="Hologram",["itemtype"]="Knife",["rarity"]="Rare"}},
-    {"Knife","HotChocolate_K_2024",{["itemid"]=133307062463653,["itemname"]="Hot Chocolate",["itemtype"]="Knife",["rarity"]="Common"}},
-    {"Knife","Hunter_K_2022",{["itemid"]=11254154978,["itemname"]="Hunter",["itemtype"]="Knife",["rarity"]="Common"}},
+    {"Knife","Holly_K_2018",{["itemid"]=2669638990,["itemname"]="Holly",["itemtype"]="Knife",["rarity"]="Uncommon",["year"]="2018"}},
+    {"Knife","Hologram_K_2025",{["itemid"]=77773918675860,["itemname"]="Hologram",["itemtype"]="Knife",["rarity"]="Rare",["year"]="2025"}},
+    {"Knife","HotChocolate_K_2024",{["itemid"]=133307062463653,["itemname"]="Hot Chocolate",["itemtype"]="Knife",["rarity"]="Common",["year"]="2024"}},
+    {"Knife","Hunter_K_2022",{["itemid"]=11254154978,["itemname"]="Hunter",["itemtype"]="Knife",["rarity"]="Common",["year"]="2022"}},
     {"Knife","Ice",{["itemid"]=196750668,["itemname"]="Ice",["itemtype"]="Knife",["rarity"]="Common"}},
-    {"Knife","IceDragon",{["itemid"]=585872642,["itemname"]="Ice Dragon",["itemtype"]="Knife",["offset"]={["X"]=0,["Y"]=0,["Z"]=0.55},["rarity"]="Godly"}},
-    {"Knife","IceHammer",{["itemid"]=11855360152,["itemname"]="Icecrusher",["itemtype"]="Knife",["rarity"]="Rare"}},
-    {"Knife","IceHammerBronze",{["itemid"]=12227148356,["itemname"]="Bronze Icecrusher",["itemtype"]="Knife",["rarity"]="Unique"}},
-    {"Knife","IceHammerGold",{["itemid"]=12227137860,["itemname"]="Gold Icecrusher",["itemtype"]="Knife",["rarity"]="Unique"}},
-    {"Knife","IceHammerRed",{["itemid"]=12227186408,["itemname"]="Red Icecrusher",["itemtype"]="Knife",["rarity"]="Unique"}},
-    {"Knife","IceHammerSilver",{["itemid"]=12227142478,["itemname"]="Silver Icecrusher",["itemtype"]="Knife",["rarity"]="Unique"}},
-    {"Knife","IceHammer_Ancient",{["itemid"]=11855274019,["itemname"]="Icecrusher",["itemtype"]="Knife",["rarity"]="Ancient"}},
-    {"Knife","IceHammer_Godly",{["itemid"]=11855282546,["itemname"]="Icecrusher",["itemtype"]="Knife",["rarity"]="Godly"}},
-    {"Knife","IceHammer_Legendary",{["itemid"]=11855361567,["itemname"]="Icecrusher",["itemtype"]="Knife",["rarity"]="Legendary"}},
-    {"Knife","IceShard",{["itemid"]=1268710824,["itemname"]="Ice Shard",["itemtype"]="Knife",["rarity"]="Godly"}},
-    {"Knife","Icebreaker",{["itemid"]=6125729383,["itemname"]="Icebreaker",["itemtype"]="Knife",["rarity"]="Ancient"}},
-    {"Knife","Icecracker_K_2020",{["itemid"]=6121848805,["itemname"]="Icecracker",["itemtype"]="Knife",["rarity"]="Legendary"}},
-    {"Knife","Icecream",{["itemid"]=87189663191639,["itemname"]="Icecream",["itemtype"]="Knife",["rarity"]="Godly"}},
-    {"Knife","IcecreamChroma",{["chroma"]=true,["itemid"]=87189663191639,["itemname"]="Icecream",["itemtype"]="Knife",["rarity"]="Godly"}},
-    {"Knife","Iceflake",{["itemid"]=8304818186,["itemname"]="Iceflake",["itemtype"]="Knife",["rarity"]="Godly"}},
-    {"Knife","Icewing",{["itemid"]=3183085102,["itemname"]="Icewing",["itemtype"]="Knife",["rarity"]="Ancient"}},
-    {"Knife","Icicles_K_2018",{["itemid"]=2669639638,["itemname"]="Icicles",["itemtype"]="Knife",["rarity"]="Rare"}},
-    {"Knife","Igloo_K_2024",{["itemid"]=73203940450745,["itemname"]="Igloo",["itemtype"]="Knife",["rarity"]="Common"}},
+    {"Knife","IceDragon",{["itemid"]=585872642,["itemname"]="Ice Dragon",["itemtype"]="Knife",["offset"]={["X"]=0,["Y"]=0,["Z"]=0.55},["rarity"]="Godly",["year"]="2016"}},
+    {"Knife","IceHammer",{["itemid"]=11855360152,["itemname"]="Icecrusher",["itemtype"]="Knife",["rarity"]="Rare",["year"]="2022",["evoindex"]=1}},
+    {"Knife","IceHammerBronze",{["itemid"]=12227148356,["itemname"]="Bronze Icecrusher",["itemtype"]="Knife",["rarity"]="Unique",["year"]="2022"}},
+    {"Knife","IceHammerGold",{["itemid"]=12227137860,["itemname"]="Gold Icecrusher",["itemtype"]="Knife",["rarity"]="Unique",["year"]="2022"}},
+    {"Knife","IceHammerRed",{["itemid"]=12227186408,["itemname"]="Red Icecrusher",["itemtype"]="Knife",["rarity"]="Unique",["year"]="2022"}},
+    {"Knife","IceHammerSilver",{["itemid"]=12227142478,["itemname"]="Silver Icecrusher",["itemtype"]="Knife",["rarity"]="Unique",["year"]="2022"}},
+    {"Knife","IceHammer_Ancient",{["itemid"]=11855274019,["itemname"]="Icecrusher",["itemtype"]="Knife",["rarity"]="Ancient",["year"]="2022",["evoindex"]=4}},
+    {"Knife","IceHammer_Godly",{["itemid"]=11855282546,["itemname"]="Icecrusher",["itemtype"]="Knife",["rarity"]="Godly",["year"]="2022",["evoindex"]=3}},
+    {"Knife","IceHammer_Legendary",{["itemid"]=11855361567,["itemname"]="Icecrusher",["itemtype"]="Knife",["rarity"]="Legendary",["year"]="2022",["evoindex"]=2}},
+    {"Knife","IceShard",{["itemid"]=1268710824,["itemname"]="Ice Shard",["itemtype"]="Knife",["rarity"]="Godly",["year"]="2017"}},
+    {"Knife","Icebreaker",{["itemid"]=6125729383,["itemname"]="Icebreaker",["itemtype"]="Knife",["rarity"]="Ancient",["year"]="2020"}},
+    {"Knife","Icecracker_K_2020",{["itemid"]=6121848805,["itemname"]="Icecracker",["itemtype"]="Knife",["rarity"]="Legendary",["year"]="2020"}},
+    {"Knife","Icecream",{["itemid"]=87189663191639,["itemname"]="Icecream",["itemtype"]="Knife",["rarity"]="Godly",["year"]="2026"}},
+    {"Knife","IcecreamChroma",{["chroma"]=true,["itemid"]=87189663191639,["itemname"]="Icecream",["itemtype"]="Knife",["rarity"]="Godly",["year"]="2026"}},
+    {"Knife","Iceflake",{["itemid"]=8304818186,["itemname"]="Iceflake",["itemtype"]="Knife",["rarity"]="Godly",["year"]="2021"}},
+    {"Knife","Icewing",{["itemid"]=3183085102,["itemname"]="Icewing",["itemtype"]="Knife",["rarity"]="Ancient",["year"]="2018"}},
+    {"Knife","Icicles_K_2018",{["itemid"]=2669639638,["itemname"]="Icicles",["itemtype"]="Knife",["rarity"]="Rare",["year"]="2018"}},
+    {"Knife","Igloo_K_2024",{["itemid"]=73203940450745,["itemname"]="Igloo",["itemtype"]="Knife",["rarity"]="Common",["year"]="2024"}},
     {"Knife","Indy",{["itemid"]=305506951,["itemname"]="Indy",["itemtype"]="Knife",["rarity"]="Common"}},
     {"Knife","Infected",{["itemid"]=200953094,["itemname"]="Infected",["itemtype"]="Knife",["rarity"]="Common"}},
-    {"Knife","Infected_K_2022",{["itemid"]=11254175272,["itemname"]="Infected",["itemtype"]="Knife",["rarity"]="Common"}},
+    {"Knife","Infected_K_2022",{["itemid"]=11254175272,["itemname"]="Infected",["itemtype"]="Knife",["rarity"]="Common",["year"]="2022"}},
     {"Knife","JD",{["itemid"]=566867312,["itemname"]="JD",["itemtype"]="Knife",["rarity"]="Legendary"}},
-    {"Knife","Jack",{["itemid"]=315099010,["itemname"]="Jack",["itemtype"]="Knife",["rarity"]="Rare"}},
-    {"Knife","Jack_K_2022",{["itemid"]=11254093910,["itemname"]="Lantern",["itemtype"]="Knife",["rarity"]="Uncommon"}},
+    {"Knife","Jack",{["itemid"]=315099010,["itemname"]="Jack",["itemtype"]="Knife",["rarity"]="Rare",["year"]="2015"}},
+    {"Knife","Jack_K_2022",{["itemid"]=11254093910,["itemname"]="Lantern",["itemtype"]="Knife",["rarity"]="Uncommon",["year"]="2022"}},
     {"Knife","Jellyfish_K_2024",{["itemid"]=18322181701,["itemname"]="Jellyfish",["itemtype"]="Knife",["rarity"]="Uncommon"}},
     {"Knife","Jigsaw",{["itemid"]=365569126,["itemname"]="Jigsaw",["itemtype"]="Knife",["rarity"]="Uncommon"}},
     {"Knife","Knife1",{["itemid"]=473574001,["itemname"]="Splitter",["itemtype"]="Knife",["rarity"]="Classic"}},
     {"Knife","Kool",{["itemid"]=473625906,["itemname"]="Yellow",["itemtype"]="Knife",["rarity"]="Common"}},
     {"Knife","Korblox",{["itemid"]=315501501,["itemname"]="Korblox",["itemtype"]="Knife",["rarity"]="Rare"}},
-    {"Knife","Kraken_K_2024",{["itemid"]=116059045830205,["itemname"]="Kraken",["itemtype"]="Knife",["rarity"]="Rare"}},
+    {"Knife","Kraken_K_2024",{["itemid"]=116059045830205,["itemname"]="Kraken",["itemtype"]="Knife",["rarity"]="Rare",["year"]="2024"}},
     {"Knife","Krypto",{["itemid"]=198440414,["itemname"]="Krypto",["itemtype"]="Knife",["rarity"]="Rare"}},
     {"Knife","LMFAO",{["itemid"]=473626473,["itemname"]="Pink",["itemtype"]="Knife",["rarity"]="Uncommon"}},
     {"Knife","Laser_K_2026",{["itemid"]=76785021563290,["itemname"]="Laser",["itemtype"]="Knife",["rarity"]="Rare"}},
     {"Knife","Latte_K_2023",{["itemid"]=15413114703,["itemname"]="Latte",["itemtype"]="Knife",["rarity"]="Legendary"}},
-    {"Knife","Lava_K_2025",{["itemid"]=131417913843701,["itemname"]="Lava",["itemtype"]="Knife",["rarity"]="Uncommon"}},
+    {"Knife","Lava_K_2025",{["itemid"]=131417913843701,["itemname"]="Lava",["itemtype"]="Knife",["rarity"]="Uncommon",["year"]="2025"}},
     {"Knife","Leaf",{["itemid"]=4659636452,["itemname"]="Leaf",["itemtype"]="Knife",["rarity"]="Common"}},
-    {"Knife","Leaves_K_2023",{["itemid"]=15091400883,["itemname"]="Leaves",["itemtype"]="Knife",["rarity"]="Common"}},
-    {"Knife","Leaves_K_2025",{["itemid"]=73486056426142,["itemname"]="Leaves",["itemtype"]="Knife",["rarity"]="Common"}},
-    {"Knife","Lights_K_2019",{["itemid"]=4534858185,["itemname"]="Lights",["itemtype"]="Knife",["rarity"]="Uncommon"}},
-    {"Knife","Lights_K_2025",{["itemid"]=71228862432065,["itemname"]="Lights",["itemtype"]="Knife",["rarity"]="Common"}},
+    {"Knife","Leaves_K_2023",{["itemid"]=15091400883,["itemname"]="Leaves",["itemtype"]="Knife",["rarity"]="Common",["year"]="2023"}},
+    {"Knife","Leaves_K_2025",{["itemid"]=73486056426142,["itemname"]="Leaves",["itemtype"]="Knife",["rarity"]="Common",["year"]="2025"}},
+    {"Knife","Lights_K_2019",{["itemid"]=4534858185,["itemname"]="Lights",["itemtype"]="Knife",["rarity"]="Uncommon",["year"]="2019"}},
+    {"Knife","Lights_K_2025",{["itemid"]=71228862432065,["itemname"]="Lights",["itemtype"]="Knife",["rarity"]="Common",["year"]="2025"}},
     {"Knife","Linked",{["itemid"]=198433893,["itemname"]="Linked",["itemtype"]="Knife",["rarity"]="Common"}},
     {"Knife","Log",{["itemid"]=365567962,["itemname"]="Log",["itemtype"]="Knife",["rarity"]="Common"}},
-    {"Knife","Logchopper",{["itemid"]=4535644282,["itemname"]="Logchopper",["itemtype"]="Knife",["rarity"]="Ancient"}},
-    {"Knife","LogchopperBlue",{["itemid"]=4753353471,["itemname"]="Blue Logchopper",["itemtype"]="Knife",["rarity"]="Unique"}},
-    {"Knife","LogchopperBronze",{["itemid"]=4753354123,["itemname"]="Bronze Logchopper",["itemtype"]="Knife",["rarity"]="Unique"}},
-    {"Knife","LogchopperGold",{["itemid"]=4753354638,["itemname"]="Gold Logchopper",["itemtype"]="Knife",["rarity"]="Unique"}},
-    {"Knife","LogchopperSilver",{["itemid"]=4753352581,["itemname"]="Silver Logchopper",["itemtype"]="Knife",["rarity"]="Unique"}},
-    {"Knife","Logcutter_K_2024",{["itemid"]=71088901904009,["itemname"]="Logcutter",["itemtype"]="Knife",["rarity"]="Rare"}},
+    {"Knife","Logchopper",{["itemid"]=4535644282,["itemname"]="Logchopper",["itemtype"]="Knife",["rarity"]="Ancient",["year"]="2019"}},
+    {"Knife","LogchopperBlue",{["itemid"]=4753353471,["itemname"]="Blue Logchopper",["itemtype"]="Knife",["rarity"]="Unique",["year"]="2019"}},
+    {"Knife","LogchopperBronze",{["itemid"]=4753354123,["itemname"]="Bronze Logchopper",["itemtype"]="Knife",["rarity"]="Unique",["year"]="2019"}},
+    {"Knife","LogchopperGold",{["itemid"]=4753354638,["itemname"]="Gold Logchopper",["itemtype"]="Knife",["rarity"]="Unique",["year"]="2019"}},
+    {"Knife","LogchopperSilver",{["itemid"]=4753352581,["itemname"]="Silver Logchopper",["itemtype"]="Knife",["rarity"]="Unique",["year"]="2019"}},
+    {"Knife","Logcutter_K_2024",{["itemid"]=71088901904009,["itemname"]="Logcutter",["itemtype"]="Knife",["rarity"]="Rare",["year"]="2024"}},
     {"Knife","Love",{["itemid"]=196750845,["itemname"]="Love",["itemtype"]="Knife",["rarity"]="Common"}},
     {"Knife","Love_K_2023",{["itemid"]=12339328595,["itemname"]="Love",["itemtype"]="Knife",["rarity"]="Common"}},
     {"Knife","Lovely",{["itemid"]=4659635584,["itemname"]="Lovely",["itemtype"]="Knife",["rarity"]="Common"}},
     {"Knife","Lucky",{["itemid"]=365569265,["itemname"]="Lucky",["itemtype"]="Knife",["rarity"]="Uncommon"}},
     {"Knife","MLG",{["itemid"]=473626979,["itemname"]="Shiny",["itemtype"]="Knife",["rarity"]="Legendary"}},
-    {"Knife","MagmaK",{["itemid"]=1133317890,["itemname"]="Magma",["itemtype"]="Knife",["rarity"]="Rare"}},
-    {"Knife","Magma_K_2021",{["itemid"]=7800225996,["itemname"]="Magma",["itemtype"]="Knife",["rarity"]="Rare"}},
+    {"Knife","MagmaK",{["itemid"]=1133317890,["itemname"]="Magma",["itemtype"]="Knife",["rarity"]="Rare",["year"]="2017"}},
+    {"Knife","Magma_K_2021",{["itemid"]=7800225996,["itemname"]="Magma",["itemtype"]="Knife",["rarity"]="Rare",["year"]="2021"}},
     {"Knife","Marble_K_2023",{["itemid"]=12965302237,["itemname"]="Marble",["itemtype"]="Knife",["rarity"]="Uncommon"}},
     {"Knife","Marley",{["itemid"]=473625785,["itemname"]="Green",["itemtype"]="Knife",["rarity"]="Common"}},
     {"Knife","Melon",{["itemid"]=315501369,["itemname"]="Melon",["itemtype"]="Knife",["rarity"]="Uncommon"}},
-    {"Knife","Meltdown_K_2023",{["itemid"]=15091340751,["itemname"]="Meltdown",["itemtype"]="Knife",["rarity"]="Uncommon"}},
+    {"Knife","Meltdown_K_2023",{["itemid"]=15091340751,["itemname"]="Meltdown",["itemtype"]="Knife",["rarity"]="Uncommon",["year"]="2023"}},
     {"Knife","Midnight",{["itemid"]=197663897,["itemname"]="Midnight",["itemtype"]="Knife",["rarity"]="Legendary"}},
     {"Knife","Missing",{["itemid"]=198439692,["itemname"]="Missing",["itemtype"]="Knife",["rarity"]="Uncommon"}},
-    {"Knife","Mistletoe_K_2022",{["itemid"]=11834394793,["itemname"]="Mistletoe",["itemtype"]="Knife",["rarity"]="Uncommon"}},
+    {"Knife","Mistletoe_K_2022",{["itemid"]=11834394793,["itemname"]="Mistletoe",["itemtype"]="Knife",["rarity"]="Uncommon",["year"]="2022"}},
     {"Knife","MoltenKnife",{["itemid"]=235371809,["itemname"]="Molten",["itemtype"]="Knife",["rarity"]="Rare"}},
-    {"Knife","Monster_K_2024",{["itemid"]=109292073070223,["itemname"]="Monster",["itemtype"]="Knife",["rarity"]="Uncommon"}},
-    {"Knife","Moon_K_2021",{["itemid"]=7800224197,["itemname"]="Moon",["itemtype"]="Knife",["rarity"]="Common"}},
-    {"Knife","Moons",{["itemid"]=531873154,["itemname"]="Moons",["itemtype"]="Knife",["rarity"]="Uncommon"}},
-    {"Knife","Moons_K_2024",{["itemid"]=91446990047399,["itemname"]="Moons",["itemtype"]="Knife",["rarity"]="Uncommon"}},
-    {"Knife","Mummified",{["itemid"]=4210946577,["itemname"]="Mummified",["itemtype"]="Knife",["rarity"]="Common"}},
-    {"Knife","MummyK",{["itemid"]=1133352032,["itemname"]="Mummy",["itemtype"]="Knife",["rarity"]="Uncommon"}},
-    {"Knife","MummyK2018",{["itemid"]=2513733542,["itemname"]="Mummy",["itemtype"]="Knife",["rarity"]="Uncommon"}},
-    {"Knife","Mummy_K_2020",{["itemid"]=5866447521,["itemname"]="Mummy",["itemtype"]="Knife",["rarity"]="Uncommon"}},
+    {"Knife","Monster_K_2024",{["itemid"]=109292073070223,["itemname"]="Monster",["itemtype"]="Knife",["rarity"]="Uncommon",["year"]="2024"}},
+    {"Knife","Moon_K_2021",{["itemid"]=7800224197,["itemname"]="Moon",["itemtype"]="Knife",["rarity"]="Common",["year"]="2021"}},
+    {"Knife","Moons",{["itemid"]=531873154,["itemname"]="Moons",["itemtype"]="Knife",["rarity"]="Uncommon",["year"]="2016"}},
+    {"Knife","Moons_K_2024",{["itemid"]=91446990047399,["itemname"]="Moons",["itemtype"]="Knife",["rarity"]="Uncommon",["year"]="2024"}},
+    {"Knife","Mummified",{["itemid"]=4210946577,["itemname"]="Mummified",["itemtype"]="Knife",["rarity"]="Common",["year"]="2019"}},
+    {"Knife","MummyK",{["itemid"]=1133352032,["itemname"]="Mummy",["itemtype"]="Knife",["rarity"]="Uncommon",["year"]="2017"}},
+    {"Knife","MummyK2018",{["itemid"]=2513733542,["itemname"]="Mummy",["itemtype"]="Knife",["rarity"]="Uncommon",["year"]="2018"}},
+    {"Knife","Mummy_K_2020",{["itemid"]=5866447521,["itemname"]="Mummy",["itemtype"]="Knife",["rarity"]="Uncommon",["year"]="2020"}},
     {"Knife","Musical",{["itemid"]=365569566,["itemname"]="Musical",["itemtype"]="Knife",["rarity"]="Rare"}},
     {"Knife","Nebula",{["itemid"]=6598123521,["itemname"]="Nebula",["itemtype"]="Knife",["rarity"]="Godly"}},
     {"Knife","Neon",{["itemid"]=198566885,["itemname"]="Neon",["itemtype"]="Knife",["rarity"]="Common"}},
-    {"Knife","Neopolitan_K_2026",{["itemid"]=73980008491741,["itemname"]="Neopolitan",["itemtype"]="Knife",["rarity"]="Uncommon"}},
+    {"Knife","Neopolitan_K_2026",{["itemid"]=73980008491741,["itemname"]="Neopolitan",["itemtype"]="Knife",["rarity"]="Uncommon",["year"]="2026"}},
     {"Knife","Nether",{["itemid"]=197656593,["itemname"]="Nether",["itemtype"]="Knife",["rarity"]="Rare"}},
     {"Knife","Nightblade",{["itemid"]=475478854,["itemname"]="Nightblade",["itemtype"]="Knife",["rarity"]="Godly"}},
     {"Knife","NikKnife",{["itemid"]=2533351841,["itemname"]="Nik's Scythe",["itemtype"]="Knife",["rarity"]="Ancient"}},
@@ -5964,12 +5966,12 @@ local staticMM2={
     {"Knife","Nova",{["itemid"]=235371686,["itemname"]="Nova",["itemtype"]="Knife",["rarity"]="Rare"}},
     {"Knife","Oily",{["itemid"]=315501170,["itemname"]="Oily",["itemtype"]="Knife",["rarity"]="Common"}},
     {"Knife","Ollie",{["itemid"]=305504399,["itemname"]="Ollie",["itemtype"]="Knife",["rarity"]="Common"}},
-    {"Knife","OrangeMarble",{["itemid"]=531873011,["itemname"]="Orange Marble",["itemtype"]="Knife",["rarity"]="Rare"}},
+    {"Knife","OrangeMarble",{["itemid"]=531873011,["itemname"]="Orange Marble",["itemtype"]="Knife",["rarity"]="Rare",["year"]="2016"}},
     {"Knife","OrangeSeer",{["itemid"]=3184124504,["itemname"]="Orange Seer",["itemtype"]="Knife",["rarity"]="Godly"}},
-    {"Knife","Ornament1",{["itemid"]=331745428,["itemname"]="Ornament",["itemtype"]="Knife",["rarity"]="Common"}},
-    {"Knife","Ornament2",{["itemid"]=331745341,["itemname"]="Ornament2",["itemtype"]="Knife",["rarity"]="Common"}},
-    {"Knife","Ornaments_K_2020",{["itemid"]=6121853160,["itemname"]="Ornaments",["itemtype"]="Knife",["rarity"]="Common"}},
-    {"Knife","Ornaments_K_2025",{["itemid"]=132504094164819,["itemname"]="Ornaments",["itemtype"]="Knife",["rarity"]="Uncommon"}},
+    {"Knife","Ornament1",{["itemid"]=331745428,["itemname"]="Ornament",["itemtype"]="Knife",["rarity"]="Common",["year"]="2015"}},
+    {"Knife","Ornament2",{["itemid"]=331745341,["itemname"]="Ornament2",["itemtype"]="Knife",["rarity"]="Common",["year"]="2015"}},
+    {"Knife","Ornaments_K_2020",{["itemid"]=6121853160,["itemname"]="Ornaments",["itemtype"]="Knife",["rarity"]="Common",["year"]="2020"}},
+    {"Knife","Ornaments_K_2025",{["itemid"]=132504094164819,["itemname"]="Ornaments",["itemtype"]="Knife",["rarity"]="Uncommon",["year"]="2025"}},
     {"Knife","OverseerKnife",{["itemid"]=198441413,["itemname"]="Overseer",["itemtype"]="Knife",["rarity"]="Legendary"}},
     {"Knife","Painted_K_2023",{["itemid"]=12965311567,["itemname"]="Painted",["itemtype"]="Knife",["rarity"]="Rare"}},
     {"Knife","Palms_K_2024",{["itemid"]=18322137551,["itemname"]="Palms",["itemtype"]="Knife",["rarity"]="Legendary"}},
@@ -5977,126 +5979,126 @@ local staticMM2={
     {"Knife","Passion",{["itemid"]=363150334,["itemname"]="Passion",["itemtype"]="Knife",["rarity"]="Common"}},
     {"Knife","Patrick",{["itemid"]=383476085,["itemname"]="Patrick",["itemtype"]="Knife",["rarity"]="Common"}},
     {"Knife","Pearl_K",{["itemid"]=18322621319,["itemname"]="Pearl",["itemtype"]="Knife",["rarity"]="Godly"}},
-    {"Knife","Penguin_K_2025",{["itemid"]=93320180084418,["itemname"]="Penguin",["itemtype"]="Knife",["rarity"]="Common"}},
+    {"Knife","Penguin_K_2025",{["itemid"]=93320180084418,["itemname"]="Penguin",["itemtype"]="Knife",["rarity"]="Common",["year"]="2025"}},
     {"Knife","Pepper",{["itemid"]=473625645,["itemname"]="Brown",["itemtype"]="Knife",["rarity"]="Common"}},
-    {"Knife","Peppermint",{["itemid"]=6085035357,["itemname"]="Peppermint",["itemtype"]="Knife",["rarity"]="Godly"}},
-    {"Knife","Peppermint_K_2025",{["itemid"]=84605926178412,["itemname"]="Peppermint",["itemtype"]="Knife",["rarity"]="Common"}},
-    {"Knife","Phantom",{["itemid"]=1133332075,["itemname"]="Phantom",["itemtype"]="Knife",["rarity"]="Common"}},
-    {"Knife","Phantom2022",{["itemid"]=11229732037,["itemname"]="Phantom",["itemtype"]="Knife",["rarity"]="Godly"}},
+    {"Knife","Peppermint",{["itemid"]=6085035357,["itemname"]="Peppermint",["itemtype"]="Knife",["rarity"]="Godly",["year"]="2020"}},
+    {"Knife","Peppermint_K_2025",{["itemid"]=84605926178412,["itemname"]="Peppermint",["itemtype"]="Knife",["rarity"]="Common",["year"]="2025"}},
+    {"Knife","Phantom",{["itemid"]=1133332075,["itemname"]="Phantom",["itemtype"]="Knife",["rarity"]="Common",["year"]="2017"}},
+    {"Knife","Phantom2022",{["itemid"]=11229732037,["itemname"]="Phantom",["itemtype"]="Knife",["rarity"]="Godly",["year"]="2022"}},
     {"Knife","Phaser_K_2026",{["itemid"]=88433569053641,["itemname"]="Phaser",["itemtype"]="Knife",["rarity"]="Rare"}},
-    {"Knife","Pier_K_2026",{["itemid"]=127570773123670,["itemname"]="Pier",["itemtype"]="Knife",["rarity"]="Rare"}},
-    {"Knife","Pine_K_2019",{["itemid"]=4534855710,["itemname"]="Pine",["itemtype"]="Knife",["rarity"]="Common"}},
+    {"Knife","Pier_K_2026",{["itemid"]=127570773123670,["itemname"]="Pier",["itemtype"]="Knife",["rarity"]="Rare",["year"]="2026"}},
+    {"Knife","Pine_K_2019",{["itemid"]=4534855710,["itemname"]="Pine",["itemtype"]="Knife",["rarity"]="Common",["year"]="2019"}},
     {"Knife","Pixel",{["itemid"]=473573054,["itemname"]="Pixel",["itemtype"]="Knife",["offset"]={["X"]=0,["Y"]=0.2,["Z"]=0.5},["rarity"]="Godly"}},
     {"Knife","Plasmablade",{["itemid"]=10014680882,["itemname"]="Plasmablade",["itemtype"]="Knife",["rarity"]="Godly"}},
     {"Knife","Plasmite",{["itemid"]=196750899,["itemname"]="Plasmite",["itemtype"]="Knife",["rarity"]="Legendary"}},
-    {"Knife","PolarBear_K_2025",{["itemid"]=120422092957504,["itemname"]="Polar Bear",["itemtype"]="Knife",["rarity"]="Uncommon"}},
-    {"Knife","Pool_K_2025",{["itemid"]=112511843095202,["itemname"]="Pool",["itemtype"]="Knife",["rarity"]="Uncommon"}},
-    {"Knife","PopArt_K_2025",{["itemid"]=123269723073737,["itemname"]="Pop Art",["itemtype"]="Knife",["rarity"]="Rare"}},
+    {"Knife","PolarBear_K_2025",{["itemid"]=120422092957504,["itemname"]="Polar Bear",["itemtype"]="Knife",["rarity"]="Uncommon",["year"]="2025"}},
+    {"Knife","Pool_K_2025",{["itemid"]=112511843095202,["itemname"]="Pool",["itemtype"]="Knife",["rarity"]="Uncommon",["year"]="2025"}},
+    {"Knife","PopArt_K_2025",{["itemid"]=123269723073737,["itemname"]="Pop Art",["itemtype"]="Knife",["rarity"]="Rare",["year"]="2025"}},
     {"Knife","Popsicle_K_2023",{["itemid"]=13944131195,["itemname"]="Popsicle",["itemtype"]="Knife",["rarity"]="Uncommon"}},
-    {"Knife","Portal_K_2020",{["itemid"]=5866444722,["itemname"]="Portal",["itemtype"]="Knife",["rarity"]="Rare"}},
-    {"Knife","Potion",{["itemid"]=1133366632,["itemname"]="Potion",["itemtype"]="Knife",["rarity"]="Uncommon"}},
-    {"Knife","PotionK2018",{["itemid"]=2513733987,["itemname"]="Potion",["itemtype"]="Knife",["rarity"]="Uncommon"}},
+    {"Knife","Portal_K_2020",{["itemid"]=5866444722,["itemname"]="Portal",["itemtype"]="Knife",["rarity"]="Rare",["year"]="2020"}},
+    {"Knife","Potion",{["itemid"]=1133366632,["itemname"]="Potion",["itemtype"]="Knife",["rarity"]="Uncommon",["year"]="2017"}},
+    {"Knife","PotionK2018",{["itemid"]=2513733987,["itemname"]="Potion",["itemtype"]="Knife",["rarity"]="Uncommon",["year"]="2018"}},
     {"Knife","PredatorKnife",{["itemid"]=235372015,["itemname"]="Predator",["itemtype"]="Knife",["rarity"]="Legendary"}},
-    {"Knife","Present",{["itemid"]=1268699212,["itemname"]="Present",["itemtype"]="Knife",["rarity"]="Common"}},
-    {"Knife","Present_K_2023",{["itemid"]=15635553149,["itemname"]="Present",["itemtype"]="Knife",["rarity"]="Common"}},
+    {"Knife","Present",{["itemid"]=1268699212,["itemname"]="Present",["itemtype"]="Knife",["rarity"]="Common",["year"]="2017"}},
+    {"Knife","Present_K_2023",{["itemid"]=15635553149,["itemname"]="Present",["itemtype"]="Knife",["rarity"]="Common",["year"]="2023"}},
     {"Knife","Prism",{["itemid"]=306046703,["itemname"]="Prism",["itemtype"]="Knife",["rarity"]="Common"}},
     {"Knife","Prismatic",{["itemid"]=5360359935,["itemname"]="Prismatic",["itemtype"]="Knife",["rarity"]="Godly"}},
-    {"Knife","PumpkinPatch",{["itemid"]=4210931354,["itemname"]="Pumpkin",["itemtype"]="Knife",["rarity"]="Common"}},
-    {"Knife","PumpkinPatch_K_2025",{["itemid"]=119626042140839,["itemname"]="Pumpkin",["itemtype"]="Knife",["rarity"]="Uncommon"}},
+    {"Knife","PumpkinPatch",{["itemid"]=4210931354,["itemname"]="Pumpkin",["itemtype"]="Knife",["rarity"]="Common",["year"]="2019"}},
+    {"Knife","PumpkinPatch_K_2025",{["itemid"]=119626042140839,["itemname"]="Pumpkin",["itemtype"]="Knife",["rarity"]="Uncommon",["year"]="2025"}},
     {"Knife","PumpkinPie_K_2023",{["itemid"]=15413117611,["itemname"]="Pumpkin Pie",["itemtype"]="Knife",["rarity"]="Uncommon"}},
-    {"Knife","Pumpkin_K_2020",{["itemid"]=5872490600,["itemname"]="Pumpkin",["itemtype"]="Knife",["rarity"]="Uncommon"}},
-    {"Knife","Pumpking",{["itemid"]=1138143590,["itemname"]="Pumpking",["itemtype"]="Knife",["rarity"]="Godly"}},
+    {"Knife","Pumpkin_K_2020",{["itemid"]=5872490600,["itemname"]="Pumpkin",["itemtype"]="Knife",["rarity"]="Uncommon",["year"]="2020"}},
+    {"Knife","Pumpking",{["itemid"]=1138143590,["itemname"]="Pumpking",["itemtype"]="Knife",["rarity"]="Godly",["year"]="2017"}},
     {"Knife","PurpleSeer",{["itemid"]=3184125244,["itemname"]="Purple Seer",["itemtype"]="Knife",["rarity"]="Godly"}},
     {"Knife","RBKnife",{["itemid"]=5984754897,["itemname"]="RB Knife",["itemtype"]="Knife",["rarity"]="Common"}},
     {"Knife","Rainbow",{["itemid"]=196750963,["itemname"]="Rainbow",["itemtype"]="Knife",["rarity"]="Rare"}},
     {"Knife","Rainbow_K",{["itemid"]=12966184630,["itemname"]="Rainbow",["itemtype"]="Knife",["rarity"]="Godly"}},
     {"Knife","RandLuger",{["itemid"]=196751515,["itemname"]="Glitch2",["itemtype"]="Knife",["rarity"]="Common"}},
-    {"Knife","RbxScary_K_2023",{["itemid"]=14967668214,["itemname"]="Ghoulish",["itemtype"]="Knife",["rarity"]="Common"}},
-    {"Knife","Reaver",{["itemid"]=7791484774,["itemname"]="Reaver",["itemtype"]="Knife",["rarity"]="Rare"}},
-    {"Knife","Reaver_Ancient",{["itemid"]=7791640819,["itemname"]="Reaver",["itemtype"]="Knife",["rarity"]="Ancient"}},
-    {"Knife","Reaver_Godly",{["itemid"]=7791511648,["itemname"]="Reaver",["itemtype"]="Knife",["rarity"]="Godly"}},
-    {"Knife","Reaver_Legendary",{["itemid"]=7791485669,["itemname"]="Reaver",["itemtype"]="Knife",["rarity"]="Legendary"}},
-    {"Knife","RedFire",{["itemid"]=1269256860,["itemname"]="Red Fire",["itemtype"]="Knife",["rarity"]="Legendary"}},
-    {"Knife","RedHallow",{["itemid"]=2511343130,["itemname"]="Red Hallow",["itemtype"]="Knife",["rarity"]="Unique"}},
-    {"Knife","RedIcebreaker",{["itemid"]=6404129111,["itemname"]="Red Icebreaker",["itemtype"]="Knife",["rarity"]="Unique"}},
+    {"Knife","RbxScary_K_2023",{["itemid"]=14967668214,["itemname"]="Ghoulish",["itemtype"]="Knife",["rarity"]="Common",["year"]="2023"}},
+    {"Knife","Reaver",{["itemid"]=7791484774,["itemname"]="Reaver",["itemtype"]="Knife",["rarity"]="Rare",["year"]="2021",["evoindex"]=1}},
+    {"Knife","Reaver_Ancient",{["itemid"]=7791640819,["itemname"]="Reaver",["itemtype"]="Knife",["rarity"]="Ancient",["year"]="2021",["evoindex"]=4}},
+    {"Knife","Reaver_Godly",{["itemid"]=7791511648,["itemname"]="Reaver",["itemtype"]="Knife",["rarity"]="Godly",["year"]="2021",["evoindex"]=3}},
+    {"Knife","Reaver_Legendary",{["itemid"]=7791485669,["itemname"]="Reaver",["itemtype"]="Knife",["rarity"]="Legendary",["year"]="2021",["evoindex"]=2}},
+    {"Knife","RedFire",{["itemid"]=1269256860,["itemname"]="Red Fire",["itemtype"]="Knife",["rarity"]="Legendary",["year"]="2017"}},
+    {"Knife","RedHallow",{["itemid"]=2511343130,["itemname"]="Red Hallow",["itemtype"]="Knife",["rarity"]="Unique",["year"]="2018"}},
+    {"Knife","RedIcebreaker",{["itemid"]=6404129111,["itemname"]="Red Icebreaker",["itemtype"]="Knife",["rarity"]="Unique",["year"]="2020"}},
     {"Knife","RedSeer",{["itemid"]=3184122829,["itemname"]="Red Seer",["itemtype"]="Knife",["rarity"]="Godly"}},
-    {"Knife","Reindeer_K_2024",{["itemid"]=109101361674956,["itemname"]="Reindeer",["itemtype"]="Knife",["rarity"]="Common"}},
-    {"Knife","Reindeer_K_2025",{["itemid"]=122078592955794,["itemname"]="Reindeer",["itemtype"]="Knife",["rarity"]="Common"}},
+    {"Knife","Reindeer_K_2024",{["itemid"]=109101361674956,["itemname"]="Reindeer",["itemtype"]="Knife",["rarity"]="Common",["year"]="2024"}},
+    {"Knife","Reindeer_K_2025",{["itemid"]=122078592955794,["itemname"]="Reindeer",["itemtype"]="Knife",["rarity"]="Common",["year"]="2025"}},
     {"Knife","Reptile",{["itemid"]=197499641,["itemname"]="Reptile",["itemtype"]="Knife",["rarity"]="Common"}},
-    {"Knife","Retro_K_2025",{["itemid"]=85299848190695,["itemname"]="Retro",["itemtype"]="Knife",["rarity"]="Uncommon"}},
-    {"Knife","Ribbon_K_2023",{["itemid"]=15635552019,["itemname"]="Ribbon",["itemtype"]="Knife",["rarity"]="Common"}},
-    {"Knife","Ribbons_K_2021",{["itemid"]=8304754882,["itemname"]="Ribbons",["itemtype"]="Knife",["rarity"]="Common"}},
-    {"Knife","Ripper_K_2020",{["itemid"]=5866441301,["itemname"]="Ripper",["itemtype"]="Knife",["rarity"]="Legendary"}},
+    {"Knife","Retro_K_2025",{["itemid"]=85299848190695,["itemname"]="Retro",["itemtype"]="Knife",["rarity"]="Uncommon",["year"]="2025"}},
+    {"Knife","Ribbon_K_2023",{["itemid"]=15635552019,["itemname"]="Ribbon",["itemtype"]="Knife",["rarity"]="Common",["year"]="2023"}},
+    {"Knife","Ribbons_K_2021",{["itemid"]=8304754882,["itemname"]="Ribbons",["itemtype"]="Knife",["rarity"]="Common",["year"]="2021"}},
+    {"Knife","Ripper_K_2020",{["itemid"]=5866441301,["itemname"]="Ripper",["itemtype"]="Knife",["rarity"]="Legendary",["year"]="2020"}},
     {"Knife","Robot_K_2024",{["itemid"]=16959778188,["itemname"]="Robot",["itemtype"]="Knife",["rarity"]="Rare"}},
     {"Knife","Rose_K_2023",{["itemid"]=12339325736,["itemname"]="Rose",["itemtype"]="Knife",["rarity"]="Uncommon"}},
     {"Knife","Roses",{["itemid"]=363352002,["itemname"]="Roses",["itemtype"]="Knife",["rarity"]="Common"}},
     {"Knife","Rune",{["itemid"]=3183607894,["itemname"]="Rune",["itemtype"]="Knife",["rarity"]="Legendary"}},
-    {"Knife","Runic_K_2022",{["itemid"]=11254123390,["itemname"]="Curse",["itemtype"]="Knife",["rarity"]="Rare"}},
+    {"Knife","Runic_K_2022",{["itemid"]=11254123390,["itemname"]="Curse",["itemtype"]="Knife",["rarity"]="Rare",["year"]="2022"}},
     {"Knife","Sakura_K",{["itemid"]=12339366064,["itemname"]="Sakura",["itemtype"]="Knife",["rarity"]="Godly"}},
-    {"Knife","Sand_K_2026",{["itemid"]=138109619662236,["itemname"]="Sand",["itemtype"]="Knife",["rarity"]="Common"}},
+    {"Knife","Sand_K_2026",{["itemid"]=138109619662236,["itemname"]="Sand",["itemtype"]="Knife",["rarity"]="Common",["year"]="2026"}},
     {"Knife","Sandy",{["itemid"]=365568056,["itemname"]="Sandy",["itemtype"]="Knife",["rarity"]="Common"}},
-    {"Knife","Santa",{["itemid"]=331746096,["itemname"]="Santa",["itemtype"]="Knife",["rarity"]="Common"}},
-    {"Knife","Santa2017",{["itemid"]=1268703618,["itemname"]="Santa",["itemtype"]="Knife",["rarity"]="Common"}},
-    {"Knife","Santa_K_2018",{["itemid"]=2669637780,["itemname"]="Santa",["itemtype"]="Knife",["rarity"]="Common"}},
-    {"Knife","SantasMagic",{["itemid"]=4535483042,["itemname"]="Santa's Magic",["itemtype"]="Knife",["rarity"]="Legendary"}},
-    {"Knife","SantasSpirit",{["itemid"]=6123357775,["itemname"]="Santa's Spirit",["itemtype"]="Knife",["rarity"]="Legendary"}},
+    {"Knife","Santa",{["itemid"]=331746096,["itemname"]="Santa",["itemtype"]="Knife",["rarity"]="Common",["year"]="2015"}},
+    {"Knife","Santa2017",{["itemid"]=1268703618,["itemname"]="Santa",["itemtype"]="Knife",["rarity"]="Common",["year"]="2017"}},
+    {"Knife","Santa_K_2018",{["itemid"]=2669637780,["itemname"]="Santa",["itemtype"]="Knife",["rarity"]="Common",["year"]="2018"}},
+    {"Knife","SantasMagic",{["itemid"]=4535483042,["itemname"]="Santa's Magic",["itemtype"]="Knife",["rarity"]="Legendary",["year"]="2019"}},
+    {"Knife","SantasSpirit",{["itemid"]=6123357775,["itemname"]="Santa's Spirit",["itemtype"]="Knife",["rarity"]="Legendary",["year"]="2020"}},
     {"Knife","Saw",{["itemid"]=235381341,["itemname"]="Saw",["itemtype"]="Knife",["rarity"]="Godly"}},
     {"Knife","SawChroma",{["chroma"]=true,["itemid"]=3187392992,["itemname"]="Saw",["itemtype"]="Knife",["rarity"]="Godly"}},
     {"Knife","Scarf_K_2023",{["itemid"]=15415482999,["itemname"]="Scarf",["itemtype"]="Knife",["rarity"]="Common"}},
-    {"Knife","Scratch",{["itemid"]=531873371,["itemname"]="Scratch",["itemtype"]="Knife",["rarity"]="Legendary"}},
-    {"Knife","ScratchBlue",{["itemid"]=1133316381,["itemname"]="Scratch",["itemtype"]="Knife",["rarity"]="Legendary"}},
-    {"Knife","Scythe",{["itemid"]=2511791893,["itemname"]="Batwing",["itemtype"]="Knife",["rarity"]="Ancient"}},
+    {"Knife","Scratch",{["itemid"]=531873371,["itemname"]="Scratch",["itemtype"]="Knife",["rarity"]="Legendary",["year"]="2016"}},
+    {"Knife","ScratchBlue",{["itemid"]=1133316381,["itemname"]="Scratch",["itemtype"]="Knife",["rarity"]="Legendary",["year"]="2017"}},
+    {"Knife","Scythe",{["itemid"]=2511791893,["itemname"]="Batwing",["itemtype"]="Knife",["rarity"]="Ancient",["year"]="2018"}},
     {"Knife","Season1TestKnife",{["itemid"]=196751515,["itemname"]="S1 Test Knife",["itemtype"]="Knife",["rarity"]="Common"}},
     {"Knife","SeerChroma",{["chroma"]=true,["itemid"]=3184125538,["itemname"]="Seer",["itemtype"]="Knife",["rarity"]="Godly"}},
     {"Knife","Shaded",{["itemid"]=4659636085,["itemname"]="Shaded",["itemtype"]="Knife",["rarity"]="Common"}},
     {"Knife","ShadowKnife",{["itemid"]=474030882,["itemname"]="Shadow",["itemtype"]="Knife",["rarity"]="Classic"}},
     {"Knife","Sharky_K_2024",{["itemid"]=18322179563,["itemname"]="Sharky",["itemtype"]="Knife",["rarity"]="Rare"}},
     {"Knife","Sidewinder",{["itemid"]=305503783,["itemname"]="Sidewinder",["itemtype"]="Knife",["rarity"]="Common"}},
-    {"Knife","SilentNight_K_2020",{["itemid"]=6121851313,["itemname"]="Silent Night",["itemtype"]="Knife",["rarity"]="Rare"}},
-    {"Knife","SilverCandy",{["itemid"]=1520190188,["itemname"]="Silver Candy",["itemtype"]="Knife",["rarity"]="Unique"}},
-    {"Knife","SilverHallow",{["itemid"]=2511341094,["itemname"]="Silver Hallow",["itemtype"]="Knife",["rarity"]="Unique"}},
-    {"Knife","SilverIcebreaker",{["itemid"]=6404126280,["itemname"]="Silver Icebreaker",["itemtype"]="Knife",["rarity"]="Unique"}},
-    {"Knife","SilverVampiresEdge",{["itemid"]=6084840560,["itemname"]="Silver Vamp's Edge",["itemtype"]="Knife",["rarity"]="Unique"}},
+    {"Knife","SilentNight_K_2020",{["itemid"]=6121851313,["itemname"]="Silent Night",["itemtype"]="Knife",["rarity"]="Rare",["year"]="2020"}},
+    {"Knife","SilverCandy",{["itemid"]=1520190188,["itemname"]="Silver Candy",["itemtype"]="Knife",["rarity"]="Unique",["year"]="2017"}},
+    {"Knife","SilverHallow",{["itemid"]=2511341094,["itemname"]="Silver Hallow",["itemtype"]="Knife",["rarity"]="Unique",["year"]="2018"}},
+    {"Knife","SilverIcebreaker",{["itemid"]=6404126280,["itemname"]="Silver Icebreaker",["itemtype"]="Knife",["rarity"]="Unique",["year"]="2020"}},
+    {"Knife","SilverVampiresEdge",{["itemid"]=6084840560,["itemname"]="Silver Vamp's Edge",["itemtype"]="Knife",["rarity"]="Unique",["year"]="2020"}},
     {"Knife","SketchYT",{["itemid"]=546161470,["itemname"]="Sketchy",["itemtype"]="Knife",["rarity"]="Common"}},
     {"Knife","Skool",{["itemid"]=295269977,["itemname"]="Skool",["itemtype"]="Knife",["rarity"]="Common"}},
-    {"Knife","Skull_K_2023",{["itemid"]=15091321393,["itemname"]="Etched",["itemtype"]="Knife",["rarity"]="Common"}},
-    {"Knife","Skulls",{["itemid"]=4210915060,["itemname"]="Skulls",["itemtype"]="Knife",["rarity"]="Legendary"}},
-    {"Knife","Skulls_K_2021",{["itemid"]=7800220325,["itemname"]="Skulls",["itemtype"]="Knife",["rarity"]="Uncommon"}},
-    {"Knife","Skyline_K_2025",{["itemid"]=75608370390005,["itemname"]="Skyline",["itemtype"]="Knife",["rarity"]="Common"}},
-    {"Knife","Slashed_K_2020",{["itemid"]=5929317433,["itemname"]="Slashed",["itemtype"]="Knife",["rarity"]="Common"}},
+    {"Knife","Skull_K_2023",{["itemid"]=15091321393,["itemname"]="Etched",["itemtype"]="Knife",["rarity"]="Common",["year"]="2023"}},
+    {"Knife","Skulls",{["itemid"]=4210915060,["itemname"]="Skulls",["itemtype"]="Knife",["rarity"]="Legendary",["year"]="2019"}},
+    {"Knife","Skulls_K_2021",{["itemid"]=7800220325,["itemname"]="Skulls",["itemtype"]="Knife",["rarity"]="Uncommon",["year"]="2021"}},
+    {"Knife","Skyline_K_2025",{["itemid"]=75608370390005,["itemname"]="Skyline",["itemtype"]="Knife",["rarity"]="Common",["year"]="2025"}},
+    {"Knife","Slashed_K_2020",{["itemid"]=5929317433,["itemname"]="Slashed",["itemtype"]="Knife",["rarity"]="Common",["year"]="2020"}},
     {"Knife","Slasher",{["itemid"]=315506122,["itemname"]="Slasher",["itemtype"]="Knife",["rarity"]="Godly"}},
     {"Knife","SlasherChroma",{["chroma"]=true,["itemid"]=3187393285,["itemname"]="Slasher",["itemtype"]="Knife",["rarity"]="Godly"}},
     {"Knife","Slate",{["itemid"]=198434520,["itemname"]="Slate",["itemtype"]="Knife",["rarity"]="Common"}},
-    {"Knife","Sleigh_K_2024",{["itemid"]=74917318027165,["itemname"]="Sleigh",["itemtype"]="Knife",["rarity"]="Rare"}},
-    {"Knife","SlimeK",{["itemid"]=2513734227,["itemname"]="Slime",["itemtype"]="Knife",["rarity"]="Common"}},
-    {"Knife","SlimyK",{["itemid"]=4210932676,["itemname"]="Slimy",["itemtype"]="Knife",["rarity"]="Common"}},
-    {"Knife","SlouseClown",{["itemid"]=315501118,["itemname"]="Clown",["itemtype"]="Knife",["rarity"]="Unique"}},
-    {"Knife","SnakebiteK",{["itemid"]=4210939388,["itemname"]="Snakebite",["itemtype"]="Knife",["rarity"]="Rare"}},
+    {"Knife","Sleigh_K_2024",{["itemid"]=74917318027165,["itemname"]="Sleigh",["itemtype"]="Knife",["rarity"]="Rare",["year"]="2024"}},
+    {"Knife","SlimeK",{["itemid"]=2513734227,["itemname"]="Slime",["itemtype"]="Knife",["rarity"]="Common",["year"]="2018"}},
+    {"Knife","SlimyK",{["itemid"]=4210932676,["itemname"]="Slimy",["itemtype"]="Knife",["rarity"]="Common",["year"]="2019"}},
+    {"Knife","SlouseClown",{["itemid"]=315501118,["itemname"]="Clown",["itemtype"]="Knife",["rarity"]="Unique",["year"]=""}},
+    {"Knife","SnakebiteK",{["itemid"]=4210939388,["itemname"]="Snakebite",["itemtype"]="Knife",["rarity"]="Rare",["year"]="2019"}},
     {"Knife","Snoop",{["itemid"]=473626150,["itemname"]="Red",["itemtype"]="Knife",["rarity"]="Uncommon"}},
-    {"Knife","SnowDagger",{["itemid"]=95328449981238,["itemname"]="Snow Dagger",["itemtype"]="Knife",["rarity"]="Godly"}},
-    {"Knife","SnowDaggerBronze",{["itemid"]=134312132943601,["itemname"]="Bronze Snow Dagger",["itemtype"]="Knife",["rarity"]="Unique"}},
-    {"Knife","SnowDaggerChroma",{["chroma"]=true,["itemid"]=95328449981238,["itemname"]="Snow Dagger",["itemtype"]="Knife",["rarity"]="Godly"}},
-    {"Knife","SnowDaggerGold",{["itemid"]=70701057041846,["itemname"]="Gold Snow Dagger",["itemtype"]="Knife",["rarity"]="Unique"}},
-    {"Knife","SnowDaggerRed",{["itemid"]=87617250559234,["itemname"]="Red Snow Dagger",["itemtype"]="Knife",["rarity"]="Unique"}},
-    {"Knife","SnowDaggerSilver",{["itemid"]=128427983277729,["itemname"]="Silver Snow Dagger",["itemtype"]="Knife",["rarity"]="Unique"}},
-    {"Knife","Snowball_K_2025",{["itemid"]=119914093248842,["itemname"]="Snowball",["itemtype"]="Knife",["rarity"]="Common"}},
-    {"Knife","Snowfall_K_2023",{["itemid"]=15635568751,["itemname"]="Snowfall",["itemtype"]="Knife",["rarity"]="Common"}},
-    {"Knife","Snowflake",{["itemid"]=1268932977,["itemname"]="Snowflake",["itemtype"]="Knife",["rarity"]="Godly"}},
-    {"Knife","Snowflake_K_2018",{["itemid"]=2669639913,["itemname"]="Snowflake",["itemtype"]="Knife",["rarity"]="Uncommon"}},
-    {"Knife","Snowflake_K_2022",{["itemid"]=11834397133,["itemname"]="Snowflake",["itemtype"]="Knife",["rarity"]="Uncommon"}},
-    {"Knife","Snowflakes_K_2019",{["itemid"]=4534855045,["itemname"]="Snowflakes",["itemtype"]="Knife",["rarity"]="Common"}},
-    {"Knife","Snowflakes_K_2020",{["itemid"]=6123338102,["itemname"]="Snowflakes",["itemtype"]="Knife",["rarity"]="Rare"}},
-    {"Knife","Snowglobe_K_2023",{["itemid"]=15635576863,["itemname"]="Snowglobe",["itemtype"]="Knife",["rarity"]="Rare"}},
-    {"Knife","Snowman",{["itemid"]=331745799,["itemname"]="Snowman",["itemtype"]="Knife",["rarity"]="Uncommon"}},
-    {"Knife","Snowman_K_2018",{["itemid"]=2669640152,["itemname"]="Snowman",["itemtype"]="Knife",["rarity"]="Common"}},
-    {"Knife","Snowman_K_2021",{["itemid"]=8304753468,["itemname"]="Snowman",["itemtype"]="Knife",["rarity"]="Uncommon"}},
-    {"Knife","Snowman_K_2022",{["itemid"]=11834391469,["itemname"]="Snowman",["itemtype"]="Knife",["rarity"]="Common"}},
-    {"Knife","Snowman_K_2024",{["itemid"]=85751270338066,["itemname"]="Snowman",["itemtype"]="Knife",["rarity"]="Uncommon"}},
-    {"Knife","Snowstorm",{["itemid"]=70973050894155,["itemname"]="Snowstorm",["itemtype"]="Knife",["rarity"]="Godly"}},
-    {"Knife","SnowstormChroma",{["chroma"]=true,["itemid"]=70973050894155,["itemname"]="Snowstorm",["itemtype"]="Knife",["rarity"]="Godly"}},
-    {"Knife","Snowy",{["itemid"]=332011125,["itemname"]="Snowy",["itemtype"]="Knife",["rarity"]="Uncommon"}},
-    {"Knife","Snowy2017",{["itemid"]=1268705947,["itemname"]="Snowy",["itemtype"]="Knife",["rarity"]="Rare"}},
-    {"Knife","Soda_K_2025",{["itemid"]=89899263078420,["itemname"]="Soda",["itemtype"]="Knife",["rarity"]="Uncommon"}},
+    {"Knife","SnowDagger",{["itemid"]=95328449981238,["itemname"]="Snow Dagger",["itemtype"]="Knife",["rarity"]="Godly",["year"]="2025"}},
+    {"Knife","SnowDaggerBronze",{["itemid"]=134312132943601,["itemname"]="Bronze Snow Dagger",["itemtype"]="Knife",["rarity"]="Unique",["year"]="2025"}},
+    {"Knife","SnowDaggerChroma",{["chroma"]=true,["itemid"]=95328449981238,["itemname"]="Snow Dagger",["itemtype"]="Knife",["rarity"]="Godly",["year"]="2025"}},
+    {"Knife","SnowDaggerGold",{["itemid"]=70701057041846,["itemname"]="Gold Snow Dagger",["itemtype"]="Knife",["rarity"]="Unique",["year"]="2025"}},
+    {"Knife","SnowDaggerRed",{["itemid"]=87617250559234,["itemname"]="Red Snow Dagger",["itemtype"]="Knife",["rarity"]="Unique",["year"]="2025"}},
+    {"Knife","SnowDaggerSilver",{["itemid"]=128427983277729,["itemname"]="Silver Snow Dagger",["itemtype"]="Knife",["rarity"]="Unique",["year"]="2025"}},
+    {"Knife","Snowball_K_2025",{["itemid"]=119914093248842,["itemname"]="Snowball",["itemtype"]="Knife",["rarity"]="Common",["year"]="2025"}},
+    {"Knife","Snowfall_K_2023",{["itemid"]=15635568751,["itemname"]="Snowfall",["itemtype"]="Knife",["rarity"]="Common",["year"]="2023"}},
+    {"Knife","Snowflake",{["itemid"]=1268932977,["itemname"]="Snowflake",["itemtype"]="Knife",["rarity"]="Godly",["year"]="2017"}},
+    {"Knife","Snowflake_K_2018",{["itemid"]=2669639913,["itemname"]="Snowflake",["itemtype"]="Knife",["rarity"]="Uncommon",["year"]="2018"}},
+    {"Knife","Snowflake_K_2022",{["itemid"]=11834397133,["itemname"]="Snowflake",["itemtype"]="Knife",["rarity"]="Uncommon",["year"]="2022"}},
+    {"Knife","Snowflakes_K_2019",{["itemid"]=4534855045,["itemname"]="Snowflakes",["itemtype"]="Knife",["rarity"]="Common",["year"]="2019"}},
+    {"Knife","Snowflakes_K_2020",{["itemid"]=6123338102,["itemname"]="Snowflakes",["itemtype"]="Knife",["rarity"]="Rare",["year"]="2020"}},
+    {"Knife","Snowglobe_K_2023",{["itemid"]=15635576863,["itemname"]="Snowglobe",["itemtype"]="Knife",["rarity"]="Rare",["year"]="2023"}},
+    {"Knife","Snowman",{["itemid"]=331745799,["itemname"]="Snowman",["itemtype"]="Knife",["rarity"]="Uncommon",["year"]="2015"}},
+    {"Knife","Snowman_K_2018",{["itemid"]=2669640152,["itemname"]="Snowman",["itemtype"]="Knife",["rarity"]="Common",["year"]="2018"}},
+    {"Knife","Snowman_K_2021",{["itemid"]=8304753468,["itemname"]="Snowman",["itemtype"]="Knife",["rarity"]="Uncommon",["year"]="2021"}},
+    {"Knife","Snowman_K_2022",{["itemid"]=11834391469,["itemname"]="Snowman",["itemtype"]="Knife",["rarity"]="Common",["year"]="2022"}},
+    {"Knife","Snowman_K_2024",{["itemid"]=85751270338066,["itemname"]="Snowman",["itemtype"]="Knife",["rarity"]="Uncommon",["year"]="2024"}},
+    {"Knife","Snowstorm",{["itemid"]=70973050894155,["itemname"]="Snowstorm",["itemtype"]="Knife",["rarity"]="Godly",["year"]="2025"}},
+    {"Knife","SnowstormChroma",{["chroma"]=true,["itemid"]=70973050894155,["itemname"]="Snowstorm",["itemtype"]="Knife",["rarity"]="Godly",["year"]="2025"}},
+    {"Knife","Snowy",{["itemid"]=332011125,["itemname"]="Snowy",["itemtype"]="Knife",["rarity"]="Uncommon",["year"]="2015"}},
+    {"Knife","Snowy2017",{["itemid"]=1268705947,["itemname"]="Snowy",["itemtype"]="Knife",["rarity"]="Rare",["year"]="2017"}},
+    {"Knife","Soda_K_2025",{["itemid"]=89899263078420,["itemname"]="Soda",["itemtype"]="Knife",["rarity"]="Uncommon",["year"]="2025"}},
     {"Knife","Sorry",{["itemid"]=197879343,["itemname"]="Corrupt",["itemtype"]="Knife",["rarity"]="Unique"}},
     {"Knife","Space",{["itemid"]=3183607442,["itemname"]="Space",["itemtype"]="Knife",["rarity"]="Rare"}},
     {"Knife","Sparkle1",{["itemid"]=310709709,["itemname"]="Sparkle1",["itemtype"]="Knife",["rarity"]="Common"}},
@@ -6109,11 +6111,11 @@ local staticMM2={
     {"Knife","Sparkle7",{["itemid"]=310714089,["itemname"]="Sparkle7",["itemtype"]="Knife",["rarity"]="Common"}},
     {"Knife","Sparkle8",{["itemid"]=310714407,["itemname"]="Sparkle8",["itemtype"]="Knife",["rarity"]="Common"}},
     {"Knife","Sparkle9",{["itemid"]=310715104,["itemname"]="Sparkle9",["itemtype"]="Knife",["rarity"]="Common"}},
-    {"Knife","Spearmint_K_2025",{["itemid"]=98506456649552,["itemname"]="Spearmint",["itemtype"]="Knife",["rarity"]="Rare"}},
-    {"Knife","Spectral_K_2021",{["itemid"]=7800226793,["itemname"]="Spectral",["itemtype"]="Knife",["rarity"]="Legendary"}},
+    {"Knife","Spearmint_K_2025",{["itemid"]=98506456649552,["itemname"]="Spearmint",["itemtype"]="Knife",["rarity"]="Rare",["year"]="2025"}},
+    {"Knife","Spectral_K_2021",{["itemid"]=7800226793,["itemname"]="Spectral",["itemtype"]="Knife",["rarity"]="Legendary",["year"]="2021"}},
     {"Knife","Spectrum",{["itemid"]=198441038,["itemname"]="Spectrum",["itemtype"]="Knife",["rarity"]="Rare"}},
-    {"Knife","Spider",{["itemid"]=473571549,["itemname"]="Spider",["itemtype"]="Knife",["offset"]={["X"]=0,["Y"]=0,["Z"]=0.55},["rarity"]="Godly"}},
-    {"Knife","Spider_K_2023",{["itemid"]=15091399982,["itemname"]="Spider",["itemtype"]="Knife",["rarity"]="Common"}},
+    {"Knife","Spider",{["itemid"]=473571549,["itemname"]="Spider",["itemtype"]="Knife",["offset"]={["X"]=0,["Y"]=0,["Z"]=0.55},["rarity"]="Godly",["year"]="2015"}},
+    {"Knife","Spider_K_2023",{["itemid"]=15091399982,["itemname"]="Spider",["itemtype"]="Knife",["rarity"]="Common",["year"]="2023"}},
     {"Knife","Splash",{["itemid"]=235371439,["itemname"]="Splash",["itemtype"]="Knife",["rarity"]="Legendary"}},
     {"Knife","Splatter",{["itemid"]=16964346058,["itemname"]="Splatter",["itemtype"]="Knife",["rarity"]="Common"}},
     {"Knife","Spring_K_2024",{["itemid"]=16959775902,["itemname"]="Spring",["itemtype"]="Knife",["rarity"]="Rare"}},
@@ -6121,53 +6123,53 @@ local staticMM2={
     {"Knife","Stainless",{["itemid"]=235366771,["itemname"]="Stainless",["itemtype"]="Knife",["rarity"]="Common"}},
     {"Knife","Stalker",{["itemid"]=198439107,["itemname"]="Stalker",["itemtype"]="Knife",["rarity"]="Uncommon"}},
     {"Knife","Starfish_K_2024",{["itemid"]=18322176343,["itemname"]="Starfish",["itemtype"]="Knife",["rarity"]="Common"}},
-    {"Knife","Starry_K_2021",{["itemid"]=8304757707,["itemname"]="Starry",["itemtype"]="Knife",["rarity"]="Rare"}},
-    {"Knife","Starry_K_2026",{["itemid"]=130537925107449,["itemname"]="Starry",["itemtype"]="Knife",["rarity"]="Uncommon"}},
-    {"Knife","Stars_K_2023",{["itemid"]=15635559978,["itemname"]="Stars",["itemtype"]="Knife",["rarity"]="Uncommon"}},
+    {"Knife","Starry_K_2021",{["itemid"]=8304757707,["itemname"]="Starry",["itemtype"]="Knife",["rarity"]="Rare",["year"]="2021"}},
+    {"Knife","Starry_K_2026",{["itemid"]=130537925107449,["itemname"]="Starry",["itemtype"]="Knife",["rarity"]="Uncommon",["year"]="2026"}},
+    {"Knife","Stars_K_2023",{["itemid"]=15635559978,["itemname"]="Stars",["itemtype"]="Knife",["rarity"]="Uncommon",["year"]="2023"}},
     {"Knife","Static",{["itemid"]=365568163,["itemname"]="Static",["itemtype"]="Knife",["rarity"]="Common"}},
-    {"Knife","Steel_K_2023",{["itemid"]=15091405483,["itemname"]="Steel",["itemtype"]="Knife",["rarity"]="Uncommon"}},
-    {"Knife","StickersH_K_2025",{["itemid"]=100461386281007,["itemname"]="Stickers",["itemtype"]="Knife",["rarity"]="Common"}},
-    {"Knife","StickersT2025",{["itemid"]=115280072896190,["itemname"]="Stickers",["itemtype"]="Knife",["rarity"]="Common"}},
-    {"Knife","StickersX25",{["itemid"]=115280072896190,["itemname"]="Stickers",["itemtype"]="Knife",["rarity"]="Common"}},
-    {"Knife","StickersX_K_2022",{["itemid"]=11834387858,["itemname"]="Stickers",["itemtype"]="Knife",["rarity"]="Common"}},
-    {"Knife","StickersX_K_2025",{["itemid"]=102283625659356,["itemname"]="Stickers",["itemtype"]="Knife",["rarity"]="Common"}},
-    {"Knife","Stickers_K_2021",{["itemid"]=7800229084,["itemname"]="Stickers",["itemtype"]="Knife",["rarity"]="Common"}},
-    {"Knife","Stickers_K_2022",{["itemid"]=11254067158,["itemname"]="Stickers",["itemtype"]="Knife",["rarity"]="Common"}},
-    {"Knife","Stickers_K_2024",{["itemid"]=120248733900674,["itemname"]="Stickers",["itemtype"]="Knife",["rarity"]="Common"}},
-    {"Knife","Stickers_K_2025",{["itemid"]=98868784444742,["itemname"]="Stickers",["itemtype"]="Knife",["rarity"]="Common"}},
-    {"Knife","Stickers_X_K_2024",{["itemid"]=83843575465564,["itemname"]="Stickers",["itemtype"]="Knife",["rarity"]="Common"}},
-    {"Knife","Stockings_K_2020",{["itemid"]=6123335682,["itemname"]="Stockings",["itemtype"]="Knife",["rarity"]="Common"}},
-    {"Knife","Stockings_K_2022",{["itemid"]=11834392930,["itemname"]="Stockings",["itemtype"]="Knife",["rarity"]="Uncommon"}},
-    {"Knife","Storm_K_2024",{["itemid"]=97369825731567,["itemname"]="Storm",["itemtype"]="Knife",["rarity"]="Rare"}},
-    {"Knife","Strawberries_K_2026",{["itemid"]=73897192147749,["itemname"]="Strawberries",["itemtype"]="Knife",["rarity"]="Common"}},
-    {"Knife","Striped_K_2025",{["itemid"]=136747578920542,["itemname"]="Striped",["itemtype"]="Knife",["rarity"]="Common"}},
+    {"Knife","Steel_K_2023",{["itemid"]=15091405483,["itemname"]="Steel",["itemtype"]="Knife",["rarity"]="Uncommon",["year"]="2023"}},
+    {"Knife","StickersH_K_2025",{["itemid"]=100461386281007,["itemname"]="Stickers",["itemtype"]="Knife",["rarity"]="Common",["year"]="2025"}},
+    {"Knife","StickersT2025",{["itemid"]=115280072896190,["itemname"]="Stickers",["itemtype"]="Knife",["rarity"]="Common",["year"]="2025"}},
+    {"Knife","StickersX25",{["itemid"]=115280072896190,["itemname"]="Stickers",["itemtype"]="Knife",["rarity"]="Common",["year"]="2025"}},
+    {"Knife","StickersX_K_2022",{["itemid"]=11834387858,["itemname"]="Stickers",["itemtype"]="Knife",["rarity"]="Common",["year"]="2022"}},
+    {"Knife","StickersX_K_2025",{["itemid"]=102283625659356,["itemname"]="Stickers",["itemtype"]="Knife",["rarity"]="Common",["year"]="2025"}},
+    {"Knife","Stickers_K_2021",{["itemid"]=7800229084,["itemname"]="Stickers",["itemtype"]="Knife",["rarity"]="Common",["year"]="2021"}},
+    {"Knife","Stickers_K_2022",{["itemid"]=11254067158,["itemname"]="Stickers",["itemtype"]="Knife",["rarity"]="Common",["year"]="2022"}},
+    {"Knife","Stickers_K_2024",{["itemid"]=120248733900674,["itemname"]="Stickers",["itemtype"]="Knife",["rarity"]="Common",["year"]="2024"}},
+    {"Knife","Stickers_K_2025",{["itemid"]=98868784444742,["itemname"]="Stickers",["itemtype"]="Knife",["rarity"]="Common",["year"]="2025"}},
+    {"Knife","Stickers_X_K_2024",{["itemid"]=83843575465564,["itemname"]="Stickers",["itemtype"]="Knife",["rarity"]="Common",["year"]="2024"}},
+    {"Knife","Stockings_K_2020",{["itemid"]=6123335682,["itemname"]="Stockings",["itemtype"]="Knife",["rarity"]="Common",["year"]="2020"}},
+    {"Knife","Stockings_K_2022",{["itemid"]=11834392930,["itemname"]="Stockings",["itemtype"]="Knife",["rarity"]="Uncommon",["year"]="2022"}},
+    {"Knife","Storm_K_2024",{["itemid"]=97369825731567,["itemname"]="Storm",["itemtype"]="Knife",["rarity"]="Rare",["year"]="2024"}},
+    {"Knife","Strawberries_K_2026",{["itemid"]=73897192147749,["itemname"]="Strawberries",["itemtype"]="Knife",["rarity"]="Common",["year"]="2026"}},
+    {"Knife","Striped_K_2025",{["itemid"]=136747578920542,["itemname"]="Striped",["itemtype"]="Knife",["rarity"]="Common",["year"]="2025"}},
     {"Knife","Sub",{["itemid"]=546159250,["itemname"]="Sub",["itemtype"]="Knife",["rarity"]="Common"}},
     {"Knife","Summer_Stickers_K_2023",{["itemid"]=13944129596,["itemname"]="Stickers",["itemtype"]="Knife",["rarity"]="Common"}},
-    {"Knife","SunsetKnife",{["itemid"]=103526268515240,["itemname"]="Sunset",["itemtype"]="Knife",["rarity"]="Godly"}},
-    {"Knife","SunsetKnifeChroma",{["chroma"]=true,["itemid"]=103526268515240,["itemname"]="Sunset",["itemtype"]="Knife",["rarity"]="Godly"}},
-    {"Knife","Survivors_K_2022",{["itemid"]=11254180750,["itemname"]="Makeshift",["itemtype"]="Knife",["rarity"]="Rare"}},
-    {"Knife","Sweater",{["itemid"]=1268704902,["itemname"]="Sweater",["itemtype"]="Knife",["rarity"]="Uncommon"}},
-    {"Knife","Sweater_K_2018",{["itemid"]=2669640567,["itemname"]="Sweater",["itemtype"]="Knife",["rarity"]="Uncommon"}},
-    {"Knife","Sweater_K_2025",{["itemid"]=102130993592804,["itemname"]="Sweater",["itemtype"]="Knife",["rarity"]="Uncommon"}},
-    {"Knife","Sweet",{["itemid"]=126937716954396,["itemname"]="Sweet",["itemtype"]="Knife",["rarity"]="Godly"}},
-    {"Knife","SweetChroma",{["chroma"]=true,["itemid"]=126937716954396,["itemname"]="Sweet",["itemtype"]="Knife",["rarity"]="Godly"}},
-    {"Knife","Sweet_K_2026",{["itemid"]=113677688954146,["itemname"]="Yummy",["itemtype"]="Knife",["rarity"]="Rare"}},
+    {"Knife","SunsetKnife",{["itemid"]=103526268515240,["itemname"]="Sunset",["itemtype"]="Knife",["rarity"]="Godly",["year"]="2025"}},
+    {"Knife","SunsetKnifeChroma",{["chroma"]=true,["itemid"]=103526268515240,["itemname"]="Sunset",["itemtype"]="Knife",["rarity"]="Godly",["year"]="2025"}},
+    {"Knife","Survivors_K_2022",{["itemid"]=11254180750,["itemname"]="Makeshift",["itemtype"]="Knife",["rarity"]="Rare",["year"]="2022"}},
+    {"Knife","Sweater",{["itemid"]=1268704902,["itemname"]="Sweater",["itemtype"]="Knife",["rarity"]="Uncommon",["year"]="2017"}},
+    {"Knife","Sweater_K_2018",{["itemid"]=2669640567,["itemname"]="Sweater",["itemtype"]="Knife",["rarity"]="Uncommon",["year"]="2018"}},
+    {"Knife","Sweater_K_2025",{["itemid"]=102130993592804,["itemname"]="Sweater",["itemtype"]="Knife",["rarity"]="Uncommon",["year"]="2025"}},
+    {"Knife","Sweet",{["itemid"]=126937716954396,["itemname"]="Sweet",["itemtype"]="Knife",["rarity"]="Godly",["year"]="2026"}},
+    {"Knife","SweetChroma",{["chroma"]=true,["itemid"]=126937716954396,["itemname"]="Sweet",["itemtype"]="Knife",["rarity"]="Godly",["year"]="2026"}},
+    {"Knife","Sweet_K_2026",{["itemid"]=113677688954146,["itemname"]="Yummy",["itemtype"]="Knife",["rarity"]="Rare",["year"]="2026"}},
     {"Knife","Sweetheart",{["itemid"]=363150761,["itemname"]="Sweetheart",["itemtype"]="Knife",["rarity"]="Common"}},
-    {"Knife","Swirl_K_2021",{["itemid"]=8304757110,["itemname"]="Swirl",["itemtype"]="Knife",["rarity"]="Rare"}},
-    {"Knife","SwirlyAxe",{["itemid"]=8304801000,["itemname"]="Swirly Axe",["itemtype"]="Knife",["rarity"]="Ancient"}},
-    {"Knife","SwirlyAxeBlue",{["itemid"]=9552048857,["itemname"]="Blue Swirly",["itemtype"]="Knife",["rarity"]="Unique"}},
-    {"Knife","SwirlyAxeBronze",{["itemid"]=9552050165,["itemname"]="Bronze Swirly",["itemtype"]="Knife",["rarity"]="Unique"}},
-    {"Knife","SwirlyAxeGold",{["itemid"]=9552054920,["itemname"]="Gold Swirly",["itemtype"]="Knife",["rarity"]="Unique"}},
-    {"Knife","SwirlyAxeSilver",{["itemid"]=9552051805,["itemname"]="Silver Swirly",["itemtype"]="Knife",["rarity"]="Unique"}},
-    {"Knife","SwirlyBlade",{["itemid"]=8304805693,["itemname"]="Swirly Blade",["itemtype"]="Knife",["rarity"]="Godly"}},
-    {"Knife","Synthwave",{["itemid"]=84935740002917,["itemname"]="Synthwave",["itemtype"]="Knife",["rarity"]="Rare"}},
-    {"Knife","Synthwave_Ancient",{["itemid"]=133828016595037,["itemname"]="Synthwave",["itemtype"]="Knife",["rarity"]="Ancient"}},
-    {"Knife","Synthwave_Blue",{["itemid"]=122762984016505,["itemname"]="Blue Synthwave",["itemtype"]="Knife",["rarity"]="Unique"}},
-    {"Knife","Synthwave_Bronze",{["itemid"]=72230744607038,["itemname"]="Bronze Synthwave",["itemtype"]="Knife",["rarity"]="Unique"}},
-    {"Knife","Synthwave_Godly",{["itemid"]=15683175970,["itemname"]="Synthwave",["itemtype"]="Knife",["rarity"]="Godly"}},
-    {"Knife","Synthwave_Gold",{["itemid"]=138834911796124,["itemname"]="Gold Synthwave",["itemtype"]="Knife",["rarity"]="Unique"}},
-    {"Knife","Synthwave_Legendary",{["itemid"]=132040985617451,["itemname"]="Synthwave",["itemtype"]="Knife",["rarity"]="Legendary"}},
-    {"Knife","Synthwave_Silver",{["itemid"]=103455022994358,["itemname"]="Silver Synthwave",["itemtype"]="Knife",["rarity"]="Unique"}},
+    {"Knife","Swirl_K_2021",{["itemid"]=8304757110,["itemname"]="Swirl",["itemtype"]="Knife",["rarity"]="Rare",["year"]="2021"}},
+    {"Knife","SwirlyAxe",{["itemid"]=8304801000,["itemname"]="Swirly Axe",["itemtype"]="Knife",["rarity"]="Ancient",["year"]="2021"}},
+    {"Knife","SwirlyAxeBlue",{["itemid"]=9552048857,["itemname"]="Blue Swirly",["itemtype"]="Knife",["rarity"]="Unique",["year"]="2021"}},
+    {"Knife","SwirlyAxeBronze",{["itemid"]=9552050165,["itemname"]="Bronze Swirly",["itemtype"]="Knife",["rarity"]="Unique",["year"]="2021"}},
+    {"Knife","SwirlyAxeGold",{["itemid"]=9552054920,["itemname"]="Gold Swirly",["itemtype"]="Knife",["rarity"]="Unique",["year"]="2021"}},
+    {"Knife","SwirlyAxeSilver",{["itemid"]=9552051805,["itemname"]="Silver Swirly",["itemtype"]="Knife",["rarity"]="Unique",["year"]="2021"}},
+    {"Knife","SwirlyBlade",{["itemid"]=8304805693,["itemname"]="Swirly Blade",["itemtype"]="Knife",["rarity"]="Godly",["year"]="2021"}},
+    {"Knife","Synthwave",{["itemid"]=84935740002917,["itemname"]="Synthwave",["itemtype"]="Knife",["rarity"]="Rare",["year"]="2025",["evoindex"]=1}},
+    {"Knife","Synthwave_Ancient",{["itemid"]=133828016595037,["itemname"]="Synthwave",["itemtype"]="Knife",["rarity"]="Ancient",["year"]="2025",["evoindex"]=4}},
+    {"Knife","Synthwave_Blue",{["itemid"]=122762984016505,["itemname"]="Blue Synthwave",["itemtype"]="Knife",["rarity"]="Unique",["year"]="2025"}},
+    {"Knife","Synthwave_Bronze",{["itemid"]=72230744607038,["itemname"]="Bronze Synthwave",["itemtype"]="Knife",["rarity"]="Unique",["year"]="2025"}},
+    {"Knife","Synthwave_Godly",{["itemid"]=15683175970,["itemname"]="Synthwave",["itemtype"]="Knife",["rarity"]="Godly",["year"]="2025",["evoindex"]=3}},
+    {"Knife","Synthwave_Gold",{["itemid"]=138834911796124,["itemname"]="Gold Synthwave",["itemtype"]="Knife",["rarity"]="Unique",["year"]="2025"}},
+    {"Knife","Synthwave_Legendary",{["itemid"]=132040985617451,["itemname"]="Synthwave",["itemtype"]="Knife",["rarity"]="Legendary",["year"]="2025",["evoindex"]=2}},
+    {"Knife","Synthwave_Silver",{["itemid"]=103455022994358,["itemname"]="Silver Synthwave",["itemtype"]="Knife",["rarity"]="Unique",["year"]="2025"}},
     {"Knife","TNL",{["itemid"]=201542790,["itemname"]="TNL",["itemtype"]="Knife",["rarity"]="Common"}},
     {"Knife","Tailslide",{["itemid"]=305506822,["itemname"]="Tailslide",["itemtype"]="Knife",["rarity"]="Common"}},
     {"Knife","TheSeer",{["itemid"]=198441783,["itemname"]="Seer",["itemtype"]="Knife",["rarity"]="Godly"}},
@@ -6175,95 +6177,93 @@ local staticMM2={
     {"Knife","TidesChroma",{["chroma"]=true,["itemid"]=3187394934,["itemname"]="Tides",["itemtype"]="Knife",["rarity"]="Godly"}},
     {"Knife","Tiger",{["itemid"]=3183606579,["itemname"]="Tiger",["itemtype"]="Knife",["rarity"]="Uncommon"}},
     {"Knife","TimeKnife",{["itemid"]=473575049,["itemname"]="Prince",["itemtype"]="Knife",["rarity"]="Classic"}},
-    {"Knife","Tourist_K_2026",{["itemid"]=135606903872678,["itemname"]="Tourist",["itemtype"]="Knife",["rarity"]="Common"}},
-    {"Knife","ToxicK",{["itemid"]=2513734535,["itemname"]="Toxic",["itemtype"]="Knife",["rarity"]="Rare"}},
+    {"Knife","Tourist_K_2026",{["itemid"]=135606903872678,["itemname"]="Tourist",["itemtype"]="Knife",["rarity"]="Common",["year"]="2026"}},
+    {"Knife","ToxicK",{["itemid"]=2513734535,["itemname"]="Toxic",["itemtype"]="Knife",["rarity"]="Rare",["year"]="2018"}},
     {"Knife","Toy_K_2023",{["itemid"]=13944127959,["itemname"]="Toy",["itemtype"]="Knife",["rarity"]="Common"}},
-    {"Knife","TravelerAxe",{["itemid"]=15070870271,["itemname"]="Traveler's Axe",["itemtype"]="Knife",["rarity"]="Ancient"}},
-    {"Knife","TravelerAxeBronze",{["itemid"]=15695407020,["itemname"]="Bronze Traveler's",["itemtype"]="Knife",["rarity"]="Unique"}},
-    {"Knife","TravelerAxeGold",{["itemid"]=15695408631,["itemname"]="Gold Traveler's",["itemtype"]="Knife",["rarity"]="Unique"}},
-    {"Knife","TravelerAxeRed",{["itemid"]=15695405379,["itemname"]="Red Traveler's",["itemtype"]="Knife",["rarity"]="Unique"}},
-    {"Knife","TravelerAxeSilver",{["itemid"]=15695407742,["itemname"]="Silver Traveler's",["itemtype"]="Knife",["rarity"]="Unique"}},
-    {"Knife","Traveler_K_2023",{["itemid"]=15091407901,["itemname"]="Traveler",["itemtype"]="Knife",["rarity"]="Legendary"}},
-    {"Knife","Treats_K_2025",{["itemid"]=115298865715727,["itemname"]="Treats",["itemtype"]="Knife",["rarity"]="Uncommon"}},
-    {"Knife","Tree",{["itemid"]=331745577,["itemname"]="Tree",["itemtype"]="Knife",["rarity"]="Legendary"}},
-    {"Knife","Tree2017",{["itemid"]=1268704124,["itemname"]="Tree",["itemtype"]="Knife",["rarity"]="Uncommon"}},
-    {"Knife","TreeKnife2023",{["itemid"]=15667157715,["itemname"]="Evergreen",["itemtype"]="Knife",["rarity"]="Godly"}},
-    {"Knife","TreeKnife2023Chroma",{["chroma"]=true,["itemid"]=15694110573,["itemname"]="Evergreen",["itemtype"]="Knife",["rarity"]="Godly"}},
-    {"Knife","Tree_K_2021",{["itemid"]=8304756423,["itemname"]="Tree",["itemtype"]="Knife",["rarity"]="Uncommon"}},
-    {"Knife","Tree_K_2022",{["itemid"]=11834400185,["itemname"]="Tree",["itemtype"]="Knife",["rarity"]="Rare"}},
-    {"Knife","Tree_K_2023",{["itemid"]=15635563249,["itemname"]="Tree",["itemtype"]="Knife",["rarity"]="Rare"}},
-    {"Knife","Trees_K_2020",{["itemid"]=6123336879,["itemname"]="Trees",["itemtype"]="Knife",["rarity"]="Common"}},
-    {"Knife","Tropical_K_2025",{["itemid"]=111291962899457,["itemname"]="Tropical",["itemtype"]="Knife",["rarity"]="Rare"}},
-    {"Knife","Tulip",{["itemid"]=387874661,["itemname"]="Tulip",["itemtype"]="Knife",["rarity"]="Common"}},
+    {"Knife","TravelerAxe",{["itemid"]=15070870271,["itemname"]="Traveler's Axe",["itemtype"]="Knife",["rarity"]="Ancient",["year"]="2023"}},
+    {"Knife","TravelerAxeBronze",{["itemid"]=15695407020,["itemname"]="Bronze Traveler's",["itemtype"]="Knife",["rarity"]="Unique",["year"]="2023"}},
+    {"Knife","TravelerAxeGold",{["itemid"]=15695408631,["itemname"]="Gold Traveler's",["itemtype"]="Knife",["rarity"]="Unique",["year"]="2023"}},
+    {"Knife","TravelerAxeRed",{["itemid"]=15695405379,["itemname"]="Red Traveler's",["itemtype"]="Knife",["rarity"]="Unique",["year"]="2023"}},
+    {"Knife","TravelerAxeSilver",{["itemid"]=15695407742,["itemname"]="Silver Traveler's",["itemtype"]="Knife",["rarity"]="Unique",["year"]="2023"}},
+    {"Knife","Traveler_K_2023",{["itemid"]=15091407901,["itemname"]="Traveler",["itemtype"]="Knife",["rarity"]="Legendary",["year"]="2023"}},
+    {"Knife","Treats_K_2025",{["itemid"]=115298865715727,["itemname"]="Treats",["itemtype"]="Knife",["rarity"]="Uncommon",["year"]="2025"}},
+    {"Knife","Tree",{["itemid"]=331745577,["itemname"]="Tree",["itemtype"]="Knife",["rarity"]="Legendary",["year"]="2015"}},
+    {"Knife","Tree2017",{["itemid"]=1268704124,["itemname"]="Tree",["itemtype"]="Knife",["rarity"]="Uncommon",["year"]="2017"}},
+    {"Knife","TreeKnife2023",{["itemid"]=15667157715,["itemname"]="Evergreen",["itemtype"]="Knife",["rarity"]="Godly",["year"]="2023"}},
+    {"Knife","TreeKnife2023Chroma",{["chroma"]=true,["itemid"]=15694110573,["itemname"]="Evergreen",["itemtype"]="Knife",["rarity"]="Godly",["year"]="2023"}},
+    {"Knife","Tree_K_2021",{["itemid"]=8304756423,["itemname"]="Tree",["itemtype"]="Knife",["rarity"]="Uncommon",["year"]="2021"}},
+    {"Knife","Tree_K_2022",{["itemid"]=11834400185,["itemname"]="Tree",["itemtype"]="Knife",["rarity"]="Rare",["year"]="2022"}},
+    {"Knife","Tree_K_2023",{["itemid"]=15635563249,["itemname"]="Tree",["itemtype"]="Knife",["rarity"]="Rare",["year"]="2023"}},
+    {"Knife","Trees_K_2020",{["itemid"]=6123336879,["itemname"]="Trees",["itemtype"]="Knife",["rarity"]="Common",["year"]="2020"}},
+    {"Knife","Tropical_K_2025",{["itemid"]=111291962899457,["itemname"]="Tropical",["itemtype"]="Knife",["rarity"]="Rare",["year"]="2025"}},
+    {"Knife","Tulip",{["itemid"]=387874661,["itemname"]="Tulip",["itemtype"]="Knife",["rarity"]="Common",["year"]="2016"}},
     {"Knife","Turkey2023",{["itemid"]=15413149176,["itemname"]="Turkey",["itemtype"]="Knife",["rarity"]="Godly"}},
     {"Knife","Turtle_K_2024",{["itemid"]=18322166908,["itemname"]="Turtle",["itemtype"]="Knife",["rarity"]="Uncommon"}},
-    {"Knife","Turtles_K_2026",{["itemid"]=77271917200992,["itemname"]="Turtles",["itemtype"]="Knife",["rarity"]="Uncommon"}},
-    {"Knife","UFOKnife",{["itemid"]=77607127867154,["itemname"]="Alienbeam",["itemtype"]="Knife",["rarity"]="Godly"}},
-    {"Knife","UFOKnifeChroma",{["chroma"]=true,["itemid"]=77607127867154,["itemname"]="Alienbeam",["itemtype"]="Knife",["rarity"]="Godly"}},
-    {"Knife","UFOs_K_2025",{["itemid"]=97641024072972,["itemname"]="UFOs",["itemtype"]="Knife",["rarity"]="Common"}},
+    {"Knife","Turtles_K_2026",{["itemid"]=77271917200992,["itemname"]="Turtles",["itemtype"]="Knife",["rarity"]="Uncommon",["year"]="2026"}},
+    {"Knife","UFOKnife",{["itemid"]=77607127867154,["itemname"]="Alienbeam",["itemtype"]="Knife",["rarity"]="Godly",["year"]="2025"}},
+    {"Knife","UFOKnifeChroma",{["chroma"]=true,["itemid"]=77607127867154,["itemname"]="Alienbeam",["itemtype"]="Knife",["rarity"]="Godly",["year"]="2025"}},
+    {"Knife","UFOs_K_2025",{["itemid"]=97641024072972,["itemname"]="UFOs",["itemtype"]="Knife",["rarity"]="Common",["year"]="2025"}},
     {"Knife","Valentine",{["itemid"]=363150149,["itemname"]="Valentine",["itemtype"]="Knife",["rarity"]="Common"}},
-    {"Knife","Vampire",{["itemid"]=531873248,["itemname"]="Vampire",["itemtype"]="Knife",["rarity"]="Uncommon"}},
-    {"Knife","VampireAxe",{["itemid"]=130837676383567,["itemname"]="Vampire's Axe",["itemtype"]="Knife",["rarity"]="Ancient"}},
-    {"Knife","VampireAxe_Bronze",{["itemid"]=130837676383567,["itemname"]="Vampire's Axe",["itemtype"]="Knife",["rarity"]="Unique"}},
-    {"Knife","VampireAxe_Gold",{["itemid"]=130837676383567,["itemname"]="Vampire's Axe",["itemtype"]="Knife",["rarity"]="Unique"}},
-    {"Knife","VampireAxe_Purple",{["itemid"]=130837676383567,["itemname"]="Vampire's Axe",["itemtype"]="Knife",["rarity"]="Unique"}},
-    {"Knife","VampireAxe_Silver",{["itemid"]=130837676383567,["itemname"]="Vampire's Axe",["itemtype"]="Knife",["rarity"]="Unique"}},
-    {"Knife","VampireK2018",{["itemid"]=2513734708,["itemname"]="Vampire",["itemtype"]="Knife",["rarity"]="Rare"}},
-    {"Knife","Vampire_K_2022",{["itemid"]=11254125546,["itemname"]="Vampire",["itemtype"]="Knife",["rarity"]="Legendary"}},
-    {"Knife","VampiresEdge",{["itemid"]=5873256998,["itemname"]="Vampire's Edge",["itemtype"]="Knife",["rarity"]="Godly"}},
-    {"Knife","Vines_K_2023",{["itemid"]=15091325210,["itemname"]="Vines",["itemtype"]="Knife",["rarity"]="Common"}},
+    {"Knife","Vampire",{["itemid"]=531873248,["itemname"]="Vampire",["itemtype"]="Knife",["rarity"]="Uncommon",["year"]="2016"}},
+    {"Knife","VampireAxe",{["itemid"]=130837676383567,["itemname"]="Vampire's Axe",["itemtype"]="Knife",["rarity"]="Ancient",["year"]="2024"}},
+    {"Knife","VampireAxe_Bronze",{["itemid"]=130837676383567,["itemname"]="Vampire's Axe",["itemtype"]="Knife",["rarity"]="Unique",["year"]="2024"}},
+    {"Knife","VampireAxe_Gold",{["itemid"]=130837676383567,["itemname"]="Vampire's Axe",["itemtype"]="Knife",["rarity"]="Unique",["year"]="2024"}},
+    {"Knife","VampireAxe_Purple",{["itemid"]=130837676383567,["itemname"]="Vampire's Axe",["itemtype"]="Knife",["rarity"]="Unique",["year"]="2024"}},
+    {"Knife","VampireAxe_Silver",{["itemid"]=130837676383567,["itemname"]="Vampire's Axe",["itemtype"]="Knife",["rarity"]="Unique",["year"]="2024"}},
+    {"Knife","VampireK2018",{["itemid"]=2513734708,["itemname"]="Vampire",["itemtype"]="Knife",["rarity"]="Rare",["year"]="2018"}},
+    {"Knife","Vampire_K_2022",{["itemid"]=11254125546,["itemname"]="Vampire",["itemtype"]="Knife",["rarity"]="Legendary",["year"]="2022"}},
+    {"Knife","VampiresEdge",{["itemid"]=5873256998,["itemname"]="Vampire's Edge",["itemtype"]="Knife",["rarity"]="Godly",["year"]="2020"}},
+    {"Knife","Vines_K_2023",{["itemid"]=15091325210,["itemname"]="Vines",["itemtype"]="Knife",["rarity"]="Common",["year"]="2023"}},
     {"Knife","Virtual",{["itemid"]=386276987,["itemname"]="Virtual",["itemtype"]="Knife",["rarity"]="Godly"}},
     {"Knife","VoidRbx",{["itemid"]=11548082732,["itemname"]="Void",["itemtype"]="Knife",["rarity"]="Uncommon"}},
     {"Knife","Vortex",{["itemid"]=235371508,["itemname"]="Vortex",["itemtype"]="Knife",["rarity"]="Rare"}},
     {"Knife","Wanwood",{["itemid"]=196751441,["itemname"]="Wanwood",["itemtype"]="Knife",["rarity"]="Uncommon"}},
-    {"Knife","Watcher_K_2021",{["itemid"]=7800227475,["itemname"]="Watcher",["itemtype"]="Knife",["rarity"]="Rare"}},
+    {"Knife","Watcher_K_2021",{["itemid"]=7800227475,["itemname"]="Watcher",["itemtype"]="Knife",["rarity"]="Rare",["year"]="2021"}},
     {"Knife","Waves_K",{["itemid"]=13945892398,["itemname"]="Waves",["itemtype"]="Knife",["rarity"]="Godly"}},
     {"Knife","Waves_K_2024",{["itemid"]=18322178053,["itemname"]="Waves",["itemtype"]="Knife",["rarity"]="Rare"}},
     {"Knife","Wavy_K_2024",{["itemid"]=16959755393,["itemname"]="Wavy",["itemtype"]="Knife",["rarity"]="Common"}},
-    {"Knife","Web",{["itemid"]=315104004,["itemname"]="Web",["itemtype"]="Knife",["rarity"]="Legendary"}},
-    {"Knife","WebbedK",{["itemid"]=4210949599,["itemname"]="Webbed",["itemtype"]="Knife",["rarity"]="Common"}},
-    {"Knife","Webs",{["itemid"]=1133325465,["itemname"]="Webs",["itemtype"]="Knife",["rarity"]="Uncommon"}},
+    {"Knife","Web",{["itemid"]=315104004,["itemname"]="Web",["itemtype"]="Knife",["rarity"]="Legendary",["year"]="2015"}},
+    {"Knife","WebbedK",{["itemid"]=4210949599,["itemname"]="Webbed",["itemtype"]="Knife",["rarity"]="Common",["year"]="2019"}},
+    {"Knife","Webs",{["itemid"]=1133325465,["itemname"]="Webs",["itemtype"]="Knife",["rarity"]="Uncommon",["year"]="2017"}},
     {"Knife","Whiteout",{["itemid"]=196751515,["itemname"]="Whiteout",["itemtype"]="Knife",["rarity"]="Common"}},
-    {"Knife","WintersEdge",{["itemid"]=1268708987,["itemname"]="Winter's Edge",["itemtype"]="Knife",["rarity"]="Godly"}},
-    {"Knife","Witch",{["itemid"]=531873553,["itemname"]="Witch",["itemtype"]="Knife",["rarity"]="Common"}},
-    {"Knife","WitchBrew_K_2024",{["itemid"]=108331177567412,["itemname"]="Witch's Brew",["itemtype"]="Knife",["rarity"]="Uncommon"}},
-    {"Knife","Witch_K_2022",{["itemid"]=11254115609,["itemname"]="Witchbrew",["itemtype"]="Knife",["rarity"]="Uncommon"}},
-    {"Knife","Witched",{["itemid"]=4210938270,["itemname"]="Witched",["itemtype"]="Knife",["rarity"]="Legendary"}},
-    {"Knife","Wolf",{["itemid"]=531873487,["itemname"]="Wolf",["itemtype"]="Knife",["rarity"]="Uncommon"}},
-    {"Knife","Wood_K_2023",{["itemid"]=15091401811,["itemname"]="Wood",["itemtype"]="Knife",["rarity"]="Common"}},
-    {"Knife","WraithKnife",{["itemid"]=107190526940939,["itemname"]="Spirit",["itemtype"]="Knife",["rarity"]="Godly"}},
-    {"Knife","Wraith_K_2022",{["itemid"]=11254118399,["itemname"]="Wraith",["itemtype"]="Knife",["rarity"]="Rare"}},
-    {"Knife","Wrapped",{["itemid"]=331745500,["itemname"]="Wrapped",["itemtype"]="Knife",["rarity"]="Uncommon"}},
-    {"Knife","Wrapped_K_2018",{["itemid"]=2669640357,["itemname"]="Wrapped",["itemtype"]="Knife",["rarity"]="Common"}},
-    {"Knife","Wrapped_K_2022",{["itemid"]=11834403282,["itemname"]="Wrapped",["itemtype"]="Knife",["rarity"]="Common"}},
-    {"Knife","Wrapped_K_2024",{["itemid"]=72638846676083,["itemname"]="Wrapped",["itemtype"]="Knife",["rarity"]="Uncommon"}},
-    {"Knife","Wreaths_K_2024",{["itemid"]=78432760615312,["itemname"]="Wreaths",["itemtype"]="Knife",["rarity"]="Uncommon"}},
+    {"Knife","WintersEdge",{["itemid"]=1268708987,["itemname"]="Winter's Edge",["itemtype"]="Knife",["rarity"]="Godly",["year"]="2017"}},
+    {"Knife","Witch",{["itemid"]=531873553,["itemname"]="Witch",["itemtype"]="Knife",["rarity"]="Common",["year"]="2016"}},
+    {"Knife","WitchBrew_K_2024",{["itemid"]=108331177567412,["itemname"]="Witch's Brew",["itemtype"]="Knife",["rarity"]="Uncommon",["year"]="2024"}},
+    {"Knife","Witch_K_2022",{["itemid"]=11254115609,["itemname"]="Witchbrew",["itemtype"]="Knife",["rarity"]="Uncommon",["year"]="2022"}},
+    {"Knife","Witched",{["itemid"]=4210938270,["itemname"]="Witched",["itemtype"]="Knife",["rarity"]="Legendary",["year"]="2019"}},
+    {"Knife","Wolf",{["itemid"]=531873487,["itemname"]="Wolf",["itemtype"]="Knife",["rarity"]="Uncommon",["year"]="2016"}},
+    {"Knife","Wood_K_2023",{["itemid"]=15091401811,["itemname"]="Wood",["itemtype"]="Knife",["rarity"]="Common",["year"]="2023"}},
+    {"Knife","WraithKnife",{["itemid"]=107190526940939,["itemname"]="Spirit",["itemtype"]="Knife",["rarity"]="Godly",["year"]="2024"}},
+    {"Knife","Wraith_K_2022",{["itemid"]=11254118399,["itemname"]="Wraith",["itemtype"]="Knife",["rarity"]="Rare",["year"]="2022"}},
+    {"Knife","Wrapped",{["itemid"]=331745500,["itemname"]="Wrapped",["itemtype"]="Knife",["rarity"]="Uncommon",["year"]="2015"}},
+    {"Knife","Wrapped_K_2018",{["itemid"]=2669640357,["itemname"]="Wrapped",["itemtype"]="Knife",["rarity"]="Common",["year"]="2018"}},
+    {"Knife","Wrapped_K_2022",{["itemid"]=11834403282,["itemname"]="Wrapped",["itemtype"]="Knife",["rarity"]="Common",["year"]="2022"}},
+    {"Knife","Wrapped_K_2024",{["itemid"]=72638846676083,["itemname"]="Wrapped",["itemtype"]="Knife",["rarity"]="Uncommon",["year"]="2024"}},
+    {"Knife","Wreaths_K_2024",{["itemid"]=78432760615312,["itemname"]="Wreaths",["itemtype"]="Knife",["rarity"]="Uncommon",["year"]="2024"}},
     {"Knife","Xbox",{["itemid"]=439325100,["itemname"]="Xbox",["itemtype"]="Knife",["rarity"]="Common"}},
-    {"Knife","XenoKnife",{["itemid"]=100576599313371,["itemname"]="Xenoknife",["itemtype"]="Knife",["rarity"]="Godly"}},
-    {"Knife","Xeno_K_2025",{["itemid"]=80492487454400,["itemname"]="Xeno",["itemtype"]="Knife",["rarity"]="Rare"}},
-    {"Knife","Xmas",{["itemid"]=473572568,["itemname"]="Xmas",["itemtype"]="Knife",["rarity"]="Godly"}},
-    {"Knife","XmasStickers_K_2021",{["itemid"]=8304755417,["itemname"]="Stickers",["itemtype"]="Knife",["rarity"]="Common"}},
+    {"Knife","XenoKnife",{["itemid"]=100576599313371,["itemname"]="Xenoknife",["itemtype"]="Knife",["rarity"]="Godly",["year"]="2025"}},
+    {"Knife","Xeno_K_2025",{["itemid"]=80492487454400,["itemname"]="Xeno",["itemtype"]="Knife",["rarity"]="Rare",["year"]="2025"}},
+    {"Knife","Xmas",{["itemid"]=473572568,["itemname"]="Xmas",["itemtype"]="Knife",["rarity"]="Godly",["year"]="2015"}},
+    {"Knife","XmasStickers_K_2021",{["itemid"]=8304755417,["itemname"]="Stickers",["itemtype"]="Knife",["rarity"]="Common",["year"]="2021"}},
     {"Knife","YellowSeer",{["itemid"]=3184124768,["itemname"]="Yellow Seer",["itemtype"]="Knife",["rarity"]="Godly"}},
-    {"Knife","Zombie",{["itemid"]=1133331885,["itemname"]="Zombie",["itemtype"]="Knife",["rarity"]="Common"}},
-    {"Knife","ZombieBat",{["itemid"]=11229814357,["itemname"]="Bat",["itemtype"]="Knife",["rarity"]="Godly"}},
-    {"Knife","ZombieK2018",{["itemid"]=2513734908,["itemname"]="Zombie",["itemtype"]="Knife",["rarity"]="Uncommon"}},
-    {"Knife","Zombie_K_2021",{["itemid"]=7800222975,["itemname"]="Zombie",["itemtype"]="Knife",["rarity"]="Uncommon"}},
-    {"Knife","Zombie_K_2023",{["itemid"]=15091339932,["itemname"]="Zombie",["itemtype"]="Knife",["rarity"]="Uncommon"}},
-    {"Knife","ZombifiedK",{["itemid"]=4210928053,["itemname"]="Zombified",["itemtype"]="Knife",["rarity"]="Uncommon"}},
-    {"Knife","Zombified_K_2022",{["itemid"]=11254182560,["itemname"]="Zombified",["itemtype"]="Knife",["rarity"]="Rare"}},
-    {"Knife","molten",{["itemid"]=11254158802,["itemname"]="TestItem",["itemtype"]="Knife",["rarity"]="Common"}},
+    {"Knife","Zombie",{["itemid"]=1133331885,["itemname"]="Zombie",["itemtype"]="Knife",["rarity"]="Common",["year"]="2017"}},
+    {"Knife","ZombieBat",{["itemid"]=11229814357,["itemname"]="Bat",["itemtype"]="Knife",["rarity"]="Godly",["year"]="2022"}},
+    {"Knife","ZombieK2018",{["itemid"]=2513734908,["itemname"]="Zombie",["itemtype"]="Knife",["rarity"]="Uncommon",["year"]="2018"}},
+    {"Knife","Zombie_K_2021",{["itemid"]=7800222975,["itemname"]="Zombie",["itemtype"]="Knife",["rarity"]="Uncommon",["year"]="2021"}},
+    {"Knife","Zombie_K_2023",{["itemid"]=15091339932,["itemname"]="Zombie",["itemtype"]="Knife",["rarity"]="Uncommon",["year"]="2023"}},
+    {"Knife","ZombifiedK",{["itemid"]=4210928053,["itemname"]="Zombified",["itemtype"]="Knife",["rarity"]="Uncommon",["year"]="2019"}},
+    {"Knife","Zombified_K_2022",{["itemid"]=11254182560,["itemname"]="Zombified",["itemtype"]="Knife",["rarity"]="Rare",["year"]="2022"}},
+    {"Knife","molten",{["itemid"]=11254158802,["itemname"]="TestItem",["itemtype"]="Knife",["rarity"]="Common",["year"]="2022"}},
 }
 local sharedScopes={
-    {"Gun","Matrixscope",{["itemid"]=117266088063706,["itemname"]="Matrixscope",["itemtype"]="Gun",["rarity"]="Secret"}},
+    {"Gun","Matrixscope",{["itemid"]=117266088063706,["itemname"]="Matrixscope",["itemtype"]="Gun",["rarity"]="Secret",["year"]="2025"}},
     {"Gun","Voidscope",{["itemid"]=84264267520629,["itemname"]="Voidscope",["itemtype"]="Gun",["rarity"]="Secret"}},
 }
-local mmv=game.GameId==10413186812 or game.PlaceId==93017634738276
-if not mmv then
-    for _,row in ipairs(staticMM2) do register(row[1],row[2],row[3]) end
-end
+for _,row in ipairs(staticMM2) do register(row[1],row[2],row[3]) end
 for _,row in ipairs(sharedScopes) do
     local entry=register(row[1],row[2],row[3])
     entry.originalModelId=string.format("%.0f",row[3].itemid)
+    entry.game="MMV"
 end
 
 local ORIGINAL_SCOPE_HOLD="134818020160275"
@@ -6644,7 +6644,12 @@ local function restoreVisuals(state)
     state.scopeTemplateHold=nil
     if state.model then state.model:Destroy(); state.model=nil end
     for object,record in pairs(state.originals) do
-        pcall(function() object[record.property]=record.value end)
+        pcall(function()
+            local value=record.value
+            local effects=env.VisualsV2Runtime.ClientKnifeEffects
+            if record.property=="Enabled" and effects and effects.IsSuppressed(object) then value=false end
+            object[record.property]=value
+        end)
     end
     table.clear(state.originals)
     state.applied=nil
@@ -6690,7 +6695,15 @@ local function hideOriginals(tool,state)
                 or object:IsA("Fire") or object:IsA("Smoke") or object:IsA("Sparkles")
                 or object:IsA("Light") then property,value="Enabled",false end
             if property then
-                if not state.originals[object] then state.originals[object]={property=property,value=object[property]} end
+                if not state.originals[object] then
+                    local original=object[property]
+                    local effects=env.VisualsV2Runtime.ClientKnifeEffects
+                    if property=="Enabled" and effects then
+                        local value=effects.GetOriginalEnabled(object)
+                        if value~=nil then original=value end
+                    end
+                    state.originals[object]={property=property,value=original}
+                end
                 pcall(function() object[property]=value end)
             end
         end
@@ -6843,39 +6856,125 @@ local function setDropdown(controller,method,value)
     if not ok then pcall(controller[method],controller,value) end
 end
 
+local rarityOrder={"Unique","Ancient","Vintage","Chroma","Godly","Legendary","Rare","Uncommon","Common"}
+local nameOverrides={Emptybringer="Emptybringer",EmptybringerChroma="Chroma Emptybringer",molten="Molten"}
+local trophyColours={"Bronze","Silver","Gold","Blue","Red","Purple"}
+
+local function displayName(entry,evo)
+    local name=nameOverrides[entry.id] or entry.name
+    if entry.data.rarity=="Unique" then
+        for _,colour in ipairs(trophyColours) do
+            if entry.id:find(colour,1,true) then
+                if not name:find(colour,1,true) then name=colour.." "..name end
+                break
+            end
+        end
+        if entry.id:find("ElderwoodGun",1,true) then name=name:gsub("Elderwood$","Elderwood Revolver") end
+        if entry.id:find("ElderwoodKnife",1,true) then name=name:gsub("Elderwood$","Elderwood Blade") end
+        if entry.id:find("SwirlyGun",1,true) then name=name:gsub("Swirly$","Swirly Gun") end
+        if entry.id:find("SwirlyAxe",1,true) then name=name:gsub("Swirly$","Swirly Axe") end
+        if entry.id:find("TravelerAxe",1,true) then name=name:gsub("Traveler's$","Traveler's Axe") end
+    end
+    local year=tostring(entry.data.year or entry.id:match("(20%d%d)") or "")
+    local details={}
+    if year:match("^20%d%d$") then details[#details+1]=year end
+    if evo then details[#details+1]=tostring(entry.data.rarity) end
+    if #details>0 then name=name.." ("..table.concat(details,", ")..")" end
+    return name
+end
+
+local function category(entry)
+    if entry.game=="MMV" then return "MMV Scopes" end
+    if entry.data.chroma==true then return "Chroma" end
+    if entry.data.rarity=="Classic" then return "Vintage" end
+    return entry.data.rarity or "Other"
+end
+
+local function syncDropdowns(state)
+    local wasRefreshing=refreshing
+    refreshing=true
+    for _,group in ipairs(state.groups) do
+        local label=state.activeGroup==group.name and group.ids[state.selected] or NONE
+        setDropdown(group.controller,"Select",label or NONE)
+    end
+    refreshing=wasRefreshing
+end
+
 for _,kind in ipairs({"Gun","Knife"}) do
     local state=kinds[kind]
-    local entries={}
-    for _,entry in pairs(catalog[kind]) do entries[#entries+1]=entry end
-    table.sort(entries,function(a,b)
-        if a.name:lower()==b.name:lower() then return a.id<b.id end
-        return a.name:lower()<b.name:lower()
-    end)
-    local options={NONE}
-    state.labels={}
-    local names={}
-    for _,entry in ipairs(entries) do names[entry.name:lower()]=(names[entry.name:lower()] or 0)+1 end
-    for _,entry in ipairs(entries) do
-        entry.label=names[entry.name:lower()]>1 and entry.name.." ["..entry.id.."]" or entry.name
-        options[#options+1]=entry.label
-        state.labels[entry.label]=entry.id
+    state.groups={}
+    state.activeGroup=C(state.key.."Group",nil)
+    local buckets={}
+    for _,name in ipairs(rarityOrder) do buckets[name]={} end
+    buckets.Evos={}
+    buckets["MMV Scopes"]={}
+    for _,entry in pairs(catalog[kind]) do
+        entry.listed=true
+        if entry.listed then
+            entry.category=category(entry)
+            entry.label=displayName(entry,false)
+            buckets[entry.category]=buckets[entry.category] or {}
+            buckets[entry.category][#buckets[entry.category]+1]=entry
+            if tonumber(entry.data.evoindex) then buckets.Evos[#buckets.Evos+1]=entry end
+        end
     end
     local selected=catalog[kind][state.selected]
-    state.dropdown=addDropdown(section,kind.." Skin",options,selected and selected.label or nil,function(value)
-        if refreshing then return end
-        if type(value)=="table" then value=value[1] or value.Value or value.value end
-        local id=value==NONE and NONE or state.labels[value]
-        if not id and type(value)=="string" and catalog[kind][value] then id=value end
-        if not id then return end
-        state.selected=id
-        SetCfg(state.key.."Skin",id)
-        refreshTools()
-    end)
-    state.toggle=addToggle(section,"Enable Custom Client "..kind,state.enabled,function(value)
+    if not selected or not selected.listed then
+        state.selected=NONE
+        state.activeGroup=nil
+        SetCfg(state.key.."Skin",NONE)
+    elseif state.activeGroup~="Evos" or not tonumber(selected.data.evoindex) then
+        state.activeGroup=selected.category
+    end
+    local function addGroup(target,name,entries)
+        table.sort(entries,function(a,b)
+            local first,second=displayName(a,name=="Evos"),displayName(b,name=="Evos")
+            if first:lower()==second:lower() then return a.id<b.id end
+            return first:lower()<second:lower()
+        end)
+        local group={name=name,labels={},ids={}}
+        local options={NONE}
+        local duplicates={}
+        for _,entry in ipairs(entries) do
+            local label=displayName(entry,name=="Evos")
+            duplicates[label]=(duplicates[label] or 0)+1
+            if duplicates[label]>1 then label=label.." (Variant "..duplicates[label]..")" end
+            options[#options+1]=label
+            group.labels[label]=entry.id
+            group.ids[entry.id]=label
+        end
+        state.groups[#state.groups+1]=group
+        local initial=state.activeGroup==name and group.ids[state.selected] or NONE
+        group.controller=addDropdown(target,name,options,initial or NONE,function(value)
+            if refreshing then return end
+            if type(value)=="table" then value=value[1] or value.Value or value.value end
+            local id=value==NONE and NONE or group.labels[value]
+            if not id then return false end
+            if id==NONE and state.activeGroup~=name then return false end
+            state.selected=id
+            state.activeGroup=id~=NONE and name or nil
+            SetCfg(state.key.."Skin",id)
+            SetCfg(state.key.."Group",state.activeGroup)
+            syncDropdowns(state)
+            refreshTools()
+        end,function(value)
+            return kind.." skin: "..tostring(value)
+        end)
+    end
+    local target=kind=="Gun" and gunSection or knifeSection
+    state.toggle=addToggle(target,"Enable Custom Client "..kind,state.enabled,function(value)
         state.enabled=value
         SetCfg(state.key.."Enabled",value)
         updateWatching()
     end)
+    for _,name in ipairs(rarityOrder) do addGroup(target,name,buckets[name]) end
+    if #buckets.Evos>0 then addGroup(target,"Evos",buckets.Evos) end
+    if #buckets["MMV Scopes"]>0 then addGroup(scopeSection,"MMV Scopes",buckets["MMV Scopes"]) end
+    for name,entries in pairs(buckets) do
+        if name~="Evos" and name~="MMV Scopes" and not table.find(rarityOrder,name) then
+            addGroup(target,name,entries)
+        end
+    end
 end
 
 connections[#connections+1]=player.CharacterAdded:Connect(function()
@@ -6886,6 +6985,19 @@ connections[#connections+1]=player.ChildAdded:Connect(function(child)
 end)
 env.VisualsV2Runtime.ClientWeaponSkins={
     Catalog=catalog,
+    GetOriginalEnabled=function(object)
+        for _,state in pairs(toolStates) do
+            local record=state.originals[object]
+            if record and record.property=="Enabled" then return record.value end
+        end
+    end,
+    IsHidden=function(object)
+        for _,state in pairs(toolStates) do
+            local record=state.originals[object]
+            if state.model and record and record.property=="Enabled" then return true end
+        end
+        return false
+    end,
     GetCounts=function()
         local counts={Gun=0,Knife=0}
         for kind,entries in pairs(catalog) do for _ in pairs(entries) do counts[kind]=counts[kind]+1 end end
@@ -6899,7 +7011,7 @@ env.VisualsV2Runtime.RegisterReset(function()
     end
     updateWatching()
     refreshing=true
-    for _,state in pairs(kinds) do setDropdown(state.dropdown,"Select",NONE) end
+    for _,state in pairs(kinds) do state.activeGroup=nil;syncDropdowns(state) end
     refreshing=false
     if not runtimeAlive then
         alive=false
@@ -6911,6 +7023,380 @@ env.VisualsV2Runtime.RegisterReset(function()
 end)
 updateWatching()
 end)()
+
+;(function()
+local section=mainTab:AddSection("Knife Effects","Cosmetic")
+local effectList={
+    {id="Abduction2025",name="Abduction",label="Abduction (2025)"},
+    {id="Aquatic2025",name="Aquatic",label="Aquatic (2025)"},
+    {id="Arctic2022",name="Arctic",label="Arctic (2022)"},
+    {id="Aurora2021",name="Aurora",label="Aurora (2021)"},
+    {id="Aurora2024",name="Aurora Lights",label="Aurora Lights (2024)"},
+    {id="Balloons",name="Balloons",label="Balloons"},
+    {id="Bats",name="Bats",label="Bats"},
+    {id="Bats2020",name="Batswarm",label="Batswarm (2020)"},
+    {id="Bats2024",name="Bat Swarm",label="Bat Swarm (2024)"},
+    {id="Bitsplosion",name="Bitsplosion",label="Bitsplosion"},
+    {id="Blizzard",name="Blizzard",label="Blizzard"},
+    {id="Bloom2025",name="Bloom",label="Bloom (2025)"},
+    {id="BlueFire",name="Blue Flaming Knife",label="Blue Flaming Knife"},
+    {id="Bokeh2025",name="Bokeh",label="Bokeh (2025)"},
+    {id="Bubbly26",name="Bubbly",label="Bubbly (2026)"},
+    {id="Burn",name="Flaming Knife",label="Flaming Knife"},
+    {id="Candies",name="Candies",label="Candies (2019)"},
+    {id="CandyCane",name="Candy Cane",label="Candy Cane"},
+    {id="CandyEffect2022",name="Candies",label="Candies (2022)"},
+    {id="CandyEffect2023",name="Candies",label="Candies (2023)"},
+    {id="Carrots2025",name="Carrots",label="Carrots (2025)"},
+    {id="Cats2025",name="Cat Eyes",label="Cat Eyes (2025)"},
+    {id="Chilly2022",name="Chilly",label="Chilly (2022)"},
+    {id="Coal2025",name="Coal",label="Coal (2025)"},
+    {id="CommonOrnamentEffect",name="Common Ornament",label="Common Ornament (2018)"},
+    {id="Confetti2025",name="Confetti",label="Confetti (2025)"},
+    {id="Cursed2024",name="Cursed",label="Cursed (2024)"},
+    {id="Darkfire",name="Darkfire",label="Darkfire"},
+    {id="Darkswirl",name="Darkswirl",label="Darkswirl (2023)"},
+    {id="Doge",name="Doge",label="Doge"},
+    {id="Dual",name="Dual Wield",label="Dual Wield"},
+    {id="EasterGlow2023",name="Easter Glow",label="Easter Glow (2023)"},
+    {id="Electric",name="Electric Knife",label="Electric Knife"},
+    {id="Elitify",name="Elite-ify",label="Elite-ify"},
+    {id="Ethereal",name="Ethereal",label="Ethereal"},
+    {id="Feathers",name="Feathers",label="Feathers"},
+    {id="Fireworks2023",name="Fireworks",label="Fireworks (2023)"},
+    {id="FlamingoEffect2025",name="Flamingo",label="Flamingo (2025)"},
+    {id="Floral2023",name="Floral",label="Floral (2023)"},
+    {id="Flowers2024",name="Flowers",label="Flowers (2024)"},
+    {id="Flowerwood",name="Flowerwood",label="Flowerwood"},
+    {id="Flowerwood_Pink",name="Pink Flowerwood",label="Pink Flowerwood"},
+    {id="Frost2025",name="Frost",label="Frost (2025)"},
+    {id="FrostbiteEffect",name="Frostbite",label="Frostbite"},
+    {id="Frostfire2020",name="Frostfire",label="Frostfire (2020)"},
+    {id="GearStorm",name="Gear Storm",label="Gear Storm"},
+    {id="Ghostify",name="Ghostify",label="Ghostify"},
+    {id="Ghosts2020",name="Ghosts",label="Ghosts (2020)"},
+    {id="Ghosts2023",name="Ghosts",label="Ghosts (2023)"},
+    {id="Ghosts2024",name="Ghosts",label="Ghosts (2024)"},
+    {id="Gifts2024",name="Gifts",label="Gifts (2024)"},
+    {id="GingerbreadEffect",name="Gingerbread",label="Gingerbread"},
+    {id="Glisten2024",name="Glisten",label="Glisten (2024)"},
+    {id="Glowy2023",name="Glowy",label="Glowy (2023)"},
+    {id="GreenFire",name="Green Flaming Knife",label="Green Flaming Knife"},
+    {id="HallowsBlaze",name="Hallow's Blaze",label="Hallow's Blaze"},
+    {id="Heartify",name="Heartify",label="Heartify"},
+    {id="Hearts26",name="Hearts",label="Hearts (2026)"},
+    {id="Heatwave2025",name="Heatwave",label="Heatwave (2025)"},
+    {id="IceMagic",name="Ice Magic",label="Ice Magic"},
+    {id="Jellyfish2024",name="Jellyfish",label="Jellyfish (2024)"},
+    {id="Jingle2020",name="Jingle",label="Jingle (2020)"},
+    {id="Knifeception",name="Knifeception",label="Knifeception"},
+    {id="Leaves2025",name="Leaves",label="Leaves (2025)"},
+    {id="LegendaryOrnamentEffect",name="Legendary Ornament",label="Legendary Ornament (2018)"},
+    {id="Lights2025",name="Lights",label="Lights (2025)"},
+    {id="Matrix2024",name="Matrix",label="Matrix (2024)"},
+    {id="Minty2022",name="Minty",label="Minty (2022)"},
+    {id="Money",name="Monify",label="Monify"},
+    {id="Musical",name="Musical",label="Musical"},
+    {id="Nightlife26",name="Nightlife",label="Nightlife (2026)"},
+    {id="Nightsky2025",name="Nightsky",label="Nightsky (2025)"},
+    {id="NorthernLights",name="Northern Lights",label="Northern Lights (2018)"},
+    {id="Ocean26",name="Ocean",label="Ocean (2026)"},
+    {id="Petals",name="Petals",label="Petals"},
+    {id="Phantom",name="Phantom",label="Phantom"},
+    {id="PhantomEffect2022",name="Ghostly",label="Ghostly (2022)"},
+    {id="PinkFire",name="Pink Flaming Knife",label="Pink Flaming Knife"},
+    {id="PlasmaEffect",name="Plasma",label="Plasma"},
+    {id="Poison",name="Poison",label="Poison"},
+    {id="Pumpkin",name="Pumpkin",label="Pumpkin"},
+    {id="Pumpkin2022",name="Pumpkin",label="Pumpkin (2022)"},
+    {id="Radioactive",name="Radioactive",label="Radioactive"},
+    {id="Rainbow",name="Rainbow Fire",label="Rainbow Fire"},
+    {id="RainbowEffect",name="Rainbow",label="Rainbow"},
+    {id="Rainbows2025",name="Rainbows",label="Rainbows (2025)"},
+    {id="RareOrnamentEffect",name="Rare Ornament",label="Rare Ornament (2018)"},
+    {id="Retro2025",name="Retro",label="Retro (2025)"},
+    {id="Snowballs2025",name="Snowballs",label="Snowballs (2025)"},
+    {id="Snowfall2020",name="Snowfall",label="Snowfall (2020)"},
+    {id="Snowflake2021",name="Snowflake",label="Snowflake (2021)"},
+    {id="Snowflakes",name="Snowflakes",label="Snowflakes"},
+    {id="Snowflakes2",name="Snowflakes 2017",label="Snowflakes 2017"},
+    {id="Snowstorm2024",name="Snowy",label="Snowy (2024)"},
+    {id="Snowstorm2025",name="Snowstorm",label="Snowstorm (2025)"},
+    {id="Starry2021",name="Starry",label="Starry (2021)"},
+    {id="Starry2024",name="Celestial",label="Celestial (2024)"},
+    {id="Stars2023",name="Stars",label="Stars (2023)"},
+    {id="StickersX2022",name="Stickers",label="Stickers (2022)"},
+    {id="Strawberries26",name="Strawberries",label="Strawberries (2026)"},
+    {id="Sunbeams2024",name="Sunbeams",label="Sunbeams (2024)"},
+    {id="SweetEffect26",name="Pixie Dust",label="Pixie Dust (2026)"},
+    {id="Swirls2023",name="Swirls",label="Swirls (2023)"},
+    {id="SynthEffect2025",name="Synthwave",label="Synthwave (2025)"},
+    {id="Toxic2022",name="Toxic",label="Toxic (2022)"},
+    {id="Traveler2023",name="Traveler's Flame",label="Traveler's Flame (2023)"},
+    {id="Treats2025",name="Treats",label="Treats (2025)"},
+    {id="UFOs2025",name="UFOs",label="UFOs (2025)"},
+    {id="UncommonOrnamentEffect",name="Uncommon Ornament",label="Uncommon Ornament (2018)"},
+    {id="Vampire2020",name="Vampire",label="Vampire (2020)"},
+    {id="Vampiric2024",name="Vampiric",label="Vampiric (2024)"},
+    {id="VersusEffect2022",name="Versus",label="Versus (2022)"},
+    {id="VoidRbxEffect",name="Void",label="Void"},
+    {id="Water2023",name="Flow",label="Flow (2023)"},
+    {id="Wraith2024",name="Wraith",label="Wraith (2024)"},
+    {id="Wraithfire",name="Wraithfire",label="Wraithfire"},
+    {id="Wrapper",name="Knife Wrapper",label="Knife Wrapper"},
+    {id="XenoEffect",name="Xeno",label="Xeno (2025)"},
+    {id="XmasGlow2025",name="Christmas Glow",label="Christmas Glow (2025)"},
+}
+local enabled=C("vv2KnifeEffectsEnabled",false)
+local selected=tostring(C("vv2KnifeEffect","None"))
+local alive=true
+local heartbeat=nil
+local states={}
+local warned={}
+local nextAttempt=0
+local template=nil
+local templateId=nil
+local MARKER="VisualsV2_ClientKnifeEffect"
+local SKIN_MARKER="VisualsV2_ClientWeaponSkin"
+local storage=game:GetService("ReplicatedStorage")
+local byId,byLabel,options={},{},{"None"}
+local visuals={ParticleEmitter=true,Trail=true,Beam=true,Fire=true,Smoke=true,Sparkles=true,
+    PointLight=true,SpotLight=true,SurfaceLight=true}
+for _,entry in ipairs(effectList) do byId[entry.id]=entry end
+table.sort(effectList,function(a,b) return a.label:lower()<b.label:lower() end)
+for _,entry in ipairs(effectList) do
+    options[#options+1]=entry.label
+    byLabel[entry.label]=entry.id
+end
+if selected~="None" and not byId[selected] then selected="None" end
+
+local function own(object,tool)
+    while object and object~=tool do
+        if object:GetAttribute(MARKER) then return true end
+        object=object.Parent
+    end
+    return false
+end
+
+local function mark(object)
+    object:SetAttribute(MARKER,true)
+    object:SetAttribute(SKIN_MARKER,true)
+end
+
+local function clear(tool)
+    local state=states[tool]
+    if not state then return end
+    states[tool]=nil
+    for _,object in ipairs(state.outputs) do pcall(function() object:Destroy() end) end
+    local skins=env.VisualsV2Runtime.ClientWeaponSkins
+    for object,value in pairs(state.originals) do
+        if not skins or not skins.IsHidden or not skins.IsHidden(object) then
+            pcall(function() object.Enabled=value end)
+        end
+    end
+end
+
+local function clearAll()
+    for tool in pairs(states) do clear(tool) end
+end
+
+local function blade(tool)
+    local skin=tool:FindFirstChild("VisualsV2_ClientKnifeSkin")
+    if skin and skin:IsA("Model") and skin.PrimaryPart then return skin.PrimaryPart end
+    local handle=tool:FindFirstChild("Handle")
+    return handle and handle:IsA("BasePart") and handle or nil
+end
+
+local function hasVisuals(object)
+    if visuals[object.ClassName] then return true end
+    for _,child in ipairs(object:GetDescendants()) do if visuals[child.ClassName] then return true end end
+    return false
+end
+
+local function findTemplate()
+    if templateId==selected and template and template.Parent then return template end
+    if os.clock()<nextAttempt then return nil end
+    nextAttempt=os.clock()+5
+    local entry=byId[selected]
+    if not entry then return nil end
+    local candidates={}
+    local function candidate(object)
+        if object and not own(object,storage) and hasVisuals(object) then candidates[#candidates+1]=object end
+    end
+    for _,containerName in ipairs({"Effects","KnifeEffects","WeaponEffects","EffectModels","KnifeFX"}) do
+        local container=storage:FindFirstChild(containerName,true)
+        if container then
+            candidate(container:FindFirstChild(entry.id,true))
+            candidate(container:FindFirstChild(entry.name,true))
+        end
+    end
+    candidate(storage:FindFirstChild(entry.id,true))
+    if candidates[1] then template=candidates[1];templateId=selected;return template end
+    return nil
+end
+
+local function cloneVisuals(source,handle)
+    local archivable=source.Archivable
+    pcall(function() source.Archivable=true end)
+    local ok,clone=pcall(function() return source:Clone() end)
+    pcall(function() source.Archivable=archivable end)
+    if not ok or not clone then return nil end
+    local sourcePart=clone:IsA("BasePart") and clone or clone:FindFirstChildWhichIsA("BasePart",true)
+    local origin=sourcePart and sourcePart.CFrame or CFrame.new()
+    local outputs={}
+    local count=0
+    local function mount(object,offset)
+        if object:IsA("BasePart") then
+            local relative=origin:ToObjectSpace(object.CFrame)
+            for _,child in ipairs(object:GetChildren()) do mount(child,relative) end
+            object:Destroy()
+        elseif object:IsA("Attachment") then
+            object.CFrame=offset*object.CFrame
+            for _,child in ipairs(object:GetDescendants()) do
+                if visuals[child.ClassName] then
+                    child.Enabled=true
+                    count=count+1
+                elseif not child:IsA("Attachment") then child:Destroy() end
+            end
+            mark(object)
+            object.Parent=handle
+            outputs[#outputs+1]=object
+        elseif visuals[object.ClassName] then
+            for _,child in ipairs(object:GetChildren()) do child:Destroy() end
+            mark(object)
+            object.Enabled=true
+            if object:IsA("ParticleEmitter") and offset~=CFrame.new() then
+                local attachment=Instance.new("Attachment")
+                attachment.Name="VisualsV2_KnifeEffectOffset"
+                attachment.CFrame=offset
+                mark(attachment)
+                object.Parent=attachment
+                attachment.Parent=handle
+                outputs[#outputs+1]=attachment
+            else
+                object.Parent=handle
+                outputs[#outputs+1]=object
+            end
+            count=count+1
+        else
+            for _,child in ipairs(object:GetChildren()) do
+                if object:IsA("Model") or object:IsA("Folder") or object:IsA("ModuleScript") then
+                    mount(child,offset)
+                else child:Destroy() end
+            end
+            object:Destroy()
+        end
+    end
+    local mounted=pcall(mount,clone,CFrame.new())
+    count=0
+    for _,object in ipairs(outputs) do
+        if visuals[object.ClassName] then count=count+1 end
+        for _,child in ipairs(object:GetDescendants()) do
+            if visuals[child.ClassName] then count=count+1 end
+        end
+    end
+    if not mounted or count==0 then
+        for _,object in ipairs(outputs) do pcall(function() object:Destroy() end) end
+        pcall(function() clone:Destroy() end)
+        return nil
+    end
+    return outputs
+end
+
+local function hideNative(tool,state)
+    for _,object in ipairs(tool:GetDescendants()) do
+        if visuals[object.ClassName] and not own(object,tool) then
+            if state.originals[object]==nil then
+                local original=object.Enabled
+                local skins=env.VisualsV2Runtime.ClientWeaponSkins
+                if skins and skins.GetOriginalEnabled then
+                    local value=skins.GetOriginalEnabled(object)
+                    if value~=nil then original=value end
+                end
+                state.originals[object]=original
+            end
+            object.Enabled=false
+        end
+    end
+end
+
+local function update()
+    if not alive or not runtimeAlive or not enabled or selected=="None" then clearAll();return end
+    local character=LocalPlayer.Character
+    for tool,state in pairs(states) do
+        if not character or tool.Parent~=character or state.handle~=blade(tool) or state.id~=selected then clear(tool) end
+    end
+    if not character then return end
+    for _,tool in ipairs(character:GetChildren()) do
+        if tool:IsA("Tool") and tool.Name:lower()=="knife" then
+            local handle=blade(tool)
+            if handle then
+                local state=states[tool]
+                if not state then
+                    local source=findTemplate()
+                    local outputs=source and cloneVisuals(source,handle)
+                    if outputs then
+                        state={id=selected,handle=handle,outputs=outputs,originals={}}
+                        states[tool]=state
+                    elseif not warned[selected] then
+                        warned[selected]=true
+                        pcall(shared.Notify,"The original "..byId[selected].label.." effect template is not available on this client yet.",3)
+                    end
+                end
+                if state then hideNative(tool,state) end
+            end
+        end
+    end
+end
+
+local function refresh()
+    if heartbeat then heartbeat:Disconnect();heartbeat=nil end
+    clearAll()
+    if not alive or not runtimeAlive or not enabled or selected=="None" then return end
+    nextAttempt=0
+    update()
+    local elapsed=0
+    heartbeat=RunService.Heartbeat:Connect(function(dt)
+        elapsed=elapsed+dt
+        if elapsed>=0.2 then elapsed=0;update() end
+    end)
+end
+
+local toggle=addToggle(section,"Enable Client Knife Effects",enabled,function(value)
+    enabled=value
+    SetCfg("vv2KnifeEffectsEnabled",value)
+    refresh()
+end)
+local dropdown=addDropdown(section,"Knife Effect",options,byId[selected] and byId[selected].label or "None",function(value)
+    local id=value=="None" and "None" or byLabel[value]
+    if not id then return false end
+    selected=id
+    SetCfg("vv2KnifeEffect",id)
+    template=nil;templateId=nil;nextAttempt=0
+    refresh()
+end)
+env.VisualsV2Runtime.ClientKnifeEffects={
+    GetOriginalEnabled=function(object)
+        for _,state in pairs(states) do
+            if state.originals[object]~=nil then return state.originals[object] end
+        end
+    end,
+    IsSuppressed=function(object)
+        for _,state in pairs(states) do if state.originals[object]~=nil then return true end end
+        return false
+    end,
+}
+env.VisualsV2Runtime.RegisterReset(function()
+    enabled=false
+    toggle:Set(false)
+    selected="None"
+    if dropdown and type(dropdown.Select)=="function" then pcall(dropdown.Select,"None") end
+    refresh()
+    if not runtimeAlive then alive=false end
+end)
+refresh()
+end)()
+
 
 ;(function()
 local section=mainTab:AddSection("Shift Lock & Throwables","Utilities")
