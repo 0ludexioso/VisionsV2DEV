@@ -178,22 +178,65 @@ local function addToggle(section, name, defaultValue, callback)
     return controller
 end
 
-local function addDropdown(section, name, items, defaultValue, callback)
-    local controller = section:AddDropdown(name, items, callback)
-    if defaultValue then
-        task.defer(function()
-            local selected = false
-            if controller and type(controller.Select)=="function" then
-                selected = pcall(controller.Select, defaultValue)
-                if not selected then
-                    selected = pcall(function() controller:Select(defaultValue) end)
+local function addDropdown(section, name, items, defaultValue, callback, notification)
+    local function valueOf(value)
+        if type(value)=="table" then value=value[1] or value.Value or value.value end
+        return value
+    end
+    local selectedValue=valueOf(defaultValue)
+    local silent=1
+    local revision=0
+    local function changed(value)
+        local selected=valueOf(value)
+        local previous=selectedValue
+        local userChange=silent==0 and selected~=previous
+        selectedValue=selected
+        if userChange then revision=revision+1 end
+        local accepted=callback(value)
+        if accepted==false then selectedValue=previous; return end
+        if not userChange or not runtimeAlive or configResetting or notification==false then return end
+        local message
+        if type(notification)=="function" then
+            message=notification(selected,previous)
+        elseif selected~=nil then
+            message=name:gsub("^VV2 ","")..": "..tostring(selected)
+        end
+        if message then pcall(shared.Notify,message,2) end
+    end
+    local rawController=section:AddDropdown(name,items,changed)
+    silent=0
+    selectedValue=valueOf(defaultValue)
+    local controller={}
+    if type(rawController)=="table" then
+        setmetatable(controller,{__index=rawController})
+        for _,method in ipairs({"Select","Change","ChangeItems"}) do
+            if type(rawController[method])=="function" then
+                controller[method]=function(first,...)
+                    local args=first==controller and table.pack(...) or table.pack(first,...)
+                    revision=revision+1
+                    if method=="Select" then selectedValue=valueOf(args[1]) end
+                    silent=silent+1
+                    local ok,result=pcall(rawController[method],table.unpack(args,1,args.n))
+                    if not ok then
+                        ok,result=pcall(rawController[method],rawController,table.unpack(args,1,args.n))
+                    end
+                    silent=silent-1
+                    if not ok then error(result,0) end
+                    return result
                 end
             end
-
-            callback(defaultValue)
+        end
+    end
+    if defaultValue~=nil then
+        task.defer(function()
+            if not runtimeAlive or configResetting or revision~=0 then return end
+            silent=silent+1
+            if type(controller.Select)=="function" then pcall(controller.Select,defaultValue) end
+            changed(defaultValue)
+            silent=silent-1
         end)
     end
-    return controller
+    return type(rawController)=="table" and controller or rawController
 end
 
 loadConfig()
@@ -2356,6 +2399,11 @@ local characterSection = mainTab:AddSection("Character", "Cosmetic")
 local headlessEnabled = C("headlessEnabled", false)
 local characterOriginal = setmetatable({}, {__mode = "k"})
 
+characterSection:AddParagraph(
+    "Character Appearance",
+    "Headless and Korblox are client sided. Korblox works for R15 only."
+)
+
 local function rememberCharacterObject(obj)
     if not obj or characterOriginal[obj] then return end
     if obj:IsA("BasePart") then
@@ -3081,6 +3129,11 @@ KorbloxSystem.LeftToggle=addToggle(
 )
 end)()
 
+characterSection:AddParagraph(
+    "No interruption on emoting",
+    "Runs ATAOs-style True Anti Fling for as long as a Roblox avatar emote is playing, then turns it off."
+)
+
 local noInterruptionEmote=C("noInterruptionEmote",false)
 local setupAutomaticEmoteProtection
 
@@ -3555,6 +3608,10 @@ end)
 end)()
 
 local speedSection = mainTab:AddSection("Speed Glitch", "Utilities")
+speedSection:AddParagraph(
+    "Speed Glitch",
+    "Only works while Shift Lock is active. Using very high speeds for a fairly long period of time may cause the game to kick you."
+)
 
 local speedEnabled = C("speedGlitchEnabled", false)
 local speedValue = C("speedValue", 50)
@@ -4242,7 +4299,11 @@ local function updateDropdowns()
     dropdownRefreshing=true
     local function refresh(drop,name)
         if not drop then return end
-        pcall(function() drop.Change(list) end)
+        if type(drop.ChangeItems)=="function" then
+            pcall(function() drop:ChangeItems(list) end)
+        elseif type(drop.Change)=="function" then
+            pcall(function() drop.Change(list) end)
+        end
         if type(drop.Select)=="function" then
             local displayed=findPlayerByName(name) and name or "None"
             local ok=pcall(drop.Select,displayed)
@@ -4255,41 +4316,36 @@ local function updateDropdowns()
     dropdownRefreshing=false
 end
 
+local function ignoreAddedMessage(selected)
+    local player=findPlayerByName(selected)
+    if not player then return end
+    local slots=0
+    for _,name in ipairs({slot1Name,slot2Name,slot3Name}) do
+        if name==selected then slots=slots+1 end
+    end
+    if slots==1 then return player.Name.." added to the Anti-Aim ignore list" end
+end
+
 drop1 = addDropdown(aaSection,"Ignore Player 1",getPlayerList(),slot1Name,function(selected)
     if dropdownRefreshing then return end
     slot1Name=tostring(selected or "None")
     SetCfg("aaIgnorePlayer1",slot1Name)
     slot1Player = findPlayerByName(selected)
-    if slot1Player then
-        shared.Notify("Slot 1: " .. slot1Player.Name, 2)
-    else
-        shared.Notify("Slot 1: None", 2)
-    end
-end)
+end,ignoreAddedMessage)
 
 drop2 = addDropdown(aaSection,"Ignore Player 2",getPlayerList(),slot2Name,function(selected)
     if dropdownRefreshing then return end
     slot2Name=tostring(selected or "None")
     SetCfg("aaIgnorePlayer2",slot2Name)
     slot2Player = findPlayerByName(selected)
-    if slot2Player then
-        shared.Notify("Slot 2: " .. slot2Player.Name, 2)
-    else
-        shared.Notify("Slot 2: None", 2)
-    end
-end)
+end,ignoreAddedMessage)
 
 drop3 = addDropdown(aaSection,"Ignore Player 3",getPlayerList(),slot3Name,function(selected)
     if dropdownRefreshing then return end
     slot3Name=tostring(selected or "None")
     SetCfg("aaIgnorePlayer3",slot3Name)
     slot3Player = findPlayerByName(selected)
-    if slot3Player then
-        shared.Notify("Slot 3: " .. slot3Player.Name, 2)
-    else
-        shared.Notify("Slot 3: None", 2)
-    end
-end)
+end,ignoreAddedMessage)
 
 local playerAddedConnection=Players.PlayerAdded:Connect(function()
     slot1Player=findPlayerByName(slot1Name)
@@ -7544,6 +7600,7 @@ local function addTint(key,label,name)
         speed=math.clamp(tonumber(C(key.."RainbowSpeed",legacySpeed)) or 3,1,10),
     }
     tints[name]=tint
+    section:AddParagraph(label.." Tint","Tint controls affect only your "..name..". Chams have separate colour and rainbow controls.")
 
     tint.toggle=addToggle(section,"Enable "..label.." Tint",tint.enabled,function(value)
         tint.enabled=value
@@ -7853,6 +7910,7 @@ end)()
 
 ;(function()
 local section=mainTab:AddSection("Custom Tool","Visuals")
+section:AddParagraph("Tool Tint","Applies a configurable highlight tint to tools other than Gun and Knife.")
 
 local enabled=C("toolTintEnabled",false)
 local tintColor=C("toolTintColor",Color3.fromRGB(38,38,38))
@@ -8037,6 +8095,278 @@ end)
 end)()
 
 ;(function()
+local fontSection=mainTab:AddSection("Text Fonts","Visuals")
+local privacySection=mainTab:AddSection("Streamer Mode","Privacy")
+local fonts={
+    ["SourceSansBold (Original)"]=Enum.Font.SourceSansBold,
+    ["Gotham"]=Enum.Font.Gotham,
+    ["Arcade"]=Enum.Font.Arcade,
+    ["Arial"]=Enum.Font.Arial,
+    ["ArialBold"]=Enum.Font.ArialBold,
+    ["Cartoon"]=Enum.Font.Cartoon,
+    ["Fantasy"]=Enum.Font.Fantasy,
+    ["Highway"]=Enum.Font.Highway,
+    ["Code"]=Enum.Font.Code,
+    ["Legacy"]=Enum.Font.Legacy,
+}
+local fontNames={"SourceSansBold (Original)","Gotham","Arcade","Arial","ArialBold","Cartoon","Fantasy","Highway","Code","Legacy"}
+local selectedFont=C("vv2TextFont","SourceSansBold (Original)")
+if not fonts[selectedFont] then selectedFont="SourceSansBold (Original)" end
+local fontsEnabled=C("vv2TextFontsEnabled",false)
+local hideNames=C("vv2StreamerHideUsername",false)
+local hideAvatar=C("vv2StreamerHideAvatar",false)
+local alive=true
+local resetting=false
+local roots={}
+local rootConnections={}
+local lifecycleConnections={}
+local records={}
+local refresh
+local transparentImage="rbxasset://textures/transparent.png"
+
+local function disconnectAll(connections)
+    for _,connection in ipairs(connections) do pcall(function() connection:Disconnect() end) end
+    table.clear(connections)
+end
+
+local function readFont(object)
+    local result={font=object.Font}
+    pcall(function() result.face=object.FontFace end)
+    return result
+end
+
+local function writeProperty(object,record,property,value)
+    record.writing=record.writing+1
+    local ok=pcall(function() if object[property]~=value then object[property]=value end end)
+    record.writing=record.writing-1
+    return ok
+end
+
+local function restoreFont(object,record)
+    if not record.font then return end
+    record.writing=record.writing+1
+    local restored=false
+    if record.font.face then restored=pcall(function() object.FontFace=record.font.face end) end
+    if not restored then pcall(function() object.Font=record.font.font end) end
+    record.writing=record.writing-1
+    record.font=nil
+    record.appliedFont=nil
+end
+
+local function release(object)
+    local record=records[object]
+    if not record then return end
+    disconnectAll(record.connections)
+    restoreFont(object,record)
+    if record.text~=nil then writeProperty(object,record,"Text",record.text) end
+    if record.image~=nil then writeProperty(object,record,"Image",record.image) end
+    records[object]=nil
+end
+
+local function inRoots(object)
+    for _,root in ipairs(roots) do
+        local ok,inside=pcall(function() return object:IsDescendantOf(root) end)
+        if ok and inside then return true end
+    end
+    return false
+end
+
+local function maskedText(value)
+    for _,name in ipairs({LocalPlayer.Name,LocalPlayer.DisplayName}) do
+        if type(name)=="string" and name~="" and value:find(name,1,true) then return "Hidden" end
+    end
+    return value
+end
+
+local function isOwnAvatar(value)
+    if type(value)~="string" then return false end
+    local lower=value:lower()
+    local id=lower:match("[?&]userid=(%d+)") or lower:match("[?&]user_id=(%d+)")
+        or lower:match("/users/(%d+)/")
+    if not id and lower:find("type=avatar",1,true) then id=lower:match("[?&]id=(%d+)") end
+    return id~=nil and id==tostring(LocalPlayer.UserId)
+end
+
+local function applyFont(object,record)
+    if fontsEnabled then
+        if not record.font then record.font=readFont(object) end
+        writeProperty(object,record,"Font",fonts[selectedFont])
+        record.appliedFont=readFont(object)
+    else
+        restoreFont(object,record)
+    end
+end
+
+local function applyText(object,record)
+    if hideNames then
+        if record.text==nil then record.text=object.Text end
+        record.appliedText=maskedText(record.text)
+        writeProperty(object,record,"Text",record.appliedText)
+    elseif record.text~=nil then
+        writeProperty(object,record,"Text",record.text)
+        record.text=nil
+        record.appliedText=nil
+    end
+end
+
+local function applyImage(object,record)
+    if hideAvatar then
+        if record.image==nil then record.image=object.Image end
+        record.appliedImage=isOwnAvatar(record.image) and transparentImage or record.image
+        writeProperty(object,record,"Image",record.appliedImage)
+    elseif record.image~=nil then
+        writeProperty(object,record,"Image",record.image)
+        record.image=nil
+        record.appliedImage=nil
+    end
+end
+
+local function connectProperty(object,record,property,callback)
+    local ok,connection=pcall(function()
+        return object:GetPropertyChangedSignal(property):Connect(function()
+            if alive and runtimeAlive and not resetting and record.writing==0 and records[object]==record then
+                pcall(callback)
+            end
+        end)
+    end)
+    if ok then record.connections[#record.connections+1]=connection end
+end
+
+local function process(object)
+    if not alive or not runtimeAlive or resetting then return end
+    local text=object:IsA("TextLabel") or object:IsA("TextButton") or object:IsA("TextBox")
+    local nameLabel=text and not object:IsA("TextBox")
+    local image=object:IsA("ImageLabel") or object:IsA("ImageButton")
+    if not ((text and fontsEnabled) or (nameLabel and hideNames) or (image and hideAvatar)) then
+        release(object)
+        return
+    end
+    local record=records[object]
+    if not record then
+        record={connections={},writing=0}
+        records[object]=record
+        if text then
+            local function fontChanged()
+                if not fontsEnabled or not record.appliedFont then return end
+                local current=readFont(object)
+                if current.font==record.appliedFont.font and current.face==record.appliedFont.face then return end
+                record.font=current
+                applyFont(object,record)
+            end
+            connectProperty(object,record,"Font",fontChanged)
+            connectProperty(object,record,"FontFace",fontChanged)
+        end
+        if nameLabel then
+            connectProperty(object,record,"Text",function()
+                if not hideNames or object.Text==record.appliedText then return end
+                record.text=object.Text
+                applyText(object,record)
+            end)
+        end
+        if image then
+            connectProperty(object,record,"Image",function()
+                if not hideAvatar or object.Image==record.appliedImage then return end
+                record.image=object.Image
+                applyImage(object,record)
+            end)
+        end
+    end
+    if text then applyFont(object,record) end
+    if nameLabel then applyText(object,record) end
+    if image then applyImage(object,record) end
+end
+
+local function refreshObject(object)
+    if inRoots(object) then pcall(process,object) else release(object) end
+end
+
+refresh=function()
+    if resetting then return end
+    disconnectAll(rootConnections)
+    table.clear(roots)
+    if alive and runtimeAlive and (fontsEnabled or hideNames or hideAvatar) then
+        local function addRoot(root)
+            if typeof(root)~="Instance" then return end
+            for _,existing in ipairs(roots) do if root==existing then return end end
+            roots[#roots+1]=root
+        end
+        addRoot(LocalPlayer:FindFirstChildOfClass("PlayerGui"))
+        pcall(function() addRoot(game:GetService("CoreGui")) end)
+        local hiddenRoot=type(gethui)=="function" and gethui or env.gethui
+        if type(hiddenRoot)=="function" then
+            local ok,root=pcall(hiddenRoot)
+            if ok then addRoot(root) end
+        end
+        for _,root in ipairs(roots) do
+            pcall(function()
+                rootConnections[#rootConnections+1]=root.DescendantAdded:Connect(function(object)
+                    refreshObject(object)
+                    task.defer(function() refreshObject(object) end)
+                end)
+                rootConnections[#rootConnections+1]=root.DescendantRemoving:Connect(function(object)
+                    task.defer(function() if not inRoots(object) then release(object) end end)
+                end)
+                for _,object in ipairs(root:GetDescendants()) do pcall(process,object) end
+            end)
+        end
+    end
+    for object in pairs(records) do refreshObject(object) end
+end
+
+local fontToggle=addToggle(fontSection,"Enable Custom Fonts",fontsEnabled,function(value)
+    fontsEnabled=value
+    SetCfg("vv2TextFontsEnabled",value)
+    refresh()
+end)
+local fontDropdown=addDropdown(fontSection,"Select Font",fontNames,selectedFont,function(value)
+    if not fonts[value] then return false end
+    selectedFont=value
+    SetCfg("vv2TextFont",value)
+    refresh()
+end)
+local nameToggle=addToggle(privacySection,"Hide My Username",hideNames,function(value)
+    hideNames=value
+    SetCfg("vv2StreamerHideUsername",value)
+    refresh()
+end)
+local avatarToggle=addToggle(privacySection,"Hide My Avatar",hideAvatar,function(value)
+    hideAvatar=value
+    SetCfg("vv2StreamerHideAvatar",value)
+    refresh()
+end)
+
+local function playerGuiChanged(child)
+    if child:IsA("PlayerGui") then task.defer(function() if alive and runtimeAlive then refresh() end end) end
+end
+lifecycleConnections[#lifecycleConnections+1]=LocalPlayer.ChildAdded:Connect(playerGuiChanged)
+lifecycleConnections[#lifecycleConnections+1]=LocalPlayer.ChildRemoved:Connect(playerGuiChanged)
+pcall(function()
+    lifecycleConnections[#lifecycleConnections+1]=LocalPlayer:GetPropertyChangedSignal("DisplayName"):Connect(function()
+        if hideNames then refresh() end
+    end)
+end)
+
+env.VisualsV2Runtime.RegisterReset(function()
+    resetting=true
+    fontsEnabled=false
+    hideNames=false
+    hideAvatar=false
+    fontToggle:Set(false)
+    nameToggle:Set(false)
+    avatarToggle:Set(false)
+    selectedFont="SourceSansBold (Original)"
+    if fontDropdown and type(fontDropdown.Select)=="function" then
+        pcall(fontDropdown.Select,selectedFont)
+    end
+    resetting=false
+    if not runtimeAlive then alive=false;disconnectAll(lifecycleConnections) end
+    refresh()
+end)
+refresh()
+end)()
+
+
+;(function()
 local section=mainTab:AddSection("Customization","Visuals")
 local pg=player:WaitForChild("PlayerGui")
 local motion=C("vv2MotionBlur",false)
@@ -8175,7 +8505,9 @@ end)()
 ;(function()
 local section=mainTab:AddSection("Coin Aura","Utilities")
 local enabled=C("coinAuraEnabled",false)
-local radius=math.clamp(tonumber(C("coinAuraRadius",8)) or 8,1,20)
+local savedRadius=tonumber(C("coinAuraRadius",8)) or 8
+local radius=math.clamp(savedRadius,1,10)
+if radius~=savedRadius then SetCfg("coinAuraRadius",radius) end
 local conn=nil
 local addedConn,removingConn
 local coins,coinIndices,nextTouch={},{},{}
@@ -8298,8 +8630,8 @@ local toggle=addToggle(section,"VV2 Coin Aura",enabled,function(v)
 
     refresh()
 end)
-section:AddSlider("VV2 Coin Aura Radius",1,20,radius,function(v)
-    radius=math.clamp(tonumber(v) or 8,1,20)
+section:AddSlider("VV2 Coin Aura Radius",1,10,radius,function(v)
+    radius=math.clamp(tonumber(v) or 8,1,10)
     SetCfg("coinAuraRadius",radius)
 end)
 env.VisualsV2Runtime.RegisterReset(function() toggle:Set(false); enabled=false; refresh() end)
@@ -10482,6 +10814,10 @@ end)()
 
 ;(function()
 local section=mainTab:AddSection("Inventory Unlimiter","Utilities")
+section:AddParagraph(
+    "Inventory Unlimiter",
+    "Raises identifiable local inventory slot limits from 3 to 10."
+)
 
 local inventoryEnabled=C("inventoryUnlimiterEnabled",false)
 local inventoryLimit=math.clamp(tonumber(C("inventoryMaxItems",10)) or 10,3,10)
