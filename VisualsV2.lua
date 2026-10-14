@@ -3129,11 +3129,6 @@ KorbloxSystem.LeftToggle=addToggle(
 )
 end)()
 
-characterSection:AddParagraph(
-    "No interruption on emoting",
-    "Runs ATAOs-style True Anti Fling for as long as a Roblox avatar emote is playing, then turns it off."
-)
-
 local noInterruptionEmote=C("noInterruptionEmote",false)
 local setupAutomaticEmoteProtection
 
@@ -5193,13 +5188,10 @@ end)
 end)()
 
 ;(function()
-local gunSection=mainTab:AddSection("Gun Skins","Cosmetic")
-local knifeSection=mainTab:AddSection("Knife Skins","Cosmetic")
-local scopeSection=mainTab:AddSection("MMV Scopes","Cosmetic")
+local mmv=game.GameId==10413186812 or game.PlaceId==93017634738276
 local MARKER="VisualsV2_ClientWeaponSkin"
 local NONE="None"
 local alive=true
-local refreshing=false
 local catalog={Gun={},Knife={}}
 local connections={}
 local toolStates={}
@@ -6259,7 +6251,9 @@ local sharedScopes={
     {"Gun","Matrixscope",{["itemid"]=117266088063706,["itemname"]="Matrixscope",["itemtype"]="Gun",["rarity"]="Secret",["year"]="2025"}},
     {"Gun","Voidscope",{["itemid"]=84264267520629,["itemname"]="Voidscope",["itemtype"]="Gun",["rarity"]="Secret"}},
 }
-for _,row in ipairs(staticMM2) do register(row[1],row[2],row[3]) end
+if not mmv then
+    for _,row in ipairs(staticMM2) do register(row[1],row[2],row[3]) end
+end
 for _,row in ipairs(sharedScopes) do
     local entry=register(row[1],row[2],row[3])
     entry.originalModelId=string.format("%.0f",row[3].itemid)
@@ -6338,10 +6332,33 @@ local function resolveModel(path)
     return current
 end
 
+local function replicatedModel(entry)
+    local storage=game:GetService("ReplicatedStorage")
+    local function candidate(object)
+        if not object or object:GetAttribute(MARKER) or not visualRoot(object) then return nil end
+        local ancestor=object
+        while ancestor and ancestor~=storage do
+            if ancestor:GetAttribute(MARKER) then return nil end
+            ancestor=ancestor.Parent
+        end
+        return object
+    end
+    for _,name in ipairs({"WeaponSkins","Weapons","WeaponModels","ItemModels","Models","Resources"}) do
+        local folder=storage:FindFirstChild(name)
+        if folder then
+            local found=candidate(folder:FindFirstChild(entry.id,true))
+                or candidate(folder:FindFirstChild(entry.name,true))
+            if found then return found end
+        end
+    end
+    return candidate(storage:FindFirstChild(entry.id,true))
+end
+
+
 local function buildTemplate(entry)
     local data=entry.data
     local modelData=type(data.model)=="table" and properties(data.model) or data
-    local source=resolveModel(data.sourcepath)
+    local source=resolveModel(data.sourcepath) or replicatedModel(entry)
     local loaded={}
     local clone=source and cloneObject(source) or nil
     if not clone then
@@ -6471,7 +6488,7 @@ local function templateFor(entry)
                 end
                 if oldestKey then cache[oldestKey].model:Destroy(); cache[oldestKey]=nil end
             end
-            refreshTools()
+            task.defer(refreshTools)
         else
             failed[key]={untilTime=os.clock()+15,revision=entry.revision}
             local state=kinds[entry.kind]
@@ -6809,11 +6826,109 @@ local function trackTool(tool)
     apply(tool,state)
 end
 
+local holsters={}
+
+local function nativeHolster(character,kind)
+    for _,name in ipairs({kind,kind.."Display",kind.."Holster"}) do
+        local object=character:FindFirstChild(name)
+        if object and not object:IsA("Tool") and not object:GetAttribute(MARKER) and visualRoot(object) then
+            return object
+        end
+    end
+end
+
+local function clearHolster(kind)
+    local state=holsters[kind]
+    if not state then return end
+    holsters[kind]=nil
+    restoreVisuals(state)
+end
+
+local function hideHolsterOriginal(state)
+    local original=state.original
+    if not original then return end
+    hideOriginals(original,state)
+    if original:IsA("BasePart") then
+        if not state.originals[original] then
+            state.originals[original]={property="LocalTransparencyModifier",value=original.LocalTransparencyModifier}
+        end
+        original.LocalTransparencyModifier=1
+    end
+end
+
+local function refreshHolsters()
+    local character=player.Character
+    local body=character and (character:FindFirstChild("UpperTorso") or character:FindFirstChild("Torso")
+        or character:FindFirstChild("LowerTorso"))
+    local humanoid=character and character:FindFirstChildOfClass("Humanoid")
+    for kind,settings in pairs(kinds) do
+        local entry=settings.enabled and catalog[kind][settings.selected]
+        local equipped=false
+        if character then
+            for _,object in ipairs(character:GetChildren()) do
+                if object:IsA("Tool") and actualKind(object)==kind then equipped=true;break end
+            end
+        end
+        if not alive or not runtimeAlive or not entry or not body or not body:IsA("BasePart")
+            or not humanoid or humanoid.Health<=0 or equipped then
+            clearHolster(kind)
+        else
+            local original=nativeHolster(character,kind)
+            local state=holsters[kind]
+            local signature=cacheKey(entry)..":"..entry.revision
+            if state and state.character==character and state.body==body and state.original==original
+                and state.applied==signature and state.model and state.model.Parent==character then
+                hideHolsterOriginal(state)
+                updateChroma(state)
+            else
+                clearHolster(kind)
+                local template=templateFor(entry)
+                local model=template and cloneObject(template.model)
+                local root=model and (model.PrimaryPart or visualRoot(model))
+                if model and not root then model:Destroy();model=nil end
+                if model then
+                    local originalRoot=original and visualRoot(original)
+                    local side=kind=="Gun" and 1 or -1
+                    local base=originalRoot and originalRoot.CFrame or body.CFrame
+                        *CFrame.new(side*(body.Size.X*0.5+0.15),-body.Size.Y*0.4,0.15)
+                        *CFrame.Angles(0,0,math.rad(side*35))
+                    local origin=root.CFrame
+                    for _,part in ipairs(model:GetDescendants()) do
+                        if part:IsA("BasePart") then
+                            local position=base*origin:ToObjectSpace(part.CFrame)
+                            part.Anchored=false;part.CanCollide=false;part.CanTouch=false;part.CanQuery=false
+                            part.Massless=true;part.CastShadow=false;part.LocalTransparencyModifier=0
+                            part.CFrame=position
+                            local weld=Instance.new("Weld")
+                            weld.Name="VisualsV2_HolsterWeld"
+                            weld.Part0=body;weld.Part1=part
+                            weld.C0=body.CFrame:ToObjectSpace(position);weld.C1=CFrame.new()
+                            weld.Parent=part
+                        end
+                    end
+                    model.Name="VisualsV2_Client"..kind.."Holster"
+                    model:SetAttribute(MARKER,true)
+                    model:SetAttribute("WeaponID",entry.id)
+                    model:SetAttribute("WeaponType",kind)
+                    state={model=model,body=body,original=original,originals={},applied=signature,
+                        character=character,chromaTargets=template.chroma and chromaTargets(model,root) or nil}
+                    holsters[kind]=state
+                    model.Parent=character
+                    hideHolsterOriginal(state)
+                    updateChroma(state)
+                end
+            end
+        end
+    end
+end
+
+
 refreshTools=function()
     if not alive or not runtimeAlive then return end
     for tool,state in pairs(toolStates) do
         if localTool(tool) then apply(tool,state) else forgetTool(tool) end
     end
+    refreshHolsters()
     if not kinds.Gun.enabled and not kinds.Knife.enabled then return end
     local function scan(container)
         if container then for _,tool in ipairs(container:GetChildren()) do trackTool(tool) end end
@@ -6836,7 +6951,15 @@ updateWatching=function()
         if elapsed>=0.25 then elapsed=0; refreshTools() end
     end)
     hideFrame=RunService.RenderStepped:Connect(function()
-
+        for _,state in pairs(holsters) do
+            if state.model then
+                updateChroma(state)
+                for _,part in ipairs(state.model:GetDescendants()) do
+                    if part:IsA("BasePart") then part.LocalTransparencyModifier=state.body.LocalTransparencyModifier end
+                end
+                hideHolsterOriginal(state)
+            end
+        end
         for tool,state in pairs(toolStates) do
             if state.model then updateChroma(state) end
             if state.model and tool.Parent==player.Character then
@@ -6850,13 +6973,6 @@ updateWatching=function()
     end)
 end
 
-local function setDropdown(controller,method,value)
-    if type(controller)~="table" or type(controller[method])~="function" then return end
-    local ok=pcall(controller[method],value)
-    if not ok then pcall(controller[method],controller,value) end
-end
-
-local rarityOrder={"Unique","Ancient","Vintage","Chroma","Godly","Legendary","Rare","Uncommon","Common"}
 local nameOverrides={Emptybringer="Emptybringer",EmptybringerChroma="Chroma Emptybringer",molten="Molten"}
 local trophyColours={"Bronze","Silver","Gold","Blue","Red","Purple"}
 
@@ -6890,91 +7006,12 @@ local function category(entry)
     return entry.data.rarity or "Other"
 end
 
-local function syncDropdowns(state)
-    local wasRefreshing=refreshing
-    refreshing=true
-    for _,group in ipairs(state.groups) do
-        local label=state.activeGroup==group.name and group.ids[state.selected] or NONE
-        setDropdown(group.controller,"Select",label or NONE)
+for kind,entries in pairs(catalog) do
+    for _,entry in pairs(entries) do
+        entry.label=displayName(entry,tonumber(entry.data.evoindex)~=nil)
+        entry.category=category(entry)
     end
-    refreshing=wasRefreshing
-end
-
-for _,kind in ipairs({"Gun","Knife"}) do
-    local state=kinds[kind]
-    state.groups={}
-    state.activeGroup=C(state.key.."Group",nil)
-    local buckets={}
-    for _,name in ipairs(rarityOrder) do buckets[name]={} end
-    buckets.Evos={}
-    buckets["MMV Scopes"]={}
-    for _,entry in pairs(catalog[kind]) do
-        entry.listed=true
-        if entry.listed then
-            entry.category=category(entry)
-            entry.label=displayName(entry,false)
-            buckets[entry.category]=buckets[entry.category] or {}
-            buckets[entry.category][#buckets[entry.category]+1]=entry
-            if tonumber(entry.data.evoindex) then buckets.Evos[#buckets.Evos+1]=entry end
-        end
-    end
-    local selected=catalog[kind][state.selected]
-    if not selected or not selected.listed then
-        state.selected=NONE
-        state.activeGroup=nil
-        SetCfg(state.key.."Skin",NONE)
-    elseif state.activeGroup~="Evos" or not tonumber(selected.data.evoindex) then
-        state.activeGroup=selected.category
-    end
-    local function addGroup(target,name,entries)
-        table.sort(entries,function(a,b)
-            local first,second=displayName(a,name=="Evos"),displayName(b,name=="Evos")
-            if first:lower()==second:lower() then return a.id<b.id end
-            return first:lower()<second:lower()
-        end)
-        local group={name=name,labels={},ids={}}
-        local options={NONE}
-        local duplicates={}
-        for _,entry in ipairs(entries) do
-            local label=displayName(entry,name=="Evos")
-            duplicates[label]=(duplicates[label] or 0)+1
-            if duplicates[label]>1 then label=label.." (Variant "..duplicates[label]..")" end
-            options[#options+1]=label
-            group.labels[label]=entry.id
-            group.ids[entry.id]=label
-        end
-        state.groups[#state.groups+1]=group
-        local initial=state.activeGroup==name and group.ids[state.selected] or NONE
-        group.controller=addDropdown(target,name,options,initial or NONE,function(value)
-            if refreshing then return end
-            if type(value)=="table" then value=value[1] or value.Value or value.value end
-            local id=value==NONE and NONE or group.labels[value]
-            if not id then return false end
-            if id==NONE and state.activeGroup~=name then return false end
-            state.selected=id
-            state.activeGroup=id~=NONE and name or nil
-            SetCfg(state.key.."Skin",id)
-            SetCfg(state.key.."Group",state.activeGroup)
-            syncDropdowns(state)
-            refreshTools()
-        end,function(value)
-            return kind.." skin: "..tostring(value)
-        end)
-    end
-    local target=kind=="Gun" and gunSection or knifeSection
-    state.toggle=addToggle(target,"Enable Custom Client "..kind,state.enabled,function(value)
-        state.enabled=value
-        SetCfg(state.key.."Enabled",value)
-        updateWatching()
-    end)
-    for _,name in ipairs(rarityOrder) do addGroup(target,name,buckets[name]) end
-    if #buckets.Evos>0 then addGroup(target,"Evos",buckets.Evos) end
-    if #buckets["MMV Scopes"]>0 then addGroup(scopeSection,"MMV Scopes",buckets["MMV Scopes"]) end
-    for name,entries in pairs(buckets) do
-        if name~="Evos" and name~="MMV Scopes" and not table.find(rarityOrder,name) then
-            addGroup(target,name,entries)
-        end
-    end
+    if kinds[kind].selected~=NONE and not entries[kinds[kind].selected] then kinds[kind].selected=NONE end
 end
 
 connections[#connections+1]=player.CharacterAdded:Connect(function()
@@ -6983,18 +7020,62 @@ end)
 connections[#connections+1]=player.ChildAdded:Connect(function(child)
     if child:IsA("Backpack") then task.defer(function() if alive and runtimeAlive then refreshTools() end end) end
 end)
+connections[#connections+1]=game:GetService("ReplicatedStorage").DescendantAdded:Connect(function(object)
+    local ancestor=object
+    while ancestor and ancestor~=game:GetService("ReplicatedStorage") do
+        if ancestor:GetAttribute(MARKER) then return end
+        for kind,settings in pairs(kinds) do
+            local entry=settings.enabled and catalog[kind][settings.selected]
+            if entry and (ancestor.Name==entry.id or ancestor.Name==entry.name) then
+                failed[cacheKey(entry)]=nil
+                task.defer(function() if alive and runtimeAlive then refreshTools() end end)
+                return
+            end
+        end
+        ancestor=ancestor.Parent
+    end
+end)
 env.VisualsV2Runtime.ClientWeaponSkins={
     Catalog=catalog,
+    GetHolster=function(kind)
+        local state=holsters[kind]
+        return state and state.model
+    end,
+    SetEnabled=function(kind,value)
+        local state=kinds[kind]
+        if not state then return false end
+        state.enabled=value==true
+        SetCfg(state.key.."Enabled",state.enabled)
+        updateWatching()
+        return true
+    end,
+    Select=function(kind,id)
+        local state=kinds[kind]
+        if not state or (id~=NONE and not catalog[kind][id]) then return false end
+        state.selected=id
+        SetCfg(state.key.."Skin",id)
+        refreshTools()
+        return true
+    end,
+    GetState=function(kind)
+        local state=kinds[kind]
+        if state then return state.enabled,state.selected end
+    end,
+    Refresh=function() refreshTools() end,
     GetOriginalEnabled=function(object)
-        for _,state in pairs(toolStates) do
-            local record=state.originals[object]
-            if record and record.property=="Enabled" then return record.value end
+        for _,states in ipairs({toolStates,holsters}) do
+            for _,state in pairs(states) do
+                local record=state.originals[object]
+                if record and record.property=="Enabled" then return record.value end
+            end
         end
     end,
     IsHidden=function(object)
-        for _,state in pairs(toolStates) do
-            local record=state.originals[object]
-            if state.model and record and record.property=="Enabled" then return true end
+        for _,states in ipairs({toolStates,holsters}) do
+            for _,state in pairs(states) do
+                local record=state.originals[object]
+                if state.model and record and record.property=="Enabled" then return true end
+            end
         end
         return false
     end,
@@ -7007,15 +7088,14 @@ env.VisualsV2Runtime.ClientWeaponSkins={
 env.VisualsV2Runtime.RegisterReset(function()
     for _,state in pairs(kinds) do
         state.enabled=false; state.selected=NONE
-        state.toggle:Set(false)
+        SetCfg(state.key.."Enabled",false)
+        SetCfg(state.key.."Skin",NONE)
     end
     updateWatching()
-    refreshing=true
-    for _,state in pairs(kinds) do state.activeGroup=nil;syncDropdowns(state) end
-    refreshing=false
     if not runtimeAlive then
         alive=false
         for _,connection in ipairs(connections) do connection:Disconnect() end
+        for kind in pairs(holsters) do clearHolster(kind) end
         for _,template in pairs(cache) do template.model:Destroy() end
         table.clear(cache)
         table.clear(nativeScopeHolds)
@@ -7025,7 +7105,6 @@ updateWatching()
 end)()
 
 ;(function()
-local section=mainTab:AddSection("Knife Effects","Cosmetic")
 local effectList={
     {id="Abduction2025",name="Abduction",label="Abduction (2025)"},
     {id="Aquatic2025",name="Aquatic",label="Aquatic (2025)"},
@@ -7201,6 +7280,8 @@ local function clearAll()
 end
 
 local function blade(tool)
+    if tool:IsA("Model") and tool.PrimaryPart then return tool.PrimaryPart end
+    if tool:IsA("BasePart") then return tool end
     local skin=tool:FindFirstChild("VisualsV2_ClientKnifeSkin")
     if skin and skin:IsA("Model") and skin.PrimaryPart then return skin.PrimaryPart end
     local handle=tool:FindFirstChild("Handle")
@@ -7327,8 +7408,21 @@ local function update()
         if not character or tool.Parent~=character or state.handle~=blade(tool) or state.id~=selected then clear(tool) end
     end
     if not character then return end
+    local targets={}
     for _,tool in ipairs(character:GetChildren()) do
-        if tool:IsA("Tool") and tool.Name:lower()=="knife" then
+        if tool:IsA("Tool") and tool.Name:lower()=="knife" then targets[#targets+1]=tool end
+    end
+    local skins=env.VisualsV2Runtime.ClientWeaponSkins
+    local holster=skins and skins.GetHolster and skins.GetHolster("Knife")
+    if not holster then
+        for _,name in ipairs({"Knife","KnifeDisplay","KnifeHolster"}) do
+            local object=character:FindFirstChild(name)
+            if object and not object:IsA("Tool") then holster=object;break end
+        end
+    end
+    if holster then targets[#targets+1]=holster end
+    for _,tool in ipairs(targets) do
+        if tool.Parent==character then
             local handle=blade(tool)
             if handle then
                 local state=states[tool]
@@ -7362,20 +7456,24 @@ local function refresh()
     end)
 end
 
-local toggle=addToggle(section,"Enable Client Knife Effects",enabled,function(value)
-    enabled=value
-    SetCfg("vv2KnifeEffectsEnabled",value)
-    refresh()
-end)
-local dropdown=addDropdown(section,"Knife Effect",options,byId[selected] and byId[selected].label or "None",function(value)
-    local id=value=="None" and "None" or byLabel[value]
-    if not id then return false end
-    selected=id
-    SetCfg("vv2KnifeEffect",id)
-    template=nil;templateId=nil;nextAttempt=0
-    refresh()
-end)
 env.VisualsV2Runtime.ClientKnifeEffects={
+    Catalog=byId,
+    SetEnabled=function(value)
+        enabled=value==true
+        SetCfg("vv2KnifeEffectsEnabled",enabled)
+        refresh()
+        return true
+    end,
+    Select=function(id)
+        if id~="None" and not byId[id] then return false end
+        selected=id
+        SetCfg("vv2KnifeEffect",id)
+        template=nil;templateId=nil;nextAttempt=0
+        refresh()
+        return true
+    end,
+    GetState=function() return enabled,selected end,
+    Refresh=function() refresh() end,
     GetOriginalEnabled=function(object)
         for _,state in pairs(states) do
             if state.originals[object]~=nil then return state.originals[object] end
@@ -7388,13 +7486,552 @@ env.VisualsV2Runtime.ClientKnifeEffects={
 }
 env.VisualsV2Runtime.RegisterReset(function()
     enabled=false
-    toggle:Set(false)
     selected="None"
-    if dropdown and type(dropdown.Select)=="function" then pcall(dropdown.Select,"None") end
+    SetCfg("vv2KnifeEffectsEnabled",false)
+    SetCfg("vv2KnifeEffect","None")
     refresh()
     if not runtimeAlive then alive=false end
 end)
 refresh()
+end)()
+
+
+;(function()
+local section=mainTab:AddSection("Visual Weapons/Effects","Cosmetic")
+local skins=env.VisualsV2Runtime.ClientWeaponSkins
+local effects=env.VisualsV2Runtime.ClientKnifeEffects
+local storage=game:GetService("ReplicatedStorage")
+local mmv=game.GameId==10413186812 or game.PlaceId==93017634738276
+local MARKER="VisualsV2_InventoryVisual"
+local alive=true
+local records={}
+local connections={}
+local guiConnections={}
+local nativeButtons={}
+local playerGui=nil
+local queued=false
+local refresh
+local nativeData={}
+local inventoryModule=nil
+local equipService=nil
+local profile=nil
+local controls={}
+local definitions={
+    Gun={label="Guns",key="clientGunEnabled",entries=skins.Catalog.Gun},
+    Knife={label="Knives",key="clientKnifeEnabled",entries=skins.Catalog.Knife},
+    Effects={label="Effects",key="vv2KnifeEffectsEnabled",entries=effects.Catalog},
+}
+local rarityColours={Unique=Color3.fromRGB(255,140,0),Ancient=Color3.fromRGB(105,40,180),
+    Secret=Color3.fromRGB(140,55,220),Godly=Color3.fromRGB(255,0,255),Classic=Color3.fromRGB(255,220,0),
+    Legendary=Color3.fromRGB(255,0,0),Rare=Color3.fromRGB(0,110,255),Uncommon=Color3.fromRGB(0,170,85),
+    Common=Color3.fromRGB(95,95,95)}
+
+local function disconnect(items)
+    for _,connection in ipairs(items) do pcall(function() connection:Disconnect() end) end
+    table.clear(items)
+end
+
+local function own(object)
+    while object and object~=playerGui do
+        if object:GetAttribute(MARKER) then return true end
+        object=object.Parent
+    end
+    return false
+end
+
+local function state(kind)
+    if kind=="Effects" then return effects.GetState() end
+    return skins.GetState(kind)
+end
+
+local function enabled(kind)
+    local on=state(kind)
+    return on and (not mmv or kind=="Gun")
+end
+
+local function selectItem(kind,id)
+    if kind=="Effects" then return effects.Select(id) end
+    return skins.Select(kind,id)
+end
+
+local function requireKnown(parent,name)
+    local object=parent and parent:FindFirstChild(name)
+    if not object or not object:IsA("ModuleScript") then return nil end
+    local ok,result=pcall(require,object)
+    return ok and type(result)=="table" and result or nil
+end
+
+local function readNativeData()
+    local database=storage:FindFirstChild("Database")
+    local sync=database and database:FindFirstChild("Sync")
+    local data=requireKnown(database,"Sync")
+    nativeData.Weapons=data and (data.Weapons or data.Item) or requireKnown(sync,"Item") or {}
+    nativeData.Effects=data and data.Effects or requireKnown(sync,"Effects") or {}
+    nativeData.Rarity=data and (data.Rarities or data.Rarity) or {}
+    local modules=storage:FindFirstChild("Modules")
+    inventoryModule=requireKnown(modules,"InventoryModule")
+    profile=requireKnown(modules,"ProfileData")
+    equipService=requireKnown(storage:FindFirstChild("ClientServices"),"EquipService")
+    if equipService and equipService.EquippedChanged then
+        local event=equipService.EquippedChanged.Event
+        if event then
+            connections[#connections+1]=event:Connect(function(kind)
+                if not alive or not runtimeAlive or not definitions[kind] then return end
+                local _,selected=state(kind)
+                if selected~="None" then selectItem(kind,"None") end
+                if refresh then task.defer(refresh) end
+            end)
+        end
+    end
+end
+
+local function info(kind,entry)
+    local group=kind=="Effects" and "Effects" or "Weapons"
+    local original=nativeData[group] and nativeData[group][entry.id]
+    local data={}
+    if type(original)=="table" then for key,value in pairs(original) do data[key]=value end end
+    local saved=entry.data or {}
+    data.ItemName=entry.label or entry.name or entry.id
+    data.ItemType=kind=="Effects" and "Effect" or kind
+    data.Rarity=data.Rarity or saved.rarity or "Common"
+    data.Image=data.Image or data.Icon or saved.image or saved.itemid
+    data.Event=data.Event or saved.event
+    data.Year=data.Year or saved.year
+    data.Season=data.Season or saved.season
+    data.Chroma=data.Chroma or saved.chroma
+    if entry.game=="MMV" then data.Season=data.Season or 1 end
+    return data
+end
+
+local function rarityColour(data)
+    local value=nativeData.Rarity and nativeData.Rarity[data.Rarity]
+    if typeof(value)=="Color3" then return value end
+    local color=type(value)=="table" and value.Color
+    if typeof(color)=="Color3" then return color end
+    if type(color)=="table" and color.r and color.g and color.b then return Color3.fromRGB(color.r,color.g,color.b) end
+    return rarityColours[data.Rarity] or rarityColours.Common
+end
+
+local function image(value)
+    if type(value)=="number" or (type(value)=="string" and value:match("^%d+$")) then
+        return "rbxthumb://type=Asset&w=150&h=150&id="..tostring(value)
+    end
+    return type(value)=="string" and value or ""
+end
+
+local function child(object,name)
+    return object and object:FindFirstChild(name)
+end
+
+local function fill(frame,data)
+    local title=child(frame,"ItemName")
+    local label=child(title,"Label")
+    local coloured=child(title,"ColoredName")
+    local container=child(frame,"Container")
+    local icon=child(container,"Icon")
+    local amount=child(container,"Amount")
+    if label then label.Text=data.ItemName end
+    if coloured then coloured.Text=data.ItemName end
+    if title and title:IsA("GuiObject") then title.BackgroundColor3=rarityColour(data) end
+    if icon then icon.Image=image(data.Image) end
+    if amount then amount.Text="" end
+    local tags=child(frame,"Tags")
+    if tags then
+        for _,tag in ipairs(tags:GetChildren()) do
+            if tag:IsA("GuiObject") then
+                tag.Visible=(tag.Name=="Chroma" and data.Chroma==true)
+                    or (tag.Name=="FX" and data.FX==true)
+                local year=child(tag,"Year")
+                if year then year.Text=tostring(data.Year or "") end
+            end
+        end
+    end
+end
+
+local function cloneFrame(source)
+    if not source then return nil end
+    local original=source.Archivable
+    pcall(function() source.Archivable=true end)
+    local ok,clone=pcall(function() return source:Clone() end)
+    pcall(function() source.Archivable=original end)
+    if not ok or not clone then return nil end
+    clone:SetAttribute(MARKER,true)
+    for _,object in ipairs(clone:GetDescendants()) do
+        if object:IsA("LuaSourceContainer") then object:Destroy() end
+    end
+    return clone
+end
+
+local function templateFor(main,kind)
+    local services=storage:FindFirstChild("ClientServices")
+    local module=child(services,"ItemService")
+    local source=child(module,"ItemFrame")
+    if child(child(main,kind=="Effects" and "Effects" or "Weapons"),"Items") then
+        local items=main:FindFirstChild(kind=="Effects" and "Effects" or "Weapons").Items
+        if child(items,"ItemList") and source then return source end
+    end
+    local legacy=child(storage:FindFirstChild("Modules"),"InventoryModule")
+    source=child(legacy,"NewItem")
+    if source then return source end
+    local category=child(main,kind=="Effects" and "Effects" or "Weapons")
+    local items=child(category,"Items")
+    if items then
+        for _,frame in ipairs(items:GetDescendants()) do
+            if not own(frame) and child(child(frame,"Container"),"ActionButton")
+                and child(child(frame,"ItemName"),"Label") then return frame end
+        end
+    end
+end
+
+local function targetFor(main,kind,data)
+    local category=child(main,kind=="Effects" and "Effects" or "Weapons")
+    local items=child(category,"Items")
+    local modern=child(items,"ItemList")
+    if modern then return modern end
+    local container=child(items,"Container")
+    local tab="Current"
+    if kind~="Effects" then
+        if data.Event=="Christmas" or data.Event=="Halloween" then tab=data.Event
+        elseif not data.Season then tab="Classic" end
+    end
+    local target=child(container,tab)
+    if not target then target=child(child(child(container,"Holiday"),"Container"),tab) end
+    return child(target,"Container") or target
+end
+
+local function removePreview(record,kind)
+    local preview=record.previews[kind]
+    if not preview then return end
+    record.previews[kind]=nil
+    disconnect(preview.connections)
+    pcall(function() preview.frame:Destroy() end)
+    if preview.original.Parent and preview.original.Visible==false then preview.original.Visible=preview.visible end
+end
+
+local function watchCanvas(record,target)
+    if not target:IsA("ScrollingFrame") then return nil end
+    local automatic=target.AutomaticCanvasSize
+    if automatic==Enum.AutomaticSize.Y or automatic==Enum.AutomaticSize.XY then return nil end
+    local layout=target:FindFirstChildWhichIsA("UIGridLayout") or target:FindFirstChildWhichIsA("UIListLayout")
+    if not layout then return nil end
+    local canvas=record.canvases[target]
+    if canvas then canvas.count=canvas.count+1;return canvas end
+    canvas={target=target,count=1,native=target.CanvasSize,connections={},writing=false}
+    record.canvases[target]=canvas
+    local function resize()
+        if not alive or not runtimeAlive or not target.Parent or canvas.count<=0
+            or record.canvases[target]~=canvas then return end
+        if target.AutomaticCanvasSize==Enum.AutomaticSize.Y or target.AutomaticCanvasSize==Enum.AutomaticSize.XY then return end
+        local x=canvas.native.X
+        local size=UDim2.new(x.Scale,x.Offset,0,layout.AbsoluteContentSize.Y+8)
+        if target.CanvasSize~=size then
+            canvas.applied=size;canvas.writing=true
+            target.CanvasSize=size
+            canvas.writing=false
+        end
+    end
+    canvas.connections[1]=layout:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(resize)
+    canvas.connections[2]=target:GetPropertyChangedSignal("CanvasSize"):Connect(function()
+        if not canvas.writing and target.CanvasSize~=canvas.applied then canvas.native=target.CanvasSize;resize() end
+    end)
+    task.defer(resize)
+    return canvas
+end
+
+local function releaseCanvas(record,canvas)
+    if not canvas then return end
+    canvas.count=canvas.count-1
+    if canvas.count>0 then return end
+    disconnect(canvas.connections)
+    record.canvases[canvas.target]=nil
+    if canvas.target.Parent and canvas.target.CanvasSize==canvas.applied then canvas.target.CanvasSize=canvas.native end
+end
+
+local function removeCard(record,key)
+    local card=record.cards[key]
+    if not card then return end
+    record.cards[key]=nil
+    disconnect(card.connections)
+    pcall(function() card.frame:Destroy() end)
+    releaseCanvas(record,card.canvas)
+end
+
+local function release(record)
+    record.generation=record.generation+1
+    record.building=false
+    for kind in pairs(record.previews) do removePreview(record,kind) end
+    for key in pairs(record.cards) do removeCard(record,key) end
+end
+
+local function equippedSlot(main,kind)
+    local category=child(main,kind=="Effects" and "Effects" or "Weapons")
+    local container=child(child(category,"Equipped"),"Container")
+    if not container then return nil end
+    local slot=child(container,kind=="Effects" and "Item1" or kind)
+    if slot and slot:IsA("GuiObject") then return slot end
+    local candidates={}
+    for _,object in ipairs(container:GetChildren()) do
+        if not own(object) and child(object,"ItemFrame") then candidates[#candidates+1]=object end
+    end
+    if kind=="Effects" then return candidates[1] end
+    return candidates[kind=="Knife" and 1 or 2]
+end
+
+local function updatePreview(record,kind)
+    local _,id=state(kind)
+    local entry=definitions[kind].entries[id]
+    if not enabled(kind) or not entry then removePreview(record,kind);return end
+    local original=equippedSlot(record.main,kind)
+    local previous=record.previews[kind]
+    if previous and previous.id==id and previous.original==original and previous.frame.Parent then
+        local content=child(previous.frame,"ItemFrame") or child(previous.frame,"Container")
+        if content and content:IsA("GuiObject") then content.Visible=true end
+        return
+    end
+    removePreview(record,kind)
+    if not original then return end
+    local frame=cloneFrame(original)
+    if not frame then return end
+    frame.Name="VisualsV2_Equipped"..kind
+    local itemFrame=child(frame,"ItemFrame") or child(frame,"Container") or frame
+    fill(itemFrame,info(kind,entry))
+    if itemFrame:IsA("GuiObject") then itemFrame.Visible=true end
+    frame.Visible=true
+    local preview={id=id,frame=frame,original=original,visible=original.Visible,connections={},writing=false}
+    record.previews[kind]=preview
+    local function hideOriginal()
+        if original.Visible then
+            preview.visible=true;preview.writing=true
+            original.Visible=false
+            preview.writing=false
+        end
+    end
+    preview.connections[#preview.connections+1]=original:GetPropertyChangedSignal("Visible"):Connect(function()
+        if not preview.writing and original.Visible then preview.visible=true;hideOriginal() end
+    end)
+    hideOriginal()
+    local function clearSelection()
+        if not alive or not runtimeAlive then return end
+        selectItem(kind,"None")
+        refresh()
+    end
+    for _,button in ipairs(frame:GetDescendants()) do
+        if button:IsA("GuiButton") then preview.connections[#preview.connections+1]=button.Activated:Connect(clearSelection) end
+    end
+    frame.Parent=original.Parent
+end
+
+local function selectedOutline(card,selected)
+    if selected and not card.outline then
+        local outline=Instance.new("UIStroke")
+        outline.Name="VisualsV2_Selected"
+        outline.Color=Color3.fromRGB(90,230,130);outline.Thickness=2
+        outline.Parent=card.frame;card.outline=outline
+    elseif not selected and card.outline then card.outline:Destroy();card.outline=nil end
+end
+
+local function filterCards(record)
+    for _,card in pairs(record.cards) do
+        local category=child(record.main,card.kind=="Effects" and "Effects" or "Weapons")
+        local items=child(category,"Items")
+        local tabs=child(items,"Tabs") or child(category,"TitleBar")
+        local search=tabs and tabs:FindFirstChild("SearchText",true)
+        local query=search and search.Text:lower() or ""
+        local visible=query=="" or card.data.ItemName:lower():find(query,1,true)~=nil
+        if child(items,"ItemList") and card.kind~="Effects" and query=="" then
+            for _,name in ipairs({"Current","Classic","Event"}) do
+                local border=child(child(tabs,name),"ViewBorder")
+                if border and border.Visible then
+                    local class=card.data.Event and "Event" or card.data.Season and "Current" or "Classic"
+                    visible=class==name
+                    break
+                end
+            end
+        end
+        if card.frame.Visible~=visible then card.frame.Visible=visible end
+        local _,id=state(card.kind)
+        selectedOutline(card,id==card.id)
+    end
+    for kind in pairs(definitions) do updatePreview(record,kind) end
+end
+
+local function addCard(record,kind,entry)
+    local key=kind..":"..entry.id
+    if record.cards[key] then return end
+    local data=info(kind,entry)
+    local target=targetFor(record.main,kind,data)
+    if not target then record.dirty=true;return end
+    local frame=cloneFrame(templateFor(record.main,kind))
+    if not frame then record.dirty=true;return end
+    frame.Name="VisualsV2_"..kind.."_"..entry.id
+    frame:SetAttribute("WeaponID",entry.id)
+    frame:SetAttribute("VisualKind",kind)
+    fill(frame,data)
+    local rarityOrder={Unique=1,Ancient=2,Secret=2,Classic=3,Godly=4,Legendary=5,Rare=6,Uncommon=7,Common=8}
+    frame.LayoutOrder=(rarityOrder[data.Rarity] or 9)*100000+(entry.order or 0)
+    local button=child(child(frame,"Container"),"ActionButton")
+    if not button or not button:IsA("GuiButton") then frame:Destroy();record.dirty=true;return end
+    local card={kind=kind,id=entry.id,frame=frame,data=data,connections={},canvas=watchCanvas(record,target)}
+    record.cards[key]=card
+    card.connections[1]=button.Activated:Connect(function()
+        if not alive or not runtimeAlive or not enabled(kind) then return end
+        if selectItem(kind,entry.id) then
+            for _,other in pairs(records) do filterCards(other) end
+            pcall(shared.Notify,data.ItemName.." selected",2)
+        end
+    end)
+    frame.Parent=target
+end
+
+local function observeNativeButtons(record)
+    local data=inventoryModule and inventoryModule.MyInventory and inventoryModule.MyInventory.Data
+    if type(data)~="table" then return end
+    for _,group in ipairs({"Weapons","Effects"}) do
+        for _,tab in pairs(data[group] or {}) do
+            for _,entry in pairs(tab) do
+                local frame=entry.Frame
+                local kind=group=="Effects" and "Effects" or entry.ItemType
+                local button=child(child(frame,"Container"),"ActionButton")
+                if definitions[kind] and button and button:IsDescendantOf(record.main)
+                    and not own(button) and not nativeButtons[button] then
+                    local function nativeSelected()
+                        if alive and runtimeAlive then selectItem(kind,"None");task.defer(refresh) end
+                    end
+                    local list={button.Activated:Connect(nativeSelected)}
+                    list[#list+1]=button.MouseButton1Click:Connect(nativeSelected)
+                    nativeButtons[button]=list
+                end
+            end
+        end
+    end
+end
+
+local function nativeOwns(kind,id)
+    local group=profile and profile[kind=="Effects" and "Effects" or "Weapons"]
+    local owned=group and group.Owned
+    if type(owned)=="table" then
+        if type(owned[id])=="number" and owned[id]>0 then return true end
+        for _,value in ipairs(owned) do if value==id then return true end end
+    end
+    return false
+end
+
+local function updateRecord(record)
+    for key,card in pairs(record.cards) do
+        if not enabled(card.kind) or not card.frame.Parent or nativeOwns(card.kind,card.id) then
+            removeCard(record,key);record.dirty=true
+        end
+    end
+    filterCards(record)
+    observeNativeButtons(record)
+    if record.building or not record.dirty then return end
+    record.dirty=false
+    record.building=true
+    local generation=record.generation
+    task.spawn(function()
+        local count=0
+        for _,kind in ipairs({"Gun","Knife","Effects"}) do
+            local definition=definitions[kind]
+            if enabled(kind) then
+                local entries={}
+                for _,entry in pairs(definition.entries) do entries[#entries+1]=entry end
+                table.sort(entries,function(a,b) return (a.label or a.name or a.id)<(b.label or b.name or b.id) end)
+                for index,entry in ipairs(entries) do
+                    if not alive or not runtimeAlive or generation~=record.generation or not record.main.Parent then return end
+                    if not enabled(kind) then break end
+                    entry.order=index
+                    if not nativeOwns(kind,entry.id) and not record.cards[kind..":"..entry.id] then
+                        addCard(record,kind,entry);count=count+1
+                    end
+                    if count>=40 then count=0;filterCards(record);task.wait(0.03) end
+                end
+            end
+        end
+        if generation==record.generation then record.building=false;filterCards(record) end
+    end)
+end
+
+local function discover()
+    if not playerGui then return end
+    for _,object in ipairs(playerGui:GetDescendants()) do
+        if (object.Name=="Inventory" or object.Name=="Inventory2") and not own(object) then
+            local main=child(object,"Main")
+            if main and child(main,"Weapons") and not records[main] then
+                records[main]={main=main,cards={},previews={},canvases={},generation=0,building=false,dirty=true}
+            end
+        end
+    end
+end
+
+refresh=function()
+    if not alive or not runtimeAlive then return end
+    local active=enabled("Gun") or enabled("Knife") or enabled("Effects")
+    if active then discover() end
+    for main,record in pairs(records) do
+        if not playerGui or not main:IsDescendantOf(playerGui) or not active then
+            release(record);records[main]=nil
+        else updateRecord(record) end
+    end
+end
+
+local function schedule()
+    if queued or not alive or not runtimeAlive then return end
+    queued=true
+    task.defer(function() queued=false;if alive and runtimeAlive then refresh() end end)
+end
+
+local function bindGui()
+    disconnect(guiConnections)
+    playerGui=LocalPlayer:FindFirstChildOfClass("PlayerGui")
+    if playerGui then
+        guiConnections[#guiConnections+1]=playerGui.DescendantAdded:Connect(function(object)
+            if own(object) then return end
+            if object.Name=="Inventory" or object.Name=="Inventory2" or object.Name=="Main"
+                or object.Name=="Weapons" or object.Name=="Effects" or object.Name=="Items" then schedule() end
+        end)
+    end
+    schedule()
+end
+
+for _,kind in ipairs({"Gun","Knife","Effects"}) do
+    local definition=definitions[kind]
+    controls[kind]=addToggle(section,definition.label,C(definition.key,false),function(value)
+        if kind=="Effects" then effects.SetEnabled(value) else skins.SetEnabled(kind,value) end
+        for _,record in pairs(records) do record.dirty=true end
+        refresh()
+    end)
+end
+connections[#connections+1]=LocalPlayer.ChildAdded:Connect(function(object)
+    if object:IsA("PlayerGui") then bindGui() end
+end)
+connections[#connections+1]=LocalPlayer.ChildRemoved:Connect(function(object)
+    if object==playerGui then bindGui() end
+end)
+connections[#connections+1]=LocalPlayer.CharacterAdded:Connect(function()
+    task.defer(function()
+        if alive and runtimeAlive then skins.Refresh();effects.Refresh();refresh() end
+    end)
+end)
+local elapsed=0
+connections[#connections+1]=RunService.Heartbeat:Connect(function(dt)
+    elapsed=elapsed+math.max(tonumber(dt) or 0,0)
+    if elapsed<0.4 then return end
+    elapsed=0
+    for main,record in pairs(records) do
+        if playerGui and main:IsDescendantOf(playerGui) then updateRecord(record) else schedule() end
+    end
+    for button,list in pairs(nativeButtons) do
+        if not playerGui or not button:IsDescendantOf(playerGui) then disconnect(list);nativeButtons[button]=nil end
+    end
+end)
+env.VisualsV2Runtime.RegisterReset(function()
+    for _,control in pairs(controls) do control:Set(false) end
+    for main,record in pairs(records) do release(record);records[main]=nil end
+    for button,list in pairs(nativeButtons) do disconnect(list);nativeButtons[button]=nil end
+    if not runtimeAlive then alive=false;disconnect(connections);disconnect(guiConnections) end
+end)
+readNativeData()
+bindGui()
 end)()
 
 
@@ -8673,9 +9310,27 @@ local function isOwnAvatar(value)
     return id~=nil and id==tostring(LocalPlayer.UserId)
 end
 
+local function isIconFont(object,font)
+    local family=font.face and tostring(font.face.Family):lower() or ""
+    if family:find("icon",1,true) or family:find("symbol",1,true)
+        or family:find("awesome",1,true) or family:find("131287805200037",1,true) then return true end
+    local value=object.Text
+    if type(value)=="string" and type(utf8)=="table" then
+        local ok,private=pcall(function()
+            for _,code in utf8.codes(value) do
+                if (code>=0xE000 and code<=0xF8FF) or (code>=0xF0000 and code<=0x10FFFD) then return true end
+            end
+            return false
+        end)
+        if ok and private then return true end
+    end
+    return false
+end
+
 local function applyFont(object,record)
-    if fontsEnabled then
-        if not record.font then record.font=readFont(object) end
+    local original=record.font or readFont(object)
+    if fontsEnabled and not isIconFont(object,original) then
+        if not record.font then record.font=original end
         writeProperty(object,record,"Font",fonts[selectedFont])
         record.appliedFont=readFont(object)
     else
@@ -8733,9 +9388,9 @@ local function process(object)
         records[object]=record
         if text then
             local function fontChanged()
-                if not fontsEnabled or not record.appliedFont then return end
+                if not fontsEnabled then return end
                 local current=readFont(object)
-                if current.font==record.appliedFont.font and current.face==record.appliedFont.face then return end
+                if record.appliedFont and current.font==record.appliedFont.font and current.face==record.appliedFont.face then return end
                 record.font=current
                 applyFont(object,record)
             end
@@ -8744,6 +9399,7 @@ local function process(object)
         end
         if nameLabel then
             connectProperty(object,record,"Text",function()
+                if fontsEnabled then applyFont(object,record) end
                 if not hideNames or object.Text==record.appliedText then return end
                 record.text=object.Text
                 applyText(object,record)
