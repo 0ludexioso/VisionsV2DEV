@@ -1,4 +1,7 @@
 -- Visuals V2
+-- 2026-10-14 r24: Link Bomb Jump drag locks to Miscellaneous; save hotkeys/positions with all VV2 settings; add a combined reset in Bomb Jump+.
+-- 2026-10-14 r23: Import supplied Chams including Others; VV2 Bomb Jump+ and Gold Bomb Jump; auto-remove displays; monitor-style firefly font.
+-- 2026-10-14 r22: Restore the r20 Flat/Chromatic renderer; keep native toy scripts alive during hotbar ordering.
 -- 2026-10-14 r21: Align Flat/Chromatic shells after camera updates, cover native rims, and match the full-screen viewport.
 -- 2026-10-13 r20: Match FakeBomb's zero reflectance on SprayPaint/Teddy ForceField, preserving native visibility and tap input.
 -- 2026-10-13 r19: Remove the SprayPaint/TeddyBear visibility fade and its slider.
@@ -241,7 +244,7 @@ if type(previousRuntime) == "table" and type(previousRuntime.Cleanup) == "functi
 end
 
 -- Runtime reset registry.
-env.VisualsV2Runtime = {Resetters = {}, Build = "2026-10-14-r21"}
+env.VisualsV2Runtime = {Resetters = {}, Build = "2026-10-14-r24"}
 env.VisualsV2Runtime.RegisterReset = function(callback)
     if type(callback) == "function" then table.insert(env.VisualsV2Runtime.Resetters, callback) end
 end
@@ -4852,25 +4855,282 @@ end)()
 
 ;(function()
 local runtime=env.VisualsV2Runtime
+local Workspace,LocalPlayer=workspace,player
 local presets={"ForceField","Flat","Chromatic"}
-local groups,states={},{}
-local trackedCharacter,removingCharacter
-local characterConnections,lifecycleConnections={},{}
-local heartbeatConnection
-local renderBound=false
-local RENDER_FRAME="VisualsV2_ToolChamsRender"
-local chromHost,chromView,chromWorld,chromCamera
-local dirty,queued,resetting=true,false,false
+local groups,states,owners={},{},{}
+local heartbeatConnection,chrom_conn
+local chrom_view,chrom_world,chrom_camera,chrom_host
 local CHROM_SCALE,CHROM_ALPHA=1.012,0.025
-local FLAT_SCALE=1.012
--- The working FakeBomb texture from the MMV report. Its mask drives the
--- ForceField shimmer; each tool keeps its own mesh, scale and dimensions.
-local BOMB_FORCEFIELD_TEXTURE="rbxassetid://104516981"
 local ownedSurfaces=setmetatable({}, {__mode="k"})
+local resetting=false
 
-local function disconnectAll(connections)
-    for _,connection in ipairs(connections) do connection:Disconnect() end
-    table.clear(connections)
+local ws = Workspace
+	local function chrom_ensure()
+		if chrom_world and chrom_world.Parent then return end
+		local host = Instance.new("ScreenGui")
+		host.Name = "VisualsV2_ChamsViewport"
+		chrom_host = host
+		host.ResetOnSpawn = false
+		host.IgnoreGuiInset = true
+		host.DisplayOrder = 100
+		local player_gui = LocalPlayer:FindFirstChildOfClass("PlayerGui") or LocalPlayer:WaitForChild("PlayerGui", 5)
+		if player_gui then
+			host.Parent = player_gui
+		else
+			pcall(function() host.Parent = gethui and gethui() or game:GetService("CoreGui") end)
+		end
+		chrom_view = Instance.new("ViewportFrame")
+		chrom_view.Size = UDim2.fromScale(1, 1)
+		chrom_view.Position = UDim2.fromScale(0, 0)
+		chrom_view.BackgroundTransparency = 1
+		chrom_view.BorderSizePixel = 0
+		chrom_view.Ambient = Color3.new(1, 1, 1)
+		chrom_view.LightColor = Color3.new(1, 1, 1)
+		chrom_view.LightDirection = Vector3.new(-1, -1, -1)
+		chrom_view.ZIndex = 999
+		chrom_view.Visible = true
+		chrom_view.Parent = host
+		chrom_camera = Instance.new("Camera")
+		chrom_camera.Name = "ToolChamsCamera"
+		chrom_camera.FieldOfView = Workspace.CurrentCamera and Workspace.CurrentCamera.FieldOfView or 70
+		chrom_camera.CFrame = Workspace.CurrentCamera and Workspace.CurrentCamera.CFrame or CFrame.new()
+		chrom_camera.Parent = chrom_view
+		chrom_view.CurrentCamera = chrom_camera
+		local sky = game:GetService("Lighting"):FindFirstChildOfClass("Sky")
+		if sky then pcall(function() sky:Clone().Parent = chrom_view end) end
+		chrom_world = Instance.new("WorldModel")
+		chrom_world.Parent = chrom_view
+	end
+
+	local CHAMS_BODY = {
+		Head = true, UpperTorso = true, LowerTorso = true, Torso = true,
+		LeftUpperArm = true, LeftLowerArm = true, LeftHand = true,
+		RightUpperArm = true, RightLowerArm = true, RightHand = true,
+		LeftUpperLeg = true, LeftLowerLeg = true, LeftFoot = true,
+		RightUpperLeg = true, RightLowerLeg = true, RightFoot = true,
+		["Left Arm"] = true, ["Right Arm"] = true,
+		["Left Leg"] = true, ["Right Leg"] = true
+	}
+
+	local function chams_deformable(p)
+		if p:FindFirstChildWhichIsA("WrapLayer") then return true end
+		if CHAMS_BODY[p.Name] then return false end
+		if p:FindFirstChildWhichIsA("Bone") then return true end
+		local ok, skinned = pcall(function() return p.HasSkinnedMesh end)
+		return ok and skinned == true
+	end
+
+	local function chams_shell(source, scale)
+		local archivable = source.Archivable
+		if not archivable then
+			if not pcall(function() source.Archivable = true end) then return nil end
+		end
+		local ok, clone = pcall(function() return source:Clone() end)
+		if not archivable then
+			pcall(function() source.Archivable = archivable end)
+		end
+		if not ok or not clone then return nil end
+		for _, child in clone:GetChildren() do
+			if not child:IsA("DataModelMesh") then child:Destroy() end
+		end
+		local mesh = clone:FindFirstChildWhichIsA("DataModelMesh")
+		if mesh then
+			pcall(function() mesh.Scale = mesh.Scale * scale end)
+			pcall(function() mesh.TextureId = "" end)
+		else
+			clone.Size = clone.Size * scale
+		end
+		pcall(function() clone.TextureID = "" end)
+		pcall(function() clone.MaterialVariant = "" end)
+		clone.CanCollide = false
+		clone.CanQuery = false
+		clone.CanTouch = false
+		clone.Massless = true
+		clone.CastShadow = false
+		clone.LocalTransparencyModifier = 0
+		return clone
+	end
+
+	local function flat_clear(state)
+		if state.model then state.model:Destroy() end
+		if state.occ then state.occ:Destroy() end
+		if state.los then
+			for i = 1, #state.los do state.los[i]:Destroy() end
+		end
+		state.model, state.occ, state.los, state.count, state.key = nil, nil, nil, nil, nil
+	end
+
+	local function flat_apply(state, parts, roots, col)
+		local key = roots[1]
+		if state.key ~= key or state.count ~= #parts or not state.model or not state.model.Parent then
+			flat_clear(state)
+			local model = Instance.new("Model")
+			model.Name = "\0"
+			for i = 1, #parts do
+				local source = parts[i]
+				local clone = not chams_deformable(source) and chams_shell(source, 0.99) or nil
+				if clone then
+					clone.Anchored = false
+					clone.CFrame = source.CFrame
+					clone.Parent = model
+					local weld = Instance.new("WeldConstraint")
+					weld.Part0 = clone
+					weld.Part1 = source
+					weld.Parent = clone
+				end
+			end
+			model.Parent = Workspace
+			local occ = Instance.new("Highlight")
+			occ.DepthMode = Enum.HighlightDepthMode.AlwaysOnTop
+			occ.OutlineTransparency = 1
+			occ.Adornee = model
+			occ.Parent = model
+			local los = {}
+			for i = 1, #roots do
+				local hl = Instance.new("Highlight")
+				hl.DepthMode = Enum.HighlightDepthMode.Occluded
+				hl.OutlineTransparency = 1
+				hl.Adornee = roots[i]
+				hl.Parent = model
+				los[i] = hl
+			end
+			state.model, state.occ, state.los = model, occ, los
+			state.count, state.key = #parts, key
+		end
+		state.occ.FillColor = col
+		state.occ.FillTransparency = 0
+		for i = 1, #state.los do
+			state.los[i].FillColor = col
+			state.los[i].FillTransparency = 0
+		end
+	end
+
+	local function chrom_clear(state)
+		if state.model then state.model:Destroy() end
+		state.model, state.entries, state.count, state.key, state.col = nil, nil, nil, nil, nil
+	end
+
+	local function chrom_apply(state, parts, key, col)
+		if state.key ~= key or state.count ~= #parts or not state.model or not state.model.Parent then
+			chrom_clear(state)
+			chrom_ensure()
+			local model = Instance.new("Model")
+			model.Name = "\0"
+			local entries = {}
+			for i = 1, #parts do
+				local source = parts[i]
+				local clone = not chams_deformable(source) and chams_shell(source, CHROM_SCALE) or nil
+				if clone then
+					clone.Anchored = true
+					clone.Material = Enum.Material.Foil
+					clone.Reflectance = 0.12
+					clone.Transparency = CHROM_ALPHA
+					clone.Color = col
+					clone.CFrame = source.CFrame
+					clone.Parent = model
+					entries[#entries + 1] = { source, clone }
+				end
+			end
+			if not chrom_world or not chrom_world.Parent then
+				chrom_ensure()
+			end
+			model.Parent = chrom_world
+			state.model, state.entries = model, entries
+			state.count, state.key, state.col = #parts, key, col
+		elseif state.col ~= col then
+			state.col = col
+			local entries = state.entries
+			if entries then
+				for i = 1, #entries do
+					entries[i][2].Color = col
+				end
+			end
+		end
+	end
+
+	local function chrom_sync(state)
+		local entries = state.entries
+		if not entries then return end
+		for i = 1, #entries do
+			local source, clone = entries[i][1], entries[i][2]
+			if source.Parent then
+				clone.CFrame = source.CFrame
+				local hidden = math.max(source.Transparency, source.LocalTransparencyModifier) >= 1
+				local target_trans = hidden and 1 or CHROM_ALPHA
+				if clone.Transparency ~= target_trans then
+					clone.Transparency = target_trans
+				end
+			elseif clone.Transparency ~= 1 then
+				clone.Transparency = 1
+			end
+		end
+	end
+
+
+-- ForceField follows the supplied plugin: the real material and colour,
+-- with SurfaceAppearance temporarily detached. No toy-specific texture,
+-- transparency, reflectance or mesh substitutions are used.
+local function force_restore(state)
+    for part,data in pairs(state.cache) do
+        if part.Parent then
+            local keepSkin=state.owner==LocalPlayer and runtimeAlive and not configResetting and C("ffEnabled",false)
+            if not keepSkin then
+                part.Material=data[1]
+                part.Color=data[2]
+            else
+                local saved=part:GetAttribute("VisualsV2_OriginalMaterial")
+                if saved=="ForceField" and data[1]~=Enum.Material.ForceField then
+                    part:SetAttribute("VisualsV2_OriginalMaterial",data[1].Name)
+                end
+            end
+            local physics=state.physics[part]
+            if physics and part.CustomPhysicalProperties==physics[1] then
+                part.CustomPhysicalProperties=physics[2]
+            end
+        end
+    end
+    state.cache,state.physics={},{}
+    for surface,parent in pairs(state.surf) do
+        pcall(function() surface.Parent=parent end)
+        ownedSurfaces[surface]=nil
+    end
+    state.surf={}
+end
+
+local function force_apply(state,color)
+    for _,surface in ipairs(state.surfaces) do
+        if surface.Parent and not state.surf[surface] then
+            state.surf[surface]=surface.Parent
+            ownedSurfaces[surface]=true
+            pcall(function() surface.Parent=nil end)
+        end
+    end
+    for _,part in ipairs(state.parts) do
+        if part.Parent then
+            if not state.cache[part] then
+                local material=part.Material
+                local saved=part:GetAttribute("VisualsV2_OriginalMaterial")
+                if state.owner==LocalPlayer and saved and Enum.Material[saved] then material=Enum.Material[saved] end
+                state.cache[part]={material,part.Color}
+                -- Keep native toy mass when changing its visual material.
+                local ok,physics=pcall(function() return part.CurrentPhysicalProperties end)
+                if ok and typeof(physics)=="PhysicalProperties" and part.CustomPhysicalProperties==nil then
+                    local old=part.CustomPhysicalProperties
+                    if pcall(function() part.CustomPhysicalProperties=physics end) then
+                        state.physics[part]={physics,old}
+                    end
+                end
+            end
+            part.Material=Enum.Material.ForceField
+            part.Color=color
+        end
+    end
+end
+
+local function clear_state(state)
+    flat_clear(state.flat)
+    chrom_clear(state.chrom)
+    force_restore(state)
 end
 
 local function presetName(value)
@@ -4879,550 +5139,199 @@ local function presetName(value)
     return "ForceField"
 end
 
-local function groupFor(tool)
+local function groupFor(tool,other)
     if not tool or not tool:IsA("Tool") then return nil end
     for _,group in ipairs(groups) do
-        if group.enabled and group.matches(tool) then return group end
+        local enabled=other and group.othersEnabled or (not other and group.enabled)
+        if enabled and group.matches(tool) then return group end
     end
 end
 
-local function clearFlat(state)
-    if state.flat then state.flat:Destroy() end
-    state.flat,state.flatHighlight,state.visibleHighlight,state.flatEntries=nil,nil,nil,nil
-end
-
-local function clearChromatic(state)
-    if state.chrom then state.chrom:Destroy() end
-    state.chrom,state.chromEntries,state.chromColor=nil,nil,nil
-end
-
-local function clearForceField(state)
-    for source,record in pairs(state.forceNative or {}) do
-        pcall(function()
-            if runtimeAlive and not configResetting and C("ffEnabled",false) then
-                local saved=source:GetAttribute("VisualsV2_OriginalMaterial")
-                if saved=="ForceField" and record.material~=Enum.Material.ForceField then
-                    source:SetAttribute("VisualsV2_OriginalMaterial",record.material.Name)
-                end
-            else
-                source.Material=record.material
-                source.Color=record.color
-            end
-            if record.materialVariant~=nil then source.MaterialVariant=record.materialVariant end
-            if record.textureID~=nil then source.TextureID=record.textureID end
-            if record.reflectance~=nil then source.Reflectance=record.reflectance end
-            if record.physicsPinned and source.CustomPhysicalProperties==record.pinnedPhysics then
-                source.CustomPhysicalProperties=record.customPhysics
-            end
-        end)
-    end
-    for appearance,parent in pairs(state.forceSurfaces or {}) do
-        pcall(function() appearance.Parent=parent end)
-        ownedSurfaces[appearance]=nil
-    end
-    for decal,alpha in pairs(state.forceDecals or {}) do
-        pcall(function() decal.Transparency=alpha end)
-    end
-    for mesh,color in pairs(state.forceMeshColors or {}) do
-        pcall(function() mesh.VertexColor=color end)
-    end
-    for mesh,texture in pairs(state.forceMeshTextures or {}) do
-        pcall(function() mesh.TextureId=texture end)
-    end
-    state.forceNative,state.forceSurfaces,state.forceDecals,state.forceMeshColors,state.forceMeshTextures=nil,nil,nil,nil,nil
-end
-
-local function clearState(state)
-    clearFlat(state)
-    clearChromatic(state)
-    clearForceField(state)
-end
-
-local function stopRenderSync()
-    if renderBound then
-        RunService:UnbindFromRenderStep(RENDER_FRAME)
-        renderBound=false
-    end
-end
-
-local function destroyViewport()
-    if chromHost then chromHost:Destroy() end
-    chromHost,chromView,chromWorld,chromCamera=nil,nil,nil,nil
-end
-
-local function ensureViewport()
-    if chromWorld and chromWorld.Parent and chromHost and chromHost.Parent then return true end
-    destroyViewport()
-    local parent=player:FindFirstChildOfClass("PlayerGui")
-    if not parent and type(gethui)=="function" then
-        local ok,value=pcall(gethui)
-        if ok then parent=value end
-    end
-    if not parent then return false end
-    chromHost=Instance.new("ScreenGui")
-    chromHost.Name="VisualsV2_ChamsViewport"
-    chromHost.ResetOnSpawn=false
-    chromHost.IgnoreGuiInset=true
-    -- The scene camera renders the whole screen, including the notch area.
-    -- DeviceSafeInsets would offset and change the aspect of the overlay.
-    pcall(function() chromHost.ScreenInsets=Enum.ScreenInsets.None end)
-    pcall(function() chromHost.SafeAreaCompatibility=Enum.SafeAreaCompatibility.None end)
-    pcall(function() chromHost.ClipToDeviceSafeArea=false end)
-    chromHost.DisplayOrder=100
-    chromHost.Parent=parent
-    chromView=Instance.new("ViewportFrame")
-    chromView.Name="ChamsViewport"
-    chromView.Size=UDim2.fromScale(1,1)
-    chromView.Position=UDim2.fromScale(0,0)
-    chromView.BackgroundTransparency=1
-    chromView.BorderSizePixel=0
-    chromView.Ambient=Color3.new(1,1,1)
-    chromView.LightColor=Color3.new(1,1,1)
-    chromView.LightDirection=Vector3.new(-1,-1,-1)
-    chromView.ZIndex=999
-    chromView.Visible=true
-    chromView.Active=false
-    chromView.Selectable=false
-    pcall(function() chromView.Interactable=false end)
-    chromView.Parent=chromHost
-    chromCamera=Instance.new("Camera")
-    chromCamera.Name="ToolChamsCamera"
-    chromCamera.FieldOfView=workspace.CurrentCamera and workspace.CurrentCamera.FieldOfView or 70
-    chromCamera.CFrame=workspace.CurrentCamera and workspace.CurrentCamera.CFrame or CFrame.new()
-    chromCamera.Parent=chromView
-    chromView.CurrentCamera=chromCamera
-    local sky=Lighting:FindFirstChildOfClass("Sky")
-    if sky then pcall(function() sky:Clone().Parent=chromView end) end
-    chromWorld=Instance.new("WorldModel")
-    chromWorld.Name="ChamsWorld"
-    chromWorld.Parent=chromView
-    return true
-end
-
--- The supplied plugin's deformability rules are shared by Flat/Chromatic.
-local CHAMS_BODY={Head=true,UpperTorso=true,LowerTorso=true,Torso=true,
-    LeftUpperArm=true,LeftLowerArm=true,LeftHand=true,RightUpperArm=true,RightLowerArm=true,RightHand=true,
-    LeftUpperLeg=true,LeftLowerLeg=true,LeftFoot=true,RightUpperLeg=true,RightLowerLeg=true,RightFoot=true,
-    ["Left Arm"]=true,["Right Arm"]=true,["Left Leg"]=true,["Right Leg"]=true}
-local function deformable(part)
-    if part:FindFirstChildWhichIsA("WrapLayer") then return true end
-    if CHAMS_BODY[part.Name] then return false end
-    if part:FindFirstChildWhichIsA("Bone") then return true end
-    local ok,skinned=pcall(function() return part.HasSkinnedMesh end)
-    return ok and skinned==true
-end
-
-local function shell(source,scale)
-    local archivable=source.Archivable
-    if not archivable and not pcall(function() source.Archivable=true end) then return nil end
-    local ok,clone=pcall(function() return source:Clone() end)
-    if not archivable then pcall(function() source.Archivable=archivable end) end
-    if not ok or not clone then return nil end
-    for _,child in ipairs(clone:GetChildren()) do
-        if not child:IsA("DataModelMesh") then child:Destroy() end
-    end
-    local mesh=clone:FindFirstChildWhichIsA("DataModelMesh")
-    if mesh then
-        pcall(function() mesh.Scale=mesh.Scale*scale end)
-        pcall(function() mesh.TextureId="" end)
-    else
-        clone.Size=clone.Size*scale
-    end
-    pcall(function() clone.TextureID="" end)
-    pcall(function() clone.MaterialVariant="" end)
-    clone.CanCollide=false; clone.CanQuery=false; clone.CanTouch=false
-    clone.Massless=true; clone.CastShadow=false; clone.LocalTransparencyModifier=0
-    return clone
-end
-
-local function shellEntry(source,clone,scale)
-    return {source,clone,source:FindFirstChildWhichIsA("DataModelMesh"),
-        clone:FindFirstChildWhichIsA("DataModelMesh"),scale}
-end
-
-local renderReaders=setmetatable({}, {__mode="k"})
-local function renderedFrame(object)
-    local reader=renderReaders[object]
-    if reader==nil then
-        local ok,value=pcall(function() return object.GetRenderCFrame end)
-        reader=ok and type(value)=="function" and value or false
-        renderReaders[object]=reader
-    end
-    if reader then
-        local ok,value=pcall(reader,object)
-        if ok and typeof(value)=="CFrame" then return value end
-        renderReaders[object]=false
-    end
-    return object.CFrame
-end
-
-local function syncEntry(tool,entry,chromatic)
-    local source,clone,mesh,cloneMesh,scale=entry[1],entry[2],entry[3],entry[4],entry[5]
-    local present=source.Parent and clone.Parent and source:IsDescendantOf(tool)
-    local visible=present and tool.Parent==player.Character
-        and math.max(source.Transparency,source.LocalTransparencyModifier)<1
-    if present then
-        clone.CFrame=renderedFrame(source)
-        local size=mesh and source.Size or source.Size*scale
-        if clone.Size~=size then clone.Size=size end
-        if mesh and mesh.Parent and cloneMesh and cloneMesh.Parent then
-            local meshScale=mesh.Scale*scale
-            if cloneMesh.Scale~=meshScale then cloneMesh.Scale=meshScale end
-            if cloneMesh.Offset~=mesh.Offset then cloneMesh.Offset=mesh.Offset end
-            if mesh:IsA("SpecialMesh") then
-                if cloneMesh.MeshId~=mesh.MeshId then cloneMesh.MeshId=mesh.MeshId end
-                if cloneMesh.MeshType~=mesh.MeshType then cloneMesh.MeshType=mesh.MeshType end
-            end
-        end
-    end
-    clone.Transparency=visible and (chromatic and CHROM_ALPHA or source.Transparency) or 1
-end
-
-local function ensureRenderSync()
-    if renderBound then return end
-    renderBound=true
-    RunService:BindToRenderStep(RENDER_FRAME,Enum.RenderPriority.Last.Value+1,function()
-        local cameraNow=workspace.CurrentCamera
-        if cameraNow and chromCamera then
-            chromCamera.CFrame=renderedFrame(cameraNow)
-            chromCamera.FieldOfView=cameraNow.FieldOfView
-        end
-        for tool,state in pairs(states) do
-            for _,entry in ipairs(state.flatEntries or {}) do syncEntry(tool,entry,false) end
-            for _,entry in ipairs(state.chromEntries or {}) do syncEntry(tool,entry,true) end
-        end
-    end)
-end
-
-local function applyFlat(tool,state,color)
-    if not state.flat or not state.flat.Parent then
-        clearFlat(state)
-        local model=Instance.new("Model")
-        model.Name="VisualsV2_FlatChams_"..tool.Name
-        local entries={}
-        for _,source in ipairs(state.parts) do
-            local clone=not deformable(source) and shell(source,FLAT_SCALE) or nil
-            if clone then
-                clone.Anchored=true
-                clone.CFrame=renderedFrame(source)
-                clone.Parent=model
-                entries[#entries+1]=shellEntry(source,clone,FLAT_SCALE)
-            end
-        end
-        model.Parent=workspace
-        local occluded=Instance.new("Highlight")
-        occluded.Name="VisualsV2_FlatChamsShell"
-        occluded.DepthMode=Enum.HighlightDepthMode.AlwaysOnTop
-        occluded.OutlineTransparency=1; occluded.FillTransparency=0
-        occluded.Adornee=model; occluded.Parent=model
-        local visible=Instance.new("Highlight")
-        visible.Name="VisualsV2_FlatChamsVisible"
-        visible.DepthMode=Enum.HighlightDepthMode.Occluded
-        visible.OutlineTransparency=1; visible.FillTransparency=0
-        visible.Adornee=tool; visible.Parent=model
-        state.flat,state.flatHighlight,state.visibleHighlight,state.flatEntries=model,occluded,visible,entries
-    end
-    ensureRenderSync()
-    state.flatHighlight.FillColor=color
-    state.visibleHighlight.FillColor=color
-    for _,entry in ipairs(state.flatEntries) do
-        local source,clone=entry[1],entry[2]
-        clone.Transparency=math.max(source.Transparency,source.LocalTransparencyModifier)>=1 and 1 or source.Transparency
-    end
-end
-
-local function applyChromatic(tool,state,color)
-    if not ensureViewport() then return end
-    if not state.chrom or not state.chrom.Parent then
-        clearChromatic(state)
-        local model=Instance.new("Model")
-        model.Name="VisualsV2_ChromaticChams_"..tool.Name
-        local entries={}
-        for _,source in ipairs(state.parts) do
-            local clone=not deformable(source) and shell(source,CHROM_SCALE) or nil
-            if clone then
-                clone.Anchored=true
-                clone.Material=Enum.Material.Foil
-                clone.Reflectance=0.12
-                clone.Transparency=math.max(source.Transparency,source.LocalTransparencyModifier)>=1 and 1 or CHROM_ALPHA
-                clone.Color=color
-                clone.CFrame=renderedFrame(source)
-                clone.Parent=model
-                entries[#entries+1]=shellEntry(source,clone,CHROM_SCALE)
-            end
-        end
-        model.Parent=chromWorld
-        state.chrom,state.chromEntries,state.chromColor=model,entries,color
-    end
-    -- Static colours and rainbow colours take the same rendering path.
-    ensureRenderSync()
-    state.chromColor=color
-    for _,entry in ipairs(state.chromEntries) do entry[2].Color=color end
-end
-
-local function applyForceField(tool,state,color)
-    -- One native renderer for every tool, including SprayPaint and TeddyBear.
-    -- Never hide the real handle, resize it, clone its logic or change input.
-    -- Keep mesh textures for the ForceField shader; suppress opaque overlays.
-    -- SprayPaint/TeddyBear use FakeBomb's mask instead of an empty texture.
-    state.forceNative=state.forceNative or {}
-    state.forceSurfaces=state.forceSurfaces or {}
-    state.forceDecals=state.forceDecals or {}
-    state.forceMeshColors=state.forceMeshColors or {}
-    state.forceMeshTextures=state.forceMeshTextures or {}
-    for _,appearance in ipairs(state.appearances) do
-        if appearance.Parent and not state.forceSurfaces[appearance] then
-            state.forceSurfaces[appearance]=appearance.Parent
-            ownedSurfaces[appearance]=true
-            appearance.Parent=nil
-        end
-    end
-    for _,decal in ipairs(state.decals) do
-        if decal.Parent then
-            if state.forceDecals[decal]==nil then state.forceDecals[decal]=decal.Transparency end
-            if decal.Transparency~=1 then decal.Transparency=1 end
-        end
-    end
-    -- Teddy meshes can carry an extra baked tint. The same part colour must
-    -- reach its ForceField material without multiplying that tint a second time.
-    local toolName=tool.Name:lower():gsub("[^%w]","")
-    local teddy=toolName:find("teddy",1,true)~=nil
-    local bombField=teddy or toolName:find("spray",1,true)~=nil or toolName:find("graffiti",1,true)~=nil
-    if bombField then
-        for _,mesh in ipairs(state.meshes) do
-            if mesh.Parent then
-                local ok,texture=pcall(function() return mesh.TextureId end)
-                if ok and type(texture)=="string" then
-                    if state.forceMeshTextures[mesh]==nil then state.forceMeshTextures[mesh]=texture end
-                    if texture~=BOMB_FORCEFIELD_TEXTURE then mesh.TextureId=BOMB_FORCEFIELD_TEXTURE end
-                end
-            end
-        end
-    end
-    if teddy then
-        for _,mesh in ipairs(state.meshes) do
-            if mesh.Parent then
-                if not state.forceMeshColors[mesh] then state.forceMeshColors[mesh]=mesh.VertexColor end
-                local white=Vector3.new(1,1,1)
-                if mesh.VertexColor~=white then mesh.VertexColor=white end
-            end
-        end
-    end
-    for _,source in ipairs(state.parts) do
-        if source.Parent then
-            local record=state.forceNative[source]
-            if not record then
-                record={material=source.Material,color=source.Color}
-                local saved=source:GetAttribute("VisualsV2_OriginalMaterial")
-                if saved and Enum.Material[saved] then record.material=Enum.Material[saved] end
-                local ok,physics=pcall(function() return source.CurrentPhysicalProperties end)
-                if ok and typeof(physics)=="PhysicalProperties" and source.CustomPhysicalProperties==nil then
-                    record.customPhysics=source.CustomPhysicalProperties
-                    record.pinnedPhysics=physics
-                    record.physicsPinned=pcall(function() source.CustomPhysicalProperties=physics end)
-                end
-                local variantOK,variant=pcall(function() return source.MaterialVariant end)
-                if variantOK and type(variant)=="string" then record.materialVariant=variant end
-                if bombField then
-                    record.reflectance=source.Reflectance
-                    local textureOK,texture=pcall(function() return source.TextureID end)
-                    if textureOK and type(texture)=="string" then record.textureID=texture end
-                end
-                state.forceNative[source]=record
-            end
-            if record.textureID~=nil and source.TextureID~=BOMB_FORCEFIELD_TEXTURE then
-                source.TextureID=BOMB_FORCEFIELD_TEXTURE
-            end
-            -- The live MMV report shows SprayPaint/Teddy retain 0.35/0.4
-            -- reflectance, while the working FakeBomb ForceField uses zero.
-            if record.reflectance~=nil and source.Reflectance~=0 then source.Reflectance=0 end
-            if record.materialVariant~=nil and source.MaterialVariant~="" then source.MaterialVariant="" end
-            if source.Material~=Enum.Material.ForceField then source.Material=Enum.Material.ForceField end
-            if source.Color~=color then source.Color=color end
-        end
-    end
-end
-
-local update
-local function queueUpdate()
-    if queued or resetting or not runtimeAlive then return end
-    queued=true
-    task.defer(function()
-        queued=false
-        if not resetting and runtimeAlive then update() end
-    end)
-end
-
-local function relevantChange(object)
-    if object:IsA("Tool") or object:IsA("BasePart") or object:IsA("DataModelMesh") or object:IsA("Decal")
-        or object:IsA("Bone") or object:IsA("WrapLayer")
-        or (object:IsA("SurfaceAppearance") and not ownedSurfaces[object]) then
-        dirty=true
-        queueUpdate()
-    end
-end
-
-local function bindCharacter(character)
-    if trackedCharacter==character then return end
-    disconnectAll(characterConnections)
-    for tool,state in pairs(states) do clearState(state); states[tool]=nil end
-    trackedCharacter=character
-    dirty=true
-    if character then
-        characterConnections[1]=character.DescendantAdded:Connect(relevantChange)
-        characterConnections[2]=character.DescendantRemoving:Connect(relevantChange)
+local function clear_owner(owner)
+    for tool,state in pairs(states) do
+        if state.owner==owner then clear_state(state);states[tool]=nil end
     end
 end
 
 local function active()
-    for _,group in ipairs(groups) do if group.enabled then return true end end
+    for _,group in ipairs(groups) do
+        if group.enabled or group.othersEnabled then return true end
+    end
     return false
 end
 
-local function stopWatching()
-    if heartbeatConnection then heartbeatConnection:Disconnect(); heartbeatConnection=nil end
-    disconnectAll(lifecycleConnections)
-    disconnectAll(characterConnections)
-    trackedCharacter=nil
-    for tool,state in pairs(states) do clearState(state); states[tool]=nil end
-    stopRenderSync()
-    destroyViewport()
-    dirty=true
+local function clear_viewport()
+    if chrom_host then chrom_host:Destroy() end
+    chrom_host,chrom_view,chrom_world,chrom_camera=nil,nil,nil,nil
 end
 
-update=function()
+local function stopWatching()
+    if heartbeatConnection then heartbeatConnection:Disconnect();heartbeatConnection=nil end
+    if chrom_conn then chrom_conn:Disconnect();chrom_conn=nil end
+    for tool,state in pairs(states) do clear_state(state);states[tool]=nil end
+    for owner,record in pairs(owners) do
+        for _,connection in ipairs(record.connections) do connection:Disconnect() end
+        owners[owner]=nil
+    end
+    clear_viewport()
+end
+
+local function bind_owner(owner)
+    local char=owner.Character
+    local record=owners[owner]
+    if not record or record.char~=char then
+        clear_owner(owner)
+        if record then for _,connection in ipairs(record.connections) do connection:Disconnect() end end
+        record={char=char,dirty=true,connections={}}
+        owners[owner]=record
+        if char then
+            local function changed(object)
+                if object:IsA("Tool") or object:IsA("BasePart") or object:IsA("DataModelMesh")
+                    or object:IsA("Bone") or object:IsA("WrapLayer")
+                    or (object:IsA("SurfaceAppearance") and not ownedSurfaces[object]) then
+                    record.dirty=true
+                end
+            end
+            record.connections[1]=char.DescendantAdded:Connect(changed)
+            record.connections[2]=char.DescendantRemoving:Connect(changed)
+        end
+    end
+    return record
+end
+
+local function update()
     if resetting or not runtimeAlive then return end
-    if not active() then stopWatching(); return end
-    bindCharacter(player.Character~=removingCharacter and player.Character or nil)
-    if dirty then
-        dirty=false
-        for tool,state in pairs(states) do clearState(state); states[tool]=nil end
-        if trackedCharacter then
-            for _,tool in ipairs(trackedCharacter:GetChildren()) do
-                local group=groupFor(tool)
-                if group then
-                    local state={group=group,preset=group.preset,parts={},appearances={},decals={},meshes={}}
-                    for _,object in ipairs(tool:GetDescendants()) do
-                        if object:IsA("BasePart") then state.parts[#state.parts+1]=object
-                        elseif object:IsA("SurfaceAppearance") then state.appearances[#state.appearances+1]=object
-                        elseif object:IsA("Decal") then state.decals[#state.decals+1]=object
-                        elseif object:IsA("DataModelMesh") then state.meshes[#state.meshes+1]=object end
+    if not active() then stopWatching();return end
+    local seenOwners,seenTools={},{}
+    local list={LocalPlayer}
+    local needsOthers=false
+    for _,group in ipairs(groups) do if group.othersEnabled then needsOthers=true;break end end
+    if needsOthers then
+        for _,owner in ipairs(Players:GetPlayers()) do
+            if owner~=LocalPlayer then list[#list+1]=owner end
+        end
+    end
+    for _,owner in ipairs(list) do
+        if owner.Parent then
+            seenOwners[owner]=true
+            local record=bind_owner(owner)
+            if record.dirty then clear_owner(owner);record.dirty=false end
+            if record.char then
+                for _,tool in ipairs(record.char:GetChildren()) do
+                    local group=groupFor(tool,owner~=LocalPlayer)
+                    if group then
+                        seenTools[tool]=true
+                        local state=states[tool]
+                        if state and (state.group~=group or state.preset~=group.preset) then
+                            clear_state(state);states[tool]=nil;state=nil
+                        end
+                        if not state then
+                            state={owner=owner,group=group,preset=group.preset,flat={},chrom={},cache={},surf={},
+                                physics={},parts={},surfaces={},roots={tool}}
+                            for _,object in ipairs(tool:GetDescendants()) do
+                                if object:IsA("BasePart") then state.parts[#state.parts+1]=object
+                                elseif object:IsA("SurfaceAppearance") then state.surfaces[#state.surfaces+1]=object end
+                            end
+                            states[tool]=state
+                        end
+                        if #state.parts>0 then
+                            local color=group.color()
+                            if group.preset=="Flat" then
+                                flat_apply(state.flat,state.parts,state.roots,color)
+                            elseif group.preset=="Chromatic" then
+                                chrom_apply(state.chrom,state.parts,tool,color)
+                            else force_apply(state,color) end
+                        end
                     end
-                    states[tool]=state
                 end
             end
         end
     end
-    local chromatic,shells=false,false
     for tool,state in pairs(states) do
-        if tool.Parent~=trackedCharacter or groupFor(tool)~=state.group then
-            clearState(state); states[tool]=nil
-        elseif #state.parts>0 then
-            local color=state.group.color()
-            if state.preset=="Flat" then applyFlat(tool,state,color); shells=true
-            elseif state.preset=="Chromatic" then
-                applyChromatic(tool,state,color)
-                chromatic=state.chrom~=nil or chromatic
-            else applyForceField(tool,state,color) end
+        if not seenTools[tool] then clear_state(state);states[tool]=nil end
+    end
+    for owner,record in pairs(owners) do
+        if not seenOwners[owner] then
+            for _,connection in ipairs(record.connections) do connection:Disconnect() end
+            owners[owner]=nil
         end
     end
-    if not chromatic then destroyViewport() end
-    if not chromatic and not shells then stopRenderSync() end
+    local hasChromatic=false
+    for _,state in pairs(states) do if state.chrom.model then hasChromatic=true;break end end
+    if not hasChromatic then clear_viewport() end
 end
 
 local function refresh()
     if resetting or not runtimeAlive then return end
-    dirty=true
+    for _,record in pairs(owners) do record.dirty=true end
     if active() and not heartbeatConnection then
-        lifecycleConnections[1]=player.CharacterAdded:Connect(function(character)
-            removingCharacter=nil
-            bindCharacter(character)
-            queueUpdate()
-        end)
-        lifecycleConnections[2]=player.CharacterRemoving:Connect(function(character)
-            removingCharacter=character or player.Character
-            bindCharacter(nil)
-            destroyViewport()
-        end)
-        local elapsed=0
-        heartbeatConnection=RunService.Heartbeat:Connect(function(dt)
-            elapsed+=math.max(tonumber(dt) or 0,0)
-            if elapsed>=0.1 then elapsed=0; update() end
+        heartbeatConnection=RunService.Heartbeat:Connect(update)
+        chrom_conn=RunService.RenderStepped:Connect(function()
+            if not chrom_world then return end
+            local camera=Workspace.CurrentCamera
+            if camera and chrom_camera then
+                chrom_camera.CFrame=camera.CFrame
+                chrom_camera.FieldOfView=camera.FieldOfView
+            end
+            for _,state in pairs(states) do chrom_sync(state.chrom) end
         end)
     end
     update()
     if type(runtime.RefreshToolTint)=="function" then runtime.RefreshToolTint() end
 end
+
 runtime.RefreshChams=refresh
 runtime.ToolForceFieldActive=function(tool)
-    local group=groupFor(tool)
+    local group=groupFor(tool,false)
     return group and group.key=="toolChams" and group.preset=="ForceField" or false
 end
 runtime.ToolChamsActive=function(tool)
-    local group=groupFor(tool)
+    local group=groupFor(tool,false)
     return group and group.key=="toolChams" or false
 end
-
 runtime.RegisterChamsFeature=function(section,key,label,matches)
-    section:AddParagraph(label.." Chams","ForceField uses the original material effect. Chromatic uses the original Foil viewport effect.")
-    local group={
-        key=key,
-        enabled=C(key.."Enabled",false),
-        preset=presetName(C(key.."Preset","ForceField")),
-        matches=matches,
-        colorValue=C(key.."Color",Color3.fromRGB(255,200,0)),
-        rainbow=C(key.."Rainbow",false),
-        rainbowSpeed=math.clamp(tonumber(C(key.."RainbowSpeed",3)) or 3,1,10),
-    }
+    local group={key=key,matches=matches,enabled=C(key.."Enabled",false),
+        othersEnabled=C(key.."OthersEnabled",false),preset=presetName(C(key.."Preset","ForceField")),
+        colorValue=C(key.."Color",Color3.fromRGB(255,200,0)),rainbow=C(key.."Rainbow",false),
+        rainbowSpeed=math.clamp(tonumber(C(key.."RainbowSpeed",3)) or 3,1,10)}
     group.color=function()
         if group.rainbow then return Color3.fromHSV((os.clock()*(group.rainbowSpeed*0.1))%1,1,1) end
         return group.colorValue
     end
     groups[#groups+1]=group
     group.toggle=addToggle(section,label.." Chams",group.enabled,function(value)
-        group.enabled=value
-        SetCfg(key.."Enabled",value)
-        refresh()
+        group.enabled=value;SetCfg(key.."Enabled",value);refresh()
+    end)
+    group.othersToggle=addToggle(section,label.." Chams Others",group.othersEnabled,function(value)
+        group.othersEnabled=value;SetCfg(key.."OthersEnabled",value);refresh()
     end)
     group.dropdown=addDropdown(section,label.." Chams Preset",presets,group.preset,function(value)
-        group.preset=presetName(value)
-        SetCfg(key.."Preset",group.preset)
-        refresh()
+        group.preset=presetName(value);SetCfg(key.."Preset",group.preset);refresh()
     end)
     section:AddColorpicker(label.." Chams Color",group.colorValue,function(color)
-        group.colorValue=color
-        SetCfg(key.."Color",color)
-        update()
+        group.colorValue=color;SetCfg(key.."Color",color);update()
     end)
     group.rainbowToggle=addToggle(section,"Rainbow "..label.." Chams",group.rainbow,function(value)
-        group.rainbow=value
-        SetCfg(key.."Rainbow",value)
-        update()
+        group.rainbow=value;SetCfg(key.."Rainbow",value);update()
     end)
     section:AddSlider(label.." Chams Rainbow Speed",1,10,group.rainbowSpeed,function(value)
         group.rainbowSpeed=math.clamp(tonumber(value) or 3,1,10)
-        SetCfg(key.."RainbowSpeed",group.rainbowSpeed)
-        update()
+        SetCfg(key.."RainbowSpeed",group.rainbowSpeed);update()
     end)
-    if group.enabled then refresh() end
+    if group.enabled or group.othersEnabled then refresh() end
 end
 
 runtime.RegisterReset(function()
     resetting=true
     for _,group in ipairs(groups) do
-        group.enabled=false
-        group.preset="ForceField"
-        group.rainbow=false
-        group.colorValue=Color3.fromRGB(255,200,0)
-        group.rainbowSpeed=3
-        group.toggle:Set(false)
-        group.rainbowToggle:Set(false)
+        group.enabled=false;group.othersEnabled=false;group.rainbow=false
+        group.toggle:Set(false);group.othersToggle:Set(false);group.rainbowToggle:Set(false)
     end
     stopWatching()
-    removingCharacter=nil
     resetting=false
 end)
 end)()
+
 
 -- =========================================================
 -- COSMETIC: FIXED CLIENT GUN / KNIFE SKINS (MM2 / MMV)
@@ -8661,6 +8570,1398 @@ env.VisualsV2Runtime.RegisterReset(function() toggle:Set(false); enabled=false; 
 if enabled then refresh() end
 end)()
 
+-- UTILITIES: BOMB JUMP+ (VV2)
+-- =========================================================
+-- Bomb Jump+ source imported from aux0on/bomb/jump.lua, reached through
+-- the requested aux0on/CookieLogged/.lol loader. UI and persistent IDs are VV2 owned.
+;(function()
+local alive=true
+local pending={}
+local vv2Features={}
+local function vv2Spawn(callback)
+    local record={}
+    pending[record]=true
+    record.thread=task.spawn(function()
+        if alive and runtimeAlive then callback() end
+        pending[record]=nil
+    end)
+    return record.thread
+end
+local table_insert = table.insert
+
+local Maid = {}
+Maid.__index = Maid
+
+function Maid.new() 
+    return setmetatable({_tasks = {}, _destroyed = false}, Maid) 
+end
+
+function Maid:GiveTask(task)
+    if self._destroyed then
+        self:_cleanupTask(task)
+        return
+    end
+    table_insert(self._tasks, task)
+    return task
+end
+
+function Maid:GiveTasks(...)
+    for _, task in ipairs({...}) do
+        self:GiveTask(task)
+    end
+end
+
+function Maid:_cleanupTask(task)
+    local taskType = typeof(task)
+    if taskType == "RBXScriptConnection" then
+        task:Disconnect()
+    elseif taskType == "Instance" then
+        task:Destroy()
+    elseif taskType == "function" then
+        task()
+    elseif taskType == "table" and type(task.Destroy) == "function" then
+        task:Destroy()
+    end
+end
+
+function Maid:DoCleaning()
+    if self._destroyed then return end
+    self._destroyed = true
+    for _, task in ipairs(self._tasks) do
+        self:_cleanupTask(task)
+    end
+    self._tasks = {}
+end
+
+function Maid:Destroy() 
+    self:DoCleaning() 
+end
+
+local RootMaid = Maid.new()
+
+local shared = odh_shared_plugins
+
+local Services = {
+    Players = game:GetService("Players"),
+    ReplicatedStorage = game:GetService("ReplicatedStorage"),
+    RunService = game:GetService("RunService"),
+    UserInputService = game:GetService("UserInputService"),
+    StarterGui = game:GetService("StarterGui"),
+    CoreGui = game:GetService("CoreGui"),
+    Workspace = game:GetService("Workspace"),
+    TweenService = game:GetService("TweenService"),
+    SoundService = game:GetService("SoundService")
+}
+
+local LocalPlayer = Services.Players.LocalPlayer
+
+local __PCLR = Color3.new
+local __RGB = Color3.fromRGB
+local __UD2 = UDim2.new
+local __UD = UDim.new
+local __V2 = Vector2.new
+
+local function getfserv(s)
+    local ok, svc = pcall(function() return game:GetService(s) end)
+    if ok and svc then return svc end
+    ok, svc = pcall(function() return game:FindService(s) end)
+    if ok and svc then return svc end
+    return game[s]
+end
+
+local __RS   = getfserv("RunService")
+local __UIS  = getfserv("UserInputService")
+local __PLRS = getfserv("Players")
+local __TS   = getfserv("TweenService")
+
+local POSITIONS_KEY="vv2BombJumpButtonPositions"
+local LEGACY_POSITION_FILE="VisualsV2_BombJump_positions.json"
+local function savePositions(data)
+    SetCfg(POSITIONS_KEY,table.clone(data))
+end
+local function loadPositions()
+    local saved=C(POSITIONS_KEY,nil)
+    if type(saved)=="table" then return table.clone(saved) end
+    -- Import this add-on's prior positions once; the standalone BJP file is
+    -- never read or changed. All current VV2 state uses the main settings file.
+    local ok,result=pcall(function()
+        if type(read)=="function" and (type(exists)~="function" or exists(LEGACY_POSITION_FILE)) then
+            return HttpService:JSONDecode(read(LEGACY_POSITION_FILE))
+        end
+    end)
+    local positions={}
+    if ok and type(result)=="table" then
+        for _,id in ipairs({"VV2_BombJump_Big","VV2_BombJump_Bind","VV2_GoldBombJump_Big","VV2_GoldBombJump_Bind"}) do
+            if type(result[id])=="table" then positions[id]=result[id] end
+        end
+    end
+    savePositions(positions)
+    return positions
+end
+
+local savedPositions = loadPositions()
+
+local BBSystem = {Buttons = {}, Connections = {}, Maids = {}}
+local BindableButtons
+
+local function bb_safecallback(callback)
+    if not callback then return end
+    local ok, err = xpcall(callback, function(e) return debug.traceback(e) end)
+    if not ok then warn("[BB ERROR] " .. tostring(err)) end
+end
+
+local function BB_GetStorage()
+    local parent = gethui and gethui()
+    if not parent or typeof(parent) ~= "Instance" then
+        parent = getfserv("CoreGui")
+    end
+    if not parent or typeof(parent) ~= "Instance" then
+        parent = __PLRS.LocalPlayer:WaitForChild("PlayerGui", 5)
+    end
+    if typeof(parent) ~= "Instance" then
+        parent = __PLRS.LocalPlayer:WaitForChild("PlayerGui")
+    end
+
+    local sg = parent:FindFirstChild("VV2_BombJump_BigStorage")
+    if not sg then
+        sg = Instance.new("ScreenGui")
+        sg.Name = "VV2_BombJump_BigStorage"
+        sg.ResetOnSpawn = false
+        sg.IgnoreGuiInset = true
+        pcall(function() sg.ScreenInsets = Enum.ScreenInsets.None end)
+        sg.Parent = parent
+        RootMaid:GiveTask(sg)
+    end
+    return sg
+end
+
+local __BB_GRAD_SEQ = ColorSequence.new({
+    ColorSequenceKeypoint.new(0,    __PCLR(0.0784314, 0.0784314, 0.0784314)),
+    ColorSequenceKeypoint.new(0.75, __PCLR(0.0784314, 0.0784314, 0.54902)),
+    ColorSequenceKeypoint.new(1,    __PCLR(0.470588,  0.156863,  0.470588))
+})
+
+local muteButtonSounds = false
+
+local function BB_MakeDraggable(gui, maid, func, ripple, sound)
+    local dragging, dragInput, dragStart, startPos
+    local hasMoved = false
+    local tInfo = TweenInfo.new(0.2, Enum.EasingStyle.Quad, Enum.EasingDirection.Out)
+    local normalSize,normalTxtSize,bigSize,bigTxtSize
+
+    maid:GiveTask(gui.InputBegan:Connect(function(input)
+        if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+            if not alive or not runtimeAlive then return end
+            normalSize,normalTxtSize=gui.Size,gui.TextSize
+            bigSize=__UD2(normalSize.X.Scale*1.1,normalSize.X.Offset*1.1,
+                normalSize.Y.Scale*1.1,normalSize.Y.Offset*1.1)
+            bigTxtSize=normalTxtSize*1.1
+            dragging  = true
+            hasMoved  = false
+            dragStart = input.Position
+            startPos  = gui.Position
+            __TS:Create(gui, tInfo, {Size = bigSize, TextSize = bigTxtSize}):Play()
+            local absPos = gui.AbsolutePosition
+            ripple.Position = __UD2(0, input.Position.X - absPos.X, 0, input.Position.Y - absPos.Y)
+            ripple.Size = __UD2(0, 0, 0, 0)
+            ripple.BackgroundTransparency = 0.5
+            ripple.Visible = true
+            sound:Play()
+            __TS:Create(ripple, TweenInfo.new(0.5, Enum.EasingStyle.Sine, Enum.EasingDirection.Out), {
+                Size = __UD2(0, 300, 0, 300),
+                BackgroundTransparency = 1
+            }):Play()
+            local rel
+            rel = maid:GiveTask(__UIS.InputEnded:Connect(function(endInput)
+                if endInput.UserInputType == input.UserInputType then
+                    dragging = false
+                    __TS:Create(gui, tInfo, {Size = normalSize, TextSize = normalTxtSize}):Play()
+                    if not hasMoved then bb_safecallback(func) end
+                    
+                    if not lockBigButtonPos then
+                        savedPositions[gui.Name] = {
+                            xs = gui.Position.X.Scale, xo = gui.Position.X.Offset,
+                            ys = gui.Position.Y.Scale, yo = gui.Position.Y.Offset
+                        }
+                        savePositions(savedPositions)
+                    end
+                    
+                    rel:Disconnect()
+                end
+            end))
+        end
+    end))
+    maid:GiveTask(gui.InputChanged:Connect(function(input)
+        if input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch then
+            dragInput = input
+        end
+    end))
+    maid:GiveTask(__UIS.InputChanged:Connect(function(input)
+        if input == dragInput and dragging then
+            if lockBigButtonPos then return end
+            local delta = input.Position - dragStart
+            if delta.Magnitude > 7 then hasMoved = true end
+            gui.Position = __UD2(startPos.X.Scale, startPos.X.Offset + delta.X, startPos.Y.Scale, startPos.Y.Offset + delta.Y)
+        end
+    end))
+end
+
+local function UpdateAllButtonSounds()
+    local volume = muteButtonSounds and 0 or 0.5
+    for id, btn in pairs(BBSystem.Buttons) do
+        local sound = btn:FindFirstChild("Sound")
+        if sound then
+            sound.Volume = volume
+        end
+    end
+    for id, btn in pairs(BindableButtons.Buttons) do
+        local sound = btn:FindFirstChild("Sound")
+        if sound then
+            sound.Volume = volume
+        end
+    end
+end
+
+local function AddBigButton(id, text, func, isGold)
+    if BBSystem.Buttons[id] then return end
+    local storage = BB_GetStorage()
+    local buttonMaid=Maid.new()
+    BBSystem.Maids[id]=buttonMaid
+    local bb = Instance.new("TextButton")
+    bb.Name = id
+    bb.Size = __UD2(0, 200, 0, 75)
+    
+    local sp = savedPositions[id]
+    if sp then
+        bb.Position = __UD2(sp.xs, sp.xo, sp.ys, sp.yo)
+    else
+        bb.Position = __UD2(0.5, 0, 0.5, 0)
+    end
+    
+    bb.AnchorPoint = __V2(0.5, 0.5)
+    bb.BackgroundColor3 = __RGB(255, 255, 255)
+    bb.BackgroundTransparency = 0.9
+    bb.BorderSizePixel = 0
+    bb.Font = Enum.Font.Jura
+    bb.Text = text
+    bb.TextSize = 24
+    bb.TextColor3 = __RGB(255, 255, 255)
+    bb.TextWrapped = true
+    bb.ClipsDescendants = true
+    bb.AutoButtonColor = false
+    bb.ZIndex = 5
+    bb.Parent = storage
+
+    Instance.new("UICorner", bb).CornerRadius = __UD(0, 5)
+    local stroke = Instance.new("UIStroke")
+    stroke.Color = __RGB(255, 255, 255)
+    stroke.Thickness = 1.5
+    stroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
+    stroke.Parent = bb
+    local gradient = Instance.new("UIGradient")
+    
+    if isGold then
+        gradient.Color = ColorSequence.new({
+            ColorSequenceKeypoint.new(0,    __RGB(255, 215, 0)),
+            ColorSequenceKeypoint.new(0.5,  __RGB(255, 140, 0)),
+            ColorSequenceKeypoint.new(1,    __RGB(184, 134, 11))
+        })
+    else
+        gradient.Color = __BB_GRAD_SEQ
+    end
+    gradient.Parent = stroke
+
+    local ripple = Instance.new("Frame")
+    ripple.Name = "@ripple"
+    ripple.BackgroundColor3 = isGold and __RGB(255, 215, 0) or __RGB(0, 155, 255)
+    ripple.BackgroundTransparency = 0.5
+    ripple.ZIndex = 4
+    ripple.Size = __UD2(0, 0, 0, 0)
+    ripple.AnchorPoint = __V2(0.5, 0.5)
+    ripple.Visible = false
+    ripple.Parent = bb
+    Instance.new("UICorner", ripple).CornerRadius = __UD(1, 0)
+
+    local sound = Instance.new("Sound")
+    sound.SoundId = "rbxassetid://3868133279"
+    sound.Volume = muteButtonSounds and 0 or 0.5
+    sound.Parent = bb
+
+    buttonMaid:GiveTask(bb)
+    BB_MakeDraggable(bb, buttonMaid, func, ripple, sound)
+    BBSystem.Connections[id] = buttonMaid:GiveTask(__RS.RenderStepped:Connect(function()
+        gradient.Rotation = (gradient.Rotation + 1) % 360
+    end))
+    BBSystem.Buttons[id] = bb
+    return bb
+end
+
+local function DeleteBigButton(id)
+    if BBSystem.Buttons[id] then
+        if BBSystem.Connections[id] then
+            BBSystem.Connections[id]:Disconnect()
+            BBSystem.Connections[id] = nil
+        end
+        if BBSystem.Maids[id] then BBSystem.Maids[id]:Destroy();BBSystem.Maids[id]=nil end
+        BBSystem.Buttons[id] = nil
+    end
+end
+
+BindableButtons = {Buttons = {}, Maids = {}, Count = 0}
+
+local __SHAPES = {
+    [0] = "rbxassetid://86221076925479",
+    [1] = "rbxassetid://96242665417546",
+    [2] = "rbxassetid://97129189935336",
+    [3] = "rbxassetid://76165862027868",
+    [4] = "rbxassetid://125868092127496"
+}
+
+local __NORMAL_COLOR = ColorSequence.new({
+    ColorSequenceKeypoint.new(0,   __PCLR(0.133333, 0.827451, 0.494118)),
+    ColorSequenceKeypoint.new(0.6, __PCLR(0.231373, 0.509804, 0.498039)),
+    ColorSequenceKeypoint.new(1,   __PCLR(0.501961, 0.501961, 0.501961))
+})
+
+local __WAIT_COLOR = ColorSequence.new({
+    ColorSequenceKeypoint.new(0,   __PCLR(0.827451, 0.133333, 0.133333)),
+    ColorSequenceKeypoint.new(0.6, __PCLR(0.509804, 0.231373, 0.231373)),
+    ColorSequenceKeypoint.new(1,   __PCLR(0.501961, 0.501961, 0.501961))
+})
+
+local __GOLD_NORMAL_COLOR = ColorSequence.new({
+    ColorSequenceKeypoint.new(0,   __RGB(255, 215, 0)),
+    ColorSequenceKeypoint.new(0.6, __RGB(255, 140, 0)),
+    ColorSequenceKeypoint.new(1,   __RGB(184, 134, 11))
+})
+
+local __GOLD_WAIT_COLOR = ColorSequence.new({
+    ColorSequenceKeypoint.new(0,   __RGB(255, 69, 0)),
+    ColorSequenceKeypoint.new(0.6, __RGB(139, 69, 19)),
+    ColorSequenceKeypoint.new(1,   __RGB(160, 82, 45))
+})
+
+local function bind_safecallback(callback)
+    if not callback then return end
+    local ok, err = xpcall(callback, function(e) return debug.traceback(e) end)
+    if not ok then warn("[BIND ERROR] " .. tostring(err)) end
+end
+
+local function Bind_GetStorage()
+    local parent = gethui and gethui()
+    if not parent or typeof(parent) ~= "Instance" then
+        parent = __PLRS.LocalPlayer:WaitForChild("PlayerGui", 5)
+    end
+    if typeof(parent) ~= "Instance" then
+        parent = __PLRS.LocalPlayer:WaitForChild("PlayerGui")
+    end
+
+    local sg = parent:FindFirstChild("VV2_BombJump_BindStorage")
+    if not sg then
+        sg = Instance.new("ScreenGui")
+        sg.Name = "VV2_BombJump_BindStorage"
+        sg.ResetOnSpawn = false
+        sg.IgnoreGuiInset = true
+        pcall(function() sg.ScreenInsets = Enum.ScreenInsets.None end)
+        sg.Parent = parent
+        RootMaid:GiveTask(sg)
+    end
+    return sg
+end
+
+local function Bind_MakeDraggable(gui, maid, ripple, sound, clickFunc)
+    local dragging, dragInput, dragStart, startPos
+    local hasMoved = false
+    
+    maid:GiveTask(gui.InputBegan:Connect(function(input)
+        if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+            if not alive or not runtimeAlive then return end
+            dragging, dragStart, startPos = true, input.Position, gui.Position
+            hasMoved = false
+            sound:Play()
+            local absPos = gui.AbsolutePosition
+            ripple.Position = __UD2(0, input.Position.X - absPos.X, 0, input.Position.Y - absPos.Y)
+            ripple.Size = __UD2(0, 0, 0, 0)
+            ripple.BackgroundTransparency = 0.5
+            ripple.Visible = true
+            __TS:Create(ripple, TweenInfo.new(0.4, Enum.EasingStyle.Sine, Enum.EasingDirection.Out), {
+                Size = __UD2(0, 45, 0, 45),
+                BackgroundTransparency = 1
+            }):Play()
+
+            local rel
+            rel = maid:GiveTask(__UIS.InputEnded:Connect(function(endInput)
+                if endInput.UserInputType == input.UserInputType then
+                    dragging = false
+                    if not hasMoved then
+                        bind_safecallback(clickFunc)
+                    end
+                    
+                    if not lockBindButtonPos then
+                        savedPositions[gui.Name] = {
+                            xs = gui.Position.X.Scale, xo = gui.Position.X.Offset,
+                            ys = gui.Position.Y.Scale, yo = gui.Position.Y.Offset
+                        }
+                        savePositions(savedPositions)
+                    end
+                    
+                    rel:Disconnect()
+                end
+            end))
+        end
+    end))
+    
+    maid:GiveTask(gui.InputChanged:Connect(function(input)
+        if input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch then
+            dragInput = input
+        end
+    end))
+    
+    maid:GiveTask(__UIS.InputChanged:Connect(function(input)
+        if input == dragInput and dragging then
+            if lockBindButtonPos then return end
+            local delta = input.Position - dragStart
+            if delta.Magnitude > 7 then hasMoved = true end
+            local screen = gui.Parent.AbsoluteSize
+            gui.Position = __UD2(startPos.X.Scale + (delta.X / screen.X), 0, startPos.Y.Scale + (delta.Y / screen.Y), 0)
+        end
+    end))
+end
+
+function BindableButtons.AddBButton(id, text, clickFunc, isGold)
+    if BindableButtons.Buttons[id] then return end
+    
+    local buttonMaid = Maid.new()
+    local camera = workspace.CurrentCamera
+    local screen = camera.ViewportSize
+    local buttonSizeY = 0.11
+    local widthScale = buttonSizeY * (screen.Y / screen.X)
+    
+    local sp = savedPositions[id]
+    local xPos, yPos
+    if sp then
+        xPos = sp.xs
+        yPos = sp.ys
+    else
+        xPos = 0.1 + ((BindableButtons.Count % 8) * (widthScale + 0.005))
+        yPos = 0.9 - (math.floor(BindableButtons.Count / 8) * (buttonSizeY + 0.015))
+    end
+
+    local ImageButton = Instance.new("ImageButton")
+    ImageButton.Name = id
+    ImageButton.Size = __UD2(widthScale, 0, buttonSizeY, 0)
+    ImageButton.Position = __UD2(xPos, 0, yPos, 0)
+    ImageButton.AnchorPoint = __V2(0.5, 0.5)
+    ImageButton.Image = __SHAPES[0]
+    ImageButton.BackgroundTransparency = 1
+    ImageButton.BorderSizePixel = 0
+    ImageButton.ClipsDescendants = false
+    ImageButton.AutoButtonColor = false
+    ImageButton.Parent = Bind_GetStorage()
+    buttonMaid:GiveTask(ImageButton)
+
+    local TextLabel = Instance.new("TextLabel", ImageButton)
+    TextLabel.Name = "@Text"
+    TextLabel.Size = __UD2(0.8, 0, 0.8, 0)
+    TextLabel.Position = __UD2(0.5, 0, 0.5, 0)
+    TextLabel.AnchorPoint = __V2(0.5, 0.5)
+    TextLabel.BackgroundTransparency = 1
+    TextLabel.Font = Enum.Font.Jura
+    TextLabel.Text = text
+    TextLabel.TextColor3 = __PCLR(1, 1, 1)
+    TextLabel.TextSize = 10
+    TextLabel.TextWrapped = true
+    TextLabel.ZIndex = 3
+
+    local Aspect = Instance.new("UIAspectRatioConstraint", ImageButton)
+    Aspect.AspectRatio = 1
+    Aspect.AspectType = Enum.AspectType.ScaleWithParentSize
+
+    local Stroke = Instance.new("UIGradient", ImageButton)
+    Stroke.Name = "@Stroke"
+    if isGold then
+        Stroke.Color = __GOLD_NORMAL_COLOR
+    else
+        Stroke.Color = __NORMAL_COLOR
+    end
+
+    local ripple = Instance.new("Frame")
+    ripple.Name = "@ripple"
+    ripple.BackgroundColor3 = isGold and __RGB(255, 215, 0) or __RGB(0, 155, 255)
+    ripple.BackgroundTransparency = 0.5
+    ripple.Size = __UD2(0, 0, 0, 0)
+    ripple.AnchorPoint = __V2(0.5, 0.5)
+    ripple.Visible = false
+    ripple.ZIndex = 2
+    ripple.Parent = ImageButton
+    Instance.new("UICorner", ripple).CornerRadius = __UD(1, 0)
+
+    local sound = Instance.new("Sound")
+    sound.SoundId = "rbxassetid://3868133279"
+    sound.Volume = muteButtonSounds and 0 or 0.5
+    sound.Parent = ImageButton
+
+    Bind_MakeDraggable(ImageButton, buttonMaid, ripple, sound, clickFunc)
+    buttonMaid:GiveTask(__RS.RenderStepped:Connect(function()
+        Stroke.Rotation = (Stroke.Rotation + 1) % 360
+    end))
+
+    BindableButtons.Buttons[id] = ImageButton
+    BindableButtons.Maids[id] = buttonMaid
+    BindableButtons.Count = BindableButtons.Count + 1
+    return ImageButton
+end
+
+function BindableButtons.DeleteBButton(id)
+    if BindableButtons.Maids[id] then
+        BindableButtons.Maids[id]:Destroy()
+        BindableButtons.Maids[id] = nil
+        BindableButtons.Buttons[id] = nil
+    end
+end
+
+function BindableButtons.UpdateBButtonText(id, text, isWaiting, isGold)
+    local btn = BindableButtons.Buttons[id]
+    if not btn then return end
+    
+    local textLabel = btn:FindFirstChild("@Text")
+    if textLabel then
+        textLabel.Text = text
+    end
+    
+    local stroke = btn:FindFirstChild("@Stroke")
+    if stroke then
+        if isGold then
+            stroke.Color = isWaiting and __GOLD_WAIT_COLOR or __GOLD_NORMAL_COLOR
+        else
+            stroke.Color = isWaiting and __WAIT_COLOR or __NORMAL_COLOR
+        end
+    end
+end
+
+local function GetSafeGuiRoot()
+    local success, result = pcall(function() 
+        return gethui() 
+    end)
+    if success and result and typeof(result) == "Instance" then
+        return result
+    end
+    return Services.CoreGui
+end
+
+local hiddenGui = Instance.new("ScreenGui")
+hiddenGui.Name = "VV2_BombJump_HiddenGui"
+hiddenGui.ResetOnSpawn = false
+hiddenGui.IgnoreGuiInset = true
+hiddenGui.Parent = GetSafeGuiRoot()
+RootMaid:GiveTask(hiddenGui)
+
+-- One section within Visuals V2; all controls and saved settings are VV2 owned.
+local section=mainTab:AddSection("Bomb Jump+","Utilities")
+local vv2Controls={}
+local function settingKey(label)
+    return "vv2BombJump_"..label:gsub("[^%w]","")
+end
+local function controlLabel(label)
+    if label:sub(1,4)=="VV2 " then return label end
+    return "VV2 "..label
+end
+local proxy={}
+function proxy:AddLabel(label)
+    return section:AddLabel(controlLabel(label))
+end
+function proxy:AddParagraph(title,text)
+    return section:AddParagraph(controlLabel(title),text)
+end
+function proxy:AddToggle(label,callback)
+    local key=settingKey(label)
+    local controller=addToggle(section,controlLabel(label),C(key,false),function(value)
+        SetCfg(key,value)
+        callback(value)
+    end)
+    vv2Controls[#vv2Controls+1]=controller
+    return controller
+end
+function proxy:AddSlider(label,min,max,default,callback)
+    local key=settingKey(label)
+    local saved=math.clamp(tonumber(C(key,default)) or default,min,max)
+    section:AddSlider(controlLabel(label),min,max,saved,function(value)
+        SetCfg(key,value)
+        callback(value)
+    end)
+    callback(saved)
+end
+function proxy:AddButton(label,callback)
+    return section:AddButton(controlLabel(label),function()
+        if alive and runtimeAlive then callback() end
+    end)
+end
+local choosingBinding=nil
+local function keyFromName(value)
+    local name=tostring(value or ""):match("^%s*(.-)%s*$"):gsub("^Enum%.KeyCode%.","")
+    if #name==1 then name=name:upper() end
+    local ok,key=pcall(function() return Enum.KeyCode[name] end)
+    if ok and key and key~=Enum.KeyCode.Unknown then return key end
+    local enumOK,items=pcall(function() return Enum.KeyCode:GetEnumItems() end)
+    if enumOK then
+        for _,item in ipairs(items) do
+            if item.Name:lower()==name:lower() and item~=Enum.KeyCode.Unknown then return item end
+        end
+    end
+end
+function proxy:AddKeybind(label,defaultKey,callback)
+    local enabled=false
+    local configKey=settingKey(label)
+    local key=keyFromName(C(configKey,defaultKey)) or keyFromName(defaultKey)
+    if key then SetCfg(configKey,key.Name) end
+    local binding={}
+    proxy:AddToggle("Enable "..label,function(value) enabled=value end)
+    local function saveKey(selected)
+        key=selected
+        SetCfg(configKey,key.Name)
+        shared.Notify(controlLabel(label).." saved: "..key.Name,2)
+    end
+    local button=section:AddButton(controlLabel(label),function()
+        if not alive or not runtimeAlive then return end
+        choosingBinding=binding
+        shared.Notify("Press a key for "..controlLabel(label).." (current: "..key.Name.."). Escape cancels.",3)
+    end)
+    -- Text entry also works on touch devices without a physical keyboard.
+    section:AddTextBox(controlLabel(label.." Name"),function(value)
+        if not alive or not runtimeAlive then return end
+        local selected=keyFromName(value)
+        if selected then
+            choosingBinding=nil
+            saveKey(selected)
+        else shared.Notify("Enter a valid key name, such as E, G or Space.",3) end
+    end)
+    RootMaid:GiveTask(Services.UserInputService.InputBegan:Connect(function(input,processed)
+        if not alive or not runtimeAlive or input.UserInputType~=Enum.UserInputType.Keyboard then return end
+        if choosingBinding==binding then
+            if input.KeyCode==Enum.KeyCode.Unknown then return end
+            choosingBinding=nil
+            if input.KeyCode==Enum.KeyCode.Escape then
+                shared.Notify(controlLabel(label).." selection cancelled",2)
+            else saveKey(input.KeyCode) end
+            return
+        end
+        if not choosingBinding and enabled and not processed
+            and not Services.UserInputService:GetFocusedTextBox() and input.KeyCode==key then callback() end
+    end))
+    return button
+end
+local BombJump={AddSection=function(_,title)
+    if title=="Gold Bomb Jump+" then proxy:AddLabel("Gold Bomb Jump Options") end
+    return proxy
+end}
+
+local _game = game.GameId==10413186812 and "Murder Mystery Modded"
+    or game.GameId==66654135 and "Murder Mystery 2" or shared.game_name
+
+if _game == "Murder Mystery 2" or _game == "Murder Mystery Modded" then
+
+local aboutSection = BombJump:AddSection("About", "Information")
+
+aboutSection:AddParagraph("Bomb Jump+", "Plugin Made by @lzzzx")
+
+aboutSection:AddToggle("Mute Button SFX", function(bool)
+    muteButtonSounds = bool
+    UpdateAllButtonSounds()
+end)
+
+
+-- Loaded with Visuals V2; its final notification covers this section.
+
+local section = BombJump:AddSection("Bomb Jump+", "MM2/MMV")
+
+local CONFIG = {
+    CooldownTime = 22.0,
+    LaunchPower = 58,
+    MinSize = 50,
+    MaxSize = 300,
+    DefaultSize = 90
+}
+
+local bombJumpEnabled = false
+local onCooldown = false
+local debounce = false
+local autoGetBomb = false
+local justRespawned = false
+local bigButtonSize = CONFIG.DefaultSize
+local bindButtonSize = 0.11
+local bjBindButton = nil
+local bigBtnExists = false
+local bindBtnExists = false
+
+local BOMB_NAMES = {"FakeBomb"}
+
+local BombJumpMaid = Maid.new()
+RootMaid:GiveTask(BombJumpMaid)
+
+local Sounds = {
+    Click = Instance.new("Sound"),
+    Cooldown = Instance.new("Sound")
+}
+Sounds.Click.SoundId = "rbxassetid://6895079853"
+Sounds.Click.Volume = 1.0
+
+Sounds.Cooldown.SoundId = "rbxassetid://138090596"
+Sounds.Cooldown.Volume = 1.0
+RootMaid:GiveTasks(Sounds.Click,Sounds.Cooldown)
+
+local function PlaySound(snd)
+    pcall(function()
+        if snd then
+            Services.SoundService:PlayLocalSound(snd)
+        end
+    end)
+end
+
+local function IsPlayerInAir()
+    local character = LocalPlayer.Character
+    if not character then return false end
+    
+    local humanoid = character:FindFirstChild("Humanoid")
+    if not humanoid then return false end
+    
+    local rootPart = character:FindFirstChild("HumanoidRootPart")
+    if not rootPart then return false end
+    
+    local state = humanoid:GetState()
+    if state == Enum.HumanoidStateType.Jumping or 
+       state == Enum.HumanoidStateType.FallingDown or
+       state == Enum.HumanoidStateType.Freefall then
+        return true
+    end
+    
+    local velocityY = rootPart.Velocity.Y
+    return math.abs(velocityY) > 0.5
+end
+
+local function ResetCooldown()
+    onCooldown = false
+    local bigBtn = BBSystem.Buttons["VV2_BombJump_Big"]
+    if bigBtn then bigBtn.Text = "Bomb Jump" end
+    if bjBindButton then
+        BindableButtons.UpdateBButtonText("VV2_BombJump_Bind", "BJ", false, false)
+    end
+end
+
+local function StartCooldown()
+    onCooldown = true
+    debounce = false
+    local bigBtn = BBSystem.Buttons["VV2_BombJump_Big"]
+    if bigBtn then bigBtn.Text = "Wait" end
+    if bjBindButton then
+        BindableButtons.UpdateBButtonText("VV2_BombJump_Bind", "Wait", true, false)
+    end
+    
+    vv2Spawn(function()
+        for i = CONFIG.CooldownTime, 1, -1 do
+            if not onCooldown then break end
+            local bigBtn = BBSystem.Buttons["VV2_BombJump_Big"]
+            if bigBtn then bigBtn.Text = tostring(i) end
+            if bjBindButton then
+                BindableButtons.UpdateBButtonText("VV2_BombJump_Bind", tostring(i), true, false)
+            end
+            task.wait(1)
+        end
+        if onCooldown then ResetCooldown() end
+    end)
+end
+
+local function GetCenterPosition()
+    local character = LocalPlayer.Character
+    if character and character:FindFirstChild("HumanoidRootPart") then
+        local camera = Services.Workspace.CurrentCamera
+        local lookDir = camera.CFrame.LookVector
+        return character.HumanoidRootPart.Position + (lookDir * 5)
+    end
+    return nil
+end
+
+local function MakeCharacterJump()
+    local character = LocalPlayer.Character
+    if character then
+        local humanoid = character:FindFirstChild("Humanoid")
+        if humanoid then
+            humanoid:ChangeState(Enum.HumanoidStateType.Jumping)
+        end
+    end
+end
+
+local function UnequipBomb()
+    vv2Spawn(function()
+        local expectedCharacter=LocalPlayer.Character
+        task.wait(0.5)
+        if not alive or not runtimeAlive or LocalPlayer.Character~=expectedCharacter then return end
+        local character = LocalPlayer.Character
+        if character then
+            for _, bombName in ipairs(BOMB_NAMES) do
+                local bomb = character:FindFirstChild(bombName)
+                if bomb then
+                    bomb.Parent = LocalPlayer.Backpack or character
+                    break
+                end
+            end
+        end
+    end)
+end
+
+local function GetAnyBomb()
+    local character = LocalPlayer.Character
+    if not character then return false, nil end
+    
+    for _, bombName in ipairs(BOMB_NAMES) do
+        local bomb = character:FindFirstChild(bombName)
+        if bomb then return true, bomb end
+    end
+    
+    local backpack = LocalPlayer:FindFirstChild("Backpack")
+    if backpack then
+        for _, bombName in ipairs(BOMB_NAMES) do
+            local bomb = backpack:FindFirstChild(bombName)
+            if bomb then
+                bomb.Parent = character
+                return true, bomb
+            end
+        end
+    end
+    
+    pcall(function()
+        Services.ReplicatedStorage.Remotes.Extras.ReplicateToy:InvokeServer("FakeBomb")
+    end)
+    
+    for _ = 1, 5 do
+        for _, bombName in ipairs(BOMB_NAMES) do
+            local bomb = character:FindFirstChild(bombName)
+            if bomb then return true, bomb end
+            if backpack then
+                bomb = backpack:FindFirstChild(bombName)
+                if bomb then
+                    bomb.Parent = character
+                    return true, bomb
+                end
+            end
+        end
+        task.wait(0.05)
+    end
+    
+    return false, nil
+end
+
+local function FastBombJump()
+    if not alive or not runtimeAlive then return end
+    local actionCharacter=LocalPlayer.Character
+    if not IsPlayerInAir() then return end
+    if onCooldown or debounce or justRespawned then return end
+    debounce = true
+    
+    local success, bomb = GetAnyBomb()
+    if not alive or not runtimeAlive or LocalPlayer.Character~=actionCharacter then return end
+    if success and bomb then
+        local position = GetCenterPosition()
+        if position then
+            local remote = bomb:FindFirstChild("Remote")
+            if remote then
+                PlaySound(Sounds.Click)
+                pcall(function()
+                    remote:FireServer(CFrame.new(position), 50)
+                end)
+            end
+            
+            local char = LocalPlayer.Character
+            local root = char and char:FindFirstChild("HumanoidRootPart")
+            if root then
+                local currentVelocity = root.AssemblyLinearVelocity
+                root.AssemblyLinearVelocity = Vector3.new(currentVelocity.X, CONFIG.LaunchPower, currentVelocity.Z)
+            end
+            
+            MakeCharacterJump()
+            UnequipBomb()
+            
+            vv2Spawn(function()
+                task.wait(0.1)
+                StartCooldown()
+            end)
+        end
+    end
+    
+    vv2Spawn(function()
+        task.wait(0.5)
+        debounce = false
+    end)
+end
+
+local function IsHoldingBomb()
+    local character = LocalPlayer.Character
+    if not character then return false end
+    
+    for _, bombName in ipairs(BOMB_NAMES) do
+        if character:FindFirstChild(bombName) then
+            return true
+        end
+    end
+    return false
+end
+
+local activeTouches = {}
+local TAP_MOVEMENT_THRESHOLD = 10
+local TAP_TIME_THRESHOLD = 0.3
+
+BombJumpMaid:GiveTasks(
+    Services.UserInputService.InputBegan:Connect(function(input, gp)
+        if gp then return end
+        if input.UserInputType == Enum.UserInputType.Touch or input.UserInputType == Enum.UserInputType.MouseButton1 then
+            activeTouches[input] = {startPosition = input.Position, startTime = tick(), moved = false}
+        end
+    end),
+    Services.UserInputService.InputChanged:Connect(function(input)
+        local data = activeTouches[input]
+        if data and (input.Position - data.startPosition).Magnitude > TAP_MOVEMENT_THRESHOLD then
+            data.moved = true
+        end
+    end),
+    Services.UserInputService.InputEnded:Connect(function(input, gp)
+        if gp then activeTouches[input] = nil return end
+        local data = activeTouches[input]
+        if data and not data.moved and tick() - data.startTime <= TAP_TIME_THRESHOLD then
+            if bombJumpEnabled and not onCooldown and not debounce then
+                if IsHoldingBomb() and IsPlayerInAir() then
+                    FastBombJump()
+                end
+            end
+        end
+        activeTouches[input] = nil
+    end),
+    LocalPlayer.CharacterAdded:Connect(function()
+        ResetCooldown()
+        activeTouches = {}
+        justRespawned = true
+        local expectedCharacter=LocalPlayer.Character
+        task.wait(1)
+        if not alive or not runtimeAlive or LocalPlayer.Character~=expectedCharacter then return end
+        justRespawned = false
+        if autoGetBomb then
+            task.wait(0.2)
+            pcall(function() Services.ReplicatedStorage.Remotes.Extras.ReplicateToy:InvokeServer("FakeBomb") end)
+        end
+    end)
+)
+
+section:AddLabel("Bomb Jump Options")
+section:AddToggle("Enable Auto Bomb Jump", function(bool) bombJumpEnabled = bool end)
+
+section:AddToggle("Auto-Get Fake Bomb", function(bool)
+    autoGetBomb = bool
+    if bool then
+        pcall(function() Services.ReplicatedStorage.Remotes.Extras.ReplicateToy:InvokeServer("FakeBomb") end)
+    end
+end)
+
+section:AddToggle("Enable BJ Big Button", function(e)
+    bigBtnExists = e
+    if e then
+        AddBigButton("VV2_BombJump_Big", "Bomb Jump", FastBombJump, false)
+        local btn = BBSystem.Buttons["VV2_BombJump_Big"]
+        if btn then
+            btn.Size = __UD2(0, bigButtonSize, 0, bigButtonSize * 0.375)
+        end
+    else
+        DeleteBigButton("VV2_BombJump_Big")
+    end
+end)
+
+section:AddSlider("BJ Big Button Size", 50, 300, CONFIG.DefaultSize, function(value)
+    bigButtonSize = value
+    local btn = BBSystem.Buttons["VV2_BombJump_Big"]
+    if btn then
+        btn.Size = __UD2(0, bigButtonSize, 0, bigButtonSize * 0.375)
+    end
+end)
+
+section:AddButton("Reset BJ Big Button Position", function()
+    savedPositions["VV2_BombJump_Big"] = nil
+    savePositions(savedPositions)
+    local btn = BBSystem.Buttons["VV2_BombJump_Big"]
+    if btn then
+        btn.Position = __UD2(0.5, 0, 0.5, 0)
+    end
+    shared.Notify("BJ Big button position reset", 2)
+end)
+
+section:AddToggle("Enable BJ Bind Button", function(e)
+    bindBtnExists = e
+    if e then
+        BindableButtons.AddBButton("VV2_BombJump_Bind", "BJ", FastBombJump, false)
+        bjBindButton = BindableButtons.Buttons["VV2_BombJump_Bind"]
+        if bjBindButton then
+            local screen = Services.Workspace.CurrentCamera.ViewportSize
+            bjBindButton.Size = __UD2(bindButtonSize * (screen.Y / screen.X), 0, bindButtonSize, 0)
+            BindableButtons.UpdateBButtonText("VV2_BombJump_Bind", onCooldown and "Wait" or "BJ", onCooldown, false)
+        end
+    else
+        BindableButtons.DeleteBButton("VV2_BombJump_Bind")
+        bjBindButton = nil
+    end
+end)
+
+section:AddSlider("BJ Bind Button Size", 5, 25, 11, function(value)
+    bindButtonSize = value / 100
+    if bjBindButton then
+        local screen = Services.Workspace.CurrentCamera.ViewportSize
+        bjBindButton.Size = __UD2(bindButtonSize * (screen.Y / screen.X), 0, bindButtonSize, 0)
+    end
+end)
+
+section:AddButton("Reset BJ Bind Button Position", function()
+    savedPositions["VV2_BombJump_Bind"] = nil
+    savePositions(savedPositions)
+    local btn = BindableButtons.Buttons["VV2_BombJump_Bind"]
+    if btn then
+        local camera = Services.Workspace.CurrentCamera
+        local screen = camera.ViewportSize
+        local buttonSizeY = bindButtonSize
+        local widthScale = buttonSizeY * (screen.Y / screen.X)
+        btn.Position = __UD2(0.1, 0, 0.9, 0)
+    end
+    shared.Notify("BJ Bind button position reset", 2)
+end)
+
+section:AddKeybind("Bomb Jump Keybind", "E", FastBombJump)
+vv2Features.Jump=FastBombJump
+
+if _game == "Murder Mystery Modded" then
+
+local gbjSection = BombJump:AddSection("Gold Bomb Jump+", "MMV")
+
+local gbjOnCooldown = false
+local goldBombJumpEnabled = false
+local gbjDebounce = false
+local autoGetGoldBomb = false
+local gbjJustRespawned = false
+local gbjBigButtonSize = 200
+local gbjBindButtonSize = 0.11
+local gbjBindButton = nil
+
+local GOLD_BOMB_NAME = "GoldBomb"
+
+local GoldBombJumpMaid = Maid.new()
+RootMaid:GiveTask(GoldBombJumpMaid)
+
+local function GBJResetCooldown()
+    gbjOnCooldown = false
+    local bigBtn = BBSystem.Buttons["VV2_GoldBombJump_Big"]
+    if bigBtn then bigBtn.Text = "Gold Bomb Jump" end
+    if gbjBindButton then
+        BindableButtons.UpdateBButtonText("VV2_GoldBombJump_Bind", "GBJ", false, true)
+    end
+end
+
+local function GBJStartCooldown()
+    gbjOnCooldown = true
+    gbjDebounce = false
+    local bigBtn = BBSystem.Buttons["VV2_GoldBombJump_Big"]
+    if bigBtn then bigBtn.Text = "Wait" end
+    if gbjBindButton then
+        BindableButtons.UpdateBButtonText("VV2_GoldBombJump_Bind", "Wait", true, true)
+    end
+    
+    vv2Spawn(function()
+        for i = 4, 1, -1 do
+            if not gbjOnCooldown then break end
+            local bigBtn = BBSystem.Buttons["VV2_GoldBombJump_Big"]
+            if bigBtn then bigBtn.Text = tostring(i) end
+            if gbjBindButton then
+                BindableButtons.UpdateBButtonText("VV2_GoldBombJump_Bind", tostring(i), true, true)
+            end
+            task.wait(1)
+        end
+        if gbjOnCooldown then GBJResetCooldown() end
+    end)
+end
+
+local function GBJGetCenterPosition()
+    local character = LocalPlayer.Character
+    if character and character:FindFirstChild("HumanoidRootPart") then
+        local camera = Services.Workspace.CurrentCamera
+        local lookDir = camera.CFrame.LookVector
+        return character.HumanoidRootPart.Position + (lookDir * 5)
+    end
+    return nil
+end
+
+local function GBJMakeCharacterJump()
+    local character = LocalPlayer.Character
+    if character then
+        local humanoid = character:FindFirstChild("Humanoid")
+        if humanoid then
+            humanoid:ChangeState(Enum.HumanoidStateType.Jumping)
+        end
+    end
+end
+
+local function UnequipGoldBomb()
+    vv2Spawn(function()
+        local expectedCharacter=LocalPlayer.Character
+        task.wait(0.5)
+        if not alive or not runtimeAlive or LocalPlayer.Character~=expectedCharacter then return end
+        local character = LocalPlayer.Character
+        if character then
+            local bomb = character:FindFirstChild(GOLD_BOMB_NAME)
+            if bomb then
+                bomb.Parent = LocalPlayer.Backpack or character
+            end
+        end
+    end)
+end
+
+local function GetAnyGoldBomb()
+    local character = LocalPlayer.Character
+    if not character then return false, nil end
+
+    local bomb = character:FindFirstChild(GOLD_BOMB_NAME)
+    if bomb then return true, bomb end
+
+    local backpack = LocalPlayer:FindFirstChild("Backpack")
+    if backpack then
+        bomb = backpack:FindFirstChild(GOLD_BOMB_NAME)
+        if bomb then
+            bomb.Parent = character
+            return true, bomb
+        end
+    end
+
+    local success = pcall(function()
+        Services.ReplicatedStorage.Remotes.Extras.ReplicateToy:InvokeServer("GoldBomb")
+    end)
+
+    if success then
+        for _ = 1, 5 do
+            bomb = character:FindFirstChild(GOLD_BOMB_NAME)
+            if bomb then return true, bomb end
+
+            if backpack then
+                bomb = backpack:FindFirstChild(GOLD_BOMB_NAME)
+                if bomb then
+                    bomb.Parent = character
+                    return true, bomb
+                end
+            end
+            task.wait(0.05)
+        end
+    end
+
+    return false, nil
+end
+
+local function FastGoldBombJump()
+    if not alive or not runtimeAlive then return end
+    local actionCharacter=LocalPlayer.Character
+    if not IsPlayerInAir() then return end
+    if gbjOnCooldown or gbjDebounce or gbjJustRespawned then return end
+    gbjDebounce = true
+
+    local success, bomb = GetAnyGoldBomb()
+    if not alive or not runtimeAlive or LocalPlayer.Character~=actionCharacter then return end
+    if success and bomb then
+        local position = GBJGetCenterPosition()
+        if position then
+            local remote = bomb:FindFirstChild("Remote")
+            if remote then
+                PlaySound(Sounds.Click)
+                pcall(function()
+                    remote:FireServer(CFrame.new(position), 50)
+                end)
+            end
+
+            local char = LocalPlayer.Character
+            local root = char and char:FindFirstChild("HumanoidRootPart")
+            if root then
+                local currentVelocity = root.AssemblyLinearVelocity
+                root.AssemblyLinearVelocity = Vector3.new(currentVelocity.X, CONFIG.LaunchPower, currentVelocity.Z)
+            end
+
+            GBJMakeCharacterJump()
+            UnequipGoldBomb()
+
+            vv2Spawn(function()
+                task.wait(0.1)
+                GBJStartCooldown()
+            end)
+        end
+    end
+
+    vv2Spawn(function()
+        task.wait(0.5)
+        gbjDebounce = false
+    end)
+end
+
+local function IsHoldingGoldBomb()
+    local character = LocalPlayer.Character
+    if not character then return false end
+    return character:FindFirstChild(GOLD_BOMB_NAME) ~= nil
+end
+
+local gbjActiveTouches = {}
+
+GoldBombJumpMaid:GiveTasks(
+    Services.UserInputService.InputBegan:Connect(function(input, gp)
+        if gp then return end
+        if input.UserInputType == Enum.UserInputType.Touch or input.UserInputType == Enum.UserInputType.MouseButton1 then
+            gbjActiveTouches[input] = {startPosition = input.Position, startTime = tick(), moved = false}
+        end
+    end),
+    Services.UserInputService.InputChanged:Connect(function(input)
+        local data = gbjActiveTouches[input]
+        if data and (input.Position - data.startPosition).Magnitude > TAP_MOVEMENT_THRESHOLD then
+            data.moved = true
+        end
+    end),
+    Services.UserInputService.InputEnded:Connect(function(input, gp)
+        if gp then gbjActiveTouches[input] = nil return end
+        local data = gbjActiveTouches[input]
+        if data and not data.moved and tick() - data.startTime <= TAP_TIME_THRESHOLD then
+            if goldBombJumpEnabled and not gbjOnCooldown and not gbjDebounce then
+                if IsHoldingGoldBomb() and IsPlayerInAir() then
+                    FastGoldBombJump()
+                end
+            end
+        end
+        gbjActiveTouches[input] = nil
+    end),
+    LocalPlayer.CharacterAdded:Connect(function()
+        GBJResetCooldown()
+        gbjActiveTouches = {}
+        gbjJustRespawned = true
+        local expectedCharacter=LocalPlayer.Character
+        task.wait(1)
+        if not alive or not runtimeAlive or LocalPlayer.Character~=expectedCharacter then return end
+        gbjJustRespawned = false
+        if autoGetGoldBomb then
+            task.wait(0.2)
+            pcall(function() Services.ReplicatedStorage.Remotes.Extras.ReplicateToy:InvokeServer("GoldBomb") end)
+        end
+    end)
+)
+
+gbjSection:AddLabel("Gold Bomb Jump Options")
+gbjSection:AddToggle("Enable Auto Gold Bomb Jump", function(bool) goldBombJumpEnabled = bool end)
+
+gbjSection:AddToggle("Auto-Get Gold Bomb", function(bool)
+    autoGetGoldBomb = bool
+    if bool then
+        pcall(function() Services.ReplicatedStorage.Remotes.Extras.ReplicateToy:InvokeServer("GoldBomb") end)
+    end
+end)
+
+gbjSection:AddToggle("Enable GBJ Big Button", function(e)
+    if e then
+        AddBigButton("VV2_GoldBombJump_Big", "Gold Bomb Jump", FastGoldBombJump, true)
+        local btn = BBSystem.Buttons["VV2_GoldBombJump_Big"]
+        if btn then
+            btn.Size = __UD2(0, gbjBigButtonSize, 0, gbjBigButtonSize * 0.375)
+        end
+    else
+        DeleteBigButton("VV2_GoldBombJump_Big")
+    end
+end)
+
+gbjSection:AddSlider("GBJ Big Button Size", 50, 300, 200, function(value)
+    gbjBigButtonSize = value
+    local btn = BBSystem.Buttons["VV2_GoldBombJump_Big"]
+    if btn then
+        btn.Size = __UD2(0, gbjBigButtonSize, 0, gbjBigButtonSize * 0.375)
+    end
+end)
+
+gbjSection:AddButton("Reset GBJ Big Button Position", function()
+    savedPositions["VV2_GoldBombJump_Big"] = nil
+    savePositions(savedPositions)
+    local btn = BBSystem.Buttons["VV2_GoldBombJump_Big"]
+    if btn then
+        btn.Position = __UD2(0.5, 0, 0.5, 0)
+    end
+    shared.Notify("GBJ Big button position reset", 2)
+end)
+
+gbjSection:AddToggle("Enable GBJ Bind Button", function(e)
+    if e then
+        BindableButtons.AddBButton("VV2_GoldBombJump_Bind", "GBJ", FastGoldBombJump, true)
+        gbjBindButton = BindableButtons.Buttons["VV2_GoldBombJump_Bind"]
+        if gbjBindButton then
+            local screen = Services.Workspace.CurrentCamera.ViewportSize
+            gbjBindButton.Size = __UD2(gbjBindButtonSize * (screen.Y / screen.X), 0, gbjBindButtonSize, 0)
+            BindableButtons.UpdateBButtonText("VV2_GoldBombJump_Bind", gbjOnCooldown and "Wait" or "GBJ", gbjOnCooldown, true)
+        end
+    else
+        BindableButtons.DeleteBButton("VV2_GoldBombJump_Bind")
+        gbjBindButton = nil
+    end
+end)
+
+gbjSection:AddSlider("GBJ Bind Button Size", 5, 25, 11, function(value)
+    gbjBindButtonSize = value / 100
+    if gbjBindButton then
+        local screen = Services.Workspace.CurrentCamera.ViewportSize
+        gbjBindButton.Size = __UD2(gbjBindButtonSize * (screen.Y / screen.X), 0, gbjBindButtonSize, 0)
+    end
+end)
+
+gbjSection:AddButton("Reset GBJ Bind Button Position", function()
+    savedPositions["VV2_GoldBombJump_Bind"] = nil
+    savePositions(savedPositions)
+    local btn = BindableButtons.Buttons["VV2_GoldBombJump_Bind"]
+    if btn then
+        btn.Position = __UD2(0.1, 0, 0.9, 0)
+    end
+    shared.Notify("GBJ Bind button position reset", 2)
+end)
+
+gbjSection:AddKeybind("Gold Bomb Jump Keybind", "G", FastGoldBombJump)
+vv2Features.GoldJump=FastGoldBombJump
+
+end
+
+end
+
+
+-- Position reset stays in the Bomb Jump+ menu, separate from the SG reset.
+section:AddButton("VV2 Reset Bomb Jump Button Positions",function()
+    if not alive or not runtimeAlive then return end
+    for _,id in ipairs({"VV2_BombJump_Big","VV2_GoldBombJump_Big"}) do
+        savedPositions[id]=nil
+        local button=BBSystem.Buttons[id]
+        if button then button.Position=__UD2(0.5,0,0.5,0) end
+    end
+    for _,id in ipairs({"VV2_BombJump_Bind","VV2_GoldBombJump_Bind"}) do
+        savedPositions[id]=nil
+        local button=BindableButtons.Buttons[id]
+        if button then button.Position=__UD2(0.1,0,0.9,0) end
+    end
+    savePositions(savedPositions)
+    shared.Notify("VV2 Bomb Jump button positions reset",2)
+end)
+
+vv2Features.Close=function()
+    if not alive then return end
+    alive=false
+    for record in pairs(pending) do
+        if record.thread and type(task.cancel)=="function" then pcall(task.cancel,record.thread) end
+        pending[record]=nil
+    end
+    for _,controller in ipairs(vv2Controls) do controller:Set(false) end
+    for id in pairs(BBSystem.Buttons) do DeleteBigButton(id) end
+    for id in pairs(BindableButtons.Buttons) do BindableButtons.DeleteBButton(id) end
+    RootMaid:Destroy()
+end
+env.VisualsV2Runtime.VV2BombJump=vv2Features
+env.VisualsV2Runtime.RegisterReset(vv2Features.Close)
+end)()
+
+
+-- =========================================================
 -- FIREFLY CLUTCH
 -- Core behavior rebuilt directly from the attached FFC addon.
 -- =========================================================
@@ -8794,7 +10095,7 @@ local function buildTimer()
     timerLabel.BorderSizePixel=0
     timerLabel.TextColor3=Color3.new(0,0,0)
     timerLabel.TextStrokeTransparency=1
-    timerLabel.Font=Enum.Font.GothamBold
+    timerLabel.Font=Enum.Font.SourceSansLight
     timerLabel.Text="Ready"
     timerLabel.Visible=timerEnabled
     timerLabel.Active=true
@@ -9681,25 +10982,30 @@ local function orderSelectedTools(char,backpack,token)
     end
     if matches then return true end
 
-    -- Backpack UI assigns slots on ChildAdded. Reinsert in the selected order,
-    -- without unequipping a tool or requesting an already-owned toy again.
+    -- Backpack UI assigns slots on ChildAdded. Keep the tools under the
+    -- Backpack throughout the reorder so their native LocalScripts stay live.
+    -- SprayClient moves its SprayGui out of the script during initialization;
+    -- restarting it after a parent=nil gap leaves it waiting for that GUI.
     orderingBackpack=true
+    local staging=Instance.new("Folder")
+    staging.Name="VisualsV2_ToolOrder"
+    staging.Parent=backpack
     local detached={}
     local success=true
     for _,tool in ipairs(ordered) do
         if tool.Parent==backpack then
-            local ok=pcall(function() tool.Parent=nil end)
+            local ok=pcall(function() tool.Parent=staging end)
             if ok then detached[tool]=true else success=false end
         else success=false end
     end
-    -- Deferred ChildRemoved handlers must see the tools outside the Backpack
-    -- before ChildAdded assigns the new slots. Always restore even if cancelled.
+    -- Let deferred hotbar handlers remove the old slots while the native tool
+    -- scripts remain Backpack descendants. Restore even if cancelled.
     task.wait()
     local valid=alive and runtimeAlive and autoGetTools and token==recoveryToken
         and player.Character==char and backpack.Parent==player
     for slot=1,4 do if choices[slot]~=selectedToys[slot] then valid=false end end
     for _,tool in ipairs(valid and ordered or current) do
-        if detached[tool] and tool.Parent==nil then
+        if detached[tool] and tool.Parent==staging then
             if not pcall(function() tool.Parent=backpack end) then success=false end
         elseif tool.Parent~=backpack then success=false end
     end
@@ -9710,6 +11016,9 @@ local function orderSelectedTools(char,backpack,token)
             if tool:IsA("Tool") and not expected[tool] then success=false; break end
         end
     end
+    -- Never destroy a tool if another native operation moved it during the
+    -- yield, or a failed restore left it in the temporary folder.
+    if #staging:GetChildren()==0 then staging:Destroy() end
     orderingBackpack=false
     return success and valid
 end
@@ -10397,7 +11706,8 @@ local conns={}; local frameConn=nil
 local state={
     smooth=C("perfSmooth",false), shadows=C("perfShadows",false), particles=C("perfParticles",false),
     meshes=C("perfMeshes",false), textures=C("perfTextures",false), accessories=C("perfAccessories",false),
-    gray=C("perfGray",false), frame=C("perfFrame",false)
+    gray=C("perfGray",false), frame=C("perfFrame",false),
+    weaponDisplays=C("perfWeaponDisplays",false)
 }
 local originalShadows=Lighting.GlobalShadows
 local function isPlayer(o) for _,p in ipairs(P:GetPlayers()) do if p.Character and o:IsDescendantOf(p.Character) then return true end end return false end
@@ -10471,9 +11781,27 @@ add("meshes","VV2 Hide Meshes (world only)",setMeshes)
 add("textures","VV2 Remove Textures/Decals",setTextures)
 add("accessories","VV2 Remove Accessories",setAccessories)
 add("gray","VV2 Gray Skybox",setGray)
-section:AddButton("VV2 Remove Weapon Displays",function() local wd=workspace:FindFirstChild("WeaponDisplays"); if wd then wd:Destroy() end end)
+local function removeWeaponDisplays()
+    for _,object in ipairs(workspace:GetChildren()) do
+        if object.Name=="WeaponDisplays" then object:Destroy() end
+    end
+end
+local function setWeaponDisplays(on)
+    if conns.weaponDisplays then conns.weaponDisplays:Disconnect();conns.weaponDisplays=nil end
+    if not on then return end
+    removeWeaponDisplays()
+    conns.weaponDisplays=workspace.ChildAdded:Connect(function(object)
+        if object.Name=="WeaponDisplays" then
+            task.defer(function()
+                if runtimeAlive and state.weaponDisplays and object.Parent==workspace then object:Destroy() end
+            end)
+        end
+    end)
+end
+section:AddButton("VV2 Remove Weapon Displays",removeWeaponDisplays)
+add("weaponDisplays","VV2 Auto Remove Weapon Displays",setWeaponDisplays)
 add("frame","VV2 Enable Frame Enhancement",setFrame)
-env.VisualsV2Runtime.RegisterReset(function() for _,t in ipairs(toggles) do t:Set(false) end; setSmooth(false); setParticles(false); setMeshes(false); setTextures(false); setAccessories(false); setGray(false); setFrame(false) end)
+env.VisualsV2Runtime.RegisterReset(function() for _,t in ipairs(toggles) do t:Set(false) end; setSmooth(false); setParticles(false); setMeshes(false); setTextures(false); setAccessories(false); setGray(false); setFrame(false); setWeaponDisplays(false) end)
 end)()
 
 ;(function()
