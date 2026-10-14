@@ -1,4 +1,5 @@
 -- Visuals V2
+-- 2026-10-13 r20: Match FakeBomb's zero reflectance on SprayPaint/Teddy ForceField, preserving native visibility and tap input.
 -- 2026-10-13 r19: Remove the SprayPaint/TeddyBear visibility fade and its slider.
 -- 2026-10-13: Restore snowball launch range, clear dense paint/teddy texture masks, and expose live build/aim failures.
 -- 2026-10-13: Native SprayPaint ForceField replacement, restored toy appearance overrides, and crosshair world targets for VolleyBall2025.
@@ -239,7 +240,7 @@ if type(previousRuntime) == "table" and type(previousRuntime.Cleanup) == "functi
 end
 
 -- Runtime reset registry.
-env.VisualsV2Runtime = {Resetters = {}, Build = "2026-10-13-r19"}
+env.VisualsV2Runtime = {Resetters = {}, Build = "2026-10-13-r20"}
 env.VisualsV2Runtime.RegisterReset = function(callback)
     if type(callback) == "function" then table.insert(env.VisualsV2Runtime.Resetters, callback) end
 end
@@ -4905,6 +4906,7 @@ local function clearForceField(state)
             end
             if record.materialVariant~=nil then source.MaterialVariant=record.materialVariant end
             if record.textureID~=nil then source.TextureID=record.textureID end
+            if record.reflectance~=nil then source.Reflectance=record.reflectance end
             if record.physicsPinned and source.CustomPhysicalProperties==record.pinnedPhysics then
                 source.CustomPhysicalProperties=record.customPhysics
             end
@@ -5182,6 +5184,7 @@ local function applyForceField(tool,state,color)
                 local variantOK,variant=pcall(function() return source.MaterialVariant end)
                 if variantOK and type(variant)=="string" then record.materialVariant=variant end
                 if bombField then
+                    record.reflectance=source.Reflectance
                     local textureOK,texture=pcall(function() return source.TextureID end)
                     if textureOK and type(texture)=="string" then record.textureID=texture end
                 end
@@ -5190,6 +5193,9 @@ local function applyForceField(tool,state,color)
             if record.textureID~=nil and source.TextureID~=BOMB_FORCEFIELD_TEXTURE then
                 source.TextureID=BOMB_FORCEFIELD_TEXTURE
             end
+            -- The live MMV report shows SprayPaint/Teddy retain 0.35/0.4
+            -- reflectance, while the working FakeBomb ForceField uses zero.
+            if record.reflectance~=nil and source.Reflectance~=0 then source.Reflectance=0 end
             if record.materialVariant~=nil and source.MaterialVariant~="" then source.MaterialVariant="" end
             if source.Material~=Enum.Material.ForceField then source.Material=Enum.Material.ForceField end
             if source.Color~=color then source.Color=color end
