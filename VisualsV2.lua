@@ -5203,7 +5203,32 @@ local kinds={
     Knife={enabled=C("clientKnifeEnabled",false),selected=tostring(C("clientKnifeSkin",NONE)),key="clientKnife"},
 }
 local function notify(message)
-    if alive and runtimeAlive then pcall(function() shared.Notify(message,4) end) end
+    if alive and runtimeAlive then pcall(function() shared.Notify(message,3) end) end
+end
+
+local recentErrors={}
+local errorSeen={}
+local function objectPath(object)
+    if not object then return nil end
+    local ok,path=pcall(function() return object:GetFullName() end)
+    return ok and path or object.Name
+end
+local function recordError(context,reason)
+    reason=tostring(reason)
+    local key=context..":"..reason
+    if errorSeen[key] then return end
+    errorSeen[key]=true
+    recentErrors[#recentErrors+1]={context=context,error=reason,time=os.clock()}
+    if #recentErrors>24 then table.remove(recentErrors,1) end
+    if type(warn)=="function" then warn("[VisualsV2 Weapons] "..context..": "..reason) end
+end
+local function guarded(context,callback,...)
+    local function trace(reason)
+        return type(debug)=="table" and type(debug.traceback)=="function" and debug.traceback(tostring(reason),2) or tostring(reason)
+    end
+    local ok,result=xpcall(callback,trace,...)
+    if not ok then recordError(context,result) end
+    return ok,result
 end
 
 local function compact(value)
@@ -6257,7 +6282,7 @@ end
 for _,row in ipairs(sharedScopes) do
     local entry=register(row[1],row[2],row[3])
     entry.originalModelId=string.format("%.0f",row[3].itemid)
-    entry.game="MMV"
+    entry.games={"MM2","MMV"}
 end
 
 local ORIGINAL_SCOPE_HOLD="134818020160275"
@@ -6332,8 +6357,16 @@ local function resolveModel(path)
     return current
 end
 
+local function wanted(entry)
+    local settings=kinds[entry.kind]
+    return alive and runtimeAlive and settings and settings.enabled and settings.selected==entry.id
+end
+
 local function replicatedModel(entry)
     local storage=game:GetService("ReplicatedStorage")
+    local names={[entry.id]=true,[entry.name]=true}
+    local id=assetId(entry.data.modelid or entry.data.itemid)
+    if id then names[id]=true end
     local function candidate(object)
         if not object or object:GetAttribute(MARKER) or not visualRoot(object) then return nil end
         local ancestor=object
@@ -6343,15 +6376,38 @@ local function replicatedModel(entry)
         end
         return object
     end
-    for _,name in ipairs({"WeaponSkins","Weapons","WeaponModels","ItemModels","Models","Resources"}) do
-        local folder=storage:FindFirstChild(name)
-        if folder then
-            local found=candidate(folder:FindFirstChild(entry.id,true))
-                or candidate(folder:FindFirstChild(entry.name,true))
-            if found then return found end
+    for name in pairs(names) do
+        local object=candidate(storage:FindFirstChild(name,true))
+        if object then return object end
+    end
+    local queue={storage}
+    local index=1
+    local target=compact(entry.id)
+    local inspected=0
+    local batchTime=os.clock()
+    while queue[index] and inspected<12000 do
+        if not wanted(entry) then return nil end
+        local container=queue[index];index=index+1
+        for _,object in ipairs(container:GetChildren()) do
+            inspected=inspected+1
+            if not object:GetAttribute(MARKER) then
+                if object:IsA("Model") or object:IsA("Tool") or object:IsA("BasePart") or object:IsA("Folder") then
+                    local item=object:GetAttribute("ItemID") or object:GetAttribute("WeaponID")
+                    if compact(object.Name)==target or (item and (tostring(item)==entry.id or (id and assetId(item)==id))) then
+                        local found=candidate(object)
+                        if found then return found end
+                    end
+                end
+                queue[#queue+1]=object
+            end
+            if inspected%64==0 or os.clock()-batchTime>=0.003 then
+                task.wait()
+                batchTime=os.clock()
+                if not wanted(entry) then return nil end
+            end
+            if inspected>=12000 then break end
         end
     end
-    return candidate(storage:FindFirstChild(entry.id,true))
 end
 
 
@@ -6359,7 +6415,10 @@ local function buildTemplate(entry)
     local data=entry.data
     local modelData=type(data.model)=="table" and properties(data.model) or data
     local source=resolveModel(data.sourcepath) or replicatedModel(entry)
+    if not wanted(entry) then return nil,{cancelled=true} end
     local loaded={}
+    local attempts={}
+    local sourceName=source and objectPath(source)
     local clone=source and cloneObject(source) or nil
     if not clone then
         local primaryId=assetId(data.modelid) or assetId(data.assetid) or assetId(data.weaponasset)
@@ -6369,10 +6428,12 @@ local function buildTemplate(entry)
         if entry.originalModelId and entry.originalModelId~=primaryId then ids[#ids+1]=entry.originalModelId end
         for _,id in ipairs(ids) do
             local ok,objects=pcall(function() return game:GetObjects("rbxassetid://"..id) end)
+            attempts[#attempts+1]={assetId=id,ok=ok,returned=typeof(objects),
+                count=ok and type(objects)=="table" and #objects or 0,error=not ok and tostring(objects) or nil}
             if ok and type(objects)=="table" then
                 for _,object in ipairs(objects) do
                     loaded[#loaded+1]=object
-                    if not clone and visualRoot(object) then clone=object end
+                    if not clone and visualRoot(object) then clone=object;sourceName="asset:"..id end
                 end
             end
             if clone then break end
@@ -6397,7 +6458,9 @@ local function buildTemplate(entry)
         end
     end
     for _,object in ipairs(loaded) do if object~=clone then pcall(function() object:Destroy() end) end end
-    if not clone then return nil,"The game did not expose a loadable model for "..entry.name end
+    if not clone then
+        return nil,{message="No original model is available for "..entry.name,attempts=attempts,source=sourceName}
+    end
     local root=visualRoot(clone)
     if not root then clone:Destroy(); return nil,"No weapon mesh was found for "..entry.name end
     local texture=assetId(modelData.textureid or modelData.texture or data.textureid or data.texture)
@@ -6440,7 +6503,7 @@ local function buildTemplate(entry)
     if not root:IsDescendantOf(model) then model:Destroy(); return nil,"The weapon Handle is unavailable" end
     model.PrimaryPart=root
     return {model=model,root=root,grip=grip,scopeHold=scopeHold,chroma=data.chroma==true,
-        revision=entry.revision,lastUsed=os.clock()}
+        revision=entry.revision,lastUsed=os.clock(),source=sourceName,attempts=attempts}
 end
 
 local cache={}
@@ -6455,7 +6518,7 @@ local function templateFor(entry)
     if cached and cached.revision==entry.revision then cached.lastUsed=os.clock(); return cached end
     if cached then cached.model:Destroy(); cache[key]=nil end
     local failure=failed[key]
-    if loading[key] or (failure and failure.revision==entry.revision and failure.untilTime>os.clock()) then return nil end
+    if loading[key] or (failure and failure.revision==entry.revision) then return nil end
     if failure and failure.revision~=entry.revision then warned[key]=nil end
     loading[key]=true
     local startedRevision=entry.revision
@@ -6471,6 +6534,7 @@ local function templateFor(entry)
             task.defer(refreshTools)
             return
         end
+        if ok and not result and type(reason)=="table" and reason.cancelled then return end
         if ok and result then
             failed[key]=nil
             warned[key]=nil
@@ -6490,11 +6554,15 @@ local function templateFor(entry)
             end
             task.defer(refreshTools)
         else
-            failed[key]={untilTime=os.clock()+15,revision=entry.revision}
+            local failure=type(reason)=="table" and reason or {}
+            failure.reason=not ok and tostring(result) or failure.message or tostring(reason or "Weapon model loading failed")
+            failure.revision=entry.revision
+            failed[key]=failure
+            recordError("Load "..entry.id,failure.reason)
             local state=kinds[entry.kind]
             if state.enabled and state.selected==entry.id and not warned[key] then
                 warned[key]=true
-                notify(reason or "Could not load "..entry.name.."; your original weapon is still available")
+                notify(failure.reason..". Save the weapon diagnostic report if this continues.")
             end
         end
     end)
@@ -6732,7 +6800,14 @@ local function localTool(tool)
 end
 
 local function actualKind(tool)
-    return weaponKind(tool.Name) or weaponKind(tool:GetAttribute("WeaponType") or tool:GetAttribute("ItemType"))
+    local kind=weaponKind(tool.Name) or weaponKind(tool:GetAttribute("WeaponType") or tool:GetAttribute("ItemType"))
+    if kind then return kind end
+    for _,candidate in ipairs({"Gun","Knife"}) do
+        local ok,tagged=pcall(function() return tool:HasTag("Weapon_"..candidate) end)
+        if ok and tagged then return candidate end
+        local id=tool:GetAttribute("ItemID") or tool:GetAttribute("WeaponID") or tool.Name
+        if catalog[candidate][tostring(id)] then return candidate end
+    end
 end
 
 local function apply(tool,state)
@@ -6743,8 +6818,8 @@ local function apply(tool,state)
         if state.model or state.hold or state.holdPending then restoreVisuals(state) end
         return
     end
-    local handle=tool:FindFirstChild("Handle") or visualRoot(tool)
-    if not handle or not handle:IsA("BasePart") then restoreVisuals(state); return end
+    local handle=visualRoot(tool)
+    if not handle or not handle:IsA("BasePart") then state.blocked="No usable weapon handle";restoreVisuals(state);return end
     local signature=cacheKey(entry)..":"..entry.revision
     if state.applied==signature and state.handle==handle and state.appliedGrip==tool.Grip
         and state.model and state.model.Parent==tool then
@@ -6753,10 +6828,11 @@ local function apply(tool,state)
     end
     local template=templateFor(entry)
     if not template then
-
+        state.blocked="Waiting for the original model"
         if state.model then restoreVisuals(state) end
         return
     end
+    state.blocked=nil
     local model=cloneObject(template.model)
     if not model then return end
     local root=model.PrimaryPart or visualRoot(model)
@@ -6814,7 +6890,7 @@ local function trackTool(tool)
                 if alive and runtimeAlive and toolStates[tool]==state then
                     if localTool(tool) then
                         if state.model then hideOriginals(tool,state) end
-                        apply(tool,state)
+                        guarded("Apply "..tool.Name,apply,tool,state)
                     else forgetTool(tool) end
                 end
             end)
@@ -6823,7 +6899,7 @@ local function trackTool(tool)
         state.connections[2]=tool.DescendantRemoving:Connect(changed)
         state.connections[3]=tool.AncestryChanged:Connect(function() changed() end)
     end
-    apply(tool,state)
+    guarded("Apply "..tool.Name,apply,tool,state)
 end
 
 local holsters={}
@@ -6893,6 +6969,7 @@ local function refreshHolsters()
                         *CFrame.new(side*(body.Size.X*0.5+0.15),-body.Size.Y*0.4,0.15)
                         *CFrame.Angles(0,0,math.rad(side*35))
                     local origin=root.CFrame
+                    local parts={}
                     for _,part in ipairs(model:GetDescendants()) do
                         if part:IsA("BasePart") then
                             local position=base*origin:ToObjectSpace(part.CFrame)
@@ -6904,6 +6981,7 @@ local function refreshHolsters()
                             weld.Part0=body;weld.Part1=part
                             weld.C0=body.CFrame:ToObjectSpace(position);weld.C1=CFrame.new()
                             weld.Parent=part
+                            parts[#parts+1]=part
                         end
                     end
                     model.Name="VisualsV2_Client"..kind.."Holster"
@@ -6911,7 +6989,7 @@ local function refreshHolsters()
                     model:SetAttribute("WeaponID",entry.id)
                     model:SetAttribute("WeaponType",kind)
                     state={model=model,body=body,original=original,originals={},applied=signature,
-                        character=character,chromaTargets=template.chroma and chromaTargets(model,root) or nil}
+                        character=character,parts=parts,chromaTargets=template.chroma and chromaTargets(model,root) or nil}
                     holsters[kind]=state
                     model.Parent=character
                     hideHolsterOriginal(state)
@@ -6925,16 +7003,22 @@ end
 
 refreshTools=function()
     if not alive or not runtimeAlive then return end
-    for tool,state in pairs(toolStates) do
-        if localTool(tool) then apply(tool,state) else forgetTool(tool) end
+    guarded("Refresh holsters",refreshHolsters)
+    if not kinds.Gun.enabled and not kinds.Knife.enabled then
+        for tool in pairs(toolStates) do forgetTool(tool) end
+        return
     end
-    refreshHolsters()
-    if not kinds.Gun.enabled and not kinds.Knife.enabled then return end
+    local seen={}
     local function scan(container)
-        if container then for _,tool in ipairs(container:GetChildren()) do trackTool(tool) end end
+        if container then
+            for _,tool in ipairs(container:GetChildren()) do
+                if tool:IsA("Tool") and actualKind(tool) then seen[tool]=true;trackTool(tool) end
+            end
+        end
     end
     scan(player.Character)
     scan(player:FindFirstChildOfClass("Backpack"))
+    for tool in pairs(toolStates) do if not seen[tool] then forgetTool(tool) end end
 end
 
 updateWatching=function()
@@ -6954,10 +7038,17 @@ updateWatching=function()
         for _,state in pairs(holsters) do
             if state.model then
                 updateChroma(state)
-                for _,part in ipairs(state.model:GetDescendants()) do
-                    if part:IsA("BasePart") then part.LocalTransparencyModifier=state.body.LocalTransparencyModifier end
+                local alpha=state.body.LocalTransparencyModifier
+                for _,part in ipairs(state.parts or {}) do
+                    if part.Parent and part.LocalTransparencyModifier~=alpha then part.LocalTransparencyModifier=alpha end
                 end
-                hideHolsterOriginal(state)
+                for object,record in pairs(state.originals) do
+                    pcall(function()
+                        if record.property=="Enabled" then
+                            if object.Enabled then object.Enabled=false end
+                        elseif object[record.property]~=1 then object[record.property]=1 end
+                    end)
+                end
             end
         end
         for tool,state in pairs(toolStates) do
@@ -6995,12 +7086,13 @@ local function displayName(entry,evo)
     local details={}
     if year:match("^20%d%d$") then details[#details+1]=year end
     if evo then details[#details+1]=tostring(entry.data.rarity) end
+    if entry.games then details[#details+1]=table.concat(entry.games," & ") end
     if #details>0 then name=name.." ("..table.concat(details,", ")..")" end
     return name
 end
 
 local function category(entry)
-    if entry.game=="MMV" then return "MMV Scopes" end
+    if entry.games then return "Scopes (MM2 & MMV)" end
     if entry.data.chroma==true then return "Chroma" end
     if entry.data.rarity=="Classic" then return "Vintage" end
     return entry.data.rarity or "Other"
@@ -7026,7 +7118,9 @@ connections[#connections+1]=game:GetService("ReplicatedStorage").DescendantAdded
         if ancestor:GetAttribute(MARKER) then return end
         for kind,settings in pairs(kinds) do
             local entry=settings.enabled and catalog[kind][settings.selected]
-            if entry and (ancestor.Name==entry.id or ancestor.Name==entry.name) then
+            local item=ancestor:GetAttribute("ItemID") or ancestor:GetAttribute("WeaponID")
+            if entry and (compact(ancestor.Name)==compact(entry.id) or ancestor.Name==entry.name
+                or ancestor.Name==assetId(entry.data.itemid) or (item and tostring(item)==entry.id)) then
                 failed[cacheKey(entry)]=nil
                 task.defer(function() if alive and runtimeAlive then refreshTools() end end)
                 return
@@ -7037,6 +7131,33 @@ connections[#connections+1]=game:GetService("ReplicatedStorage").DescendantAdded
 end)
 env.VisualsV2Runtime.ClientWeaponSkins={
     Catalog=catalog,
+    GetKind=actualKind,
+    GetVisualRoot=visualRoot,
+    GetDiagnostics=function()
+        local report={errors=table.clone(recentErrors),weapons={}}
+        for kind,settings in pairs(kinds) do
+            local entry=catalog[kind][settings.selected]
+            local key=entry and cacheKey(entry)
+            local cached=key and cache[key]
+            local failure=key and failed[key]
+            local item={enabled=settings.enabled,selected=settings.selected,assetId=entry and entry.data.itemid,
+                loading=key and loading[key] or false,templateReady=cached~=nil,
+                source=cached and cached.source,error=failure and failure.reason,
+                attempts=failure and failure.attempts or cached and cached.attempts or {},tools={}}
+            for tool,value in pairs(toolStates) do
+                if actualKind(tool)==kind then
+                    item.tools[#item.tools+1]={path=objectPath(tool),name=tool.Name,
+                        equipped=tool.Parent==player.Character,rendered=value.model and value.model.Parent~=nil or false,
+                        handle=objectPath(visualRoot(tool)),blocked=value.blocked}
+                end
+            end
+            local holster=holsters[kind]
+            item.holster=holster and {path=objectPath(holster.model),body=objectPath(holster.body),
+                original=objectPath(holster.original),parts=#(holster.parts or {})} or nil
+            report.weapons[kind]=item
+        end
+        return report
+    end,
     GetHolster=function(kind)
         local state=holsters[kind]
         return state and state.model
@@ -7053,6 +7174,8 @@ env.VisualsV2Runtime.ClientWeaponSkins={
         local state=kinds[kind]
         if not state or (id~=NONE and not catalog[kind][id]) then return false end
         state.selected=id
+        local entry=catalog[kind][id]
+        if entry then failed[cacheKey(entry)]=nil end
         SetCfg(state.key.."Skin",id)
         refreshTools()
         return true
@@ -7103,6 +7226,8 @@ env.VisualsV2Runtime.RegisterReset(function()
 end)
 updateWatching()
 end)()
+
+
 
 ;(function()
 local effectList={
@@ -7230,9 +7355,13 @@ local enabled=C("vv2KnifeEffectsEnabled",false)
 local selected=tostring(C("vv2KnifeEffect","None"))
 local alive=true
 local heartbeat=nil
+local storageConnection=nil
 local states={}
 local warned={}
 local nextAttempt=0
+local lastError=nil
+local errorTime=nil
+local errorSeen={}
 local template=nil
 local templateId=nil
 local MARKER="VisualsV2_ClientKnifeEffect"
@@ -7284,7 +7413,9 @@ local function blade(tool)
     if tool:IsA("BasePart") then return tool end
     local skin=tool:FindFirstChild("VisualsV2_ClientKnifeSkin")
     if skin and skin:IsA("Model") and skin.PrimaryPart then return skin.PrimaryPart end
-    local handle=tool:FindFirstChild("Handle")
+    local skins=env.VisualsV2Runtime.ClientWeaponSkins
+    if skins and skins.GetVisualRoot then return skins.GetVisualRoot(tool) end
+    local handle=tool:FindFirstChild("Handle",true)
     return handle and handle:IsA("BasePart") and handle or nil
 end
 
@@ -7297,7 +7428,7 @@ end
 local function findTemplate()
     if templateId==selected and template and template.Parent then return template end
     if os.clock()<nextAttempt then return nil end
-    nextAttempt=os.clock()+5
+    nextAttempt=math.huge
     local entry=byId[selected]
     if not entry then return nil end
     local candidates={}
@@ -7410,7 +7541,9 @@ local function update()
     if not character then return end
     local targets={}
     for _,tool in ipairs(character:GetChildren()) do
-        if tool:IsA("Tool") and tool.Name:lower()=="knife" then targets[#targets+1]=tool end
+        local skins=env.VisualsV2Runtime.ClientWeaponSkins
+        local kind=skins and skins.GetKind and skins.GetKind(tool)
+        if tool:IsA("Tool") and (kind=="Knife" or tool.Name:lower()=="knife") then targets[#targets+1]=tool end
     end
     local skins=env.VisualsV2Runtime.ClientWeaponSkins
     local holster=skins and skins.GetHolster and skins.GetHolster("Knife")
@@ -7432,9 +7565,13 @@ local function update()
                     if outputs then
                         state={id=selected,handle=handle,outputs=outputs,originals={}}
                         states[tool]=state
+                        lastError=nil;errorTime=nil
                     elseif not warned[selected] then
                         warned[selected]=true
-                        pcall(shared.Notify,"The original "..byId[selected].label.." effect template is not available on this client yet.",3)
+                        lastError="No usable original effect template is available for "..byId[selected].label
+                        errorTime=os.clock()
+                        pcall(shared.Notify,lastError..". Save the weapon diagnostic report if this continues.",3)
+                        if type(warn)=="function" then warn("[VisualsV2 Effects] "..lastError) end
                     end
                 end
                 if state then hideNative(tool,state) end
@@ -7443,21 +7580,60 @@ local function update()
     end
 end
 
+local function safeUpdate()
+    local ok,reason=xpcall(update,function(value)
+        return type(debug)=="table" and type(debug.traceback)=="function" and debug.traceback(tostring(value),2) or tostring(value)
+    end)
+    if not ok then
+        lastError=tostring(reason);errorTime=os.clock()
+        if not errorSeen[lastError] then
+            errorSeen[lastError]=true
+            if type(warn)=="function" then warn("[VisualsV2 Effects] "..lastError) end
+        end
+    end
+end
+
+storageConnection=storage.DescendantAdded:Connect(function(object)
+    if not alive or not runtimeAlive or not enabled or selected=="None" then return end
+    local entry=byId[selected]
+    local ancestor=object
+    while ancestor and ancestor~=storage do
+        if ancestor:GetAttribute(MARKER) or ancestor:GetAttribute(SKIN_MARKER) then return end
+        if ancestor.Name==entry.id or ancestor.Name==entry.name then
+            nextAttempt=0
+            task.defer(function() if alive and runtimeAlive and enabled then safeUpdate() end end)
+            return
+        end
+        ancestor=ancestor.Parent
+    end
+end)
+
 local function refresh()
     if heartbeat then heartbeat:Disconnect();heartbeat=nil end
     clearAll()
     if not alive or not runtimeAlive or not enabled or selected=="None" then return end
     nextAttempt=0
-    update()
+    safeUpdate()
     local elapsed=0
     heartbeat=RunService.Heartbeat:Connect(function(dt)
         elapsed=elapsed+dt
-        if elapsed>=0.2 then elapsed=0;update() end
+        if elapsed>=0.25 then elapsed=0;safeUpdate() end
     end)
 end
 
 env.VisualsV2Runtime.ClientKnifeEffects={
     Catalog=byId,
+    GetDiagnostics=function()
+        local targets={}
+        for object,value in pairs(states) do
+            targets[#targets+1]={name=object.Name,parts=#value.outputs,handle=value.handle.Name,
+                equipped=object:IsA("Tool"),id=value.id}
+        end
+        local source
+        if template then pcall(function() source=template:GetFullName() end) end
+        return {enabled=enabled,selected=selected,template=source,templateReady=template~=nil,
+            error=lastError,errorTime=errorTime,targets=targets}
+    end,
     SetEnabled=function(value)
         enabled=value==true
         SetCfg("vv2KnifeEffectsEnabled",enabled)
@@ -7467,6 +7643,8 @@ env.VisualsV2Runtime.ClientKnifeEffects={
     Select=function(id)
         if id~="None" and not byId[id] then return false end
         selected=id
+        lastError=nil;errorTime=nil
+        warned[id]=nil
         SetCfg("vv2KnifeEffect",id)
         template=nil;templateId=nil;nextAttempt=0
         refresh()
@@ -7490,10 +7668,15 @@ env.VisualsV2Runtime.RegisterReset(function()
     SetCfg("vv2KnifeEffectsEnabled",false)
     SetCfg("vv2KnifeEffect","None")
     refresh()
-    if not runtimeAlive then alive=false end
+    if not runtimeAlive then
+        alive=false
+        if storageConnection then storageConnection:Disconnect();storageConnection=nil end
+    end
 end)
 refresh()
 end)()
+
+
 
 
 ;(function()
@@ -7510,12 +7693,12 @@ local guiConnections={}
 local nativeButtons={}
 local playerGui=nil
 local queued=false
-local refresh
+local refresh,schedule
 local nativeData={}
 local inventoryModule=nil
-local equipService=nil
 local profile=nil
 local controls={}
+local stats={filterRuns=0,builds=0,cardsCreated=0,cardsRemoved=0,uiPolls=0}
 local definitions={
     Gun={label="Guns",key="clientGunEnabled",entries=skins.Catalog.Gun},
     Knife={label="Knives",key="clientKnifeEnabled",entries=skins.Catalog.Knife},
@@ -7571,18 +7754,18 @@ local function readNativeData()
     local modules=storage:FindFirstChild("Modules")
     inventoryModule=requireKnown(modules,"InventoryModule")
     profile=requireKnown(modules,"ProfileData")
-    equipService=requireKnown(storage:FindFirstChild("ClientServices"),"EquipService")
-    if equipService and equipService.EquippedChanged then
-        local event=equipService.EquippedChanged.Event
-        if event then
-            connections[#connections+1]=event:Connect(function(kind)
-                if not alive or not runtimeAlive or not definitions[kind] then return end
-                local _,selected=state(kind)
-                if selected~="None" then selectItem(kind,"None") end
-                if refresh then task.defer(refresh) end
+    local remotes=storage:FindFirstChild("Remotes")
+    local inventory=remotes and remotes:FindFirstChild("Inventory")
+    for _,name in ipairs({"InventoryDataChanged","ProfileDataChanged"}) do
+        local event=inventory and inventory:FindFirstChild(name)
+        if event and event:IsA("BindableEvent") then
+            connections[#connections+1]=event.Event:Connect(function()
+                for _,record in pairs(records) do record.dirty=true end
+                if schedule then schedule() end
             end)
         end
     end
+
 end
 
 local function info(kind,entry)
@@ -7599,7 +7782,7 @@ local function info(kind,entry)
     data.Year=data.Year or saved.year
     data.Season=data.Season or saved.season
     data.Chroma=data.Chroma or saved.chroma
-    if entry.game=="MMV" then data.Season=data.Season or 1 end
+    if entry.games then data.Season=data.Season or 1 end
     return data
 end
 
@@ -7751,6 +7934,7 @@ local function removeCard(record,key)
     local card=record.cards[key]
     if not card then return end
     record.cards[key]=nil
+    stats.cardsRemoved=stats.cardsRemoved+1
     disconnect(card.connections)
     pcall(function() card.frame:Destroy() end)
     releaseCanvas(record,card.canvas)
@@ -7821,38 +8005,88 @@ local function updatePreview(record,kind)
     frame.Parent=original.Parent
 end
 
-local function selectedOutline(card,selected)
-    if selected and not card.outline then
-        local outline=Instance.new("UIStroke")
-        outline.Name="VisualsV2_Selected"
-        outline.Color=Color3.fromRGB(90,230,130);outline.Thickness=2
-        outline.Parent=card.frame;card.outline=outline
-    elseif not selected and card.outline then card.outline:Destroy();card.outline=nil end
+local function visible(object)
+    if not object or not object.Parent then return false end
+    local current=object
+    while current and current~=playerGui do
+        if current:IsA("GuiObject") and not current.Visible then return false end
+        if current:IsA("ScreenGui") and not current.Enabled then return false end
+        current=current.Parent
+    end
+    return current==playerGui
 end
 
-local function filterCards(record)
-    for _,card in pairs(record.cards) do
-        local category=child(record.main,card.kind=="Effects" and "Effects" or "Weapons")
+local function categoryOpen(record,kind)
+    return visible(child(record.main,kind=="Effects" and "Effects" or "Weapons"))
+end
+
+local function updatePreviews(record)
+    for kind in pairs(definitions) do
+        if categoryOpen(record,kind) then updatePreview(record,kind) else removePreview(record,kind) end
+    end
+end
+
+local function cacheFilters(record)
+    if record.filterConnections then disconnect(record.filterConnections) end
+    record.filterConnections={}
+    record.filterRefs={}
+    local function changed()
+        record.filterDirty=true
+        if schedule then schedule() end
+    end
+    for _,name in ipairs({"Weapons","Effects"}) do
+        local category=child(record.main,name)
         local items=child(category,"Items")
         local tabs=child(items,"Tabs") or child(category,"TitleBar")
         local search=tabs and tabs:FindFirstChild("SearchText",true)
-        local query=search and search.Text:lower() or ""
-        local visible=query=="" or card.data.ItemName:lower():find(query,1,true)~=nil
-        if child(items,"ItemList") and card.kind~="Effects" and query=="" then
-            for _,name in ipairs({"Current","Classic","Event"}) do
-                local border=child(child(tabs,name),"ViewBorder")
-                if border and border.Visible then
-                    local class=card.data.Event and "Event" or card.data.Season and "Current" or "Classic"
-                    visible=class==name
-                    break
-                end
-            end
+        local refs={search=search,modern=child(items,"ItemList")~=nil,borders={}}
+        record.filterRefs[name]=refs
+        if search then record.filterConnections[#record.filterConnections+1]=search:GetPropertyChangedSignal("Text"):Connect(changed) end
+        for _,tabName in ipairs({"Current","Classic","Event"}) do
+            local border=child(child(tabs,tabName),"ViewBorder")
+            refs.borders[tabName]=border
+            if border then record.filterConnections[#record.filterConnections+1]=border:GetPropertyChangedSignal("Visible"):Connect(changed) end
         end
-        if card.frame.Visible~=visible then card.frame.Visible=visible end
-        local _,id=state(card.kind)
-        selectedOutline(card,id==card.id)
+        if category then
+            record.filterConnections[#record.filterConnections+1]=category:GetPropertyChangedSignal("Visible"):Connect(function()
+                record.dirty=true
+                if schedule then schedule() end
+            end)
+        end
     end
-    for kind in pairs(definitions) do updatePreview(record,kind) end
+    record.filterDirty=true
+end
+
+local function readFilters(record)
+    if not record.filterRefs then cacheFilters(record) end
+    record.filters={}
+    for name,refs in pairs(record.filterRefs) do
+        local filter={query=refs.search and refs.search.Text:lower() or "",modern=refs.modern}
+        for _,tabName in ipairs({"Current","Classic","Event"}) do
+            if refs.borders[tabName] and refs.borders[tabName].Visible then filter.class=tabName;break end
+        end
+        record.filters[name]=filter
+    end
+end
+
+local function applyCardFilter(record,card)
+    local filter=record.filters and record.filters[card.kind=="Effects" and "Effects" or "Weapons"]
+    if not filter then return end
+    local query=filter.query
+    local show=query=="" or card.data.ItemName:lower():find(query,1,true)~=nil
+    if filter.modern and card.kind~="Effects" and query=="" and filter.class then
+        local class=card.data.Event and "Event" or card.data.Season and "Current" or "Classic"
+        show=class==filter.class
+    end
+    if card.frame.Visible~=show then card.frame.Visible=show end
+end
+
+local function filterCards(record)
+    stats.filterRuns=stats.filterRuns+1
+    readFilters(record)
+    for _,card in pairs(record.cards) do applyCardFilter(record,card) end
+    record.filterDirty=false
+    updatePreviews(record)
 end
 
 local function addCard(record,kind,entry)
@@ -7861,7 +8095,12 @@ local function addCard(record,kind,entry)
     local data=info(kind,entry)
     local target=targetFor(record.main,kind,data)
     if not target then record.dirty=true;return end
-    local frame=cloneFrame(templateFor(record.main,kind))
+    local template=record.templates[kind]
+    if not template then
+        template=cloneFrame(templateFor(record.main,kind))
+        record.templates[kind]=template
+    end
+    local frame=cloneFrame(template)
     if not frame then record.dirty=true;return end
     frame.Name="VisualsV2_"..kind.."_"..entry.id
     frame:SetAttribute("WeaponID",entry.id)
@@ -7873,33 +8112,69 @@ local function addCard(record,kind,entry)
     if not button or not button:IsA("GuiButton") then frame:Destroy();record.dirty=true;return end
     local card={kind=kind,id=entry.id,frame=frame,data=data,connections={},canvas=watchCanvas(record,target)}
     record.cards[key]=card
+    stats.cardsCreated=stats.cardsCreated+1
     card.connections[1]=button.Activated:Connect(function()
         if not alive or not runtimeAlive or not enabled(kind) then return end
         if selectItem(kind,entry.id) then
-            for _,other in pairs(records) do filterCards(other) end
+            for _,other in pairs(records) do updatePreviews(other) end
             pcall(shared.Notify,data.ItemName.." selected",2)
         end
     end)
+    card.connections[2]=frame.AncestryChanged:Connect(function()
+        if not frame.Parent and record.cards[key]==card then
+            record.dirty=true
+            if schedule then schedule() end
+        end
+    end)
+    applyCardFilter(record,card)
     frame.Parent=target
 end
 
+local function imageKey(value)
+    value=tostring(value or ""):lower()
+    return value:match("rbxassetid://(%d+)") or value:match("[?&]assetid=(%d+)")
+        or value:match("[?&]id=(%d+)") or value:match("^(%d+)$") or value
+end
+
 local function observeNativeButtons(record)
+    local function bind(frame,kind)
+        local button=child(child(frame,"Container"),"ActionButton")
+        if not definitions[kind] or not button or own(button) or nativeButtons[button]
+            or not button:IsDescendantOf(record.main) then return end
+        local function nativeSelected()
+            if alive and runtimeAlive then selectItem(kind,"None");task.defer(refresh) end
+        end
+        local list={button.Activated:Connect(nativeSelected)}
+        list[#list+1]=button.MouseButton1Click:Connect(nativeSelected)
+        nativeButtons[button]=list
+    end
     local data=inventoryModule and inventoryModule.MyInventory and inventoryModule.MyInventory.Data
-    if type(data)~="table" then return end
+    if type(data)=="table" then
+        for _,group in ipairs({"Weapons","Effects"}) do
+            for _,tab in pairs(data[group] or {}) do
+                for _,entry in pairs(tab) do bind(entry.Frame,group=="Effects" and "Effects" or entry.ItemType) end
+            end
+        end
+    end
+    local byImage={}
+    local owned=profile and profile.Weapons and profile.Weapons.Owned or {}
+    for key,value in pairs(owned) do
+        local id=type(key)=="string" and key or value
+        local metadata=nativeData.Weapons[id]
+        if type(metadata)=="table" and (metadata.ItemType=="Gun" or metadata.ItemType=="Knife") then
+            local image=imageKey(metadata.Image or metadata.Icon or metadata.ItemID)
+            if byImage[image] and byImage[image]~=metadata.ItemType then byImage[image]=false
+            elseif byImage[image]~=false then byImage[image]=metadata.ItemType end
+        end
+    end
     for _,group in ipairs({"Weapons","Effects"}) do
-        for _,tab in pairs(data[group] or {}) do
-            for _,entry in pairs(tab) do
-                local frame=entry.Frame
-                local kind=group=="Effects" and "Effects" or entry.ItemType
-                local button=child(child(frame,"Container"),"ActionButton")
-                if definitions[kind] and button and button:IsDescendantOf(record.main)
-                    and not own(button) and not nativeButtons[button] then
-                    local function nativeSelected()
-                        if alive and runtimeAlive then selectItem(kind,"None");task.defer(refresh) end
-                    end
-                    local list={button.Activated:Connect(nativeSelected)}
-                    list[#list+1]=button.MouseButton1Click:Connect(nativeSelected)
-                    nativeButtons[button]=list
+        local items=child(child(record.main,group),"Items")
+        local list=child(items,"ItemList")
+        if list then
+            for _,frame in ipairs(list:GetChildren()) do
+                if not own(frame) then
+                    local icon=child(child(frame,"Container"),"Icon")
+                    bind(frame,group=="Effects" and "Effects" or icon and byImage[imageKey(icon.Image)])
                 end
             end
         end
@@ -7917,38 +8192,68 @@ local function nativeOwns(kind,id)
 end
 
 local function updateRecord(record)
-    for key,card in pairs(record.cards) do
-        if not enabled(card.kind) or not card.frame.Parent or nativeOwns(card.kind,card.id) then
-            removeCard(record,key);record.dirty=true
-        end
+    local isOpen=visible(record.main)
+    if not isOpen then
+        if record.open then release(record) end
+        record.open=false;record.dirty=true
+        return
     end
-    filterCards(record)
-    observeNativeButtons(record)
+    local view=(categoryOpen(record,"Gun") and "W" or "")..(categoryOpen(record,"Effects") and "E" or "")
+    if not record.open or record.view~=view then
+        record.generation=record.generation+1;record.building=false;record.dirty=true
+        record.filterDirty=true
+    end
+    record.open=true;record.view=view
+    if record.dirty then
+        for key,card in pairs(record.cards) do
+            if not enabled(card.kind) or not card.frame.Parent or not categoryOpen(record,card.kind)
+                or nativeOwns(card.kind,card.id) then removeCard(record,key) end
+        end
+        observeNativeButtons(record)
+    end
+    if record.filterDirty then filterCards(record) else updatePreviews(record) end
     if record.building or not record.dirty then return end
-    record.dirty=false
-    record.building=true
+    record.dirty=false;record.building=true
+    stats.builds=stats.builds+1
     local generation=record.generation
     task.spawn(function()
         local count=0
+        local started=os.clock()
         for _,kind in ipairs({"Gun","Knife","Effects"}) do
             local definition=definitions[kind]
-            if enabled(kind) then
-                local entries={}
-                for _,entry in pairs(definition.entries) do entries[#entries+1]=entry end
-                table.sort(entries,function(a,b) return (a.label or a.name or a.id)<(b.label or b.name or b.id) end)
-                for index,entry in ipairs(entries) do
+            if enabled(kind) and categoryOpen(record,kind) then
+                if not definition.sorted then
+                    definition.sorted={}
+                    for _,entry in pairs(definition.entries) do definition.sorted[#definition.sorted+1]=entry end
+                    table.sort(definition.sorted,function(a,b) return (a.label or a.name or a.id)<(b.label or b.name or b.id) end)
+                end
+                for index,entry in ipairs(definition.sorted) do
                     if not alive or not runtimeAlive or generation~=record.generation or not record.main.Parent then return end
+                    if not visible(record.main) or not categoryOpen(record,kind) then
+                        record.building=false;record.dirty=true
+                        if schedule then schedule() end
+                        return
+                    end
                     if not enabled(kind) then break end
                     entry.order=index
                     if not nativeOwns(kind,entry.id) and not record.cards[kind..":"..entry.id] then
                         addCard(record,kind,entry);count=count+1
                     end
-                    if count>=40 then count=0;filterCards(record);task.wait(0.03) end
+                    if count>=16 or os.clock()-started>=0.003 then
+                        count=0;task.wait(0.02);started=os.clock()
+                    end
                 end
             end
         end
-        if generation==record.generation then record.building=false;filterCards(record) end
+        if generation==record.generation then record.building=false;updatePreviews(record) end
     end)
+end
+
+local function forgetRecord(record)
+    release(record)
+    disconnect(record.filterConnections or {})
+    disconnect(record.visibilityConnections or {})
+    for kind,template in pairs(record.templates) do template:Destroy();record.templates[kind]=nil end
 end
 
 local function discover()
@@ -7957,7 +8262,20 @@ local function discover()
         if (object.Name=="Inventory" or object.Name=="Inventory2") and not own(object) then
             local main=child(object,"Main")
             if main and child(main,"Weapons") and not records[main] then
-                records[main]={main=main,cards={},previews={},canvases={},generation=0,building=false,dirty=true}
+                local record={main=main,cards={},previews={},canvases={},templates={},generation=0,
+                    building=false,dirty=true,open=false,filterDirty=true,visibilityConnections={}}
+                records[main]=record
+                local ancestor=main
+                while ancestor and ancestor~=playerGui do
+                    local property=ancestor:IsA("GuiObject") and "Visible" or ancestor:IsA("ScreenGui") and "Enabled"
+                    if property then
+                        record.visibilityConnections[#record.visibilityConnections+1]=ancestor:GetPropertyChangedSignal(property):Connect(function()
+                            if schedule then schedule() end
+                        end)
+                    end
+                    ancestor=ancestor.Parent
+                end
+                cacheFilters(record)
             end
         end
     end
@@ -7969,12 +8287,12 @@ refresh=function()
     if active then discover() end
     for main,record in pairs(records) do
         if not playerGui or not main:IsDescendantOf(playerGui) or not active then
-            release(record);records[main]=nil
+            forgetRecord(record);records[main]=nil
         else updateRecord(record) end
     end
 end
 
-local function schedule()
+schedule=function()
     if queued or not alive or not runtimeAlive then return end
     queued=true
     task.defer(function() queued=false;if alive and runtimeAlive then refresh() end end)
@@ -7987,7 +8305,11 @@ local function bindGui()
         guiConnections[#guiConnections+1]=playerGui.DescendantAdded:Connect(function(object)
             if own(object) then return end
             if object.Name=="Inventory" or object.Name=="Inventory2" or object.Name=="Main"
-                or object.Name=="Weapons" or object.Name=="Effects" or object.Name=="Items" then schedule() end
+                or object.Name=="Weapons" or object.Name=="Effects" or object.Name=="Items"
+                or object.Name=="ActionButton" then
+                for _,record in pairs(records) do record.dirty=true end
+                schedule()
+            end
         end)
     end
     schedule()
@@ -8017,6 +8339,7 @@ connections[#connections+1]=RunService.Heartbeat:Connect(function(dt)
     elapsed=elapsed+math.max(tonumber(dt) or 0,0)
     if elapsed<0.4 then return end
     elapsed=0
+    stats.uiPolls=stats.uiPolls+1
     for main,record in pairs(records) do
         if playerGui and main:IsDescendantOf(playerGui) then updateRecord(record) else schedule() end
     end
@@ -8024,14 +8347,255 @@ connections[#connections+1]=RunService.Heartbeat:Connect(function(dt)
         if not playerGui or not button:IsDescendantOf(playerGui) then disconnect(list);nativeButtons[button]=nil end
     end
 end)
+env.VisualsV2Runtime.VisualWeaponInventory={
+    GetDiagnostics=function()
+        local report={stats=table.clone(stats),inventories={}}
+        for _,record in pairs(records) do
+            local count=0
+            for _ in pairs(record.cards) do count=count+1 end
+            report.inventories[#report.inventories+1]={name=record.main.Parent and record.main.Parent.Name,
+                open=record.open,cards=count,building=record.building,view=record.view}
+        end
+        return report
+    end,
+}
 env.VisualsV2Runtime.RegisterReset(function()
     for _,control in pairs(controls) do control:Set(false) end
-    for main,record in pairs(records) do release(record);records[main]=nil end
+    for main,record in pairs(records) do forgetRecord(record);records[main]=nil end
     for button,list in pairs(nativeButtons) do disconnect(list);nativeButtons[button]=nil end
     if not runtimeAlive then alive=false;disconnect(connections);disconnect(guiConnections) end
 end)
 readNativeData()
 bindGui()
+end)()
+
+
+
+
+;(function()
+local runtime=env.VisualsV2Runtime
+local function path(object)
+    if not object then return nil end
+    local ok,value=pcall(function() return object:GetFullName() end)
+    return ok and value or object.Name
+end
+local function encode(value,depth)
+    depth=depth or 0
+    local kind=typeof(value)
+    if kind=="nil" or kind=="boolean" or kind=="string" then return value end
+    if kind=="number" then return value==value and math.abs(value)<math.huge and value or tostring(value) end
+    if kind=="Instance" then return {path=path(value),class=value.ClassName,name=value.Name} end
+    if kind=="Vector3" then return {type=kind,v={value.X,value.Y,value.Z}} end
+    if kind=="Vector2" then return {type=kind,v={value.X,value.Y}} end
+    if kind=="Color3" then return {type=kind,v={value.R,value.G,value.B}} end
+    if kind=="CFrame" then return {type=kind,v={value:GetComponents()}} end
+    if kind=="EnumItem" then return tostring(value) end
+    if kind=="NumberRange" then return {type=kind,min=value.Min,max=value.Max} end
+    if kind=="NumberSequence" or kind=="ColorSequence" then
+        local points={}
+        for _,point in ipairs(value.Keypoints) do
+            points[#points+1]={time=point.Time,value=encode(point.Value,depth+1),envelope=kind=="NumberSequence" and point.Envelope or nil}
+        end
+        return {type=kind,points=points}
+    end
+    if type(value)=="table" and depth<6 then
+        local result={}
+        local count=0
+        for key,entry in pairs(value) do
+            if type(key)=="string" or type(key)=="number" then
+                count=count+1
+                if count>96 then result.truncated=true;break end
+                result[key]=encode(entry,depth+1)
+            end
+        end
+        return result
+    end
+    return tostring(value)
+end
+
+local fields={
+    BasePart={"Size","CFrame","Color","Material","Transparency","LocalTransparencyModifier","Anchored","CanCollide","Massless"},
+    MeshPart={"MeshId","TextureID","MeshSize","DoubleSided"},
+    DataModelMesh={"MeshType","MeshId","TextureId","Scale","Offset","VertexColor"},
+    Decal={"Texture","Transparency","Color3"},
+    Attachment={"CFrame"},
+    ParticleEmitter={"Enabled","Texture","Color","Transparency","Size","Lifetime","Rate","Speed","Rotation","RotSpeed",
+        "LightEmission","LightInfluence","SpreadAngle","Acceleration","Drag","EmissionDirection","ZOffset","Orientation"},
+    Trail={"Enabled","Attachment0","Attachment1","Color","Transparency","Lifetime","WidthScale","Texture","LightEmission","FaceCamera"},
+    Beam={"Enabled","Attachment0","Attachment1","Color","Transparency","Width0","Width1","Texture","LightEmission","FaceCamera"},
+    Light={"Enabled","Color","Brightness","Range"},
+    Fire={"Enabled","Color","SecondaryColor","Heat","Size"},
+    Smoke={"Enabled","Color","Opacity","RiseVelocity","Size"},
+    Sparkles={"Enabled","SparkleColor"},
+    JointInstance={"Part0","Part1","C0","C1"},
+    Animation={"AnimationId"},
+    SurfaceAppearance={"ColorMap","MetalnessMap","NormalMap","RoughnessMap","AlphaMode"},
+}
+
+local function objectInfo(object)
+    local info={name=object.Name,class=object.ClassName,path=path(object),properties={}}
+    pcall(function() info.attributes=encode(object:GetAttributes()) end)
+    pcall(function() info.tags=object:GetTags() end)
+    for class,names in pairs(fields) do
+        if object:IsA(class) then
+            for _,name in ipairs(names) do
+                pcall(function() info.properties[name]=encode(object[name]) end)
+            end
+        end
+    end
+    return info
+end
+
+local function snapshot(object,limit)
+    local result={root=objectInfo(object),nodes={}}
+    local queue={object}
+    local index=1
+    while queue[index] and #result.nodes<(limit or 160) do
+        local current=queue[index];index=index+1
+        for _,child in ipairs(current:GetChildren()) do
+            if #result.nodes>=(limit or 160) then result.truncated=true;break end
+            result.nodes[#result.nodes+1]=objectInfo(child)
+            queue[#queue+1]=child
+        end
+        if index%32==0 then task.wait() end
+    end
+    return result
+end
+
+local function moduleTable(parent,name)
+    local module=parent and parent:FindFirstChild(name)
+    if not module or not module:IsA("ModuleScript") then return nil end
+    local ok,value=pcall(require,module)
+    return ok and type(value)=="table" and value or nil
+end
+
+local function collect()
+    local storage=game:GetService("ReplicatedStorage")
+    local skins=runtime.ClientWeaponSkins
+    local effects=runtime.ClientKnifeEffects
+    local report={at=os.time(),placeId=game.PlaceId,universeId=game.GameId,
+        weapons=skins and skins.GetDiagnostics(),effects=effects and effects.GetDiagnostics(),
+        inventory=runtime.VisualWeaponInventory and runtime.VisualWeaponInventory.GetDiagnostics(),
+        tools={},character={},originalDefinitions={},availableTemplates={},storageRoots={}}
+    pcall(function() report.executor=identifyexecutor() end)
+    local selected={}
+    for _,kind in ipairs({"Gun","Knife"}) do
+        local _,id=skins.GetState(kind)
+        if id~="None" then selected[id]=true end
+    end
+    local _,effectId=effects.GetState()
+    if effectId~="None" then selected[effectId]=true end
+    local database=storage:FindFirstChild("Database")
+    local sync=database and database:FindFirstChild("Sync")
+    local data=moduleTable(database,"Sync")
+    local items=data and (data.Weapons or data.Item) or moduleTable(sync,"Item") or {}
+    local nativeEffects=data and data.Effects or moduleTable(sync,"Effects") or {}
+    for id in pairs(selected) do report.originalDefinitions[id]=encode(items[id] or nativeEffects[id]) end
+    local modules=storage:FindFirstChild("Modules")
+    local profile=moduleTable(modules,"ProfileData")
+    report.nativeEquipped=profile and encode({Weapons=profile.Weapons and profile.Weapons.Equipped,
+        Effects=profile.Effects and profile.Effects.Equipped})
+    report.activeSettings={}
+    for _,key in ipairs({"clientGunEnabled","clientGunSkin","clientKnifeEnabled","clientKnifeSkin",
+        "vv2KnifeEffectsEnabled","vv2KnifeEffect","gunChamsEnabled","gunChamsPreset","knifeChamsEnabled","knifeChamsPreset",
+        "toolChamsEnabled","toolChamsPreset","toolTintEnabled","ffEnabled","perfWeaponDisplays","vv2TextFontsEnabled"}) do
+        report.activeSettings[key]=C(key,nil)
+    end
+    local character=LocalPlayer.Character
+    if character then
+        report.characterTree=snapshot(character,240)
+        for _,object in ipairs(character:GetChildren()) do
+            report.character[#report.character+1]=objectInfo(object)
+            if object:IsA("Tool") or object.Name:find("Gun",1,true) or object.Name:find("Knife",1,true)
+                or object.Name:find("Torso",1,true) or object.Name=="HumanoidRootPart" then
+                report.tools[#report.tools+1]=snapshot(object)
+            end
+        end
+        local humanoid=character:FindFirstChildOfClass("Humanoid")
+        if humanoid then report.humanoid={health=humanoid.Health,rig=tostring(humanoid.RigType)} end
+    end
+    local backpack=LocalPlayer:FindFirstChildOfClass("Backpack")
+    if backpack then
+        report.backpackTree=snapshot(backpack,160)
+        for _,object in ipairs(backpack:GetChildren()) do
+            if object:IsA("Tool") then report.tools[#report.tools+1]=snapshot(object,100) end
+        end
+    end
+    local displays=workspace:FindFirstChild("WeaponDisplays")
+    if displays then
+        report.weaponDisplays={path=path(displays),children={}}
+        for _,object in ipairs(displays:GetChildren()) do
+            if object.Name==LocalPlayer.Name or object.Name==tostring(LocalPlayer.UserId) then
+                report.weaponDisplays.localPlayer=snapshot(object,200)
+            elseif #report.weaponDisplays.children<12 then
+                report.weaponDisplays.children[#report.weaponDisplays.children+1]={class=object.ClassName,name=object.Name}
+            end
+        end
+    end
+    for _,object in ipairs(storage:GetChildren()) do
+        report.storageRoots[#report.storageRoots+1]={name=object.Name,class=object.ClassName,children=#object:GetChildren()}
+    end
+    local queue={storage}
+    local index=1
+    local inspected=0
+    while queue[index] and inspected<5000 do
+        local current=queue[index];index=index+1
+        for _,object in ipairs(current:GetChildren()) do
+            inspected=inspected+1
+            local candidate=selected[object.Name]
+            if not candidate then
+                for _,kind in ipairs({"Gun","Knife"}) do
+                    local _,id=skins.GetState(kind)
+                    local entry=skins.Catalog[kind][id]
+                    if entry and object.Name==entry.name then candidate=true end
+                end
+            end
+            if candidate and #report.availableTemplates<16 then report.availableTemplates[#report.availableTemplates+1]=snapshot(object,120) end
+            queue[#queue+1]=object
+            if inspected>=5000 then break end
+        end
+        if index%64==0 then task.wait() end
+    end
+    report.inspected=inspected
+    return report
+end
+
+runtime.SaveWeaponDiagnostics=function()
+    if not runtimeAlive then return false,"Visuals V2 is no longer running" end
+    local ok,result=xpcall(collect,function(value)
+        return type(debug)=="table" and type(debug.traceback)=="function" and debug.traceback(tostring(value),2) or tostring(value)
+    end)
+    if not ok then
+        if type(warn)=="function" then warn("[VisualsV2 Weapon Check] "..tostring(result)) end
+        return false,result
+    end
+    if not runtimeAlive then return false,"Visuals V2 was re-executed during the capture; run the check again" end
+    local gameName=(game.GameId==10413186812 or game.PlaceId==93017634738276) and "MMV" or "MM2"
+    local filename="VisualsV2_Weapon_Check_"..gameName..".json"
+    local payload={schema="VisualsV2_Weapon_Check_2",game=gameName,captures={}}
+    if type(read)=="function" then
+        local priorOk,prior=pcall(function() return HttpService:JSONDecode(read(filename)) end)
+        if priorOk and type(prior)=="table" and prior.schema==payload.schema and type(prior.captures)=="table" then
+            for index=math.max(1,#prior.captures-4),#prior.captures do payload.captures[#payload.captures+1]=prior.captures[index] end
+        end
+    end
+    payload.captures[#payload.captures+1]=result
+    local jsonOk,json=pcall(function() return HttpService:JSONEncode(payload) end)
+    if not jsonOk then return false,json end
+    local saved=false
+    if type(write)=="function" then saved=pcall(write,filename,json) end
+    if not saved then
+        local clipboard=type(setclipboard)=="function" and setclipboard or env.setclipboard
+        if type(clipboard)=="function" then saved=pcall(clipboard,json);filename="clipboard" end
+    end
+    if saved then
+        pcall(shared.Notify,"Weapon report saved to "..filename,2)
+        if type(print)=="function" then print("[VisualsV2 Weapon Check] "..filename) end
+        return true,filename
+    end
+    pcall(shared.Notify,"Could not save the weapon report: file writing and clipboard access are unavailable.",1)
+    return false,"File writing and clipboard access are unavailable"
+end
 end)()
 
 
