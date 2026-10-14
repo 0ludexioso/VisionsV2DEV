@@ -241,6 +241,14 @@ end
 
 loadConfig()
 
+;(function()
+    local previousBridge=LocalPlayer:FindFirstChild("VisualsV2_RuntimeBridge")
+    if previousBridge and previousBridge:IsA("BindableFunction") and previousBridge:GetAttribute("VisualsV2_RuntimeBridge") then
+        pcall(function() previousBridge:Invoke("Cleanup") end)
+        pcall(function() previousBridge:Destroy() end)
+    end
+end)()
+
 local previousRuntime = env.VisualsV2Runtime
 if type(previousRuntime) == "table" and type(previousRuntime.Cleanup) == "function" then
     pcall(previousRuntime.Cleanup)
@@ -251,11 +259,33 @@ env.VisualsV2Runtime.RegisterReset = function(callback)
     if type(callback) == "function" then table.insert(env.VisualsV2Runtime.Resetters, callback) end
 end
 env.VisualsV2Runtime.Cleanup = function()
+    if not runtimeAlive then return end
     runtimeAlive = false
     configResetting = true
     for _, resetter in ipairs(env.VisualsV2Runtime.Resetters or {}) do pcall(resetter) end
     configResetting = false
 end
+
+;(function()
+local runtime=env.VisualsV2Runtime
+local bridge=Instance.new("BindableFunction")
+bridge.Name="VisualsV2_RuntimeBridge"
+bridge:SetAttribute("VisualsV2_RuntimeBridge",true)
+bridge.OnInvoke=function(operation)
+    if operation=="Cleanup" then runtime.Cleanup();return true end
+    if not runtimeAlive then return nil,"Visuals V2 is no longer running" end
+    if operation=="WeaponDiagnostics" then
+        if type(runtime.CollectWeaponDiagnostics)~="function" then return nil,"Weapon diagnostics are not ready" end
+        return runtime.CollectWeaponDiagnostics()
+    end
+    return nil,"Unknown diagnostic operation"
+end
+bridge.Parent=LocalPlayer
+runtime.RegisterReset(function()
+    if not runtimeAlive then bridge:Destroy() end
+end)
+end)()
+
 
 pcall(function()
     LocalPlayer.OnTeleport:Connect(function()
@@ -6905,6 +6935,13 @@ end
 local holsters={}
 
 local function nativeHolster(character,kind)
+    if not character then return nil end
+    local reference=character:FindFirstChild("DisplayRef"..kind)
+    if reference and reference:IsA("ObjectValue") then
+        local object=reference.Value
+        if object and object.Parent and not object:IsA("Tool") and not object:GetAttribute(MARKER)
+            and visualRoot(object) then return object end
+    end
     for _,name in ipairs({kind,kind.."Display",kind.."Holster"}) do
         local object=character:FindFirstChild(name)
         if object and not object:IsA("Tool") and not object:GetAttribute(MARKER) and visualRoot(object) then
@@ -6964,6 +7001,7 @@ local function refreshHolsters()
                 if model and not root then model:Destroy();model=nil end
                 if model then
                     local originalRoot=original and visualRoot(original)
+                    local anchor=originalRoot or body
                     local side=kind=="Gun" and 1 or -1
                     local base=originalRoot and originalRoot.CFrame or body.CFrame
                         *CFrame.new(side*(body.Size.X*0.5+0.15),-body.Size.Y*0.4,0.15)
@@ -6978,8 +7016,8 @@ local function refreshHolsters()
                             part.CFrame=position
                             local weld=Instance.new("Weld")
                             weld.Name="VisualsV2_HolsterWeld"
-                            weld.Part0=body;weld.Part1=part
-                            weld.C0=body.CFrame:ToObjectSpace(position);weld.C1=CFrame.new()
+                            weld.Part0=anchor;weld.Part1=part
+                            weld.C0=anchor.CFrame:ToObjectSpace(position);weld.C1=CFrame.new()
                             weld.Parent=part
                             parts[#parts+1]=part
                         end
@@ -7133,6 +7171,7 @@ env.VisualsV2Runtime.ClientWeaponSkins={
     Catalog=catalog,
     GetKind=actualKind,
     GetVisualRoot=visualRoot,
+    GetNativeHolster=function(kind) return nativeHolster(player.Character,kind) end,
     GetDiagnostics=function()
         local report={errors=table.clone(recentErrors),weapons={}}
         for kind,settings in pairs(kinds) do
@@ -7535,10 +7574,7 @@ end
 local function update()
     if not alive or not runtimeAlive or not enabled or selected=="None" then clearAll();return end
     local character=LocalPlayer.Character
-    for tool,state in pairs(states) do
-        if not character or tool.Parent~=character or state.handle~=blade(tool) or state.id~=selected then clear(tool) end
-    end
-    if not character then return end
+    if not character then clearAll();return end
     local targets={}
     for _,tool in ipairs(character:GetChildren()) do
         local skins=env.VisualsV2Runtime.ClientWeaponSkins
@@ -7546,16 +7582,22 @@ local function update()
         if tool:IsA("Tool") and (kind=="Knife" or tool.Name:lower()=="knife") then targets[#targets+1]=tool end
     end
     local skins=env.VisualsV2Runtime.ClientWeaponSkins
-    local holster=skins and skins.GetHolster and skins.GetHolster("Knife")
-    if not holster then
+    local holster=#targets==0 and skins and skins.GetHolster and skins.GetHolster("Knife")
+    if #targets==0 and not holster and skins and skins.GetNativeHolster then holster=skins.GetNativeHolster("Knife") end
+    if #targets==0 and not holster then
         for _,name in ipairs({"Knife","KnifeDisplay","KnifeHolster"}) do
             local object=character:FindFirstChild(name)
             if object and not object:IsA("Tool") then holster=object;break end
         end
     end
-    if holster then targets[#targets+1]=holster end
+    if holster and holster.Parent then targets[#targets+1]=holster end
+    local seen={}
+    for _,tool in ipairs(targets) do seen[tool]=true end
+    for tool,state in pairs(states) do
+        if not seen[tool] or state.handle~=blade(tool) or state.id~=selected then clear(tool) end
+    end
     for _,tool in ipairs(targets) do
-        if tool.Parent==character then
+        if tool.Parent and seen[tool] then
             local handle=blade(tool)
             if handle then
                 local state=states[tool]
@@ -8429,6 +8471,7 @@ local fields={
     Sparkles={"Enabled","SparkleColor"},
     JointInstance={"Part0","Part1","C0","C1"},
     Animation={"AnimationId"},
+    ObjectValue={"Value"},
     SurfaceAppearance={"ColorMap","MetalnessMap","NormalMap","RoughnessMap","AlphaMode"},
 }
 
@@ -8473,7 +8516,7 @@ local function collect()
     local storage=game:GetService("ReplicatedStorage")
     local skins=runtime.ClientWeaponSkins
     local effects=runtime.ClientKnifeEffects
-    local report={at=os.time(),placeId=game.PlaceId,universeId=game.GameId,
+    local report={at=os.time(),placeId=game.PlaceId,universeId=game.GameId,runtimeAvailable=true,
         weapons=skins and skins.GetDiagnostics(),effects=effects and effects.GetDiagnostics(),
         inventory=runtime.VisualWeaponInventory and runtime.VisualWeaponInventory.GetDiagnostics(),
         tools={},character={},originalDefinitions={},availableTemplates={},storageRoots={}}
@@ -8521,6 +8564,17 @@ local function collect()
             if object:IsA("Tool") then report.tools[#report.tools+1]=snapshot(object,100) end
         end
     end
+    report.displayReferences={}
+    if character then
+        for _,kind in ipairs({"Gun","Knife"}) do
+            local reference=character:FindFirstChild("DisplayRef"..kind)
+            if reference and reference:IsA("ObjectValue") then
+                local item={reference=objectInfo(reference)}
+                if reference.Value and reference.Value.Parent then item.display=snapshot(reference.Value,160) end
+                report.displayReferences[kind]=item
+            end
+        end
+    end
     local displays=workspace:FindFirstChild("WeaponDisplays")
     if displays then
         report.weaponDisplays={path=path(displays),children={}}
@@ -8558,6 +8612,11 @@ local function collect()
     end
     report.inspected=inspected
     return report
+end
+
+runtime.CollectWeaponDiagnostics=function()
+    if not runtimeAlive then return nil,"Visuals V2 is no longer running" end
+    return collect()
 end
 
 runtime.SaveWeaponDiagnostics=function()
