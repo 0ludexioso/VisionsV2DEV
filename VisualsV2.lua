@@ -1,4 +1,5 @@
 -- Visuals V2
+-- 2026-10-14 r27: Restore weapon displays when auto-removal is off; add Reapply below Remove; keep original instances.
 -- 2026-10-14 r26: Restore anonymous three-slot inventory limits and trim the requested description sentence.
 -- 2026-10-14 r25: Shared button audio, native geometry chams, repeat-use tool safety, gun animation timelines and timer font.
 -- 2026-10-14 r24: Link Bomb Jump drag locks to Miscellaneous; save hotkeys/positions with all VV2 settings; add a combined reset in Bomb Jump+.
@@ -246,7 +247,7 @@ if type(previousRuntime) == "table" and type(previousRuntime.Cleanup) == "functi
 end
 
 -- Runtime reset registry.
-env.VisualsV2Runtime = {Resetters = {}, Build = "2026-10-14-r26"}
+env.VisualsV2Runtime = {Resetters = {}, Build = "2026-10-14-r27"}
 env.VisualsV2Runtime.RegisterReset = function(callback)
     if type(callback) == "function" then table.insert(env.VisualsV2Runtime.Resetters, callback) end
 end
@@ -11818,7 +11819,9 @@ local function setFrame(on)
 end
 local toggles={}
 local function add(key,label,fn)
-    toggles[#toggles+1]=addToggle(section,label,state[key],function(v) state[key]=v; SetCfg("perf"..key:sub(1,1):upper()..key:sub(2),v); fn(v) end)
+    local toggle=addToggle(section,label,state[key],function(v) state[key]=v; SetCfg("perf"..key:sub(1,1):upper()..key:sub(2),v); fn(v) end)
+    toggles[#toggles+1]=toggle
+    return toggle
 end
 add("smooth","VV2 No Textures (SmoothPlastic)",setSmooth)
 add("shadows","VV2 Disable Shadows",function(v) Lighting.GlobalShadows=v and false or originalShadows end)
@@ -11827,25 +11830,69 @@ add("meshes","VV2 Hide Meshes (world only)",setMeshes)
 add("textures","VV2 Remove Textures/Decals",setTextures)
 add("accessories","VV2 Remove Accessories",setAccessories)
 add("gray","VV2 Gray Skybox",setGray)
-local function removeWeaponDisplays()
-    for _,object in ipairs(workspace:GetChildren()) do
-        if object.Name=="WeaponDisplays" then object:Destroy() end
+local hiddenWeaponDisplays={}
+local weaponDisplayRevision=0
+local weaponDisplayToggle
+
+local function forgetWeaponDisplay(object)
+    local record=hiddenWeaponDisplays[object]
+    if record and record.destroying then record.destroying:Disconnect() end
+    hiddenWeaponDisplays[object]=nil
+end
+
+local function hideWeaponDisplay(object)
+    if not runtimeAlive or object.Name~="WeaponDisplays" or object.Parent~=workspace then return end
+    if not hiddenWeaponDisplays[object] then
+        local record={parent=object.Parent}
+        hiddenWeaponDisplays[object]=record
+        record.destroying=object.Destroying:Connect(function() forgetWeaponDisplay(object) end)
+    end
+    -- Keep the original instances, geometry and properties for restoration.
+    -- Unparenting affects only this client; the displays are never destroyed.
+    if not pcall(function() object.Parent=nil end) then forgetWeaponDisplay(object) end
+end
+
+local function restoreWeaponDisplays()
+    for object,record in pairs(hiddenWeaponDisplays) do
+        forgetWeaponDisplay(object)
+        -- Do not move a display that the game or another feature has moved.
+        if object.Parent==nil then pcall(function() object.Parent=record.parent end) end
     end
 end
+
+local function removeWeaponDisplays()
+    if not runtimeAlive then return end
+    for _,object in ipairs(workspace:GetChildren()) do hideWeaponDisplay(object) end
+end
+
 local function setWeaponDisplays(on)
+    weaponDisplayRevision=weaponDisplayRevision+1
     if conns.weaponDisplays then conns.weaponDisplays:Disconnect();conns.weaponDisplays=nil end
-    if not on then return end
-    removeWeaponDisplays()
+    if not on then restoreWeaponDisplays();return end
+    if not runtimeAlive then return end
+    local revision=weaponDisplayRevision
     conns.weaponDisplays=workspace.ChildAdded:Connect(function(object)
         if object.Name=="WeaponDisplays" then
             task.defer(function()
-                if runtimeAlive and state.weaponDisplays and object.Parent==workspace then object:Destroy() end
+                if runtimeAlive and state.weaponDisplays and weaponDisplayRevision==revision then
+                    hideWeaponDisplay(object)
+                end
             end)
         end
     end)
+    removeWeaponDisplays()
 end
+
 section:AddButton("VV2 Remove Weapon Displays",removeWeaponDisplays)
-add("weaponDisplays","VV2 Auto Remove Weapon Displays",setWeaponDisplays)
+section:AddButton("VV2 Reapply Weapon Displays",function()
+    if not runtimeAlive then return end
+    -- Turn off auto-removal too, so restored displays remain visible.
+    weaponDisplayToggle:Set(false)
+    state.weaponDisplays=false
+    SetCfg("perfWeaponDisplays",false)
+    setWeaponDisplays(false)
+end)
+weaponDisplayToggle=add("weaponDisplays","VV2 Auto Remove Weapon Displays",setWeaponDisplays)
 add("frame","VV2 Enable Frame Enhancement",setFrame)
 env.VisualsV2Runtime.RegisterReset(function() for _,t in ipairs(toggles) do t:Set(false) end; setSmooth(false); setParticles(false); setMeshes(false); setTextures(false); setAccessories(false); setGray(false); setFrame(false); setWeaponDisplays(false) end)
 end)()
