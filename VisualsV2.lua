@@ -1,4 +1,5 @@
 -- Visuals V2
+-- 2026-10-14 r21: Align Flat/Chromatic shells after camera updates, cover native rims, and match the full-screen viewport.
 -- 2026-10-13 r20: Match FakeBomb's zero reflectance on SprayPaint/Teddy ForceField, preserving native visibility and tap input.
 -- 2026-10-13 r19: Remove the SprayPaint/TeddyBear visibility fade and its slider.
 -- 2026-10-13: Restore snowball launch range, clear dense paint/teddy texture masks, and expose live build/aim failures.
@@ -240,7 +241,7 @@ if type(previousRuntime) == "table" and type(previousRuntime.Cleanup) == "functi
 end
 
 -- Runtime reset registry.
-env.VisualsV2Runtime = {Resetters = {}, Build = "2026-10-13-r20"}
+env.VisualsV2Runtime = {Resetters = {}, Build = "2026-10-14-r21"}
 env.VisualsV2Runtime.RegisterReset = function(callback)
     if type(callback) == "function" then table.insert(env.VisualsV2Runtime.Resetters, callback) end
 end
@@ -4855,10 +4856,13 @@ local presets={"ForceField","Flat","Chromatic"}
 local groups,states={},{}
 local trackedCharacter,removingCharacter
 local characterConnections,lifecycleConnections={},{}
-local heartbeatConnection,chromConnection,shellConnection
+local heartbeatConnection
+local renderBound=false
+local RENDER_FRAME="VisualsV2_ToolChamsRender"
 local chromHost,chromView,chromWorld,chromCamera
 local dirty,queued,resetting=true,false,false
 local CHROM_SCALE,CHROM_ALPHA=1.012,0.025
+local FLAT_SCALE=1.012
 -- The working FakeBomb texture from the MMV report. Its mask drives the
 -- ForceField shimmer; each tool keeps its own mesh, scale and dimensions.
 local BOMB_FORCEFIELD_TEXTURE="rbxassetid://104516981"
@@ -4934,12 +4938,14 @@ local function clearState(state)
     clearForceField(state)
 end
 
-local function stopShellSync()
-    if shellConnection then shellConnection:Disconnect(); shellConnection=nil end
+local function stopRenderSync()
+    if renderBound then
+        RunService:UnbindFromRenderStep(RENDER_FRAME)
+        renderBound=false
+    end
 end
 
 local function destroyViewport()
-    if chromConnection then chromConnection:Disconnect(); chromConnection=nil end
     if chromHost then chromHost:Destroy() end
     chromHost,chromView,chromWorld,chromCamera=nil,nil,nil,nil
 end
@@ -4957,6 +4963,11 @@ local function ensureViewport()
     chromHost.Name="VisualsV2_ChamsViewport"
     chromHost.ResetOnSpawn=false
     chromHost.IgnoreGuiInset=true
+    -- The scene camera renders the whole screen, including the notch area.
+    -- DeviceSafeInsets would offset and change the aspect of the overlay.
+    pcall(function() chromHost.ScreenInsets=Enum.ScreenInsets.None end)
+    pcall(function() chromHost.SafeAreaCompatibility=Enum.SafeAreaCompatibility.None end)
+    pcall(function() chromHost.ClipToDeviceSafeArea=false end)
     chromHost.DisplayOrder=100
     chromHost.Parent=parent
     chromView=Instance.new("ViewportFrame")
@@ -4971,6 +4982,8 @@ local function ensureViewport()
     chromView.ZIndex=999
     chromView.Visible=true
     chromView.Active=false
+    chromView.Selectable=false
+    pcall(function() chromView.Interactable=false end)
     chromView.Parent=chromHost
     chromCamera=Instance.new("Camera")
     chromCamera.Name="ToolChamsCamera"
@@ -4983,24 +4996,6 @@ local function ensureViewport()
     chromWorld=Instance.new("WorldModel")
     chromWorld.Name="ChamsWorld"
     chromWorld.Parent=chromView
-    chromConnection=RunService.RenderStepped:Connect(function()
-        local cameraNow=workspace.CurrentCamera
-        if cameraNow and chromCamera then
-            chromCamera.CFrame=cameraNow.CFrame
-            chromCamera.FieldOfView=cameraNow.FieldOfView
-        end
-        for tool,state in pairs(states) do
-            if state.chromEntries then
-                for _,entry in ipairs(state.chromEntries) do
-                    local source,clone=entry[1],entry[2]
-                    local visible=source.Parent and tool.Parent==player.Character
-                        and math.max(source.Transparency,source.LocalTransparencyModifier)<1
-                    if source.Parent then clone.CFrame=source.CFrame end
-                    clone.Transparency=visible and CHROM_ALPHA or 1
-                end
-            end
-        end
-    end)
     return true
 end
 
@@ -5040,17 +5035,61 @@ local function shell(source,scale)
     return clone
 end
 
-local function ensureShellSync()
-    if shellConnection then return end
-    shellConnection=RunService.RenderStepped:Connect(function()
-        for tool,state in pairs(states) do
-            for _,entry in ipairs(state.flatEntries or {}) do
-                local source,clone=entry[1],entry[2]
-                local visible=source.Parent and tool.Parent==player.Character
-                    and math.max(source.Transparency,source.LocalTransparencyModifier)<1
-                if source.Parent then clone.CFrame=source.CFrame end
-                clone.Transparency=visible and source.Transparency or 1
+local function shellEntry(source,clone,scale)
+    return {source,clone,source:FindFirstChildWhichIsA("DataModelMesh"),
+        clone:FindFirstChildWhichIsA("DataModelMesh"),scale}
+end
+
+local renderReaders=setmetatable({}, {__mode="k"})
+local function renderedFrame(object)
+    local reader=renderReaders[object]
+    if reader==nil then
+        local ok,value=pcall(function() return object.GetRenderCFrame end)
+        reader=ok and type(value)=="function" and value or false
+        renderReaders[object]=reader
+    end
+    if reader then
+        local ok,value=pcall(reader,object)
+        if ok and typeof(value)=="CFrame" then return value end
+        renderReaders[object]=false
+    end
+    return object.CFrame
+end
+
+local function syncEntry(tool,entry,chromatic)
+    local source,clone,mesh,cloneMesh,scale=entry[1],entry[2],entry[3],entry[4],entry[5]
+    local present=source.Parent and clone.Parent and source:IsDescendantOf(tool)
+    local visible=present and tool.Parent==player.Character
+        and math.max(source.Transparency,source.LocalTransparencyModifier)<1
+    if present then
+        clone.CFrame=renderedFrame(source)
+        local size=mesh and source.Size or source.Size*scale
+        if clone.Size~=size then clone.Size=size end
+        if mesh and mesh.Parent and cloneMesh and cloneMesh.Parent then
+            local meshScale=mesh.Scale*scale
+            if cloneMesh.Scale~=meshScale then cloneMesh.Scale=meshScale end
+            if cloneMesh.Offset~=mesh.Offset then cloneMesh.Offset=mesh.Offset end
+            if mesh:IsA("SpecialMesh") then
+                if cloneMesh.MeshId~=mesh.MeshId then cloneMesh.MeshId=mesh.MeshId end
+                if cloneMesh.MeshType~=mesh.MeshType then cloneMesh.MeshType=mesh.MeshType end
             end
+        end
+    end
+    clone.Transparency=visible and (chromatic and CHROM_ALPHA or source.Transparency) or 1
+end
+
+local function ensureRenderSync()
+    if renderBound then return end
+    renderBound=true
+    RunService:BindToRenderStep(RENDER_FRAME,Enum.RenderPriority.Last.Value+1,function()
+        local cameraNow=workspace.CurrentCamera
+        if cameraNow and chromCamera then
+            chromCamera.CFrame=renderedFrame(cameraNow)
+            chromCamera.FieldOfView=cameraNow.FieldOfView
+        end
+        for tool,state in pairs(states) do
+            for _,entry in ipairs(state.flatEntries or {}) do syncEntry(tool,entry,false) end
+            for _,entry in ipairs(state.chromEntries or {}) do syncEntry(tool,entry,true) end
         end
     end)
 end
@@ -5062,12 +5101,12 @@ local function applyFlat(tool,state,color)
         model.Name="VisualsV2_FlatChams_"..tool.Name
         local entries={}
         for _,source in ipairs(state.parts) do
-            local clone=not deformable(source) and shell(source,0.99) or nil
+            local clone=not deformable(source) and shell(source,FLAT_SCALE) or nil
             if clone then
                 clone.Anchored=true
-                clone.CFrame=source.CFrame
+                clone.CFrame=renderedFrame(source)
                 clone.Parent=model
-                entries[#entries+1]={source,clone}
+                entries[#entries+1]=shellEntry(source,clone,FLAT_SCALE)
             end
         end
         model.Parent=workspace
@@ -5083,7 +5122,7 @@ local function applyFlat(tool,state,color)
         visible.Adornee=tool; visible.Parent=model
         state.flat,state.flatHighlight,state.visibleHighlight,state.flatEntries=model,occluded,visible,entries
     end
-    ensureShellSync()
+    ensureRenderSync()
     state.flatHighlight.FillColor=color
     state.visibleHighlight.FillColor=color
     for _,entry in ipairs(state.flatEntries) do
@@ -5107,15 +5146,16 @@ local function applyChromatic(tool,state,color)
                 clone.Reflectance=0.12
                 clone.Transparency=math.max(source.Transparency,source.LocalTransparencyModifier)>=1 and 1 or CHROM_ALPHA
                 clone.Color=color
-                clone.CFrame=source.CFrame
+                clone.CFrame=renderedFrame(source)
                 clone.Parent=model
-                entries[#entries+1]={source,clone}
+                entries[#entries+1]=shellEntry(source,clone,CHROM_SCALE)
             end
         end
         model.Parent=chromWorld
         state.chrom,state.chromEntries,state.chromColor=model,entries,color
     end
     -- Static colours and rainbow colours take the same rendering path.
+    ensureRenderSync()
     state.chromColor=color
     for _,entry in ipairs(state.chromEntries) do entry[2].Color=color end
 end
@@ -5245,7 +5285,7 @@ local function stopWatching()
     disconnectAll(characterConnections)
     trackedCharacter=nil
     for tool,state in pairs(states) do clearState(state); states[tool]=nil end
-    stopShellSync()
+    stopRenderSync()
     destroyViewport()
     dirty=true
 end
@@ -5287,7 +5327,7 @@ update=function()
         end
     end
     if not chromatic then destroyViewport() end
-    if not shells then stopShellSync() end
+    if not chromatic and not shells then stopRenderSync() end
 end
 
 local function refresh()
