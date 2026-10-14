@@ -1,29 +1,3 @@
--- Visuals V2
--- 2026-10-14 r27: Restore weapon displays when auto-removal is off; add Reapply below Remove; keep original instances.
--- 2026-10-14 r26: Restore anonymous three-slot inventory limits and trim the requested description sentence.
--- 2026-10-14 r25: Shared button audio, native geometry chams, repeat-use tool safety, gun animation timelines and timer font.
--- 2026-10-14 r24: Link Bomb Jump drag locks to Miscellaneous; save hotkeys/positions with all VV2 settings; add a combined reset in Bomb Jump+.
--- 2026-10-14 r23: Import supplied Chams including Others; VV2 Bomb Jump+ and Gold Bomb Jump; auto-remove displays; monitor-style firefly font.
--- 2026-10-14 r22: Restore the r20 Flat/Chromatic renderer; keep native toy scripts alive during hotbar ordering.
--- 2026-10-14 r21: Align Flat/Chromatic shells after camera updates, cover native rims, and match the full-screen viewport.
--- 2026-10-13 r20: Match FakeBomb's zero reflectance on SprayPaint/Teddy ForceField, preserving native visibility and tap input.
--- 2026-10-13 r19: Remove the SprayPaint/TeddyBear visibility fade and its slider.
--- 2026-10-13: Restore snowball launch range, clear dense paint/teddy texture masks, and expose live build/aim failures.
--- 2026-10-13: Native SprayPaint ForceField replacement, restored toy appearance overrides, and crosshair world targets for VolleyBall2025.
--- 2026-10-13: Detect Volleyball and centre the captured SnowballToy2020/WaterBalloon2024 origin-plus-target packets.
--- 2026-10-13: Use crosshair surface targets for beach balls/water balloons; separate SprayPaint's visible ForceField shell.
--- 2026-10-13: Restore supplied material/viewport chams, protect SprayPaint visibility, and preserve native projectile range.
--- 2026-10-13: Cover direct/cached native throwable requests alongside the namecall route; expose transport checks.
--- 2026-10-13: Detach disabled throwable handlers and preserve native request forwarding across nested method checks.
--- 2026-10-13: Preserve native camera touch input; align throwable aim with the game's crosshair and GUI inset.
--- 2026-10-09: Preserve SprayPaint tool logic and native tool/emote playback with all FE presets.
--- 2026-10-09: Fixed MM2 skin choices: 357 guns and 631 knives, excluding defaults.
--- 2026-10-09: Original Voidscope/Matrixscope in MM2 and MMV; shared original scope hold.
--- 2026-10-09: Native MM2/MMV shift-lock throwable aiming, including touch inputs.
--- COMPLETE WEAPON RESTORE: latest fixes + Shoot Murderer + Guns & Knives + Gun+
--- COMPLETE BUILD: requested add-ons + accumulated fixes
--- Native Overdrive H addon
-
 local shared = odh_shared_plugins
 
 local Players = game:GetService("Players")
@@ -40,10 +14,6 @@ local mainTab = shared.CreateTab(
     "/0ludexioso/VisualsV2/refs/heads/main/icon"
 )
 
--- Durable add-on settings.
--- writefile()/readfile() are rooted at the executor workspace, so this appears as:
--- ixry shizuka/plugins/workspace/VisualsV2_settings.json
--- It is intentionally separate from ODH's mm2.json.
 local CFG_FILE = "VisualsV2_settings.json"
 local ConfigData = {}
 local PositionData = {}
@@ -56,8 +26,6 @@ if type(getgenv) == "function" then
     if ok and type(result) == "table" then env = result end
 end
 
--- Release a previous build's global aim handler before loading any settings
--- or cleaning up its callbacks. Legacy wrappers then pass native calls through.
 local previousThrowableBridge=env.VisualsV2ThrowableAimBridge
 if type(previousThrowableBridge)=="table" then previousThrowableBridge.handler=nil end
 
@@ -65,9 +33,6 @@ local read = type(readfile) == "function" and readfile or env.readfile
 local write = type(writefile) == "function" and writefile or env.writefile
 local exists = type(isfile) == "function" and isfile or env.isfile
 
--- A fresh install means this add-on has never created its own settings JSON.
--- On that first execution, feature toggles are seeded OFF except the requested
--- timer, statistic-color, and individual statistic display defaults.
 local configExistedAtStart=false
 if type(exists)=="function" then
     local ok,result=pcall(exists,CFG_FILE)
@@ -103,7 +68,7 @@ local function decodeConfigValue(value, default)
         if type(color) == "table" and #color >= 3 then
             local r, g, b = tonumber(color[1]), tonumber(color[2]), tonumber(color[3])
             if r and g and b then
-                -- New config stores 0..1 Color3 channels. Old builds stored 0..255.
+
                 if r > 1 or g > 1 or b > 1 then
                     return Color3.fromRGB(r, g, b)
                 end
@@ -129,8 +94,6 @@ local function loadConfig()
     end)
     if not ok or type(decoded) ~= "table" then return end
 
-    -- Only load this add-on's standalone schema. Old flat settings are intentionally
-    -- not imported so a fresh install starts with every feature disabled.
     if type(decoded.settings) == "table" then
         ConfigData = decoded.settings
     end
@@ -156,8 +119,7 @@ local function C(key, default)
     local value = source[key]
 
     if value == nil then
-        -- Feature toggles start disabled; the explicitly requested display
-        -- defaults keep their enabled state. Style defaults are unchanged.
+
         local seededDefault=default
         if freshInstall and type(default)=="boolean" and not defaultOnControls[key] then
             seededDefault=false
@@ -197,8 +159,6 @@ local function addToggle(section, name, defaultValue, callback)
         newState = not not newState
         if newState == state then return end
 
-        -- ODH toggles expose a closure rather than Set(value). Try twice so a
-        -- retained UI state from a previous execution cannot invert persistence.
         pcall(rawToggle)
         if state ~= newState then pcall(rawToggle) end
         if state ~= newState then
@@ -229,8 +189,7 @@ local function addDropdown(section, name, items, defaultValue, callback)
                     selected = pcall(function() controller:Select(defaultValue) end)
                 end
             end
-            -- Always apply the persisted value functionally even if this ODH
-            -- build does not expose a working dropdown Select setter.
+
             callback(defaultValue)
         end)
     end
@@ -239,15 +198,12 @@ end
 
 loadConfig()
 
--- Clean up a previous execution of this build without changing its saved config.
--- This prevents old UI/effect connections from stacking when the addon is re-executed.
 local previousRuntime = env.VisualsV2Runtime
 if type(previousRuntime) == "table" and type(previousRuntime.Cleanup) == "function" then
     pcall(previousRuntime.Cleanup)
 end
 
--- Runtime reset registry.
-env.VisualsV2Runtime = {Resetters = {}, Build = "2026-10-14-r27"}
+env.VisualsV2Runtime = {Resetters = {}, Build = "2026-10-14"}
 env.VisualsV2Runtime.RegisterReset = function(callback)
     if type(callback) == "function" then table.insert(env.VisualsV2Runtime.Resetters, callback) end
 end
@@ -258,9 +214,6 @@ env.VisualsV2Runtime.Cleanup = function()
     configResetting = false
 end
 
--- Settings are already written immediately by SetCfg. These hooks add one
--- final best-effort save when teleporting/leaving so executor workspaces keep
--- the same config between servers and future executions.
 pcall(function()
     LocalPlayer.OnTeleport:Connect(function()
         saveConfig()
@@ -272,7 +225,6 @@ pcall(function()
     end)
 end)
 
--- Only sounds owned by VV2 buttons belong here. Native gun/toy audio is separate.
 local ButtonAudio={sounds=setmetatable({}, {__mode="k"})}
 ButtonAudio.muted=C("vv2MuteButtonSFX",nil)
 if ButtonAudio.muted==nil then
@@ -305,10 +257,6 @@ end)
 
 local player = LocalPlayer
 local camera = workspace.CurrentCamera
-
--- =========================================================
--- COSMETIC: CHINESE HAT
--- =========================================================
 
 ;(function()
     local hatSection = mainTab:AddSection("Chinese Hat", "Cosmetic")
@@ -550,11 +498,6 @@ local camera = workspace.CurrentCamera
     end
 end)()
 
--- =========================================================
-
--- =========================================================
--- COSMETIC: MULTI HAT GIVER
--- =========================================================
 ;(function()
 local section=mainTab:AddSection("Multi Hat Giver","Cosmetic")
 local enabled=C("multiHatEnabled",false)
@@ -623,10 +566,6 @@ end)
 if enabled then task.defer(refresh) end
 end)()
 
--- =========================================================
--- COSMETIC: FE ANIMATIONS
--- 52 animation presets: 51 originally from 187 (aux0on/FE), plus R6 Gear Hold.
--- =========================================================
 ;(function()
 local table_insert = table.insert
 
@@ -690,8 +629,6 @@ env.VisualsV2Runtime.RegisterReset(function()
     end
 end)
 
--- Preserve the standalone add-on's loader-version check without leaving a
--- second remote animation script or polling task running after re-execution.
 local loaderCheck = task.spawn(function()
     local CoreGui = game:GetService("CoreGui")
     local target
@@ -710,10 +647,6 @@ local loaderCheck = task.spawn(function()
     end
 end)
 RootMaid:GiveTask(function() pcall(task.cancel, loaderCheck) end)
-
-
-
-
 
 local feAnimSection = mainTab:AddSection("FE Animations", "Cosmetic")
 
@@ -1116,7 +1049,7 @@ local animPresets = {
                 climb = "http://www.roblox.com/asset/?id=95973965948476",
                 fall  = "http://www.roblox.com/asset/?id=109790195947848"
             },
-                        
+
             ["FHA V2"] = {
                 idle1 = "http://www.roblox.com/asset/?id=77320840005481",
                 idle2 = "http://www.roblox.com/asset/?id=77320840005481",
@@ -1126,7 +1059,7 @@ local animPresets = {
                 climb = "http://www.roblox.com/asset/?id=114562994724647",
                 fall  = "http://www.roblox.com/asset/?id=98383265864436"
             },
-           
+
             ["Silent Nurse"] = {
                 idle1 = "http://www.roblox.com/asset/?id=111047244862844",
                 idle2 = "http://www.roblox.com/asset/?id=111047244862844",
@@ -1146,7 +1079,7 @@ local animPresets = {
                 climb = "http://www.roblox.com/asset/?id=82728029306069",
                 fall  = "http://www.roblox.com/asset/?id=119173466228299"
             },
-            
+
             ["Enchanted Fairy"] = {
                 idle1 = "http://www.roblox.com/asset/?id=73650178233095",
                 idle2 = "http://www.roblox.com/asset/?id=73650178233095",
@@ -1156,7 +1089,7 @@ local animPresets = {
                 climb = "http://www.roblox.com/asset/?id=140663406485180",
                 fall  = "http://www.roblox.com/asset/?id=100947971756348"
             },
-            
+
             ["Furry"] = {
                 idle1 = "http://www.roblox.com/asset/?id=111821292044705",
                 idle2 = "http://www.roblox.com/asset/?id=111821292044705",
@@ -1166,7 +1099,7 @@ local animPresets = {
                 climb = "http://www.roblox.com/asset/?id=76660530164497",
                 fall  = "http://www.roblox.com/asset/?id=137079985547592"
             },
-            
+
             ["Vlada Model"] = {
                 idle1 = "http://www.roblox.com/asset/?id=100139116433530",
                 idle2 = "http://www.roblox.com/asset/?id=100139116433530",
@@ -1185,7 +1118,7 @@ local animPresets = {
                 climb = "http://www.roblox.com/asset/?id=80369171706383",
                 fall  = "http://www.roblox.com/asset/?id=130011792193300"
             },
-        
+
             ["R6 Gear Hold"] = {
                 idle1 = "rbxassetid://92453281924797",
                 idle2 = "rbxassetid://89893748940721",
@@ -1224,14 +1157,14 @@ local allAnimOptions = {
         }
 local swimAnimOptions = {"Default", "R6 Gear Hold"}
 
-
 local presetKeys = {
-    all = "feAnimPresetAll", idle = "feAnimPresetIdle", walk = "feAnimPresetWalk",
+    all = "feAnimPresetAll", idle = "feAnimPresetIdle", idle2 = "feAnimPresetIdle2", walk = "feAnimPresetWalk",
     run = "feAnimPresetRun", jump = "feAnimPresetJump", climb = "feAnimPresetClimb", fall = "feAnimPresetFall",
     swim = "feAnimPresetSwim",
 }
 local customSlots = {
-    {key = "idle", label = "Idle", config = "feAnimCustomIdle"},
+    {key = "idle", label = "Idle 1", config = "feAnimCustomIdle"},
+    {key = "idle2", label = "Idle 2", config = "feAnimCustomIdle2"},
     {key = "walk", label = "Walk", config = "feAnimCustomWalk"},
     {key = "run", label = "Run", config = "feAnimCustomRun"},
     {key = "jump", label = "Jump", config = "feAnimCustomJump"},
@@ -1250,6 +1183,10 @@ local function cleanAnimationId(value)
 end
 
 local animState, customAnims = {}, {}
+if ConfigData.feAnimPresetIdle == nil and ConfigData.feAnimPresetIdle1 ~= nil then
+    ConfigData.feAnimPresetIdle = ConfigData.feAnimPresetIdle1
+end
+ConfigData.feAnimPresetIdle1 = nil
 local legacyEnabled = C("feAnimEnabled", false) == true
 local hadCustom, hadPreset = false, false
 for animType, key in pairs(presetKeys) do
@@ -1262,11 +1199,9 @@ for animType, key in pairs(presetKeys) do
     ConfigData[key] = selected
 end
 if ConfigData.feAnimCustomIdle == nil then
-    local oldIdle = cleanAnimationId(ConfigData.feAnimCustomIdle1) or ""
-    if oldIdle == "" then oldIdle = cleanAnimationId(ConfigData.feAnimCustomIdle2) or "" end
-    ConfigData.feAnimCustomIdle = oldIdle
+    ConfigData.feAnimCustomIdle = cleanAnimationId(ConfigData.feAnimCustomIdle1) or ""
 end
-ConfigData.feAnimCustomIdle1, ConfigData.feAnimCustomIdle2 = nil, nil
+ConfigData.feAnimCustomIdle1 = nil
 for _, slot in ipairs(customSlots) do
     customAnims[slot.key] = cleanAnimationId(C(slot.config, "")) or ""
     ConfigData[slot.config] = customAnims[slot.key]
@@ -1276,8 +1211,6 @@ local customEnabled = C("feAnimCustomEnabled", legacyEnabled and hadCustom) == t
 ConfigData.feAnimEnabled = presetsEnabled or customEnabled
 local function enabled() return presetsEnabled or customEnabled end
 
--- These catalog containers use separate playback clips. Presets already
--- contain playback IDs; arbitrary custom catalog IDs are resolved on demand.
 local assetRedirects = {
     ["103766334307435"] = "92453281924797",
     ["122068681350601"] = "114884344098450",
@@ -1376,8 +1309,7 @@ local function nativeKind(s, track)
     local kind = movementGroup(group)
     if kind then return kind end
     if id and s.nativeIds[id] then return s.nativeIds[id] end
-    -- Generic Animation1/Animation2 names are also used by sit, tool and game
-    -- emotes. Only confirmed Animate groups or movement IDs can be suppressed.
+
     return id and defaultMoves[id]
 end
 local function isToolTrack(s, track)
@@ -1396,12 +1328,10 @@ end
 local function isEmote(s, track)
     if s.ownTracks[track] or nativeKind(s, track) then return false end
     if isToolTrack(s, track) then
-        -- Higher-priority native holds/actions can own their joints while our
-        -- Core locomotion continues. A Core tool pose needs exclusive playback.
+
         return track.Priority == Enum.AnimationPriority.Core
     end
-    -- Game emotes and avatar-wheel tracks need no particular name, parent or
-    -- catalog registration to take control. Unknown tracks are never muted.
+
     return true
 end
 local function collectNativeIds(s)
@@ -1423,6 +1353,7 @@ local function playbackTargets()
     local function selectedPreset(kind)
         if not presetsEnabled then return nil end
         local selected = animState[kind]
+        if kind == "idle2" and selected == "Default" then selected = animState.idle end
         if selected == "Default" then selected = animState.all end
         return animPresets[selected]
     end
@@ -1433,12 +1364,9 @@ local function playbackTargets()
         if customEnabled and customAnims[kind] ~= "" then id = customAnims[kind] end
         if id and id ~= "" then result[kind] = assetRedirects[id] or id end
     end
-    -- Preset idle variations do not require a second custom-id input.
-    local idlePreset = selectedPreset("idle")
-    if idlePreset and not (customEnabled and customAnims.idle ~= "") then
-        local id = cleanAnimationId(idlePreset.idle2)
-        if id and id ~= "" and id ~= result.idle then result.idle2 = assetRedirects[id] or id end
-    end
+    if customEnabled and customAnims.idle ~= "" and customAnims.idle2 == ""
+        and (not presetsEnabled or animState.idle2 == "Default") then result.idle2 = nil end
+    if result.idle2 == result.idle then result.idle2 = nil end
     local swimPreset = selectedPreset("swim")
     if customEnabled and customAnims.swim ~= "" then
         result.swimidle = customAnims.swim == "103415879046292" and "140107830121953" or result.swim
@@ -1460,8 +1388,10 @@ local function resolveCatalog(id, kind)
         local candidate = cleanAnimationId(animation.AnimationId)
         if not candidate or candidate == "" then return end
         local name = animation.Name:lower()
-        local match = aliases[name] == kind and 2 or 0
-        if name == kind or (kind == "idle" and name == "animation1") then match = 3 end
+        local group = kind == "idle2" and "idle" or kind
+        local match = aliases[name] == group and 2 or 0
+        if name == kind or (kind == "idle" and (name == "animation1" or name == "idle1"))
+            or (kind == "idle2" and name == "animation2") then match = 3 end
         if match > score then resolved, score = candidate, match end
     end
     for _, object in ipairs(objects) do
@@ -1511,7 +1441,7 @@ local function loadRecord(s, kind)
         track.Looped = kind ~= "jump"
         if kind == "idle" or kind == "idle2" then
             record.loopConnection = track.DidLoop:Connect(function()
-                if stillCurrent() and s.current == record and s.targets.idle2 then
+                if stillCurrent() and s.current == record and s.targets.idle and s.targets.idle2 then
                     s.idleVariant = kind == "idle" and "idle2" or "idle"
                     updateMotion(s)
                 end
@@ -1533,8 +1463,7 @@ local function loadRecord(s, kind)
             record.pending = false; record.failed = true
             reportLoadError(s, record); return
         end
-        -- LoadAnimation can return before the clip has downloaded. Resolve
-        -- catalog containers only when no playback data arrives, not per frame.
+
         task.wait(2)
         if not stillCurrent() or not record.track or record.track.Length > 0 then return end
         local resolved = resolveCatalog(id, kind)
@@ -1571,7 +1500,10 @@ local function desiredMotion(s)
     end
     local speed = s.runSpeed or 0
     local moving = humanoid.MoveDirection.Magnitude > 0.01 or speed > 0.5
-    if not moving then return s.idleVariant == "idle2" and s.targets.idle2 and "idle2" or "idle", 1 end
+    if not moving then
+        if s.targets.idle2 and (s.idleVariant == "idle2" or not s.targets.idle) then return "idle2", 1 end
+        return "idle", 1
+    end
     if speed <= 0.5 then speed = humanoid.MoveDirection.Magnitude * humanoid.WalkSpeed end
     local kind = speed >= math.max(humanoid.WalkSpeed * 0.75, 1) and "run" or "walk"
     if not s.targets[kind] then kind = kind == "run" and "walk" or "run" end
@@ -1620,8 +1552,7 @@ local function motionStep(s)
         track:AdjustSpeed(speed)
     end
     if not track.IsPlaying or track.Length <= 0 then restoreWeights(s); return end
-    -- Leave native tracks running so disabling this feature restores them
-    -- immediately. Only their competing movement weights are suppressed.
+
     local suppressed = {}
     for _, native in ipairs(playing) do
         local nativeMotion = nativeKind(s, native)
@@ -1805,9 +1736,6 @@ end
 if enabled() then task.defer(refreshRuntime) end
 end)()
 
--- COSMETIC: TRAIL
--- =========================================================
-
 local trailSection = mainTab:AddSection("Trail", "Cosmetic")
 local trailEnabled = C("trailEnabled", false)
 local trailIsGradient = C("trailIsGradient", false)
@@ -1839,7 +1767,7 @@ end
 
 local function trailAlpha(value)
     value = math.clamp(tonumber(value) or 1, 1, 4)
-    -- Never reaches 1, so the transparency slider cannot disable the feature.
+
     return 0.05 + ((value - 1) / 3) * 0.75
 end
 
@@ -1953,12 +1881,6 @@ env.VisualsV2Runtime.RegisterReset(function()
     if trailConnection then trailConnection:Disconnect(); trailConnection = nil end
     removeTrail()
 end)
-
--- =========================================================
--- COSMETIC: SKIN
--- =========================================================
--- COSMETIC: SKIN
--- =========================================================
 
 local skinSection = mainTab:AddSection("Skin", "Cosmetic")
 local ffEnabled = C("ffEnabled", false)
@@ -2173,11 +2095,6 @@ env.VisualsV2Runtime.RegisterReset(function()
     clearSkinTrail()
 end)
 
--- =========================================================
-
--- COSMETIC: AURAS
--- =========================================================
-
 local auraSection = mainTab:AddSection("Auras", "Cosmetic")
 local auraEnabled = C("auraEnabled", false)
 local auraType = C("auraType", "Godly")
@@ -2231,8 +2148,6 @@ end
 local function visualEffectsOnlyAuraClone(char)
     local tempModel = currentAuraModel:Clone()
 
-    -- Clone only visual effect roots attached to source body parts. This avoids
-    -- importing humanoids, rig parts, scripts, wings, or frozen character models.
     for _, obj in ipairs(tempModel:GetDescendants()) do
         local parent = obj.Parent
         if parent and parent:IsA("BasePart") and not obj:IsA("BasePart") then
@@ -2272,8 +2187,6 @@ local function applyAura()
     if not currentAuraModel then loadAuraModel() end
     if not currentAuraModel then return end
 
-    -- Blue Lord and Pink Aura use the original Nexium cloning behavior exactly.
-    -- Super Sayien keeps the same original Nexium behavior from the previous fix.
     if auraType == "Blue Lord" or auraType == "Pink Aura" or auraType == "Super Sayien" then
         originalNexiumAuraClone(char)
     else
@@ -2302,12 +2215,6 @@ env.VisualsV2Runtime.RegisterReset(function()
     clearAura()
 end)
 
--- =========================================================
-
-
--- =========================================================
--- COSMETIC: DUAL EFFECT
--- =========================================================
 ;(function()
 local section=mainTab:AddSection("Dual Effect","Cosmetic")
 section:AddLabel("Must Own Dual Effect + Selected Effect")
@@ -2339,9 +2246,6 @@ local toggle=addToggle(section,"VV2 Auto Equip Dual Effect",enabled,function(v) 
 env.VisualsV2Runtime.RegisterReset(function() toggle:Set(false); enabled=false; stop() end)
 if enabled then hook() end
 end)()
-
--- COSMETIC: JUMP CIRCLES
--- =========================================================
 
 local jumpSection = mainTab:AddSection("Jump Circles", "Cosmetic")
 local jumpCirclesEnabled = C("jumpCirclesEnabled", false)
@@ -2448,18 +2352,9 @@ env.VisualsV2Runtime.RegisterReset(function()
     jumpCircleColor = Color3.fromRGB(255,255,255)
 end)
 
--- =========================================================
--- COSMETIC: CHARACTER
--- =========================================================
-
 local characterSection = mainTab:AddSection("Character", "Cosmetic")
 local headlessEnabled = C("headlessEnabled", false)
 local characterOriginal = setmetatable({}, {__mode = "k"})
-
-characterSection:AddParagraph(
-    "Character Appearance",
-    "Headless and Korblox are client sided. Korblox works for R15 only."
-)
 
 local function rememberCharacterObject(obj)
     if not obj or characterOriginal[obj] then return end
@@ -2525,13 +2420,6 @@ local KorbloxSystem={
 }
 
 ;(function()
--- =========================================================
--- KORBLOX: GENUINE R15 BODY-PART REPLACEMENT
--- Uses Roblox's own R15 body-part replacement path so the Korblox meshes keep
--- their real knee/ankle attachments instead of being forced into another
--- avatar package's MeshPart bounds. Event-driven reapply also handles body
--- converters that rebuild the segmented R15 limbs without requiring a reset.
--- =========================================================
 
 local PlayersService=game:GetService("Players")
 
@@ -2866,8 +2754,6 @@ local function applySideNow(state,side)
     local parts=waitForSideParts(state.Character,side,2.5)
     if not parts then return false end
 
-    -- Capture the live body package before replacing it. This is also refreshed
-    -- when a force-R6/body changer externally rebuilds a limb.
     captureOriginalSide(state,side,false)
 
     if not buildTemplateParts() then
@@ -2887,8 +2773,7 @@ local function applySideNow(state,side)
     state.Applying[side]=false
 
     if not success then
-        -- One controlled description application is the fallback. There are no
-        -- repeating ApplyDescription chains, which avoids the old lag loop.
+
         local fallbackApplied=applyDescriptionFallback(state)
         if fallbackApplied then hookCurrentSideParts(state,side) end
         return fallbackApplied
@@ -2998,8 +2883,6 @@ scheduleSide=function(state,side,delayTime)
 
         applySideNow(state,side)
 
-        -- One bounded verification only. If a body converter is still replacing
-        -- parts, ChildAdded/ApplyDescriptionFinished will schedule the next repair.
         task.delay(0.22,function()
             if currentState~=state or state.Generation~=generation then return end
             if not sideEnabled(side) or player.Character~=state.Character then return end
@@ -3052,8 +2935,6 @@ local function hookCharacterState(state)
         local marker=child:GetAttribute(KORBLOX_MARKER)
         if marker==side then return end
 
-        -- A body converter/forced-R6 feature rebuilt this limb. Treat the new
-        -- part as the latest base body, then put Korblox back without a respawn.
         captureOriginalPart(state,side,table.find(SIDE_NAMES[side],child.Name),child,true)
         if sideEnabled(side) then
             scheduleSide(state,side,0.08)
@@ -3065,8 +2946,6 @@ local function hookCharacterState(state)
             if currentState~=state or player.Character~=char then return end
             if os.clock()<state.SuppressAppearanceUntil then return end
 
-            -- External appearance/body changes can rebuild parts in place or all
-            -- at once. Refresh the baseline and reapply enabled sides once.
             captureBaselineDescription(state)
             if KorbloxSystem.LeftEnabled then
                 captureOriginalSide(state,"Left",true)
@@ -3201,53 +3080,19 @@ KorbloxSystem.LeftToggle=addToggle(
     end
 )
 end)()
-characterSection:AddParagraph(
-    "No interruption on emoting",
-    "Runs ATAOs-style True Anti Fling for as long as a Roblox avatar emote is playing, then turns it off."
-)
 
 local noInterruptionEmote=C("noInterruptionEmote",false)
 local setupAutomaticEmoteProtection
 
 ;(function()
--- ============================================================
--- NO INTERRUPTION ON EMOTING (self-contained)
---
--- While a Roblox avatar emote track is playing on the local Animator, this
--- runs ATAOs' True/IY Anti Fling step on RunService.Stepped:
---     every other player -> every BasePart in their Character -> CanCollide=false
--- When the last emote track is gone the step is disconnected and every part
--- this feature switched off is switched back on.
---
--- It never plays, stops, seeks, replaces or freezes an animation, never
--- anchors anything, and never touches the local character or its description.
---
--- Detection is by animation track lifetime (Animator.AnimationPlayed ->
--- AnimationTrack.Stopped, backed by IsPlaying / GetPlayingAnimationTracks),
--- never by movement. Each new track is classified once:
---   1. known locomotion / user-excluded id            -> not an emote
---   2. lives inside the character's Animate script    -> emote only if it sits
---      in an emote group (wave/point/dance*/laugh/cheer), otherwise locomotion
---   3. lives inside a Tool or elsewhere in the game   -> not an emote
---      (this is what keeps MM2's own animations out)
---   4. id is a known avatar emote id                  -> emote
---   5. anything else (engine-created, no parent)      -> emote, unless it is a
---      very short one-shot action
--- ============================================================
 
--- true = print one line per new track (verdict + reason) and when protection
--- turns on/off. Use it to confirm a Roblox emote is caught and an MM2 emote
--- is not.
 local DEBUG=false
 
-local GRACE=0.3                   -- seconds protection bridges a track hand-off
-local WATCHDOG=0.25               -- seconds between safety re-scans
-local TREAT_UNKNOWN_AS_EMOTE=true -- rule 5 above
-local MIN_UNKNOWN_LENGTH=0.6      -- unknown one-shots shorter than this are ignored
+local GRACE=0.3
+local WATCHDOG=0.25
+local TREAT_UNKNOWN_AS_EMOTE=true
+local MIN_UNKNOWN_LENGTH=0.6
 
--- Classic Animate emote animations (R15 then R6). Avatar-wheel emotes are NOT
--- listed by id here: they are recognised structurally (rule 5) and, where the
--- ids happen to match, through HumanoidDescription:GetEmotes().
 local CLASSIC_EMOTE_IDS={
     [507770239]=true,[507770453]=true,[507771019]=true,[507776043]=true,
     [507777268]=true,[507770818]=true,[507770677]=true,
@@ -3255,9 +3100,6 @@ local CLASSIC_EMOTE_IDS={
     [182491065]=true,[129423131]=true,[129423030]=true,
 }
 
--- Backup list of default locomotion/pose animations (R15 then R6). The live
--- Animate script and HumanoidDescription are scanned too and are authoritative;
--- this only matters when something plays a default animation by raw id.
 local LOCOMOTION_IDS={
     [507766666]=true,[507766951]=true,[507766388]=true,[507777826]=true,
     [507767714]=true,[507765000]=true,[507767968]=true,[507765644]=true,
@@ -3268,8 +3110,6 @@ local LOCOMOTION_IDS={
     [129967390]=true,[129967478]=true,
 }
 
--- Put animation ids here to force "never an emote" (e.g. an MM2 emote that the
--- DEBUG output shows being treated as one).
 local EXCLUDED_ANIMATION_IDS={}
 
 local EMOTE_GROUPS={
@@ -3282,10 +3122,10 @@ local LOCOMOTION_PROPS={
 }
 
 local emoteIds,locomotionIds=CLASSIC_EMOTE_IDS,LOCOMOTION_IDS
-local active=setmetatable({}, {__mode="k"})   -- track -> true while an emote track is live
-local verdicts=setmetatable({}, {__mode="k"})  -- track -> cached classification
-local stoppedConns={}                          -- track -> Stopped connection
-local changed=setmetatable({}, {__mode="k"})   -- part -> true (it was collidable before we cleared it)
+local active=setmetatable({}, {__mode="k"})
+local verdicts=setmetatable({}, {__mode="k"})
+local stoppedConns={}
+local changed=setmetatable({}, {__mode="k"})
 local charConns,humanoidConns,animatorConns={}, {}, {}
 local stepConn=nil
 local graceUntil=0
@@ -3319,8 +3159,6 @@ local function disconnectAll(list)
     end
 end
 
--- Name (lower-case) of the direct child of the character's Animate-style
--- script that contains this animation, or nil if it is not inside one.
 local function animateGroupName(animation,char)
     if not char or not animation:IsDescendantOf(char) then return nil end
     local node=animation
@@ -3338,16 +3176,12 @@ local function isEmoteGroup(name)
     return name:find("emote",1,true)~=nil
 end
 
--- Tool animations and anything parented inside the game belong to the game
--- (knife/gun animations, MM2's own emote system, other scripts).
 local function isGameOwned(animation,char)
     if animation:FindFirstAncestorOfClass("Tool") then return true end
     if char and animation:IsDescendantOf(char) then return false end
     return animation:IsDescendantOf(game)
 end
 
--- Rebuilds the id sets from the live Animate script and HumanoidDescription.
--- May yield, so it is only ever called from its own thread.
 local function refreshCatalog(char,humanoid)
     local emotes,moves={}, {}
     for id in pairs(CLASSIC_EMOTE_IDS) do emotes[id]=true end
@@ -3395,12 +3229,10 @@ local function refreshCatalog(char,humanoid)
         end
     end
 
-    -- an id the game's own Animate treats as locomotion can never be an emote
     for id in pairs(moves) do emotes[id]=nil end
     emoteIds,locomotionIds=emotes,moves
 end
 
--- Returns isEmote, reason.
 local function judgeTrack(track,char)
     local animation=track.Animation
     if not animation then return false,"track has no Animation" end
@@ -3469,8 +3301,6 @@ local function clearEmotes()
     graceUntil=0
 end
 
--- True while any recognised emote track is playing (or just ended: GRACE
--- bridges multi-stage emotes that hand over from one track to the next).
 local function emoteActive()
     for track in pairs(active) do
         if trackPlaying(track) then return true end
@@ -3479,8 +3309,6 @@ local function emoteActive()
     return os.clock()<graceUntil
 end
 
--- ATAOs True/IY Anti Fling step. Only parts that were collidable are touched
--- and remembered, so restoring never alters anything this feature didn't change.
 local function applyStep()
     for _,other in ipairs(Players:GetPlayers()) do
         if other~=player then
@@ -3536,7 +3364,7 @@ local function ensureProtection()
     if not noInterruptionEmote or stepConn then return end
     stepConn=RunService.Stepped:Connect(onStepped)
     dprint("anti-fling ON")
-    applyStep() -- no gap between the emote starting and the first Stepped
+    applyStep()
 end
 
 local function handleTrack(track)
@@ -3594,7 +3422,6 @@ local function bindHumanoid(humanoid)
     boundHumanoid=humanoid
     if not humanoid then return end
 
-    -- Independent fallback for engines/forced rigs that race the Animator hook.
     pcall(function()
         table.insert(humanoidConns,humanoid.AnimationPlayed:Connect(handleTrack))
     end)
@@ -3613,8 +3440,6 @@ local function bindHumanoid(humanoid)
     task.spawn(refreshCatalog,boundChar,humanoid)
 end
 
--- Re-resolves Humanoid and Animator from the live character and rebinds if
--- either was replaced (forced R6/R15 swaps, Animator rebuilds).
 resolveBindings=function(char)
     if not char or boundChar~=char then return end
     local humanoid=char:FindFirstChildOfClass("Humanoid")
@@ -3638,8 +3463,6 @@ local function teardown()
     stopProtection()
 end
 
--- Never yields: all waiting happens in its own thread, so callers (such as
--- the respawn hook that also sets up jump circles) are not delayed.
 setupAutomaticEmoteProtection=function(char)
     teardown()
     if not noInterruptionEmote or not char then return end
@@ -3731,16 +3554,8 @@ env.VisualsV2Runtime.RegisterReset(function()
 end)
 end)()
 
-
--- =========================================================
--- UTILITIES: SPEED GLITCH
--- =========================================================
-
 local speedSection = mainTab:AddSection("Speed Glitch", "Utilities")
-speedSection:AddParagraph(
-    "Speed Glitch",
-    "Only works while Shift Lock is active. Using very high speeds for a fairly long period of time may cause the game to kick you."
-)
+
 local speedEnabled = C("speedGlitchEnabled", false)
 local speedValue = C("speedValue", 50)
 local speedButtonVisible = C("speedButtonVisible", false)
@@ -3789,8 +3604,6 @@ local function fiveStepTransparency(value)
     return math.clamp(((tonumber(value) or 1) - 1) / 4, 0, 1)
 end
 
--- ODH bindable-button implementation, based on the supplied BindableButtons.luau.
--- Extra setters only adjust the SG button; the visual/interaction style remains ODH's.
 local BindableButtons = (function()
     local buttons = {Buttons={}, Maids={}, Locked={}, Callbacks={}, Count=0}
     local shapes = {
@@ -3859,8 +3672,7 @@ local BindableButtons = (function()
     function buttons:SetSize(id,level)
         local b=self.Buttons[id]; if not b then return end
         level=math.clamp(tonumber(level) or 2,1,10)
-        -- The stock ODH button is much larger. 1..10 maps down to 14..50 px
-        -- so level 1 can be substantially smaller than ODH's normal minimum.
+
         local px=14+((level-1)*4)
         b.Size=UDim2.fromOffset(px,px)
         local label=b:FindFirstChild("@Text")
@@ -4222,10 +4034,6 @@ env.VisualsV2Runtime.RegisterReset(function()
     updateSpeedButtonStyle()
 end)
 
--- =========================================================
--- UTILITIES: ANTI-AIM EXTENSION
--- =========================================================
-
 ;(function()
 local shared = odh_shared_plugins
 
@@ -4313,7 +4121,7 @@ local function isIgnoredPlayerArmed()
         if player and player.Parent then
             local backpack = player:FindFirstChild("Backpack")
             local character = player.Character
-            
+
             if backpack then
                 for _, item in ipairs(backpack:GetChildren()) do
                     if item:IsA("Tool") then
@@ -4321,7 +4129,7 @@ local function isIgnoredPlayerArmed()
                     end
                 end
             end
-            
+
             if character then
                 for _, item in ipairs(character:GetChildren()) do
                     if item:IsA("Tool") then
@@ -4390,7 +4198,7 @@ local function startAntiAim()
                     local isStopped = (humanoid.MoveDirection.Magnitude == 0)
 
                     local multiplier = math.random(1, 2) == 1 and 320 or -320
-                    
+
                     if isJumping then
                         local jumpMultY = math.random(1, 2) == 1 and 250 or -250
                         hrp.AssemblyLinearVelocity = Vector3.new(multiplier, jumpMultY, multiplier)
@@ -4400,7 +4208,7 @@ local function startAntiAim()
                     else
                         hrp.AssemblyLinearVelocity = Vector3.new(multiplier, 0, multiplier)
                     end
-                    
+
                     RunService.RenderStepped:Wait()
                     hrp.AssemblyLinearVelocity = oldVelocity
                 end
@@ -4417,21 +4225,14 @@ local antiAimToggle=addToggle(aaSection,"Enable Anti-Aim",userWantsEnabled,funct
     enabled = bool
     if bool then
         startAntiAim()
-        shared.Notify("Anti-Aim Enabled", 2)
     else
         stopAntiAim()
-        shared.Notify("Anti-Aim Disabled", 2)
     end
 end)
 
 local ignoreToggle=addToggle(aaSection,"Enable Ignore List",ignoreListEnabled,function(bool)
     SetCfg("aaIgnoreListEnabled",bool)
     ignoreListEnabled = bool
-    if bool then
-        shared.Notify("Ignore List Enabled", 2)
-    else
-        shared.Notify("Ignore List Disabled", 2)
-    end
 end)
 
 local drop1, drop2, drop3
@@ -4504,7 +4305,6 @@ local playerRemovingConnection=Players.PlayerRemoving:Connect(function(player)
     updateDropdowns()
 end)
 
-
 env.VisualsV2Runtime.RegisterReset(function()
     antiAimToggle:Set(false)
     ignoreToggle:Set(false)
@@ -4516,10 +4316,6 @@ env.VisualsV2Runtime.RegisterReset(function()
     playerRemovingConnection:Disconnect()
 end)
 end)()
-
--- =========================================================
--- UTILITIES: DISTANCE ESP ONLY
--- =========================================================
 
 local espSection = mainTab:AddSection("Distance ESP", "Utilities")
 local distanceEspEnabled = C("distanceEspEnabled", false)
@@ -4649,11 +4445,6 @@ env.VisualsV2Runtime.RegisterReset(function()
     clearDistanceEsp()
 end)
 
--- =========================================================
--- UTILITIES: SHOOT MURDERER BUTTON
--- Customizes only the existing ODH button. Position saves automatically.
--- =========================================================
-
 ;(function()
 local section=mainTab:AddSection("Shoot Murderer Button","Utilities")
 local customEnabled=C("shootCustomizationEnabled",false)
@@ -4781,8 +4572,6 @@ local function bind(newButton)
     scale.Parent=button
     update()
 
-    -- No addon action is triggered by a random screen press.
-    -- Dragging can only begin on this exact button.
     table.insert(conns,button.InputBegan:Connect(function(input)
         if not customEnabled or not allowDrag then return end
         if input.UserInputType~=Enum.UserInputType.MouseButton1 and input.UserInputType~=Enum.UserInputType.Touch then return end
@@ -4792,7 +4581,6 @@ local function bind(newButton)
         startPos=button.Position
     end))
 
-    -- Keep-gun/animation helpers only run from an actual click on the button.
     table.insert(conns,button.MouseButton1Click:Connect(function()
         if not customEnabled or allowDrag then return end
         keepEquipped()
@@ -4876,17 +4664,6 @@ env.VisualsV2Runtime.RegisterReset(function()
 end)
 end)()
 
--- =========================================================
--- VISUALS: GUNS & KNIVES
--- Independent gun and knife tint and chams controls.
--- =========================================================
-
--- =========================================================
--- VISUALS: EQUIPPED WEAPON / TOOL CHAMS
--- ForceField, Flat and Chromatic renderers adapted from anya_bts's Tool Chams.
--- Original material and viewport effects; tool geometry and native input stay intact.
--- =========================================================
-
 ;(function()
 local runtime=env.VisualsV2Runtime
 local Workspace,LocalPlayer=workspace,player
@@ -4948,7 +4725,7 @@ local function shell(source)
     local ok,clone=pcall(function() return source:Clone() end)
     if not archivable then pcall(function() source.Archivable=archivable end) end
     if not ok or not clone then return end
-    -- A visual clone never contains scripts, remotes, joints, effects or input.
+
     for _,child in ipairs(clone:GetChildren()) do
         if not child:IsA("DataModelMesh") then child:Destroy() end
     end
@@ -4979,8 +4756,7 @@ end
 local function hide_source(entry)
     local source=entry.source
     if entry.hidden then
-        -- A camera controller can update this after the prior frame's event.
-        -- Enforce the replacement again immediately before rendering.
+
         if source.LocalTransparencyModifier~=1 then
             entry.nativeAlpha=source.LocalTransparencyModifier
             entry.writing=true;source.LocalTransparencyModifier=1;entry.writing=false
@@ -4992,8 +4768,7 @@ local function hide_source(entry)
     entry.connection=source:GetPropertyChangedSignal("LocalTransparencyModifier"):Connect(function()
         if entry.writing or not entry.hidden then return end
         local alpha=source.LocalTransparencyModifier
-        -- With deferred signals, our own write is delivered after writing has
-        -- cleared. Do not feed that hide value back into clone visibility.
+
         if alpha==1 then return end
         entry.nativeAlpha=alpha
         entry.writing=true;source.LocalTransparencyModifier=1;entry.writing=false
@@ -5014,7 +4789,7 @@ local function chrom_sync(state)
     for _,entry in ipairs(state.entries or {}) do
         local source,clone=entry.source,entry.clone
         if ready and source.Parent and clone.Parent then
-            -- Sample camera and tool pose in the same late render callback.
+
             clone.CFrame=source.CFrame
             clone.Size=source.Size
             local mesh=source:FindFirstChildWhichIsA("DataModelMesh")
@@ -5055,9 +4830,6 @@ local function chrom_apply(state,color)
     chrom_sync(state.chrom)
 end
 
--- Every material is applied to the native geometry first. Flat has no moving
--- shell, and Chromatic has the same tint as a fallback if its viewport is lost.
--- Neither path changes tool input, scripts, size, mesh geometry or grip.
 local function appearance_restore(state)
     for part,data in pairs(state.cache) do
         pcall(function()
@@ -5125,7 +4897,7 @@ local function appearance_apply(state,color)
             local saved=part:GetAttribute("VisualsV2_OriginalMaterial")
             if state.owner==LocalPlayer and saved and Enum.Material[saved] then data.material=Enum.Material[saved] end
             pcall(function() data.texture=part.TextureID end)
-            -- Changing a material must not change native toy mass or ballistics.
+
             local ok,physics=pcall(function() return part.CurrentPhysicalProperties end)
             if ok and typeof(physics)=="PhysicalProperties" and part.CustomPhysicalProperties==nil then
                 data.customPhysics=part.CustomPhysicalProperties
@@ -5194,7 +4966,7 @@ local function active()
 end
 
 local function clear_viewport()
-    -- Sources are restored before their replacement viewport is removed.
+
     for _,state in pairs(states) do chrom_clear(state.chrom) end
     if chrom_host then chrom_host:Destroy() end
     chrom_host,chrom_view,chrom_world,chrom_camera=nil,nil,nil,nil
@@ -5364,12 +5136,6 @@ runtime.RegisterReset(function()
 end)
 end)()
 
-
--- =========================================================
--- COSMETIC: FIXED CLIENT GUN / KNIFE SKINS (MM2 / MMV)
--- Dropdown choices are supplied when the controls are created.
--- No database requires, catalog requests, background scans or refresh buttons.
--- =========================================================
 ;(function()
 local section=mainTab:AddSection("Client Gun & Knife Skins","Cosmetic")
 local MARKER="VisualsV2_ClientWeaponSkin"
@@ -5443,9 +5209,6 @@ local function register(kind,id,data,source)
     return entry
 end
 
--- Fixed original weapon records from the supplied MM2/MMV exports.
--- 355 MM2 guns and 631 knives, plus the two original MMV scope models.
--- This data never changes through runtime scanning or inventory ownership.
 local staticMM2={
     {"Gun","Ace",{["itemid"]=238546577,["itemname"]="Ace",["itemtype"]="Gun",["rarity"]="Rare"}},
     {"Gun","AduriteGun",{["itemid"]=196752289,["itemname"]="Adurite",["itemtype"]="Gun",["rarity"]="Uncommon"}},
@@ -6509,9 +6272,6 @@ local function vector(value,fallback)
     return fallback
 end
 
--- Resolve only a record's explicit original model path, without enumerating
--- the game's assets or adding choices at runtime. Exported paths are arrays so
--- weapon names containing periods remain intact.
 local function resolveModel(path)
     if type(path)~="table" then return nil end
     local current=game
@@ -6581,8 +6341,7 @@ local function buildTemplate(entry)
         if ancestor:IsA("Tool") then grip=ancestor.Grip; break end
         ancestor=ancestor.Parent
     end
-    -- Keep visual assets and their attachments/PBR/bones. Never run an asset's
-    -- scripts, remotes, physical joints, sounds or interaction objects.
+
     local allowed={Model=true,Folder=true,Attachment=true,Bone=true,SurfaceAppearance=true,
         Tool=true,WrapLayer=true,WrapTarget=true,ParticleEmitter=true,Trail=true,Beam=true,Fire=true,
         Smoke=true,Sparkles=true,PointLight=true,SpotLight=true,SurfaceLight=true}
@@ -6716,8 +6475,7 @@ local function suppressToolHold(tool,hold)
     for _,track in ipairs(playingTracks(hold.animator)) do
         local animation=track.Animation
         if track~=hold.track and animation and ids[assetId(animation.AnimationId)] then
-            -- Affect only the competing tool-hold clips, preserving movement,
-            -- emotes, the gun's firing/reloading and all unrelated animations.
+
             if hold.suppressed[track]==nil then
                 hold.suppressed[track]=tonumber(track.WeightTarget) or tonumber(track.WeightCurrent) or 1
             end
@@ -6739,9 +6497,7 @@ local function updateScopeHold(tool,state,entry)
     local mmv=game.GameId==10413186812 or game.PlaceId==93017634738276
     local nativeId=originalHold(tool) or (not nativeScopeHolds[rig] and state.scopeTemplateHold)
     if nativeId and not mmv then nativeScopeHolds[rig]=nativeId end
-    -- MMV uses the confirmed shared Hold2 clip for every scope variant.
-    -- MM2 can supply its own authorized original CustomHold; share that clip
-    -- across the other colours/trophies instead of changing it per model.
+
     local id=not mmv and nativeScopeHolds[rig] or ORIGINAL_SCOPE_HOLD
     id=id or ORIGINAL_SCOPE_HOLD
     local signature=state.applied..":"..id
@@ -6768,8 +6524,7 @@ local function updateScopeHold(tool,state,entry)
         local track=nil
         local animation=nil
         local ownsTrack=false
-        -- Reuse the game's original hold if it is already playing. Disabling
-        -- the cosmetic must never stop a track owned by the gun's own scripts.
+
         for _,candidate in ipairs(playingTracks(animator)) do
             if candidate.IsPlaying and candidate.Animation and assetId(candidate.Animation.AnimationId)==id then
                 track=candidate; break
@@ -6912,7 +6667,7 @@ local function apply(tool,state)
     end
     local template=templateFor(entry)
     if not template then
-        -- Never leave the previous selection or an invisible Handle behind.
+
         if state.model then restoreVisuals(state) end
         return
     end
@@ -7012,8 +6767,7 @@ updateWatching=function()
         if elapsed>=0.25 then elapsed=0; refreshTools() end
     end)
     hideFrame=RunService.RenderStepped:Connect(function()
-        -- Roblox's first-person transparency controller can change the original
-        -- Handle every frame. Enforce only the saved originals, never the skin.
+
         for tool,state in pairs(toolStates) do
             if state.model then updateChroma(state) end
             if state.model and tool.Parent==player.Character then
@@ -7102,11 +6856,6 @@ end)
 updateWatching()
 end)()
 
--- =========================================================
--- UTILITIES: NATIVE SHIFT LOCK AIM FOR THROWABLES (MM2 / MMV)
--- Reads the game's lock state. Never changes the camera, cursor, character
--- rotation, input bindings or lock UI. Native tools still perform the throw.
--- =========================================================
 ;(function()
 local section=mainTab:AddSection("Shift Lock & Throwables","Utilities")
 local GuiService=game:GetService("GuiService")
@@ -7133,9 +6882,6 @@ local hookReady=false
 local refresh
 local positionPairTools={snowballtoy2020=true,waterballoon2024=true}
 
--- Cache native method functions before attaching the hook. Calling these with
--- dot syntax avoids nested __namecall dispatch replacing FireServer/InvokeServer
--- in the original calling thread. Aim is sampled separately at render time.
 local instanceIsA=game.IsA
 local instanceDescendant=game.IsDescendantOf
 local instanceFindChild=game.FindFirstChild
@@ -7182,8 +6928,7 @@ local function nativeCrosshair()
 end
 
 local function nativeLocked()
-    -- MMV's original crosshair distinguishes shift lock from camera dragging
-    -- and first-person cursor locking. Respect its visible state when present.
+
     local crosshair,visible=nativeCrosshair()
     if crosshair then return visible end
     if nativeCameras then
@@ -7232,9 +6977,7 @@ local function centreAim(cam,character,tool)
             end
         end
     end
-    -- AbsolutePosition/Mouse.X/Y use inset GUI coordinates. Camera viewport
-    -- rays and GetMouseLocation use the corresponding viewport coordinates.
-    -- The captured MMV reticle (384,122) plus inset (0,58) targets (384,180).
+
     local ray=cam:ViewportPointToRay(x,y,0)
     local ignore={character,cam}
     local targetFilter=mouse.TargetFilter
@@ -7283,10 +7026,6 @@ local function currentAim()
     return aim
 end
 
--- BeachBall2023 sends a world position. Projecting its old tap distance from
--- the handle put that position below the ground in the supplied report.
--- Point-target balls use the crosshair surface; bombs and snowballs keep the
--- working launch-ray range. Explicit velocity/direction keeps its magnitude.
 local function targetValue(value,aim,direction,launchOrigin)
     local kind=typeof(value)
     local origin=launchOrigin or aim.origin
@@ -7364,11 +7103,9 @@ local function rewriteArguments(remote,args,aim)
             or value=="activated" or value=="activate"
     end
     local operation=aimOperation(name) or aimOperation(command)
-    -- Shared toy remotes are accepted only with an explicit binding to the
-    -- exact equipped throwable, never from a generic Throw command alone.
+
     if not toolLocal then return nil end
-    -- Generic gear remotes must carry a throw/aim command or an unambiguous
-    -- target payload. Explode, equip, purchase and cooldown messages pass through.
+
     if not operation and command~="" then return nil end
     if not operation then
         for _,excluded in ipairs({"explode","equip","purchase","cooldown","sound","reload","texture","color"}) do
@@ -7390,8 +7127,7 @@ local function rewriteArguments(remote,args,aim)
             candidates[#candidates+1]=index
         end
     end
-    -- The supplied MMV captures send Remote(origin, mouse.Hit.Position),
-    -- with no command string. Accept only those exact observed toy layouts.
+
     local pointPair=aim.positionPair and name=="remote" and args.n==2
         and typeof(args[1])=="Vector3" and typeof(args[2])=="Vector3"
         and remote.Parent==aim.tool and instanceIsA(remote,"RemoteEvent")
@@ -7405,8 +7141,7 @@ local function rewriteArguments(remote,args,aim)
             output[index]=Vector2.new(aim.screenX,aim.screenY)
         else output[index]=targetValue(value,aim,direction) end
     elseif #candidates==2 and (operation or pointPair) then
-        -- Known origin + target/direction layouts: preserve the launch origin.
-        -- Ambiguous multi-vector layouts keep their original native payload.
+
         local first,second=args[candidates[1]],args[candidates[2]]
         local origin=typeof(first)=="Vector3" and first or (typeof(first)=="CFrame" and first.Position)
         if origin and (origin-aim.origin).Magnitude<=8 then
@@ -7419,9 +7154,6 @@ local function rewriteArguments(remote,args,aim)
     return output
 end
 
--- One persistent bridge is reused across add-on executions. Wrappers are
--- installed once and become pass-through when their current owner is reset.
--- This preserves other add-ons' hooks and avoids an ever-growing hook chain.
 local bridge=env.VisualsV2ThrowableAimBridge
 if type(bridge)~="table" or bridge.version~=2 then
     if type(bridge)=="table" then bridge.handler=nil end
@@ -7433,8 +7165,7 @@ handler.Enabled=function() return alive and runtimeAlive and aimEnabled end
 handler.Remote=function(object,method,args)
     if not handler.Enabled() or typeof(object)~="Instance" then return nil end
     local aim=currentAim()
-    -- The captured FakeBomb request is CFrame + power 50. Native detours mark
-    -- it checkcaller=true, so identify it by its exact equipped-tool remote.
+
     if not aim or not toolBoundRemote(object,args,aim.tool) then return nil end
     if (method=="FireServer" and instanceIsA(object,"RemoteEvent"))
         or (method=="InvokeServer" and instanceIsA(object,"RemoteFunction")) then
@@ -7442,21 +7173,16 @@ handler.Remote=function(object,method,args)
         if rewritten then return "args",rewritten end
     end
 end
--- The captured bomb protocol contains its final target already. Redirect only
--- that request; never substitute global Mouse, touch or camera input reads.
+
 handler.Index=function() return false end
 handler.Namecall=function(object,method,args)
     if method=="FireServer" or method=="InvokeServer" then
         return handler.Remote(object,method,args)
     end
 end
--- Inactive handlers are detached, including on first execution. The global
--- wrappers are only installed when aiming is explicitly enabled.
+
 bridge.handler=nil
 
--- Direct/cached FireServer and InvokeServer calls can bypass __namecall.
--- Hook their native method functions too, without generating any new request.
--- These shared wrappers forward exactly once and are inert with no owner.
 bridge.callbackLog={}
 bridge.remoteMethods=bridge.remoteMethods or {}
 local function installNativeRemoteMethods()
@@ -7522,8 +7248,7 @@ local function installHooks()
             return old
         end
     end
-    -- Legacy __index wrappers remain pass-through through handler.Index.
-    -- Fresh sessions need no mouse/property interception for throwable aim.
+
     if not bridge.namecallReady then
         local previous
         local wrapper=function(object,...)
@@ -7554,9 +7279,6 @@ local function installHooks()
     return true
 end
 
--- Classic Roblox toys ask the client for MousePosition through
--- ClientControl.OnClientInvoke instead of sending a position in FireServer.
--- Preserve that callback's execution and every non-aim return value.
 local function readCallback(remote)
     if type(callbackValue)=="function" then
         local ok,value=pcall(callbackValue,remote,"OnClientInvoke")
@@ -7814,8 +7536,7 @@ end)
 env.VisualsV2Runtime.RefreshGunsKnives=refresh
 
 local function addTint(key,label,name)
-    -- Seed each new setting from the former shared controls once. Subsequent
-    -- executions use each weapon's own saved settings.
+
     local tint={
         enabled=C(key.."Enabled",legacyEnabled),
         color=C(key.."Color",legacyColor),
@@ -7823,7 +7544,7 @@ local function addTint(key,label,name)
         speed=math.clamp(tonumber(C(key.."RainbowSpeed",legacySpeed)) or 3,1,10),
     }
     tints[name]=tint
-    section:AddParagraph(label.." Tint","Tint controls affect only your "..name..". Chams have separate colour and rainbow controls.")
+
     tint.toggle=addToggle(section,"Enable "..label.." Tint",tint.enabled,function(value)
         tint.enabled=value
         SetCfg(key.."Enabled",value)
@@ -7868,11 +7589,6 @@ env.VisualsV2Runtime.RegisterReset(function()
 end)
 task.defer(refresh)
 end)()
-
--- =========================================================
--- UTILITIES: GUN+
--- Adapted from drowsynicolas/tuffODHaddons; numeric sliders intentionally omitted.
--- =========================================================
 
 ;(function()
 local section=mainTab:AddSection("Gun+","Utilities")
@@ -7932,7 +7648,6 @@ end
 if player.Character then watchCharacter(player.Character) end
 player.CharacterAdded:Connect(watchCharacter)
 
--- Hide the pose without stopping native shoot/reload timelines or markers.
 local mutedTracks=setmetatable({}, {__mode="k"})
 local function restoreAnimationWeights()
     for track,weight in pairs(mutedTracks) do
@@ -8065,10 +7780,6 @@ env.VisualsV2Runtime.RegisterReset(function()
 end)
 end)()
 
--- =========================================================
--- VISUALS: ESTIMATED SERVER POSITION
--- =========================================================
-
 ;(function()
 local section=mainTab:AddSection("Estimated Server Pos","Visuals")
 local enabled=C("serverPosEnabled",false)
@@ -8140,14 +7851,9 @@ env.VisualsV2Runtime.RegisterReset(function()
 end)
 end)()
 
--- =========================================================
--- VISUALS: TOOL TINT
--- Highlight-based tint so transparency always has a visible effect.
--- =========================================================
-
 ;(function()
 local section=mainTab:AddSection("Custom Tool","Visuals")
-section:AddParagraph("Tool Tint","Applies a configurable highlight tint to tools other than Gun and Knife.")
+
 local enabled=C("toolTintEnabled",false)
 local tintColor=C("toolTintColor",Color3.fromRGB(38,38,38))
 local rainbow=C("toolTintRainbow",false)
@@ -8281,12 +7987,6 @@ env.VisualsV2Runtime.RegisterReset(function()
 end)
 end)()
 
--- =========================================================
--- VISUALS: CUSTOM CHAT COLORS
--- VISUALS: CUSTOM CHAT COLORS
--- Sound-related controls intentionally excluded.
--- =========================================================
-
 ;(function()
 local section=mainTab:AddSection("Custom Chat","Visuals")
 local enabled=C("chatColorEnabled",false)
@@ -8336,11 +8036,6 @@ env.VisualsV2Runtime.RegisterReset(function()
 end)
 end)()
 
--- =========================================================
-
--- =========================================================
--- CUSTOMIZATION
--- =========================================================
 ;(function()
 local section=mainTab:AddSection("Customization","Visuals")
 local pg=player:WaitForChild("PlayerGui")
@@ -8435,9 +8130,6 @@ if toolTrans then task.defer(allTools) end
 if hideControls then hideLoop() end
 end)()
 
--- =========================================================
--- VISUAL STAT SPOOFER
--- =========================================================
 ;(function()
 local section=mainTab:AddSection("Visual Stat Spoofer","Visuals")
 local pg=player:WaitForChild("PlayerGui")
@@ -8480,13 +8172,10 @@ end)
 env.VisualsV2Runtime.RegisterReset(function() toggle:Set(false); enabled=false; alive=false end)
 end)()
 
--- =========================================================
--- COIN AURA
--- =========================================================
 ;(function()
 local section=mainTab:AddSection("Coin Aura","Utilities")
 local enabled=C("coinAuraEnabled",false)
-local radius=math.clamp(tonumber(C("coinAuraRadius",8)) or 8,1,10)
+local radius=math.clamp(tonumber(C("coinAuraRadius",8)) or 8,1,20)
 local conn=nil
 local addedConn,removingConn
 local coins,coinIndices,nextTouch={},{},{}
@@ -8501,7 +8190,7 @@ local function hasFireTouchInterest()
 end
 
 local function fireTouch(a,b)
-    -- Match the working AFP implementation directly for Delta.
+
     if type(firetouchinterest)~="function" then return false end
     local ok0=pcall(function() firetouchinterest(a,b,0) end)
     local ok1=pcall(function() firetouchinterest(a,b,1) end)
@@ -8586,7 +8275,6 @@ local function refresh()
     cursor=1; elapsed=0
     if not enabled then return end
 
-    -- Enumerate once; subsequent coin spawns/removals maintain the cache.
     addedConn=workspace.DescendantAdded:Connect(discover)
     removingConn=workspace.DescendantRemoving:Connect(function(item)
         if coinIndices[item] then
@@ -8610,18 +8298,14 @@ local toggle=addToggle(section,"VV2 Coin Aura",enabled,function(v)
 
     refresh()
 end)
-section:AddSlider("VV2 Coin Aura Radius",1,10,radius,function(v)
-    radius=math.clamp(tonumber(v) or 8,1,10)
+section:AddSlider("VV2 Coin Aura Radius",1,20,radius,function(v)
+    radius=math.clamp(tonumber(v) or 8,1,20)
     SetCfg("coinAuraRadius",radius)
 end)
 env.VisualsV2Runtime.RegisterReset(function() toggle:Set(false); enabled=false; refresh() end)
 if enabled then refresh() end
 end)()
 
--- UTILITIES: BOMB JUMP+ (VV2)
--- =========================================================
--- Bomb Jump+ source imported from aux0on/bomb/jump.lua, reached through
--- the requested aux0on/CookieLogged/.lol loader. UI and persistent IDs are VV2 owned.
 ;(function()
 local alive=true
 local pending={}
@@ -8640,8 +8324,8 @@ local table_insert = table.insert
 local Maid = {}
 Maid.__index = Maid
 
-function Maid.new() 
-    return setmetatable({_tasks = {}, _destroyed = false}, Maid) 
+function Maid.new()
+    return setmetatable({_tasks = {}, _destroyed = false}, Maid)
 end
 
 function Maid:GiveTask(task)
@@ -8681,8 +8365,8 @@ function Maid:DoCleaning()
     self._tasks = {}
 end
 
-function Maid:Destroy() 
-    self:DoCleaning() 
+function Maid:Destroy()
+    self:DoCleaning()
 end
 
 local RootMaid = Maid.new()
@@ -8730,8 +8414,7 @@ end
 local function loadPositions()
     local saved=C(POSITIONS_KEY,nil)
     if type(saved)=="table" then return table.clone(saved) end
-    -- Import this add-on's prior positions once; the standalone BJP file is
-    -- never read or changed. All current VV2 state uses the main settings file.
+
     local ok,result=pcall(function()
         if type(read)=="function" and (type(exists)~="function" or exists(LEGACY_POSITION_FILE)) then
             return HttpService:JSONDecode(read(LEGACY_POSITION_FILE))
@@ -8789,7 +8472,6 @@ local __BB_GRAD_SEQ = ColorSequence.new({
     ColorSequenceKeypoint.new(1,    __PCLR(0.470588,  0.156863,  0.470588))
 })
 
-
 local function BB_MakeDraggable(gui, maid, func, ripple, sound)
     local dragging, dragInput, dragStart, startPos
     local hasMoved = false
@@ -8824,7 +8506,7 @@ local function BB_MakeDraggable(gui, maid, func, ripple, sound)
                     dragging = false
                     __TS:Create(gui, tInfo, {Size = normalSize, TextSize = normalTxtSize}):Play()
                     if not hasMoved then bb_safecallback(func) end
-                    
+
                     if not lockBigButtonPos then
                         savedPositions[gui.Name] = {
                             xs = gui.Position.X.Scale, xo = gui.Position.X.Offset,
@@ -8832,7 +8514,7 @@ local function BB_MakeDraggable(gui, maid, func, ripple, sound)
                         }
                         savePositions(savedPositions)
                     end
-                    
+
                     rel:Disconnect()
                 end
             end))
@@ -8853,7 +8535,6 @@ local function BB_MakeDraggable(gui, maid, func, ripple, sound)
     end))
 end
 
-
 local function AddBigButton(id, text, func, isGold)
     if BBSystem.Buttons[id] then return end
     local storage = BB_GetStorage()
@@ -8862,14 +8543,14 @@ local function AddBigButton(id, text, func, isGold)
     local bb = Instance.new("TextButton")
     bb.Name = id
     bb.Size = __UD2(0, 200, 0, 75)
-    
+
     local sp = savedPositions[id]
     if sp then
         bb.Position = __UD2(sp.xs, sp.xo, sp.ys, sp.yo)
     else
         bb.Position = __UD2(0.5, 0, 0.5, 0)
     end
-    
+
     bb.AnchorPoint = __V2(0.5, 0.5)
     bb.BackgroundColor3 = __RGB(255, 255, 255)
     bb.BackgroundTransparency = 0.9
@@ -8891,7 +8572,7 @@ local function AddBigButton(id, text, func, isGold)
     stroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
     stroke.Parent = bb
     local gradient = Instance.new("UIGradient")
-    
+
     if isGold then
         gradient.Color = ColorSequence.new({
             ColorSequenceKeypoint.new(0,    __RGB(255, 215, 0)),
@@ -9004,7 +8685,7 @@ end
 local function Bind_MakeDraggable(gui, maid, ripple, sound, clickFunc)
     local dragging, dragInput, dragStart, startPos
     local hasMoved = false
-    
+
     maid:GiveTask(gui.InputBegan:Connect(function(input)
         if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
             if not alive or not runtimeAlive then return end
@@ -9028,7 +8709,7 @@ local function Bind_MakeDraggable(gui, maid, ripple, sound, clickFunc)
                     if not hasMoved then
                         bind_safecallback(clickFunc)
                     end
-                    
+
                     if not lockBindButtonPos then
                         savedPositions[gui.Name] = {
                             xs = gui.Position.X.Scale, xo = gui.Position.X.Offset,
@@ -9036,19 +8717,19 @@ local function Bind_MakeDraggable(gui, maid, ripple, sound, clickFunc)
                         }
                         savePositions(savedPositions)
                     end
-                    
+
                     rel:Disconnect()
                 end
             end))
         end
     end))
-    
+
     maid:GiveTask(gui.InputChanged:Connect(function(input)
         if input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch then
             dragInput = input
         end
     end))
-    
+
     maid:GiveTask(__UIS.InputChanged:Connect(function(input)
         if input == dragInput and dragging then
             if lockBindButtonPos then return end
@@ -9062,13 +8743,13 @@ end
 
 function BindableButtons.AddBButton(id, text, clickFunc, isGold)
     if BindableButtons.Buttons[id] then return end
-    
+
     local buttonMaid = Maid.new()
     local camera = workspace.CurrentCamera
     local screen = camera.ViewportSize
     local buttonSizeY = 0.11
     local widthScale = buttonSizeY * (screen.Y / screen.X)
-    
+
     local sp = savedPositions[id]
     local xPos, yPos
     if sp then
@@ -9155,12 +8836,12 @@ end
 function BindableButtons.UpdateBButtonText(id, text, isWaiting, isGold)
     local btn = BindableButtons.Buttons[id]
     if not btn then return end
-    
+
     local textLabel = btn:FindFirstChild("@Text")
     if textLabel then
         textLabel.Text = text
     end
-    
+
     local stroke = btn:FindFirstChild("@Stroke")
     if stroke then
         if isGold then
@@ -9172,8 +8853,8 @@ function BindableButtons.UpdateBButtonText(id, text, isWaiting, isGold)
 end
 
 local function GetSafeGuiRoot()
-    local success, result = pcall(function() 
-        return gethui() 
+    local success, result = pcall(function()
+        return gethui()
     end)
     if success and result and typeof(result) == "Instance" then
         return result
@@ -9188,7 +8869,6 @@ hiddenGui.IgnoreGuiInset = true
 hiddenGui.Parent = GetSafeGuiRoot()
 RootMaid:GiveTask(hiddenGui)
 
--- One section within Visuals V2; all controls and saved settings are VV2 owned.
 local section=mainTab:AddSection("Bomb Jump+","Utilities")
 local vv2Controls={}
 local function settingKey(label)
@@ -9201,9 +8881,6 @@ end
 local proxy={}
 function proxy:AddLabel(label)
     return section:AddLabel(controlLabel(label))
-end
-function proxy:AddParagraph(title,text)
-    return section:AddParagraph(controlLabel(title),text)
 end
 function proxy:AddToggle(label,callback)
     local key=settingKey(label)
@@ -9258,7 +8935,7 @@ function proxy:AddKeybind(label,defaultKey,callback)
         choosingBinding=binding
         shared.Notify("Press a key for "..controlLabel(label).." (current: "..key.Name.."). Escape cancels.",3)
     end)
-    -- Text entry also works on touch devices without a physical keyboard.
+
     section:AddTextBox(controlLabel(label.." Name"),function(value)
         if not alive or not runtimeAlive then return end
         local selected=keyFromName(value)
@@ -9291,8 +8968,6 @@ local _game = game.GameId==10413186812 and "Murder Mystery Modded"
     or game.GameId==66654135 and "Murder Mystery 2" or shared.game_name
 
 if _game == "Murder Mystery 2" or _game == "Murder Mystery Modded" then
-
--- Loaded with Visuals V2; its final notification covers this section.
 
 local section = BombJump:AddSection("Bomb Jump+", "MM2/MMV")
 
@@ -9342,20 +9017,20 @@ end
 local function IsPlayerInAir()
     local character = LocalPlayer.Character
     if not character then return false end
-    
+
     local humanoid = character:FindFirstChild("Humanoid")
     if not humanoid then return false end
-    
+
     local rootPart = character:FindFirstChild("HumanoidRootPart")
     if not rootPart then return false end
-    
+
     local state = humanoid:GetState()
-    if state == Enum.HumanoidStateType.Jumping or 
+    if state == Enum.HumanoidStateType.Jumping or
        state == Enum.HumanoidStateType.FallingDown or
        state == Enum.HumanoidStateType.Freefall then
         return true
     end
-    
+
     local velocityY = rootPart.Velocity.Y
     return math.abs(velocityY) > 0.5
 end
@@ -9377,7 +9052,7 @@ local function StartCooldown()
     if bjBindButton then
         BindableButtons.UpdateBButtonText("VV2_BombJump_Bind", "Wait", true, false)
     end
-    
+
     vv2Spawn(function()
         for i = CONFIG.CooldownTime, 1, -1 do
             if not onCooldown then break end
@@ -9433,12 +9108,12 @@ end
 local function GetAnyBomb()
     local character = LocalPlayer.Character
     if not character then return false, nil end
-    
+
     for _, bombName in ipairs(BOMB_NAMES) do
         local bomb = character:FindFirstChild(bombName)
         if bomb then return true, bomb end
     end
-    
+
     local backpack = LocalPlayer:FindFirstChild("Backpack")
     if backpack then
         for _, bombName in ipairs(BOMB_NAMES) do
@@ -9449,11 +9124,11 @@ local function GetAnyBomb()
             end
         end
     end
-    
+
     pcall(function()
         Services.ReplicatedStorage.Remotes.Extras.ReplicateToy:InvokeServer("FakeBomb")
     end)
-    
+
     for _ = 1, 5 do
         for _, bombName in ipairs(BOMB_NAMES) do
             local bomb = character:FindFirstChild(bombName)
@@ -9468,7 +9143,7 @@ local function GetAnyBomb()
         end
         task.wait(0.05)
     end
-    
+
     return false, nil
 end
 
@@ -9478,7 +9153,7 @@ local function FastBombJump()
     if not IsPlayerInAir() then return end
     if onCooldown or debounce or justRespawned then return end
     debounce = true
-    
+
     local success, bomb = GetAnyBomb()
     if not alive or not runtimeAlive or LocalPlayer.Character~=actionCharacter then return end
     if success and bomb then
@@ -9491,24 +9166,24 @@ local function FastBombJump()
                     remote:FireServer(CFrame.new(position), 50)
                 end)
             end
-            
+
             local char = LocalPlayer.Character
             local root = char and char:FindFirstChild("HumanoidRootPart")
             if root then
                 local currentVelocity = root.AssemblyLinearVelocity
                 root.AssemblyLinearVelocity = Vector3.new(currentVelocity.X, CONFIG.LaunchPower, currentVelocity.Z)
             end
-            
+
             MakeCharacterJump()
             UnequipBomb()
-            
+
             vv2Spawn(function()
                 task.wait(0.1)
                 StartCooldown()
             end)
         end
     end
-    
+
     vv2Spawn(function()
         task.wait(0.5)
         debounce = false
@@ -9518,7 +9193,7 @@ end
 local function IsHoldingBomb()
     local character = LocalPlayer.Character
     if not character then return false end
-    
+
     for _, bombName in ipairs(BOMB_NAMES) do
         if character:FindFirstChild(bombName) then
             return true
@@ -9688,7 +9363,7 @@ local function GBJStartCooldown()
     if gbjBindButton then
         BindableButtons.UpdateBButtonText("VV2_GoldBombJump_Bind", "Wait", true, true)
     end
-    
+
     vv2Spawn(function()
         for i = 4, 1, -1 do
             if not gbjOnCooldown then break end
@@ -9868,7 +9543,6 @@ GoldBombJumpMaid:GiveTasks(
     end)
 )
 
-gbjSection:AddLabel("Gold Bomb Jump Options")
 gbjSection:AddToggle("Enable Auto Gold Bomb Jump", function(bool) goldBombJumpEnabled = bool end)
 
 gbjSection:AddToggle("Auto-Get Gold Bomb", function(bool)
@@ -9948,8 +9622,6 @@ end
 
 end
 
-
--- Position reset stays in the Bomb Jump+ menu, separate from the SG reset.
 section:AddButton("VV2 Reset Bomb Jump Button Positions",function()
     if not alive or not runtimeAlive then return end
     for _,id in ipairs({"VV2_BombJump_Big","VV2_GoldBombJump_Big"}) do
@@ -9982,12 +9654,6 @@ env.VisualsV2Runtime.VV2BombJump=vv2Features
 env.VisualsV2Runtime.RegisterReset(vv2Features.Close)
 end)()
 
-
--- =========================================================
--- FIREFLY CLUTCH
--- Core behavior rebuilt directly from the attached FFC addon.
--- =========================================================
-
 ;(function()
 local section=mainTab:AddSection("Firefly Clutch","Utilities")
 local autoClutch=C("fireflyAutoClutch",false)
@@ -9995,7 +9661,7 @@ local timerEnabled=C("fireflyTimerEnabled",true)
 local timerColors=C("fireflyTimerColors",true)
 local timerSize=math.clamp(tonumber(C("fireflyTimerSize",10)) or 10,1,10)
 local timerLocked=C("fireflyTimerLocked",false)
--- The supplied recording releases the lid about 3s after activation.
+
 local COUNTDOWN=3.0
 local COOLDOWN=16
 local TRIGGER_POINT=0.24
@@ -10159,8 +9825,6 @@ local function fireJump()
     local humanoid=char and char:FindFirstChildOfClass("Humanoid")
     if not humanoid or humanoid.Health<=0 then return end
 
-    -- Match the Debug addon: force the jump state directly. This is important
-    -- for the second jump because FloorMaterial can already be Air.
     humanoid.Jump=true
     pcall(function()
         humanoid:ChangeState(Enum.HumanoidStateType.Jumping)
@@ -10168,7 +9832,7 @@ local function fireJump()
 end
 
 local function startTwoJumpSequence(myCycle)
-    -- Jump shortly before the jar releases its lid, then again 0.40s later.
+
     fireJump()
     task.delay(JUMP_GAP,function()
         if autoClutch and myCycle==cycleToken then
@@ -10194,8 +9858,6 @@ local function stopCycle()
     updateTimerDisplay()
 end
 
--- Keep the displayed countdown and first-jump trigger on the same Heartbeat
--- clock. The release duration matches the supplied in-game recording.
 local function startCountdown()
     if not autoClutch then return end
     buildTimer()
@@ -10213,7 +9875,7 @@ local function startCountdown()
             startTwoJumpSequence(myCycle)
         end
         updateTimerDisplay()
-        -- Trigger before finishing even if a slow frame crosses the whole window.
+
         if countdownRemaining<=0 then
             disconnect(countdownConnection)
             countdownConnection=nil
@@ -10243,8 +9905,7 @@ end
 local function startBlockTimer()
     isOnCooldown=true
     local myCycle=cycleToken
-    -- Let the accepted activation reach the game's own handlers before locking
-    -- the Tool. The lock prevents subsequent clicks from replaying its animation.
+
     task.defer(function()
         if autoClutch and isOnCooldown and myCycle==cycleToken then
             cooldownGateReady=true
@@ -10297,8 +9958,7 @@ local function connectToTool(tool)
     table.insert(watchConnections,tool.Activated:Connect(function()
         if not autoClutch or isOnCooldown then return end
         if not ownsFireflyTool(tool) then return end
-        -- Activated was accepted while Enabled was true, even if the game's
-        -- earlier handler has already disabled it for its own cooldown.
+
         state.originalEnabled=true
         startOriginalCycle()
     end))
@@ -10331,7 +9991,7 @@ local function hookTool()
         pcall(scanForFireflies)
         table.insert(watchConnections,container.ChildAdded:Connect(function(child)
             if child:IsA("Tool") and child.Name=="Fireflies" then
-                -- Hook immediately so the first use after execution is not missed.
+
                 connectToTool(child)
             end
         end))
@@ -10360,7 +10020,7 @@ local function hookTool()
     scanForFireflies()
 
     task.spawn(function()
-        -- Fast startup window for tools inserted while the addon is loading.
+
         for _=1,12 do
             if not autoClutch or myScan~=scanToken then return end
             pcall(scanForFireflies)
@@ -10390,7 +10050,7 @@ local autoToggle=addToggle(section,"Auto Firefly Clutch",autoClutch,function(sta
     if state then
         buildTimer()
         unhookTool()
-        -- unhookTool clears stale tool hooks; restore the desired state and scan.
+
         autoClutch=true
         hookTool()
     else
@@ -10457,10 +10117,6 @@ if autoClutch then
 end
 end)()
 
--- =========================================================
--- SCREEN
--- =========================================================
-
 ;(function()
 local screenSection = mainTab:AddSection("Screen", "Visuals")
 local stretchScreenEnabled = C("stretchScreenEnabled", false)
@@ -10490,15 +10146,9 @@ end)
 
 end)()
 
--- =========================================================
--- WORLD
--- =========================================================
-
 ;(function()
 local worldSection=mainTab:AddSection("Environment","World")
 
--- Environment behavior restored from the attached Nexium source. The only UI
--- adaptation retained is the saved Time of Day preset dropdown requested earlier.
 local savedFogStart=Lighting.FogStart
 local savedFogEnd=Lighting.FogEnd
 local savedFogColor=Lighting.FogColor
@@ -10520,8 +10170,7 @@ local function applyFullbright()
 end
 
 local function disableFullbright()
-    -- Match Nexium's working off-state, while preserving this add-on's selected
-    -- ambient/exposure/preset values.
+
     Lighting.Brightness=1
     Lighting.GlobalShadows=true
     Lighting.FogEnd=savedFogEnd
@@ -10550,7 +10199,6 @@ worldSection:AddColorpicker("Ambient Color",ambientColor,function(color)
         Lighting.OutdoorAmbient=color
     end
 end)
-
 
 worldSection:AddSlider("Exposure",-2,5,exposure,function(value)
     exposure=value
@@ -10615,8 +10263,6 @@ RunService.RenderStepped:Connect(function()
     end
 end)
 
--- Skybox dropdown. Nexium entries retain their original asset IDs. Additional
--- six-face presets are kept only when they do not duplicate a Nexium name.
 local skyboxSection=mainTab:AddSection("Skyboxes","Visuals")
 local currentSky=Lighting:FindFirstChildOfClass("Sky")
 env.VisualsV2OriginalSky=currentSky and currentSky:Clone() or false
@@ -10743,7 +10389,6 @@ local function applySingleAsset(assetId,name)
         pcall(function() asset:Destroy() end)
     end
 
-    -- Original Nexium fallback.
     local sky=Instance.new("Sky")
     local id="rbxassetid://"..tostring(assetId)
     sky.SkyboxBk=id
@@ -10835,16 +10480,8 @@ env.VisualsV2Runtime.RegisterReset(function()
 end)
 end)()
 
--- =========================================================
--- UTILITIES: INVENTORY UNLIMITER + AUTO GET TOOLS
--- =========================================================
-
 ;(function()
 local section=mainTab:AddSection("Inventory Unlimiter","Utilities")
-section:AddParagraph(
-    "Inventory Unlimiter",
-    "Raises identifiable local inventory slot limits from 3 to 10."
-)
 
 local inventoryEnabled=C("inventoryUnlimiterEnabled",false)
 local inventoryLimit=math.clamp(tonumber(C("inventoryMaxItems",10)) or 10,3,10)
@@ -10916,7 +10553,7 @@ local function discoverTargets(force)
             end
         end
     end
-    -- An empty/early discovery must remain eligible for the next retry.
+
     targetsScanned=#targetFunctions>0
 end
 
@@ -10960,11 +10597,7 @@ local function applyInventoryLimit(force)
                     end
                     local originals=originalLimits[f]
                     local previous=originals and originals[index]
-                    -- Executor APIs may return the value alone, with no name.
-                    -- In the discovered hotbar functions, support the native
-                    -- three-slot limit and remember that exact slot for later
-                    -- slider changes/rescans. Named non-capacity values and
-                    -- unrelated numeric values are left alone.
+
                     local legacyLimit=not hasName and (value==3
                         or (previous and previous.original==3 and value==previous.applied))
                     if (hasName and isLimitName(name) and namedValue==value) or legacyLimit then
@@ -11034,11 +10667,7 @@ local function orderSelectedTools(char,backpack,token)
             if not order[tool] then order[tool]=slot end
         end
     end
-    -- Request missing toys in slot order, but never move an existing Tool to
-    -- reorder it. Native scripts can tear down on any Backpack ChildRemoved,
-    -- including a move into a folder that is still inside the Backpack.
-    -- Where the native hotbar exposes an explicit Tool reference and layout,
-    -- changing only its GUI order is sufficient and leaves listeners intact.
+
     local gui=player:FindFirstChildOfClass("PlayerGui")
     if gui then
         for _,slot in ipairs(gui:GetDescendants()) do
@@ -11156,8 +10785,7 @@ requestRecovery=function(forceScan)
                                             if isCurrentRecovery(token,char) and autoGetTools then requestRecovery(false) end
                                         end)
                                     end
-                                    -- Wait for this slot to actually arrive, including during
-                                    -- retries or catalog loading, before requesting later slots.
+
                                     break
                                 end
                             end
@@ -11361,11 +10989,6 @@ env.VisualsV2Runtime.RegisterReset(function()
 end)
 end)()
 
-
--- =========================================================
--- MISCELLANEOUS
--- =========================================================
-
 ;(function()
 local miscSection=mainTab:AddSection("Miscellaneous","Settings")
 local muteToggle=addToggle(miscSection,"Mute Button SFX",ButtonAudio.muted,function(value)
@@ -11391,7 +11014,6 @@ addToggle(miscSection,"Lock Bind Button POS",lockBindButtonPos,function(state)
 end)
 end)()
 
--- Reapply local cosmetic state after respawn.
 local function onCharacterAdded(char)
     characterOriginal=setmetatable({}, {__mode="k"})
 
@@ -11425,11 +11047,6 @@ player.CharacterAdded:Connect(onCharacterAdded)
 
 saveConfig()
 
--- =========================================================
-
--- =========================================================
--- VISUALSV2 PERFORMANCE & GRAPHICS
--- =========================================================
 local performanceTab=mainTab
 
 ;(function()
@@ -11443,7 +11060,7 @@ local showPlayers=C("vv2FpsPingShowPlayers",true)
 local legacyMonitorSize=tonumber(ConfigData["vv2FpsPingSize"])
 local legacyMonitorScale=legacyMonitorSize and math.clamp(legacyMonitorSize,1,10)/5 or 1
 if tonumber(ConfigData["vv2FpsPingSizeScaleVersion"])~=2 then
-    -- Keep an existing display's physical size when migrating the old scale.
+
     ConfigData["vv2FpsPingSize"]=legacyMonitorSize
         and math.clamp(math.floor((legacyMonitorScale-0.5)*4+0.5),1,10) or 2
     ConfigData["vv2FpsPingSizeScaleVersion"]=2
@@ -11527,7 +11144,7 @@ end
 
 local function playerCountColor(value)
     if not colors then return BLACK end
-    -- MM2 servers are 1-12 players. Higher population is treated as better.
+
     value=math.clamp(tonumber(value) or 1,1,12)
     if value>=9 then return GREEN end
     if value>=5 then return YELLOW end
@@ -11830,6 +11447,7 @@ add("meshes","VV2 Hide Meshes (world only)",setMeshes)
 add("textures","VV2 Remove Textures/Decals",setTextures)
 add("accessories","VV2 Remove Accessories",setAccessories)
 add("gray","VV2 Gray Skybox",setGray)
+add("frame","VV2 Enable Frame Enhancement",setFrame)
 local hiddenWeaponDisplays={}
 local weaponDisplayRevision=0
 local weaponDisplayToggle
@@ -11847,15 +11465,14 @@ local function hideWeaponDisplay(object)
         hiddenWeaponDisplays[object]=record
         record.destroying=object.Destroying:Connect(function() forgetWeaponDisplay(object) end)
     end
-    -- Keep the original instances, geometry and properties for restoration.
-    -- Unparenting affects only this client; the displays are never destroyed.
+
     if not pcall(function() object.Parent=nil end) then forgetWeaponDisplay(object) end
 end
 
 local function restoreWeaponDisplays()
     for object,record in pairs(hiddenWeaponDisplays) do
         forgetWeaponDisplay(object)
-        -- Do not move a display that the game or another feature has moved.
+
         if object.Parent==nil then pcall(function() object.Parent=record.parent end) end
     end
 end
@@ -11886,14 +11503,13 @@ end
 section:AddButton("VV2 Remove Weapon Displays",removeWeaponDisplays)
 section:AddButton("VV2 Reapply Weapon Displays",function()
     if not runtimeAlive then return end
-    -- Turn off auto-removal too, so restored displays remain visible.
+
     weaponDisplayToggle:Set(false)
     state.weaponDisplays=false
     SetCfg("perfWeaponDisplays",false)
     setWeaponDisplays(false)
 end)
 weaponDisplayToggle=add("weaponDisplays","VV2 Auto Remove Weapon Displays",setWeaponDisplays)
-add("frame","VV2 Enable Frame Enhancement",setFrame)
 env.VisualsV2Runtime.RegisterReset(function() for _,t in ipairs(toggles) do t:Set(false) end; setSmooth(false); setParticles(false); setMeshes(false); setTextures(false); setAccessories(false); setGray(false); setFrame(false); setWeaponDisplays(false) end)
 end)()
 
@@ -11961,14 +11577,6 @@ env.VisualsV2Runtime.RegisterReset(function() rt:Set(false); tt:Set(false); ct:S
 if rtx then task.defer(applyRTX) end; if timeOn then task.defer(applyTime) end; if custom then task.defer(applyCustom) end
 end)()
 
-
--- =========================================================
--- SETTINGS FILE DELETION WATCH
--- =========================================================
--- If VisualsV2_settings.json is deleted while the add-on is running,
--- immediately turn off/reset active features and recreate a blank settings file.
--- Feature toggles reset; requested timer/statistic display defaults are restored
--- when the add-on next loads its settings.
 ;(function()
 if type(exists)~="function" then return end
 
@@ -11988,21 +11596,15 @@ task.spawn(function()
         elseif checkOk and sawSettingsFile then
             sawSettingsFile=false
 
-            -- Clear all saved state first so a later save cannot resurrect
-            -- features that were enabled before the JSON was deleted.
             ConfigData={}
             PositionData={}
 
-            -- Disable every registered feature without writing each old state
-            -- back into the config while the reset is taking place.
             configResetting=true
             for _,resetter in ipairs(env.VisualsV2Runtime.Resetters or {}) do
                 pcall(resetter)
             end
             configResetting=false
 
-            -- Recreate an empty VisualsV2 schema; the next execution seeds the
-            -- declared defaults without restoring the deleted settings.
             if type(write)=="function" then
                 pcall(function()
                     write(CFG_FILE,HttpService:JSONEncode({
@@ -12024,9 +11626,6 @@ task.spawn(function()
 end)
 end)()
 
--- CREDITS — FINAL SECTION
--- =========================================================
-
 ;(function()
 local creditsSection=mainTab:AddSection("Credits","")
 
@@ -12042,4 +11641,3 @@ creditsSection:AddLabel("anya_bts — 1067515726677684324")
 end)()
 
 saveConfig()
-shared.Notify("Visions V2 loaded",2)
