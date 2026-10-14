@@ -1,4 +1,5 @@
 -- Visuals V2
+-- 2026-10-14 r26: Restore anonymous three-slot inventory limits and trim the requested description sentence.
 -- 2026-10-14 r25: Shared button audio, native geometry chams, repeat-use tool safety, gun animation timelines and timer font.
 -- 2026-10-14 r24: Link Bomb Jump drag locks to Miscellaneous; save hotkeys/positions with all VV2 settings; add a combined reset in Bomb Jump+.
 -- 2026-10-14 r23: Import supplied Chams including Others; VV2 Bomb Jump+ and Gold Bomb Jump; auto-remove displays; monitor-style firefly font.
@@ -245,7 +246,7 @@ if type(previousRuntime) == "table" and type(previousRuntime.Cleanup) == "functi
 end
 
 -- Runtime reset registry.
-env.VisualsV2Runtime = {Resetters = {}, Build = "2026-10-14-r25"}
+env.VisualsV2Runtime = {Resetters = {}, Build = "2026-10-14-r26"}
 env.VisualsV2Runtime.RegisterReset = function(callback)
     if type(callback) == "function" then table.insert(env.VisualsV2Runtime.Resetters, callback) end
 end
@@ -10841,7 +10842,7 @@ end)()
 local section=mainTab:AddSection("Inventory Unlimiter","Utilities")
 section:AddParagraph(
     "Inventory Unlimiter",
-    "Raises identifiable local inventory slot limits from 3 to 10. Native ammo, cooldowns and equip state are preserved."
+    "Raises identifiable local inventory slot limits from 3 to 10."
 )
 
 local inventoryEnabled=C("inventoryUnlimiterEnabled",false)
@@ -10949,12 +10950,23 @@ local function applyInventoryLimit(force)
         local ok,upvalues=pcall(getupvalues,f)
         if ok and type(upvalues)=="table" then
             for index,value in pairs(upvalues) do
-                -- A small number may be ammo, a cooldown or an equipped slot.
-                -- Change only an explicitly named inventory capacity; anonymous
-                -- numeric upvalues are never safe to infer from their value.
-                if type(index)=="number" and type(value)=="number" and type(getupvalue)=="function" then
-                    local named,name,namedValue=pcall(getupvalue,f,index)
-                    if named and isLimitName(name) and namedValue==value then
+                if type(index)=="number" and type(value)=="number" then
+                    local hasName,name,namedValue=false,nil,nil
+                    if type(getupvalue)=="function" then
+                        local ok,label,current=pcall(getupvalue,f,index)
+                        hasName=ok and type(label)=="string" and current==value
+                        if hasName then name,namedValue=label,current end
+                    end
+                    local originals=originalLimits[f]
+                    local previous=originals and originals[index]
+                    -- Executor APIs may return the value alone, with no name.
+                    -- In the discovered hotbar functions, support the native
+                    -- three-slot limit and remember that exact slot for later
+                    -- slider changes/rescans. Named non-capacity values and
+                    -- unrelated numeric values are left alone.
+                    local legacyLimit=not hasName and (value==3
+                        or (previous and previous.original==3 and value==previous.applied))
+                    if (hasName and isLimitName(name) and namedValue==value) or legacyLimit then
                         setLimit(f,index,function() return getupvalues(f)[index] end,
                             function(limit) setupvalue(f,index,limit) end)
                     end
