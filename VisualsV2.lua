@@ -5218,6 +5218,87 @@ end)
 end)()
 
 ;(function()
+local weapons={["Gun"]={["SunsetGunChroma"]={["class"]="Part",["name"]="Handle",["properties"]={["Color"]={["type"]="Color3",["v"]={0.6392157077789307,0.6352941393852234,0.6470588445663452}},["Transparency"]=0,["Material"]="Enum.Material.Glass",["Size"]={["type"]="Vector3",["v"]={0.45899999141693115,1.3550000190734863,2.3459999561309814}}},["children"]={{["class"]="Decal",["name"]="Glow",["properties"]={["Transparency"]=0.5,["Color3"]={["type"]="Color3",["v"]={10.019607543945312,10.019607543945312,10.019607543945312}},["Texture"]="rbxassetid://122480499480858"},["attributes"]={["StaticLayer"]="rbxassetid://18363568406",["ChromaLayer"]="rbxassetid://18335602807"}},{["class"]="SpecialMesh",["name"]="Mesh",["properties"]={["Offset"]={["type"]="Vector3",["v"]={0,0,0}},["VertexColor"]={["type"]="Vector3",["v"]={1,1,1}},["MeshType"]="Enum.MeshType.FileMesh",["Scale"]={["type"]="Vector3",["v"]={0.04584595561027527,0.04584595561027527,0.04584595561027527}},["MeshId"]="rbxassetid://109742397574153",["TextureId"]="rbxassetid://71731808219690"},["attributes"]={}},{["class"]="Decal",["name"]="Chroma",["properties"]={["Transparency"]=0,["Color3"]={["type"]="Color3",["v"]={0,1,0.2686898112297058}},["Texture"]="rbxassetid://126111174277307"},["attributes"]={["StaticLayer"]="rbxassetid://18363568406"}},{["class"]="Attachment",["name"]="CustomAttachment",["properties"]={["CFrame"]={["type"]="CFrame",["v"]={0,-0.20000000298023224,0.08990859985351562,1,0,0,0,0.6427633166313171,0.7660649418830872,0,-0.7660649418830872,0.6427633166313171}}},["attributes"]={}}}}},["Knife"]={["SunsetKnifeChroma"]={["class"]="Part",["name"]="Handle",["properties"]={["Color"]={["type"]="Color3",["v"]={0.6392157077789307,0.6352941393852234,0.6470588445663452}},["Transparency"]=0,["Material"]="Enum.Material.Glass",["Size"]={["type"]="Vector3",["v"]={0.23600000143051147,3.865999937057495,1.184000015258789}}},["children"]={{["class"]="Decal",["name"]="Glow",["properties"]={["Transparency"]=0.550000011920929,["Color3"]={["type"]="Color3",["v"]={100.21568298339844,100.21568298339844,100.21568298339844}},["Texture"]="rbxassetid://95001575076131"},["attributes"]={["StaticLayer"]="rbxassetid://18363568406",["ChromaLayer"]="rbxassetid://18335602807"}},{["class"]="SpecialMesh",["name"]="Mesh",["properties"]={["Offset"]={["type"]="Vector3",["v"]={0,0,0}},["VertexColor"]={["type"]="Vector3",["v"]={1,1,1}},["MeshType"]="Enum.MeshType.FileMesh",["Scale"]={["type"]="Vector3",["v"]={0.07400000095367432,0.07400000095367432,0.07400000095367432}},["MeshId"]="rbxassetid://137082284051764",["TextureId"]="rbxassetid://93782017269677"},["attributes"]={}},{["class"]="Decal",["name"]="Chroma",["properties"]={["Transparency"]=0,["Color3"]={["type"]="Color3",["v"]={0,1,0.3854180574417114}},["Texture"]="rbxassetid://70538223885127"},["attributes"]={["StaticLayer"]="rbxassetid://18363568406"}}}}}}
+local effects={["EasterGlow2023"]={["class"]="Folder",["name"]="EasterGlow2023",["children"]={{["class"]="ParticleEmitter",["name"]="a",["properties"]={["Color"]={["type"]="ColorSequence",["points"]={{["time"]=0,["value"]={["type"]="Color3",["v"]={0,0.9843140244483948,1}}},{["time"]=1,["value"]={["type"]="Color3",["v"]={0,0.9843140244483948,1}}}}},["Drag"]=5,["ZOffset"]=1,["LightInfluence"]=0,["Lifetime"]={["max"]=1,["type"]="NumberRange",["min"]=0.699999988079071},["Speed"]={["max"]=3,["type"]="NumberRange",["min"]=3},["Size"]={["type"]="NumberSequence",["points"]={{["envelope"]=0,["time"]=0,["value"]=0.10000000149011612},{["envelope"]=0,["time"]=1,["value"]=0}}},["Enabled"]=true,["Acceleration"]={["type"]="Vector3",["v"]={0,0,0}},["RotSpeed"]={["max"]=0,["type"]="NumberRange",["min"]=0},["Rate"]=5,["EmissionDirection"]="Enum.NormalId.Top",["Transparency"]={["type"]="NumberSequence",["points"]={{["envelope"]=0,["time"]=0,["value"]=1},{["envelope"]=0,["time"]=0.0884040966629982,["value"]=1},{["envelope"]=0,["time"]=0.18828900158405304,["value"]=0.7437499761581421},{["envelope"]=0,["time"]=0.2629159986972809,["value"]=0.550000011920929},{["envelope"]=0,["time"]=0.3340989947319031,["value"]=0.3812499940395355},{["envelope"]=0,["time"]=0.48794499039649963,["value"]=0.06875000149011612},{["envelope"]=0,["time"]=0.6762340068817139,["value"]=0.07500000298023224},{["envelope"]=0,["time"]=0.8002300262451172,["value"]=0.20000000298023224},{["envelope"]=0,["time"]=0.8989670276641846,["value"]=0.41874998807907104},{["envelope"]=0,["time"]=0.9575200080871582,["value"]=0.612500011920929},{["envelope"]=0,["time"]=1,["value"]=0.9937499761581421}}},["Rotation"]={["max"]=0,["type"]="NumberRange",["min"]=0},["Orientation"]="Enum.ParticleOrientation.FacingCamera",["LightEmission"]=1,["SpreadAngle"]={["type"]="Vector2",["v"]={360,360}},["Texture"]="http://www.roblox.com/asset/?id=120162320121986"}},{["class"]="ParticleEmitter",["name"]="b",["properties"]={["Color"]={["type"]="ColorSequence",["points"]={{["time"]=0,["value"]={["type"]="Color3",["v"]={0.9176470041275024,0,1}}},{["time"]=1,["value"]={["type"]="Color3",["v"]={0.9176470041275024,0,1}}}}},["Drag"]=5,["ZOffset"]=1,["LightInfluence"]=0,["Lifetime"]={["max"]=1,["type"]="NumberRange",["min"]=0.699999988079071},["Speed"]={["max"]=3,["type"]="NumberRange",["min"]=3},["Size"]={["type"]="NumberSequence",["points"]={{["envelope"]=0,["time"]=0,["value"]=0.10000000149011612},{["envelope"]=0,["time"]=1,["value"]=0}}},["Enabled"]=true,["Acceleration"]={["type"]="Vector3",["v"]={0,0,0}},["RotSpeed"]={["max"]=0,["type"]="NumberRange",["min"]=0},["Rate"]=5,["EmissionDirection"]="Enum.NormalId.Top",["Transparency"]={["type"]="NumberSequence",["points"]={{["envelope"]=0,["time"]=0,["value"]=1},{["envelope"]=0,["time"]=0.0884040966629982,["value"]=1},{["envelope"]=0,["time"]=0.18828900158405304,["value"]=0.7437499761581421},{["envelope"]=0,["time"]=0.2629159986972809,["value"]=0.550000011920929},{["envelope"]=0,["time"]=0.3340989947319031,["value"]=0.3812499940395355},{["envelope"]=0,["time"]=0.48794499039649963,["value"]=0.06875000149011612},{["envelope"]=0,["time"]=0.6762340068817139,["value"]=0.07500000298023224},{["envelope"]=0,["time"]=0.8002300262451172,["value"]=0.20000000298023224},{["envelope"]=0,["time"]=0.8989670276641846,["value"]=0.41874998807907104},{["envelope"]=0,["time"]=0.9575200080871582,["value"]=0.612500011920929},{["envelope"]=0,["time"]=1,["value"]=0.9937499761581421}}},["Rotation"]={["max"]=0,["type"]="NumberRange",["min"]=0},["Orientation"]="Enum.ParticleOrientation.FacingCamera",["LightEmission"]=1,["SpreadAngle"]={["type"]="Vector2",["v"]={360,360}},["Texture"]="http://www.roblox.com/asset/?id=120162320121986"}},{["class"]="ParticleEmitter",["name"]="c",["properties"]={["Color"]={["type"]="ColorSequence",["points"]={{["time"]=0,["value"]={["type"]="Color3",["v"]={0,1,0.9686269760131836}}},{["time"]=1,["value"]={["type"]="Color3",["v"]={0,1,0.9686269760131836}}}}},["Drag"]=12,["ZOffset"]=-1,["LightInfluence"]=0,["Lifetime"]={["max"]=4,["type"]="NumberRange",["min"]=2},["Speed"]={["max"]=1,["type"]="NumberRange",["min"]=1},["Size"]={["type"]="NumberSequence",["points"]={{["envelope"]=0,["time"]=0,["value"]=0},{["envelope"]=0,["time"]=0.8771529793739319,["value"]=2.625},{["envelope"]=0,["time"]=1,["value"]=4.5625}}},["Enabled"]=true,["Acceleration"]={["type"]="Vector3",["v"]={0,0,0}},["RotSpeed"]={["max"]=100,["type"]="NumberRange",["min"]=10},["Rate"]=10,["EmissionDirection"]="Enum.NormalId.Top",["Transparency"]={["type"]="NumberSequence",["points"]={{["envelope"]=0,["time"]=0,["value"]=1},{["envelope"]=0,["time"]=0.08662419766187668,["value"]=1},{["envelope"]=0,["time"]=0.12229300290346146,["value"]=0.03125},{["envelope"]=0,["time"]=0.1997700035572052,["value"]=0.04374999925494194},{["envelope"]=0,["time"]=0.3214699923992157,["value"]=0.543749988079071},{["envelope"]=0,["time"]=0.47561898827552795,["value"]=1},{["envelope"]=0,["time"]=1,["value"]=1}}},["Rotation"]={["max"]=360,["type"]="NumberRange",["min"]=0},["Orientation"]="Enum.ParticleOrientation.FacingCamera",["LightEmission"]=1,["SpreadAngle"]={["type"]="Vector2",["v"]={360,360}},["Texture"]="http://www.roblox.com/asset/?id=120162320121986"}},{["class"]="ParticleEmitter",["name"]="d",["properties"]={["Color"]={["type"]="ColorSequence",["points"]={{["time"]=0,["value"]={["type"]="Color3",["v"]={0.784313976764679,0,1}}},{["time"]=1,["value"]={["type"]="Color3",["v"]={0.784313976764679,0,1}}}}},["Drag"]=12,["ZOffset"]=-1,["LightInfluence"]=0,["Lifetime"]={["max"]=4,["type"]="NumberRange",["min"]=2},["Speed"]={["max"]=1,["type"]="NumberRange",["min"]=1},["Size"]={["type"]="NumberSequence",["points"]={{["envelope"]=0,["time"]=0,["value"]=0},{["envelope"]=0,["time"]=0.8771529793739319,["value"]=2.625},{["envelope"]=0,["time"]=1,["value"]=4.5625}}},["Enabled"]=true,["Acceleration"]={["type"]="Vector3",["v"]={0,0,0}},["RotSpeed"]={["max"]=100,["type"]="NumberRange",["min"]=10},["Rate"]=10,["EmissionDirection"]="Enum.NormalId.Top",["Transparency"]={["type"]="NumberSequence",["points"]={{["envelope"]=0,["time"]=0,["value"]=1},{["envelope"]=0,["time"]=0.08662419766187668,["value"]=1},{["envelope"]=0,["time"]=0.12229300290346146,["value"]=0.03125},{["envelope"]=0,["time"]=0.1997700035572052,["value"]=0.04374999925494194},{["envelope"]=0,["time"]=0.3214699923992157,["value"]=0.543749988079071},{["envelope"]=0,["time"]=0.47561898827552795,["value"]=1},{["envelope"]=0,["time"]=1,["value"]=1}}},["Rotation"]={["max"]=360,["type"]="NumberRange",["min"]=0},["Orientation"]="Enum.ParticleOrientation.FacingCamera",["LightEmission"]=1,["SpreadAngle"]={["type"]="Vector2",["v"]={360,360}},["Texture"]="http://www.roblox.com/asset/?id=120162320121986"}}}}}
+local cache=Instance.new("Folder")
+cache.Name="VisualsV2_OriginalVisuals"
+local alive=true
+local built={}
+local allowed={Part=true,SpecialMesh=true,Decal=true,Attachment=true,ParticleEmitter=true,Folder=true}
+local function decode(value)
+    if type(value)=="string" then
+        local group,name=value:match("^Enum%.(%w+)%.(%w+)$")
+        if group then
+            local category=Enum[group]
+            local item=category and category[name]
+            assert(item,"Unknown original visual enum: "..value)
+            return item
+        end
+        return value
+    end
+    if type(value)~="table" then return value end
+    local kind=value.type
+    local v=value.v
+    if kind=="Vector3" then return Vector3.new(v[1],v[2],v[3]) end
+    if kind=="Vector2" then return Vector2.new(v[1],v[2]) end
+    if kind=="Color3" then return Color3.new(v[1],v[2],v[3]) end
+    if kind=="CFrame" then return CFrame.new(table.unpack(v)) end
+    if kind=="NumberRange" then return NumberRange.new(value.min,value.max) end
+    if kind=="NumberSequence" then
+        local points={}
+        for _,point in ipairs(value.points) do
+            points[#points+1]=NumberSequenceKeypoint.new(point.time,point.value,point.envelope or 0)
+        end
+        return NumberSequence.new(points)
+    end
+    if kind=="ColorSequence" then
+        local points={}
+        for _,point in ipairs(value.points) do points[#points+1]=ColorSequenceKeypoint.new(point.time,decode(point.value)) end
+        return ColorSequence.new(points)
+    end
+    error("Unsupported original visual value")
+end
+local function create(record)
+    assert(allowed[record.class],"Unsupported original visual class")
+    local object=Instance.new(record.class)
+    local ok,reason=pcall(function()
+        object.Name=record.name
+        for key,value in pairs(record.properties or {}) do object[key]=decode(value) end
+        for key,value in pairs(record.attributes or {}) do object:SetAttribute(key,decode(value)) end
+        for _,child in ipairs(record.children or {}) do create(child).Parent=object end
+        if object:IsA("BasePart") then
+            object.CFrame=CFrame.new()
+            object.Anchored=true;object.CanCollide=false;object.CanTouch=false;object.CanQuery=false
+            object.Massless=true;object.LocalTransparencyModifier=0
+        end
+    end)
+    if not ok then object:Destroy();error(reason,0) end
+    return object
+end
+local function get(category,id,record)
+    if not alive or not runtimeAlive or not record then return nil end
+    local key=category..":"..id
+    if not built[key] then
+        local object=create(record)
+        object:SetAttribute("VisualsV2_OriginalSource","Captured MMV original: "..id)
+        object.Parent=cache
+        built[key]=object
+    end
+    return built[key]
+end
+env.VisualsV2Runtime.OriginalVisuals={
+    GetWeapon=function(kind,id) return get(kind,id,weapons[kind] and weapons[kind][id]) end,
+    GetEffect=function(id) return get("Effect",id,effects[id]) end,
+    GetDiagnostics=function()
+        return {weapons={Gun={"SunsetGunChroma"},Knife={"SunsetKnifeChroma"}},effects={"EasterGlow2023"},source="MMV native capture"}
+    end,
+}
+env.VisualsV2Runtime.RegisterReset(function()
+    if not runtimeAlive then alive=false;cache:Destroy();table.clear(built) end
+end)
+end)()
+
+;(function()
 local mmv=game.GameId==10413186812 or game.PlaceId==93017634738276
 local MARKER="VisualsV2_ClientWeaponSkin"
 local NONE="None"
@@ -6444,11 +6525,13 @@ end
 local function buildTemplate(entry)
     local data=entry.data
     local modelData=type(data.model)=="table" and properties(data.model) or data
-    local source=resolveModel(data.sourcepath) or replicatedModel(entry)
+    local originals=env.VisualsV2Runtime.OriginalVisuals
+    local source=originals and originals.GetWeapon(entry.kind,entry.id)
+        or resolveModel(data.sourcepath) or replicatedModel(entry)
     if not wanted(entry) then return nil,{cancelled=true} end
     local loaded={}
     local attempts={}
-    local sourceName=source and objectPath(source)
+    local sourceName=source and (source:GetAttribute("VisualsV2_OriginalSource") or objectPath(source))
     local clone=source and cloneObject(source) or nil
     if not clone then
         local primaryId=assetId(data.modelid) or assetId(data.assetid) or assetId(data.weaponasset)
@@ -6776,7 +6859,9 @@ end
 local function chromaTargets(model,root)
     local targets={}
     for _,part in ipairs(model:GetDescendants()) do
-        if part:IsA("BasePart") then
+        if part:IsA("Decal") and (part:GetAttribute("Chroma")==true or compact(part.Name)=="chroma") then
+            targets[#targets+1]=part
+        elseif part:IsA("BasePart") then
             local marked=part:GetAttribute("Chroma")==true or compact(part.Name):find("chroma",1,true)~=nil
             for _,child in ipairs(part:GetChildren()) do
                 if child:IsA("DataModelMesh") and compact(child.Name):find("chroma",1,true) then marked=true end
@@ -6792,8 +6877,9 @@ local function updateChroma(state)
     if not state.chromaTargets then return end
     local color=Color3.fromHSV((os.clock()*0.15)%1,1,1)
     for _,part in ipairs(state.chromaTargets) do
-        local mesh=part:FindFirstChildWhichIsA("SpecialMesh")
-        if mesh then
+        local mesh=part:IsA("BasePart") and part:FindFirstChildWhichIsA("SpecialMesh")
+        if part:IsA("Decal") then part.Color3=color
+        elseif mesh then
             part.Color=Color3.new(1,1,1)
             mesh.VertexColor=Vector3.new(color.R,color.G,color.B)
         else part.Color=color end
@@ -7470,6 +7556,9 @@ local function findTemplate()
     nextAttempt=math.huge
     local entry=byId[selected]
     if not entry then return nil end
+    local originals=env.VisualsV2Runtime.OriginalVisuals
+    local captured=originals and originals.GetEffect(selected)
+    if captured then template=captured;templateId=selected;return template end
     local candidates={}
     local function candidate(object)
         if object and not own(object,storage) and hasVisuals(object) then candidates[#candidates+1]=object end
@@ -8459,10 +8548,12 @@ local fields={
     BasePart={"Size","CFrame","Color","Material","Transparency","LocalTransparencyModifier","Anchored","CanCollide","Massless"},
     MeshPart={"MeshId","TextureID","MeshSize","DoubleSided"},
     DataModelMesh={"MeshType","MeshId","TextureId","Scale","Offset","VertexColor"},
-    Decal={"Texture","Transparency","Color3"},
+    Decal={"Texture","Transparency","Color3","Face","ZIndex"},
     Attachment={"CFrame"},
     ParticleEmitter={"Enabled","Texture","Color","Transparency","Size","Lifetime","Rate","Speed","Rotation","RotSpeed",
-        "LightEmission","LightInfluence","SpreadAngle","Acceleration","Drag","EmissionDirection","ZOffset","Orientation"},
+        "LightEmission","LightInfluence","SpreadAngle","Acceleration","Drag","EmissionDirection","ZOffset","Orientation",
+        "Brightness","LockedToPart","VelocityInheritance","TimeScale","Squash","Shape","ShapeStyle","ShapeInOut",
+        "ShapePartial","FlipbookLayout","FlipbookMode","FlipbookFramerate","FlipbookStartRandom"},
     Trail={"Enabled","Attachment0","Attachment1","Color","Transparency","Lifetime","WidthScale","Texture","LightEmission","FaceCamera"},
     Beam={"Enabled","Attachment0","Attachment1","Color","Transparency","Width0","Width1","Texture","LightEmission","FaceCamera"},
     Light={"Enabled","Color","Brightness","Range"},
@@ -8472,6 +8563,8 @@ local fields={
     JointInstance={"Part0","Part1","C0","C1"},
     Animation={"AnimationId"},
     ObjectValue={"Value"},
+    Tool={"Grip","TextureId","Enabled","RequiresHandle","CanBeDropped"},
+    Sound={"SoundId","Volume","PlaybackSpeed","Looped"},
     SurfaceAppearance={"ColorMap","MetalnessMap","NormalMap","RoughnessMap","AlphaMode"},
 }
 
@@ -8491,14 +8584,17 @@ end
 
 local function snapshot(object,limit)
     local result={root=objectInfo(object),nodes={}}
-    local queue={object}
+    result.root.nodeId=0
+    local queue={{object=object,id=0}}
     local index=1
     while queue[index] and #result.nodes<(limit or 160) do
         local current=queue[index];index=index+1
-        for _,child in ipairs(current:GetChildren()) do
+        for _,child in ipairs(current.object:GetChildren()) do
             if #result.nodes>=(limit or 160) then result.truncated=true;break end
-            result.nodes[#result.nodes+1]=objectInfo(child)
-            queue[#queue+1]=child
+            local info=objectInfo(child)
+            info.nodeId=#result.nodes+1;info.parentId=current.id
+            result.nodes[#result.nodes+1]=info
+            queue[#queue+1]={object=child,id=info.nodeId}
         end
         if index%32==0 then task.wait() end
     end
@@ -8519,6 +8615,7 @@ local function collect()
     local report={at=os.time(),placeId=game.PlaceId,universeId=game.GameId,runtimeAvailable=true,
         weapons=skins and skins.GetDiagnostics(),effects=effects and effects.GetDiagnostics(),
         inventory=runtime.VisualWeaponInventory and runtime.VisualWeaponInventory.GetDiagnostics(),
+        originalAssets=runtime.OriginalVisuals and runtime.OriginalVisuals.GetDiagnostics(),
         tools={},character={},originalDefinitions={},availableTemplates={},storageRoots={}}
     pcall(function() report.executor=identifyexecutor() end)
     local selected={}
@@ -8533,11 +8630,20 @@ local function collect()
     local data=moduleTable(database,"Sync")
     local items=data and (data.Weapons or data.Item) or moduleTable(sync,"Item") or {}
     local nativeEffects=data and data.Effects or moduleTable(sync,"Effects") or {}
-    for id in pairs(selected) do report.originalDefinitions[id]=encode(items[id] or nativeEffects[id]) end
     local modules=storage:FindFirstChild("Modules")
     local profile=moduleTable(modules,"ProfileData")
     report.nativeEquipped=profile and encode({Weapons=profile.Weapons and profile.Weapons.Equipped,
         Effects=profile.Effects and profile.Effects.Equipped})
+    if profile then
+        for _,category in ipairs({"Weapons","Effects"}) do
+            local equipped=profile[category] and profile[category].Equipped
+            if type(equipped)=="string" then selected[equipped]=true
+            elseif type(equipped)=="table" then
+                for _,id in pairs(equipped) do if type(id)=="string" then selected[id]=true end end
+            end
+        end
+    end
+    for id in pairs(selected) do report.originalDefinitions[id]=encode(items[id] or nativeEffects[id]) end
     report.activeSettings={}
     for _,key in ipairs({"clientGunEnabled","clientGunSkin","clientKnifeEnabled","clientKnifeSkin",
         "vv2KnifeEffectsEnabled","vv2KnifeEffect","gunChamsEnabled","gunChamsPreset","knifeChamsEnabled","knifeChamsPreset",
