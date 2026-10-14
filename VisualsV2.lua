@@ -1,4 +1,5 @@
 -- Visuals V2
+-- 2026-10-14 r25: Shared button audio, native geometry chams, repeat-use tool safety, gun animation timelines and timer font.
 -- 2026-10-14 r24: Link Bomb Jump drag locks to Miscellaneous; save hotkeys/positions with all VV2 settings; add a combined reset in Bomb Jump+.
 -- 2026-10-14 r23: Import supplied Chams including Others; VV2 Bomb Jump+ and Gold Bomb Jump; auto-remove displays; monitor-style firefly font.
 -- 2026-10-14 r22: Restore the r20 Flat/Chromatic renderer; keep native toy scripts alive during hotbar ordering.
@@ -244,7 +245,7 @@ if type(previousRuntime) == "table" and type(previousRuntime.Cleanup) == "functi
 end
 
 -- Runtime reset registry.
-env.VisualsV2Runtime = {Resetters = {}, Build = "2026-10-14-r24"}
+env.VisualsV2Runtime = {Resetters = {}, Build = "2026-10-14-r25"}
 env.VisualsV2Runtime.RegisterReset = function(callback)
     if type(callback) == "function" then table.insert(env.VisualsV2Runtime.Resetters, callback) end
 end
@@ -267,6 +268,37 @@ pcall(function()
     game:BindToClose(function()
         saveConfig()
     end)
+end)
+
+-- Only sounds owned by VV2 buttons belong here. Native gun/toy audio is separate.
+local ButtonAudio={sounds=setmetatable({}, {__mode="k"})}
+ButtonAudio.muted=C("vv2MuteButtonSFX",nil)
+if ButtonAudio.muted==nil then
+    ButtonAudio.muted=C("vv2BombJump_MuteButtonSFX",false)==true
+    SetCfg("vv2MuteButtonSFX",ButtonAudio.muted)
+end
+function ButtonAudio:Register(sound,volume)
+    self.sounds[sound]=volume or sound.Volume
+    sound.Volume=self.muted and 0 or self.sounds[sound]
+    return sound
+end
+function ButtonAudio:SetMuted(value)
+    self.muted=value==true
+    SetCfg("vv2MuteButtonSFX",self.muted)
+    for sound,volume in pairs(self.sounds) do
+        pcall(function()
+            sound.Volume=self.muted and 0 or volume
+            if self.muted then sound:Stop() end
+        end)
+    end
+end
+env.VisualsV2Runtime.ButtonAudio=ButtonAudio
+env.VisualsV2Runtime.RegisterReset(function()
+    if runtimeAlive then ButtonAudio:SetMuted(false);return end
+    for sound,volume in pairs(ButtonAudio.sounds) do
+        pcall(function() sound.Volume=volume end)
+    end
+    table.clear(ButtonAudio.sounds)
 end)
 
 local player = LocalPlayer
@@ -3918,7 +3950,7 @@ local BindableButtons = (function()
 
         local sound=Instance.new("Sound")
         sound.SoundId="rbxassetid://3868133279"
-        sound.Volume=0.5
+        ButtonAudio:Register(sound,0.5)
         sound.Parent=b
 
         buttons.Buttons[id]=b
@@ -4858,279 +4890,280 @@ local runtime=env.VisualsV2Runtime
 local Workspace,LocalPlayer=workspace,player
 local presets={"ForceField","Flat","Chromatic"}
 local groups,states,owners={},{},{}
-local heartbeatConnection,chrom_conn
+local heartbeatConnection,renderBound
 local chrom_view,chrom_world,chrom_camera,chrom_host
-local CHROM_SCALE,CHROM_ALPHA=1.012,0.025
+local CHROM_ALPHA=0.025
+local FRAME="VisualsV2_ChamsRender"
+local BOMB_FORCEFIELD_TEXTURE="rbxassetid://104516981"
 local ownedSurfaces=setmetatable({}, {__mode="k"})
 local resetting=false
 
-local ws = Workspace
-	local function chrom_ensure()
-		if chrom_world and chrom_world.Parent then return end
-		local host = Instance.new("ScreenGui")
-		host.Name = "VisualsV2_ChamsViewport"
-		chrom_host = host
-		host.ResetOnSpawn = false
-		host.IgnoreGuiInset = true
-		host.DisplayOrder = 100
-		local player_gui = LocalPlayer:FindFirstChildOfClass("PlayerGui") or LocalPlayer:WaitForChild("PlayerGui", 5)
-		if player_gui then
-			host.Parent = player_gui
-		else
-			pcall(function() host.Parent = gethui and gethui() or game:GetService("CoreGui") end)
-		end
-		chrom_view = Instance.new("ViewportFrame")
-		chrom_view.Size = UDim2.fromScale(1, 1)
-		chrom_view.Position = UDim2.fromScale(0, 0)
-		chrom_view.BackgroundTransparency = 1
-		chrom_view.BorderSizePixel = 0
-		chrom_view.Ambient = Color3.new(1, 1, 1)
-		chrom_view.LightColor = Color3.new(1, 1, 1)
-		chrom_view.LightDirection = Vector3.new(-1, -1, -1)
-		chrom_view.ZIndex = 999
-		chrom_view.Visible = true
-		chrom_view.Parent = host
-		chrom_camera = Instance.new("Camera")
-		chrom_camera.Name = "ToolChamsCamera"
-		chrom_camera.FieldOfView = Workspace.CurrentCamera and Workspace.CurrentCamera.FieldOfView or 70
-		chrom_camera.CFrame = Workspace.CurrentCamera and Workspace.CurrentCamera.CFrame or CFrame.new()
-		chrom_camera.Parent = chrom_view
-		chrom_view.CurrentCamera = chrom_camera
-		local sky = game:GetService("Lighting"):FindFirstChildOfClass("Sky")
-		if sky then pcall(function() sky:Clone().Parent = chrom_view end) end
-		chrom_world = Instance.new("WorldModel")
-		chrom_world.Parent = chrom_view
-	end
+local function chrom_ensure()
+    if chrom_world and chrom_world.Parent then return end
+    local host=Instance.new("ScreenGui")
+    host.Name="VisualsV2_ChamsViewport"
+    host.Enabled=true
+    host.ResetOnSpawn=false
+    host.IgnoreGuiInset=true
+    host.DisplayOrder=100
+    pcall(function() host.ScreenInsets=Enum.ScreenInsets.None;host.ClipToDeviceSafeArea=false end)
+    local gui=LocalPlayer:FindFirstChildOfClass("PlayerGui")
+    if gui then host.Parent=gui
+    else pcall(function() host.Parent=gethui and gethui() or game:GetService("CoreGui") end) end
+    chrom_host=host
+    chrom_view=Instance.new("ViewportFrame")
+    chrom_view.Size=UDim2.fromScale(1,1)
+    chrom_view.Position=UDim2.fromScale(0,0)
+    chrom_view.BackgroundTransparency=1
+    chrom_view.Active=false
+    pcall(function() chrom_view.Interactable=false end)
+    chrom_view.BorderSizePixel=0
+    chrom_view.Ambient=Color3.new(1,1,1)
+    chrom_view.LightColor=Color3.new(1,1,1)
+    chrom_view.LightDirection=Vector3.new(-1,-1,-1)
+    chrom_view.ZIndex=999
+    chrom_view.Visible=true
+    chrom_view.Parent=host
+    chrom_camera=Instance.new("Camera")
+    chrom_camera.Name="ToolChamsCamera"
+    chrom_camera.Parent=chrom_view
+    chrom_view.CurrentCamera=chrom_camera
+    local sky=game:GetService("Lighting"):FindFirstChildOfClass("Sky")
+    if sky then pcall(function() sky:Clone().Parent=chrom_view end) end
+    chrom_world=Instance.new("WorldModel")
+    chrom_world.Parent=chrom_view
+end
 
-	local CHAMS_BODY = {
-		Head = true, UpperTorso = true, LowerTorso = true, Torso = true,
-		LeftUpperArm = true, LeftLowerArm = true, LeftHand = true,
-		RightUpperArm = true, RightLowerArm = true, RightHand = true,
-		LeftUpperLeg = true, LeftLowerLeg = true, LeftFoot = true,
-		RightUpperLeg = true, RightLowerLeg = true, RightFoot = true,
-		["Left Arm"] = true, ["Right Arm"] = true,
-		["Left Leg"] = true, ["Right Leg"] = true
-	}
+local function deformable(part)
+    if part:FindFirstChildWhichIsA("WrapLayer") or part:FindFirstChildWhichIsA("Bone") then return true end
+    local ok,value=pcall(function() return part.HasSkinnedMesh end)
+    return ok and value==true
+end
 
-	local function chams_deformable(p)
-		if p:FindFirstChildWhichIsA("WrapLayer") then return true end
-		if CHAMS_BODY[p.Name] then return false end
-		if p:FindFirstChildWhichIsA("Bone") then return true end
-		local ok, skinned = pcall(function() return p.HasSkinnedMesh end)
-		return ok and skinned == true
-	end
+local function shell(source)
+    local archivable=source.Archivable
+    if not archivable and not pcall(function() source.Archivable=true end) then return end
+    local ok,clone=pcall(function() return source:Clone() end)
+    if not archivable then pcall(function() source.Archivable=archivable end) end
+    if not ok or not clone then return end
+    -- A visual clone never contains scripts, remotes, joints, effects or input.
+    for _,child in ipairs(clone:GetChildren()) do
+        if not child:IsA("DataModelMesh") then child:Destroy() end
+    end
+    clone.Anchored=true
+    clone.CanCollide=false;clone.CanQuery=false;clone.CanTouch=false
+    clone.Massless=true;clone.CastShadow=false
+    clone.LocalTransparencyModifier=0
+    clone.Material=Enum.Material.Foil
+    clone.MaterialVariant=""
+    clone.Reflectance=0.12
+    pcall(function() clone.TextureID="" end)
+    local mesh=clone:FindFirstChildWhichIsA("DataModelMesh")
+    if mesh then
+        pcall(function() mesh.TextureId="";mesh.VertexColor=Vector3.new(1,1,1) end)
+    end
+    return clone
+end
 
-	local function chams_shell(source, scale)
-		local archivable = source.Archivable
-		if not archivable then
-			if not pcall(function() source.Archivable = true end) then return nil end
-		end
-		local ok, clone = pcall(function() return source:Clone() end)
-		if not archivable then
-			pcall(function() source.Archivable = archivable end)
-		end
-		if not ok or not clone then return nil end
-		for _, child in clone:GetChildren() do
-			if not child:IsA("DataModelMesh") then child:Destroy() end
-		end
-		local mesh = clone:FindFirstChildWhichIsA("DataModelMesh")
-		if mesh then
-			pcall(function() mesh.Scale = mesh.Scale * scale end)
-			pcall(function() mesh.TextureId = "" end)
-		else
-			clone.Size = clone.Size * scale
-		end
-		pcall(function() clone.TextureID = "" end)
-		pcall(function() clone.MaterialVariant = "" end)
-		clone.CanCollide = false
-		clone.CanQuery = false
-		clone.CanTouch = false
-		clone.Massless = true
-		clone.CastShadow = false
-		clone.LocalTransparencyModifier = 0
-		return clone
-	end
+local function restore_hidden(entry)
+    if entry.connection then entry.connection:Disconnect();entry.connection=nil end
+    if entry.hidden then
+        entry.writing=true
+        pcall(function() entry.source.LocalTransparencyModifier=entry.nativeAlpha end)
+        entry.writing=false;entry.hidden=false
+    end
+end
 
-	local function flat_clear(state)
-		if state.model then state.model:Destroy() end
-		if state.occ then state.occ:Destroy() end
-		if state.los then
-			for i = 1, #state.los do state.los[i]:Destroy() end
-		end
-		state.model, state.occ, state.los, state.count, state.key = nil, nil, nil, nil, nil
-	end
+local function hide_source(entry)
+    local source=entry.source
+    if entry.hidden then
+        -- A camera controller can update this after the prior frame's event.
+        -- Enforce the replacement again immediately before rendering.
+        if source.LocalTransparencyModifier~=1 then
+            entry.nativeAlpha=source.LocalTransparencyModifier
+            entry.writing=true;source.LocalTransparencyModifier=1;entry.writing=false
+        end
+        return
+    end
+    entry.nativeAlpha=source.LocalTransparencyModifier
+    entry.hidden=true
+    entry.connection=source:GetPropertyChangedSignal("LocalTransparencyModifier"):Connect(function()
+        if entry.writing or not entry.hidden then return end
+        local alpha=source.LocalTransparencyModifier
+        -- With deferred signals, our own write is delivered after writing has
+        -- cleared. Do not feed that hide value back into clone visibility.
+        if alpha==1 then return end
+        entry.nativeAlpha=alpha
+        entry.writing=true;source.LocalTransparencyModifier=1;entry.writing=false
+    end)
+    entry.writing=true;source.LocalTransparencyModifier=1;entry.writing=false
+end
 
-	local function flat_apply(state, parts, roots, col)
-		local key = roots[1]
-		if state.key ~= key or state.count ~= #parts or not state.model or not state.model.Parent then
-			flat_clear(state)
-			local model = Instance.new("Model")
-			model.Name = "\0"
-			for i = 1, #parts do
-				local source = parts[i]
-				local clone = not chams_deformable(source) and chams_shell(source, 0.99) or nil
-				if clone then
-					clone.Anchored = false
-					clone.CFrame = source.CFrame
-					clone.Parent = model
-					local weld = Instance.new("WeldConstraint")
-					weld.Part0 = clone
-					weld.Part1 = source
-					weld.Parent = clone
-				end
-			end
-			model.Parent = Workspace
-			local occ = Instance.new("Highlight")
-			occ.DepthMode = Enum.HighlightDepthMode.AlwaysOnTop
-			occ.OutlineTransparency = 1
-			occ.Adornee = model
-			occ.Parent = model
-			local los = {}
-			for i = 1, #roots do
-				local hl = Instance.new("Highlight")
-				hl.DepthMode = Enum.HighlightDepthMode.Occluded
-				hl.OutlineTransparency = 1
-				hl.Adornee = roots[i]
-				hl.Parent = model
-				los[i] = hl
-			end
-			state.model, state.occ, state.los = model, occ, los
-			state.count, state.key = #parts, key
-		end
-		state.occ.FillColor = col
-		state.occ.FillTransparency = 0
-		for i = 1, #state.los do
-			state.los[i].FillColor = col
-			state.los[i].FillTransparency = 0
-		end
-	end
+local function chrom_clear(state)
+    for _,entry in ipairs(state.entries or {}) do restore_hidden(entry) end
+    if state.model then state.model:Destroy() end
+    state.model,state.entries=nil,nil
+end
 
-	local function chrom_clear(state)
-		if state.model then state.model:Destroy() end
-		state.model, state.entries, state.count, state.key, state.col = nil, nil, nil, nil, nil
-	end
-
-	local function chrom_apply(state, parts, key, col)
-		if state.key ~= key or state.count ~= #parts or not state.model or not state.model.Parent then
-			chrom_clear(state)
-			chrom_ensure()
-			local model = Instance.new("Model")
-			model.Name = "\0"
-			local entries = {}
-			for i = 1, #parts do
-				local source = parts[i]
-				local clone = not chams_deformable(source) and chams_shell(source, CHROM_SCALE) or nil
-				if clone then
-					clone.Anchored = true
-					clone.Material = Enum.Material.Foil
-					clone.Reflectance = 0.12
-					clone.Transparency = CHROM_ALPHA
-					clone.Color = col
-					clone.CFrame = source.CFrame
-					clone.Parent = model
-					entries[#entries + 1] = { source, clone }
-				end
-			end
-			if not chrom_world or not chrom_world.Parent then
-				chrom_ensure()
-			end
-			model.Parent = chrom_world
-			state.model, state.entries = model, entries
-			state.count, state.key, state.col = #parts, key, col
-		elseif state.col ~= col then
-			state.col = col
-			local entries = state.entries
-			if entries then
-				for i = 1, #entries do
-					entries[i][2].Color = col
-				end
-			end
-		end
-	end
-
-	local function chrom_sync(state)
-		local entries = state.entries
-		if not entries then return end
-		for i = 1, #entries do
-			local source, clone = entries[i][1], entries[i][2]
-			if source.Parent then
-				clone.CFrame = source.CFrame
-				local hidden = math.max(source.Transparency, source.LocalTransparencyModifier) >= 1
-				local target_trans = hidden and 1 or CHROM_ALPHA
-				if clone.Transparency ~= target_trans then
-					clone.Transparency = target_trans
-				end
-			elseif clone.Transparency ~= 1 then
-				clone.Transparency = 1
-			end
-		end
-	end
-
-
--- ForceField follows the supplied plugin: the real material and colour,
--- with SurfaceAppearance temporarily detached. No toy-specific texture,
--- transparency, reflectance or mesh substitutions are used.
-local function force_restore(state)
-    for part,data in pairs(state.cache) do
-        if part.Parent then
-            local keepSkin=state.owner==LocalPlayer and runtimeAlive and not configResetting and C("ffEnabled",false)
-            if not keepSkin then
-                part.Material=data[1]
-                part.Color=data[2]
-            else
-                local saved=part:GetAttribute("VisualsV2_OriginalMaterial")
-                if saved=="ForceField" and data[1]~=Enum.Material.ForceField then
-                    part:SetAttribute("VisualsV2_OriginalMaterial",data[1].Name)
-                end
+local function chrom_sync(state)
+    local ready=chrom_host and chrom_host.Parent and chrom_host.Enabled
+        and chrom_view and chrom_view.Visible and chrom_world and chrom_world.Parent
+        and Workspace.CurrentCamera~=nil
+    for _,entry in ipairs(state.entries or {}) do
+        local source,clone=entry.source,entry.clone
+        if ready and source.Parent and clone.Parent then
+            -- Sample camera and tool pose in the same late render callback.
+            clone.CFrame=source.CFrame
+            clone.Size=source.Size
+            local mesh=source:FindFirstChildWhichIsA("DataModelMesh")
+            local other=clone:FindFirstChildWhichIsA("DataModelMesh")
+            if mesh and other then
+                pcall(function() other.Scale=mesh.Scale;other.Offset=mesh.Offset end)
             end
-            local physics=state.physics[part]
-            if physics and part.CustomPhysicalProperties==physics[1] then
-                part.CustomPhysicalProperties=physics[2]
-            end
+            hide_source(entry)
+            local alpha=1-(1-source.Transparency)*(1-entry.nativeAlpha)
+            clone.Transparency=1-(1-CHROM_ALPHA)*(1-alpha)
+        else
+            clone.Transparency=1
+            restore_hidden(entry)
         end
     end
-    state.cache,state.physics={},{}
+end
+
+local function chrom_apply(state,color)
+    if not state.chrom.model or not state.chrom.model.Parent or not chrom_world or not chrom_world.Parent then
+        chrom_clear(state.chrom)
+        chrom_ensure()
+        local model=Instance.new("Model")
+        model.Name="VisualsV2_ChromaticTool"
+        local entries={}
+        for _,source in ipairs(state.parts) do
+            local clone=not deformable(source) and shell(source) or nil
+            if clone then
+                clone.Color=color;clone.CFrame=source.CFrame
+                clone.Transparency=1
+                clone.Parent=model
+                entries[#entries+1]={source=source,clone=clone}
+            end
+        end
+        model.Parent=chrom_world
+        state.chrom.model,state.chrom.entries=model,entries
+    end
+    for _,entry in ipairs(state.chrom.entries) do entry.clone.Color=color end
+    chrom_sync(state.chrom)
+end
+
+-- Every material is applied to the native geometry first. Flat has no moving
+-- shell, and Chromatic has the same tint as a fallback if its viewport is lost.
+-- Neither path changes tool input, scripts, size, mesh geometry or grip.
+local function appearance_restore(state)
+    for part,data in pairs(state.cache) do
+        pcall(function()
+            local keepSkin=state.owner==LocalPlayer and runtimeAlive and not configResetting and C("ffEnabled",false)
+            if not keepSkin then part.Material=data.material;part.Color=data.color
+            else
+                local saved=part:GetAttribute("VisualsV2_OriginalMaterial")
+                if saved=="ForceField" and data.material~=Enum.Material.ForceField then
+                    part:SetAttribute("VisualsV2_OriginalMaterial",data.material.Name)
+                end
+            end
+            part.MaterialVariant=data.variant
+            part.Reflectance=data.reflectance
+            if data.texture~=nil then part.TextureID=data.texture end
+            if data.pinnedPhysics and part.CustomPhysicalProperties==data.pinnedPhysics then
+                part.CustomPhysicalProperties=data.customPhysics
+            end
+        end)
+    end
+    for mesh,data in pairs(state.meshCache) do
+        pcall(function() if data.texture~=nil then mesh.TextureId=data.texture end end)
+        pcall(function() if data.color~=nil then mesh.VertexColor=data.color end end)
+    end
+    for decal,alpha in pairs(state.decalCache) do pcall(function() decal.Transparency=alpha end) end
     for surface,parent in pairs(state.surf) do
         pcall(function() surface.Parent=parent end)
         ownedSurfaces[surface]=nil
     end
-    state.surf={}
+    state.cache,state.meshCache,state.decalCache,state.surf={},{},{},{}
 end
 
-local function force_apply(state,color)
+local function appearance_apply(state,color)
+    local preset=state.preset
+    local name=state.tool.Name:lower():gsub("[^%w]","")
+    local teddy=name:find("teddy",1,true)~=nil
+    local bombMask=teddy or name:find("spray",1,true)~=nil or name:find("graffiti",1,true)~=nil
     for _,surface in ipairs(state.surfaces) do
         if surface.Parent and not state.surf[surface] then
-            state.surf[surface]=surface.Parent
-            ownedSurfaces[surface]=true
-            pcall(function() surface.Parent=nil end)
+            state.surf[surface]=surface.Parent;ownedSurfaces[surface]=true;surface.Parent=nil
+        end
+    end
+    for _,decal in ipairs(state.decals) do
+        if state.decalCache[decal]==nil then state.decalCache[decal]=decal.Transparency end
+        decal.Transparency=1
+    end
+    for _,mesh in ipairs(state.meshes) do
+        local data=state.meshCache[mesh]
+        if not data then
+            data={}
+            pcall(function() data.texture=mesh.TextureId end)
+            pcall(function() data.color=mesh.VertexColor end)
+            state.meshCache[mesh]=data
+        end
+        if preset~="ForceField" or bombMask then
+            pcall(function() mesh.TextureId=preset=="ForceField" and BOMB_FORCEFIELD_TEXTURE or "" end)
+        end
+        if preset~="ForceField" or teddy then
+            pcall(function() mesh.VertexColor=Vector3.new(1,1,1) end)
         end
     end
     for _,part in ipairs(state.parts) do
-        if part.Parent then
-            if not state.cache[part] then
-                local material=part.Material
-                local saved=part:GetAttribute("VisualsV2_OriginalMaterial")
-                if state.owner==LocalPlayer and saved and Enum.Material[saved] then material=Enum.Material[saved] end
-                state.cache[part]={material,part.Color}
-                -- Keep native toy mass when changing its visual material.
-                local ok,physics=pcall(function() return part.CurrentPhysicalProperties end)
-                if ok and typeof(physics)=="PhysicalProperties" and part.CustomPhysicalProperties==nil then
-                    local old=part.CustomPhysicalProperties
-                    if pcall(function() part.CustomPhysicalProperties=physics end) then
-                        state.physics[part]={physics,old}
-                    end
-                end
+        local data=state.cache[part]
+        if not data then
+            data={material=part.Material,color=part.Color,reflectance=part.Reflectance,variant=part.MaterialVariant}
+            local saved=part:GetAttribute("VisualsV2_OriginalMaterial")
+            if state.owner==LocalPlayer and saved and Enum.Material[saved] then data.material=Enum.Material[saved] end
+            pcall(function() data.texture=part.TextureID end)
+            -- Changing a material must not change native toy mass or ballistics.
+            local ok,physics=pcall(function() return part.CurrentPhysicalProperties end)
+            if ok and typeof(physics)=="PhysicalProperties" and part.CustomPhysicalProperties==nil then
+                data.customPhysics=part.CustomPhysicalProperties
+                if pcall(function() part.CustomPhysicalProperties=physics end) then data.pinnedPhysics=physics end
             end
+            state.cache[part]=data
+        end
+        part.Color=color;part.MaterialVariant=""
+        if preset=="ForceField" then
             part.Material=Enum.Material.ForceField
-            part.Color=color
+            if bombMask then
+                part.Reflectance=0
+                if data.texture~=nil then part.TextureID=BOMB_FORCEFIELD_TEXTURE end
+            end
+        else
+            part.Material=preset=="Flat" and Enum.Material.SmoothPlastic or Enum.Material.Foil
+            part.Reflectance=preset=="Flat" and 0 or 0.12
+            if data.texture~=nil then part.TextureID="" end
         end
     end
 end
 
+local function flat_apply(state,color)
+    if not state.flat.highlight then
+        local hl=Instance.new("Highlight")
+        hl.Name="VisualsV2_FlatTool"
+        hl.DepthMode=Enum.HighlightDepthMode.AlwaysOnTop
+        hl.OutlineTransparency=1
+        hl.FillTransparency=0
+        hl.Adornee=state.tool
+        hl.Parent=Workspace
+        state.flat.highlight=hl
+    end
+    state.flat.highlight.FillColor=color
+end
+
 local function clear_state(state)
-    flat_clear(state.flat)
+    if state.flat.highlight then state.flat.highlight:Destroy();state.flat.highlight=nil end
     chrom_clear(state.chrom)
-    force_restore(state)
+    appearance_restore(state)
 end
 
 local function presetName(value)
@@ -5154,20 +5187,20 @@ local function clear_owner(owner)
 end
 
 local function active()
-    for _,group in ipairs(groups) do
-        if group.enabled or group.othersEnabled then return true end
-    end
+    for _,group in ipairs(groups) do if group.enabled or group.othersEnabled then return true end end
     return false
 end
 
 local function clear_viewport()
+    -- Sources are restored before their replacement viewport is removed.
+    for _,state in pairs(states) do chrom_clear(state.chrom) end
     if chrom_host then chrom_host:Destroy() end
     chrom_host,chrom_view,chrom_world,chrom_camera=nil,nil,nil,nil
 end
 
 local function stopWatching()
     if heartbeatConnection then heartbeatConnection:Disconnect();heartbeatConnection=nil end
-    if chrom_conn then chrom_conn:Disconnect();chrom_conn=nil end
+    if renderBound then RunService:UnbindFromRenderStep(FRAME);renderBound=false end
     for tool,state in pairs(states) do clear_state(state);states[tool]=nil end
     for owner,record in pairs(owners) do
         for _,connection in ipairs(record.connections) do connection:Disconnect() end
@@ -5187,10 +5220,8 @@ local function bind_owner(owner)
         if char then
             local function changed(object)
                 if object:IsA("Tool") or object:IsA("BasePart") or object:IsA("DataModelMesh")
-                    or object:IsA("Bone") or object:IsA("WrapLayer")
-                    or (object:IsA("SurfaceAppearance") and not ownedSurfaces[object]) then
-                    record.dirty=true
-                end
+                    or object:IsA("Bone") or object:IsA("WrapLayer") or object:IsA("Decal")
+                    or (object:IsA("SurfaceAppearance") and not ownedSurfaces[object]) then record.dirty=true end
             end
             record.connections[1]=char.DescendantAdded:Connect(changed)
             record.connections[2]=char.DescendantRemoving:Connect(changed)
@@ -5207,9 +5238,7 @@ local function update()
     local needsOthers=false
     for _,group in ipairs(groups) do if group.othersEnabled then needsOthers=true;break end end
     if needsOthers then
-        for _,owner in ipairs(Players:GetPlayers()) do
-            if owner~=LocalPlayer then list[#list+1]=owner end
-        end
+        for _,owner in ipairs(Players:GetPlayers()) do if owner~=LocalPlayer then list[#list+1]=owner end end
     end
     for _,owner in ipairs(list) do
         if owner.Parent then
@@ -5226,30 +5255,28 @@ local function update()
                             clear_state(state);states[tool]=nil;state=nil
                         end
                         if not state then
-                            state={owner=owner,group=group,preset=group.preset,flat={},chrom={},cache={},surf={},
-                                physics={},parts={},surfaces={},roots={tool}}
+                            state={tool=tool,owner=owner,group=group,preset=group.preset,flat={},chrom={},cache={},
+                                surf={},meshCache={},decalCache={},parts={},surfaces={},meshes={},decals={}}
                             for _,object in ipairs(tool:GetDescendants()) do
                                 if object:IsA("BasePart") then state.parts[#state.parts+1]=object
-                                elseif object:IsA("SurfaceAppearance") then state.surfaces[#state.surfaces+1]=object end
+                                elseif object:IsA("SurfaceAppearance") then state.surfaces[#state.surfaces+1]=object
+                                elseif object:IsA("DataModelMesh") then state.meshes[#state.meshes+1]=object
+                                elseif object:IsA("Decal") then state.decals[#state.decals+1]=object end
                             end
                             states[tool]=state
                         end
                         if #state.parts>0 then
                             local color=group.color()
-                            if group.preset=="Flat" then
-                                flat_apply(state.flat,state.parts,state.roots,color)
-                            elseif group.preset=="Chromatic" then
-                                chrom_apply(state.chrom,state.parts,tool,color)
-                            else force_apply(state,color) end
+                            appearance_apply(state,color)
+                            if group.preset=="Flat" then flat_apply(state,color)
+                            elseif group.preset=="Chromatic" then chrom_apply(state,color) end
                         end
                     end
                 end
             end
         end
     end
-    for tool,state in pairs(states) do
-        if not seenTools[tool] then clear_state(state);states[tool]=nil end
-    end
+    for tool,state in pairs(states) do if not seenTools[tool] then clear_state(state);states[tool]=nil end end
     for owner,record in pairs(owners) do
         if not seenOwners[owner] then
             for _,connection in ipairs(record.connections) do connection:Disconnect() end
@@ -5266,20 +5293,23 @@ local function refresh()
     for _,record in pairs(owners) do record.dirty=true end
     if active() and not heartbeatConnection then
         heartbeatConnection=RunService.Heartbeat:Connect(update)
-        chrom_conn=RunService.RenderStepped:Connect(function()
-            if not chrom_world then return end
+        RunService:BindToRenderStep(FRAME,Enum.RenderPriority.Last.Value+1,function()
             local camera=Workspace.CurrentCamera
             if camera and chrom_camera then
                 chrom_camera.CFrame=camera.CFrame
                 chrom_camera.FieldOfView=camera.FieldOfView
+                pcall(function() chrom_camera.FieldOfViewMode=camera.FieldOfViewMode end)
             end
-            for _,state in pairs(states) do chrom_sync(state.chrom) end
+            for _,state in pairs(states) do
+                if state.preset~="ForceField" then appearance_apply(state,state.group.color()) end
+                chrom_sync(state.chrom)
+            end
         end)
+        renderBound=true
     end
     update()
     if type(runtime.RefreshToolTint)=="function" then runtime.RefreshToolTint() end
 end
-
 runtime.RefreshChams=refresh
 runtime.ToolForceFieldActive=function(tool)
     local group=groupFor(tool,false)
@@ -7900,17 +7930,32 @@ end
 if player.Character then watchCharacter(player.Character) end
 player.CharacterAdded:Connect(watchCharacter)
 
+-- Hide the pose without stopping native shoot/reload timelines or markers.
+local mutedTracks=setmetatable({}, {__mode="k"})
+local function restoreAnimationWeights()
+    for track,weight in pairs(mutedTracks) do
+        pcall(function()
+            if track.IsPlaying and track.WeightTarget==0 then track:AdjustWeight(weight,0.1) end
+        end)
+    end
+    table.clear(mutedTracks)
+end
 local function refreshAnimationLoop()
-    if animConn then animConn:Disconnect(); animConn=nil end
+    if animConn then animConn:Disconnect();animConn=nil end
+    restoreAnimationWeights()
     if not blockAnimations then return end
     animConn=RunService.RenderStepped:Connect(function()
         local char=player.Character
+        local gun=char and char:FindFirstChild("Gun")
         local hum=char and char:FindFirstChildOfClass("Humanoid")
-        if not hum then return end
+        if not hum or not gun or not gun:IsA("Tool") then restoreAnimationWeights();return end
         for _,track in ipairs(hum:GetPlayingAnimationTracks()) do
             local anim=track.Animation
             local id=anim and anim.AnimationId and anim.AnimationId:match("%d+")
-            if id and BLOCKED[id] then track:Stop(0) end
+            if id and BLOCKED[id] then
+                if mutedTracks[track]==nil then mutedTracks[track]=track.WeightTarget end
+                if track.WeightTarget~=0 then track:AdjustWeight(0,0) end
+            end
         end
     end)
 end
@@ -8011,6 +8056,7 @@ env.VisualsV2Runtime.RegisterReset(function()
     blockToggle:Set(false); soundToggle:Set(false); ffToggle:Set(false); fireToggle:Set(false)
     blockAnimations=false; equipSound=false; dropForceField=false; dropFireColorEnabled=false
     if animConn then animConn:Disconnect(); animConn=nil end
+    restoreAnimationWeights()
     if dropWatchConn then dropWatchConn:Disconnect(); dropWatchConn=nil end
     removeForceFields(); restoreFireColors()
     for char,sound in pairs(sounds) do pcall(function() sound:Stop(); sound:Destroy() end); sounds[char]=nil end
@@ -8741,7 +8787,6 @@ local __BB_GRAD_SEQ = ColorSequence.new({
     ColorSequenceKeypoint.new(1,    __PCLR(0.470588,  0.156863,  0.470588))
 })
 
-local muteButtonSounds = false
 
 local function BB_MakeDraggable(gui, maid, func, ripple, sound)
     local dragging, dragInput, dragStart, startPos
@@ -8806,21 +8851,6 @@ local function BB_MakeDraggable(gui, maid, func, ripple, sound)
     end))
 end
 
-local function UpdateAllButtonSounds()
-    local volume = muteButtonSounds and 0 or 0.5
-    for id, btn in pairs(BBSystem.Buttons) do
-        local sound = btn:FindFirstChild("Sound")
-        if sound then
-            sound.Volume = volume
-        end
-    end
-    for id, btn in pairs(BindableButtons.Buttons) do
-        local sound = btn:FindFirstChild("Sound")
-        if sound then
-            sound.Volume = volume
-        end
-    end
-end
 
 local function AddBigButton(id, text, func, isGold)
     if BBSystem.Buttons[id] then return end
@@ -8884,7 +8914,7 @@ local function AddBigButton(id, text, func, isGold)
 
     local sound = Instance.new("Sound")
     sound.SoundId = "rbxassetid://3868133279"
-    sound.Volume = muteButtonSounds and 0 or 0.5
+    ButtonAudio:Register(sound,0.5)
     sound.Parent = bb
 
     buttonMaid:GiveTask(bb)
@@ -9098,7 +9128,7 @@ function BindableButtons.AddBButton(id, text, clickFunc, isGold)
 
     local sound = Instance.new("Sound")
     sound.SoundId = "rbxassetid://3868133279"
-    sound.Volume = muteButtonSounds and 0 or 0.5
+    ButtonAudio:Register(sound,0.5)
     sound.Parent = ImageButton
 
     Bind_MakeDraggable(ImageButton, buttonMaid, ripple, sound, clickFunc)
@@ -9260,16 +9290,6 @@ local _game = game.GameId==10413186812 and "Murder Mystery Modded"
 
 if _game == "Murder Mystery 2" or _game == "Murder Mystery Modded" then
 
-local aboutSection = BombJump:AddSection("About", "Information")
-
-aboutSection:AddParagraph("Bomb Jump+", "Plugin Made by @lzzzx")
-
-aboutSection:AddToggle("Mute Button SFX", function(bool)
-    muteButtonSounds = bool
-    UpdateAllButtonSounds()
-end)
-
-
 -- Loaded with Visuals V2; its final notification covers this section.
 
 local section = BombJump:AddSection("Bomb Jump+", "MM2/MMV")
@@ -9303,10 +9323,10 @@ local Sounds = {
     Cooldown = Instance.new("Sound")
 }
 Sounds.Click.SoundId = "rbxassetid://6895079853"
-Sounds.Click.Volume = 1.0
+ButtonAudio:Register(Sounds.Click,1.0)
 
 Sounds.Cooldown.SoundId = "rbxassetid://138090596"
-Sounds.Cooldown.Volume = 1.0
+ButtonAudio:Register(Sounds.Cooldown,1.0)
 RootMaid:GiveTasks(Sounds.Click,Sounds.Cooldown)
 
 local function PlaySound(snd)
@@ -10095,7 +10115,7 @@ local function buildTimer()
     timerLabel.BorderSizePixel=0
     timerLabel.TextColor3=Color3.new(0,0,0)
     timerLabel.TextStrokeTransparency=1
-    timerLabel.Font=Enum.Font.SourceSansLight
+    timerLabel.Font=Enum.Font.SourceSans
     timerLabel.Text="Ready"
     timerLabel.Visible=timerEnabled
     timerLabel.Active=true
@@ -10821,7 +10841,7 @@ end)()
 local section=mainTab:AddSection("Inventory Unlimiter","Utilities")
 section:AddParagraph(
     "Inventory Unlimiter",
-    "Raises the local inventory display/equip limit from 3 to 10. The target functions are cached after discovery to reduce repeated scanning."
+    "Raises identifiable local inventory slot limits from 3 to 10. Native ammo, cooldowns and equip state are preserved."
 )
 
 local inventoryEnabled=C("inventoryUnlimiterEnabled",false)
@@ -10832,6 +10852,7 @@ local selectedToys={
     C("autoToySlot3","None"), C("autoToySlot4","None"),
 }
 local getupvalues=(debug and debug.getupvalues) or getupvalues
+local getupvalue=(debug and debug.getupvalue) or getupvalue
 local setupvalue=(debug and debug.setupvalue) or setupvalue
 local getinfo=(debug and debug.getinfo) or getinfo
 local getconstants=(debug and debug.getconstants) or getconstants
@@ -10848,6 +10869,7 @@ local toyAttempts={}
 local activeToyRequest=nil
 local toyOrderDirty=true
 local orderingBackpack=false
+local originalSlotOrders=setmetatable({}, {__mode="k"})
 local observedBackpack=nil
 local backpackConnections={}
 local characterConnections={}
@@ -10896,6 +10918,30 @@ local function discoverTargets(force)
     targetsScanned=#targetFunctions>0
 end
 
+local limitNames={maxitems=true,maxslots=true,maxtools=true,inventorylimit=true,
+    inventorymaxitems=true,hotbarlimit=true,touchbindinglimit=true}
+local originalLimits={}
+local function isLimitName(name)
+    return type(name)=="string" and limitNames[name:lower():gsub("[^%w]","")]==true
+end
+local function setLimit(identity,key,readValue,writeValue)
+    local ok,value=pcall(readValue)
+    if not ok or type(value)~="number" or value<3 or value>10 then return end
+    local originals=originalLimits[identity]
+    if not originals then originals={};originalLimits[identity]=originals end
+    local record=originals[key]
+    if not record then record={original=value,read=readValue,write=writeValue};originals[key]=record end
+    if pcall(writeValue,inventoryLimit) then record.applied=inventoryLimit end
+end
+local function restoreInventoryLimits()
+    for _,records in pairs(originalLimits) do
+        for _,record in pairs(records) do
+            local ok,current=pcall(record.read)
+            if ok and current==record.applied then pcall(record.write,record.original) end
+        end
+    end
+    table.clear(originalLimits)
+end
 local function applyInventoryLimit(force)
     if not inventoryEnabled then return end
     discoverTargets(force)
@@ -10903,14 +10949,26 @@ local function applyInventoryLimit(force)
         local ok,upvalues=pcall(getupvalues,f)
         if ok and type(upvalues)=="table" then
             for index,value in pairs(upvalues) do
-                if type(index)=="number" and type(value)=="number" and value>=2 and value<=10 then
-                    pcall(setupvalue,f,index,inventoryLimit)
+                -- A small number may be ammo, a cooldown or an equipped slot.
+                -- Change only an explicitly named inventory capacity; anonymous
+                -- numeric upvalues are never safe to infer from their value.
+                if type(index)=="number" and type(value)=="number" and type(getupvalue)=="function" then
+                    local named,name,namedValue=pcall(getupvalue,f,index)
+                    if named and isLimitName(name) and namedValue==value then
+                        setLimit(f,index,function() return getupvalues(f)[index] end,
+                            function(limit) setupvalue(f,index,limit) end)
+                    end
+                elseif type(value)=="table" then
+                    for key,capacity in pairs(value) do
+                        if isLimitName(key) and type(capacity)=="number" then
+                            setLimit(value,key,function() return value[key] end,function(limit) value[key]=limit end)
+                        end
+                    end
                 end
             end
         end
     end
 end
-
 local function getBackpack()
     if observedBackpack and observedBackpack.Parent==player then return observedBackpack end
     return player:FindFirstChildOfClass("Backpack")
@@ -10953,76 +11011,38 @@ local function toyRemote()
 end
 
 local function orderSelectedTools(char,backpack,token)
-    if orderingBackpack or not backpack or char:FindFirstChildOfClass("Tool") then return false end
-    local ordered,selected,selectedInstances={},{},{}
-    local choices={}
+    if not backpack or player.Character~=char or token~=recoveryToken then return false end
+    local order={}
     for slot=1,4 do
         local name=selectedToys[slot]
-        choices[slot]=name
-        if name and name~="None" and not selected[name] then
-            local tool=backpack:FindFirstChild(name)
+        if name and name~="None" then
+            local tool=char:FindFirstChild(name) or backpack:FindFirstChild(name)
             if not tool or not tool:IsA("Tool") then return false end
-            selected[name]=true
-            selectedInstances[tool]=true
-            ordered[#ordered+1]=tool
+            if not order[tool] then order[tool]=slot end
         end
     end
-    if #ordered==0 then return true end
-
-    local current={}
-    for _,tool in ipairs(backpack:GetChildren()) do
-        if tool:IsA("Tool") then
-            current[#current+1]=tool
-            if not selectedInstances[tool] then ordered[#ordered+1]=tool end
+    -- Request missing toys in slot order, but never move an existing Tool to
+    -- reorder it. Native scripts can tear down on any Backpack ChildRemoved,
+    -- including a move into a folder that is still inside the Backpack.
+    -- Where the native hotbar exposes an explicit Tool reference and layout,
+    -- changing only its GUI order is sufficient and leaves listeners intact.
+    local gui=player:FindFirstChildOfClass("PlayerGui")
+    if gui then
+        for _,slot in ipairs(gui:GetDescendants()) do
+            if slot:IsA("GuiObject") and slot.Parent and slot.Parent:FindFirstChildOfClass("UIListLayout") then
+                local tool
+                for _,reference in ipairs(slot:GetChildren()) do
+                    if reference:IsA("ObjectValue") and order[reference.Value] then tool=reference.Value;break end
+                end
+                if tool then
+                    if originalSlotOrders[slot]==nil then originalSlotOrders[slot]=slot.LayoutOrder end
+                    slot.LayoutOrder=order[tool]-100
+                end
+            end
         end
     end
-    local matches=#current==#ordered
-    for index,tool in ipairs(ordered) do
-        if current[index]~=tool then matches=false; break end
-    end
-    if matches then return true end
-
-    -- Backpack UI assigns slots on ChildAdded. Keep the tools under the
-    -- Backpack throughout the reorder so their native LocalScripts stay live.
-    -- SprayClient moves its SprayGui out of the script during initialization;
-    -- restarting it after a parent=nil gap leaves it waiting for that GUI.
-    orderingBackpack=true
-    local staging=Instance.new("Folder")
-    staging.Name="VisualsV2_ToolOrder"
-    staging.Parent=backpack
-    local detached={}
-    local success=true
-    for _,tool in ipairs(ordered) do
-        if tool.Parent==backpack then
-            local ok=pcall(function() tool.Parent=staging end)
-            if ok then detached[tool]=true else success=false end
-        else success=false end
-    end
-    -- Let deferred hotbar handlers remove the old slots while the native tool
-    -- scripts remain Backpack descendants. Restore even if cancelled.
-    task.wait()
-    local valid=alive and runtimeAlive and autoGetTools and token==recoveryToken
-        and player.Character==char and backpack.Parent==player
-    for slot=1,4 do if choices[slot]~=selectedToys[slot] then valid=false end end
-    for _,tool in ipairs(valid and ordered or current) do
-        if detached[tool] and tool.Parent==staging then
-            if not pcall(function() tool.Parent=backpack end) then success=false end
-        elseif tool.Parent~=backpack then success=false end
-    end
-    if valid then
-        local expected={}
-        for _,tool in ipairs(ordered) do expected[tool]=true end
-        for _,tool in ipairs(backpack:GetChildren()) do
-            if tool:IsA("Tool") and not expected[tool] then success=false; break end
-        end
-    end
-    -- Never destroy a tool if another native operation moved it during the
-    -- yield, or a failed restore left it in the temporary folder.
-    if #staging:GetChildren()==0 then staging:Destroy() end
-    orderingBackpack=false
-    return success and valid
+    return true
 end
-
 local function cancelToyRequests()
     for _,attempt in pairs(toyAttempts) do
         if attempt.thread and type(task.cancel)=="function" then pcall(task.cancel,attempt.thread) end
@@ -11233,7 +11253,10 @@ local inventoryToggle=addToggle(section,"Unlimit Inventory",inventoryEnabled,fun
     inventoryEnabled=state
     SetCfg("inventoryUnlimiterEnabled",state)
     if state then requestRecovery(true)
-    elseif not autoGetTools then cancelRecovery() end
+    else
+        restoreInventoryLimits()
+        if not autoGetTools then cancelRecovery() end
+    end
 end)
 section:AddSlider("Max Items",3,10,inventoryLimit,function(value)
     inventoryLimit=math.clamp(math.floor(tonumber(value) or 10),3,10)
@@ -11253,6 +11276,8 @@ local autoToggle=addToggle(section,"Auto Get Tools",autoGetTools,function(state)
         requestRecovery(false)
     else
         cancelToyRequests()
+        for slot,order in pairs(originalSlotOrders) do pcall(function() slot.LayoutOrder=order end) end
+        table.clear(originalSlotOrders)
         if not inventoryEnabled then cancelRecovery() end
     end
 end)
@@ -11312,6 +11337,9 @@ env.VisualsV2Runtime.RegisterReset(function()
     autoToggle:Set(false)
     inventoryEnabled=false
     autoGetTools=false
+    restoreInventoryLimits()
+    for slot,order in pairs(originalSlotOrders) do pcall(function() slot.LayoutOrder=order end) end
+    table.clear(originalSlotOrders)
     disconnectAll(lifecycleConnections)
     disconnectAll(backpackConnections)
     disconnectAll(characterConnections)
@@ -11327,6 +11355,12 @@ end)()
 
 ;(function()
 local miscSection=mainTab:AddSection("Miscellaneous","Settings")
+local muteToggle=addToggle(miscSection,"Mute Button SFX",ButtonAudio.muted,function(value)
+    ButtonAudio:SetMuted(value)
+end)
+env.VisualsV2Runtime.RegisterReset(function()
+    if runtimeAlive then muteToggle:Set(false);ButtonAudio:SetMuted(false) end
+end)
 miscSection:AddButton("Reset Big/Bind Button Position",function()
     saveStoredPosition("speedButtonPosition",BIG_BUTTON_DEFAULT)
     saveStoredPosition("speedBindButtonPosition",BIND_BUTTON_DEFAULT)
