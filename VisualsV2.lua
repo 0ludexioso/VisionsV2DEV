@@ -5365,10 +5365,10 @@ if not scopeOnly then data.weapons.Gun["Gingerbread_G_2025"]={["nodes"]={{["node
 if not scopeOnly then data.weapons.Gun["Gingercookie_G_2025"]={["nodes"]={{["nodeId"]=0,["class"]="MeshPart",["name"]="GunDisplay",["properties"]={["Reflectance"]=0,["Color"]={["type"]="Color3",["v"]={0.63921571,0.63529414,0.64705884}},["CFrame"]={["type"]="CFrame",["v"]={0,0,0,1,0,0,0,1,0,0,0,1}},["Size"]={["type"]="Vector3",["v"]={1.83000004,0.94999999,0.32499999}},["TextureID"]="rbxassetid://112196863510306",["Transparency"]=0,["MeshId"]="rbxassetid://6600918074",["MeshSize"]={["type"]="Vector3",["v"]={47.59854126,24.45413589,8.81549644}},["Material"]="Enum.Material.Slate"}},{["nodeId"]=1,["parentId"]=0,["class"]="Attachment",["name"]="CustomAttachment",["properties"]={["CFrame"]={["type"]="CFrame",["v"]={0,-0.15,-0.05,-1e-05,-0.76607,0.64276,0,0.64276,0.76607,-1,0,-1e-05}}}}},["anchor"]=0} end
 if not scopeOnly then data.weapons.Gun["Gingermint_G"]={["nodes"]={{["nodeId"]=0,["class"]="MeshPart",["name"]="GunDisplay",["properties"]={["Reflectance"]=0,["Color"]={["type"]="Color3",["v"]={0.63921571,0.63529414,0.64705884}},["CFrame"]={["type"]="CFrame",["v"]={0,0,0,1,0,0,0,1,0,0,0,1}},["Size"]={["type"]="Vector3",["v"]={0.39794657,1.02803087,2.37764788}},["TextureID"]="rbxassetid://11866444253",["Transparency"]=0,["MeshId"]="rbxassetid://11866444071",["MeshSize"]={["type"]="Vector3",["v"]={8.38108253,21.61865997,50.00000381}},["Material"]="Enum.Material.Plastic"}},{["nodeId"]=1,["parentId"]=0,["class"]="Attachment",["name"]="CustomAttachment",["properties"]={["CFrame"]={["type"]="CFrame",["v"]={-0.09469,-0.09926,0.23668,0.99179,0.11365,0.05858,-0.11578,0.60394,0.78857,0.05425,-0.78888,0.61214}}}}},["anchor"]=0} end
 if not scopeOnly then data.weapons.Gun["Gingerscope"]={["nodes"]={{["nodeId"]=0,["class"]="Tool",["name"]="Gun",["properties"]={["Enabled"]=true,["CanBeDropped"]=false,["RequiresHandle"]=true,["TextureId"]="http://www.roblox.com/Thumbs/Asset.ashx?format=png&width=250&height=250&assetId=15666596216",["Grip"]={["v"]={0,-0.39999872,0.89999962,1,0,0,0,1,0,0,0,1},["type"]="CFrame"}},["attributes"]={["ItemName"]="Gingerscope",["ItemType"]="Gun",["Event"]="Christmas",["IsWeapon"]=true,["Image"]="http://www.roblox.com/Thumbs/Asset.ashx?format=png&width=250&height=250&assetId=15666596216",["ItemID"]="Gingerscope",["Year"]="2023",["FX"]=true,["Rarity"]="Ancient",["IsGun"]=true}},{["nodeId"]=1,["parentId"]=0,["class"]="Animation",["name"]="CustomHold",["properties"]={["AnimationId"]="rbxassetid://134818020160275"}},{["nodeId"]=2,["parentId"]=0,["class"]="MeshPart",["name"]="Handle",["properties"]={["Reflectance"]=0,["TextureID"]="rbxassetid://15409041564",["CFrame"]={["v"]={0,0,0,1,0,0,0,1,0,0,0,1},["type"]="CFrame"},["MeshId"]="rbxassetid://15374602183",["Transparency"]=0,["Color"]={["v"]={0.56078434,0.13333334,0.13333334},["type"]="Color3"},["MeshSize"]={["v"]={3.20412111,14.94272614,50},["type"]="Vector3"},["Material"]="Enum.Material.Brick",["Size"]={["v"]={0.26970473,1.25815439,4.20871401},["type"]="Vector3"}}},{["nodeId"]=6,["parentId"]=0,["class"]="Folder",["name"]="Sounds",["properties"]={}},{["nodeId"]=7,["parentId"]=0,["class"]="Folder",["name"]="Animations",["properties"]={}},{["nodeId"]=8,["parentId"]=0,["class"]="BillboardGui",["name"]="CantShoot",["properties"]={["Enabled"]=false,["MaxDistance"]="inf",["StudsOffsetWorldSpace"]={["v"]={0,0,0},["type"]="Vector3"},["StudsOffset"]={["v"]={0,0,0},["type"]="Vector3"},["AlwaysOnTop"]=true,["Size"]={["y"]={0.60000002,0},["type"]="UDim2",["x"]={0.60000002,0}}}},{["nodeId"]=9,["parentId"]=2,["class"]="Sound",["name"]="AltSound",["properties"]={["RollOffMode"]="Enum.RollOffMode.Inverse",["Looped"]=false,["PlaybackSpeed"]=1,["RollOffMaxDistance"]=10000,["Volume"]=1,["SoundId"]="rbxassetid://90731824782499",["RollOffMinDistance"]=10}},{["nodeId"]=10,["parentId"]=2,["class"]="Beam",["name"]="CustomBeam",["properties"]={["Enabled"]=true,["FaceCamera"]=false,["Color"]={["points"]={{["value"]={["v"]={1,1,1},["type"]="Color3"},["time"]=0},{["value"]={["v"]={1,1,1},["type"]="Color3"},["time"]=1}},["type"]="ColorSequence"},["Segments"]=10,["Transparency"]={["points"]={{["value"]=0,["time"]=0,["envelope"]=0},{["value"]=0,["time"]=1,["envelope"]=0}},["type"]="NumberSequence"},["Width0"]=1,["Width1"]=1,["LightEmission"]=1,["CurveSize1"]=0,["CurveSize0"]=0,["Texture"]="rbxassetid://15374653796"}},{["nodeId"]=11,["parentId"]=2,["class"]="Attachment",["name"]="CustomAttachment",["properties"]={["CFrame"]={["v"]={0.1299,0,0.075,1,0,0,0,0.70713,0.70708,0,-0.70708,0.70713},["type"]="CFrame"}}},{["nodeId"]=12,["parentId"]=2,["class"]="MeshPart",["name"]="Scope",["properties"]={["Reflectance"]=1,["TextureID"]="",["CFrame"]={["v"]={0,0.48315,0.20726,1,0,0,0,1,0,0,0,1},["type"]="CFrame"},["MeshId"]="rbxassetid://15374679651",["Transparency"]=0.34999999,["Color"]={["v"]={0.50588238,0.70980394,0.80000001},["type"]="Color3"},["MeshSize"]={["v"]={6.38486004,6.38486004,49.99999619},["type"]="Vector3"},["Material"]="Enum.Material.Glass",["Size"]={["v"]={0.18711974,0.18711974,1.4135499},["type"]="Vector3"}}},{["nodeId"]=14,["parentId"]=6,["class"]="Sound",["name"]="Gunshot",["properties"]={["RollOffMode"]="Enum.RollOffMode.Inverse",["Looped"]=false,["PlaybackSpeed"]=1,["RollOffMaxDistance"]=10000,["Volume"]=0.69999999,["SoundId"]="http://www.roblox.com/asset/?id=10209803",["RollOffMinDistance"]=10}},{["nodeId"]=15,["parentId"]=6,["class"]="Sound",["name"]="Reload",["properties"]={["RollOffMode"]="Enum.RollOffMode.Inverse",["Looped"]=false,["PlaybackSpeed"]=1,["RollOffMaxDistance"]=10000,["Volume"]=1,["SoundId"]="rbxassetid://4753414199",["RollOffMinDistance"]=10}},{["nodeId"]=16,["parentId"]=7,["class"]="Animation",["name"]="Shoot",["properties"]={["AnimationId"]="rbxassetid://124281955370937"}},{["nodeId"]=17,["parentId"]=7,["class"]="Animation",["name"]="Reload",["properties"]={["AnimationId"]="rbxassetid://127786188145385"}}},["anchor"]=2} end
-if not scopeOnly then data.weapons.Gun["Gingerscope_Blue"]={["nodes"]={{["nodeId"]=0,["class"]="MeshPart",["name"]="GunDisplay",["properties"]={["Reflectance"]=0,["TextureID"]="rbxassetid://16207062047",["MeshId"]="rbxassetid://15374602183",["Size"]={["type"]="Vector3",["v"]={0.269705,1.25815403,4.20871401}},["CFrame"]={["type"]="CFrame",["v"]={0,0,0,1,0,0,0,1,0,0,0,1}},["Transparency"]=0,["Color"]={["type"]="Color3",["v"]={0.56078434,0.13333334,0.13333334}},["MeshSize"]={["type"]="Vector3",["v"]={3.20412111,14.94272614,50}},["Material"]="Enum.Material.Brick"}},{["nodeId"]=1,["parentId"]=0,["class"]="Sound",["name"]="AltSound",["properties"]={["RollOffMinDistance"]=10,["RollOffMode"]="Enum.RollOffMode.Inverse",["Looped"]=false,["PlaybackSpeed"]=1,["RollOffMaxDistance"]=10000,["Volume"]=0.5,["SoundId"]="rbxassetid://90731824782499"}},{["nodeId"]=2,["parentId"]=0,["class"]="Beam",["name"]="CustomBeam",["properties"]={["Enabled"]=true,["FaceCamera"]=false,["Color"]={["type"]="ColorSequence",["points"]={{["value"]={["type"]="Color3",["v"]={0,0.23529412,1}},["time"]=0},{["value"]={["type"]="Color3",["v"]={0,0.23529412,1}},["time"]=1}}},["Width0"]=1,["Transparency"]={["type"]="NumberSequence",["points"]={{["value"]=0,["time"]=0,["envelope"]=0},{["value"]=0,["time"]=1,["envelope"]=0}}},["Segments"]=10,["Width1"]=1,["LightEmission"]=1,["CurveSize0"]=0,["CurveSize1"]=0,["Texture"]="rbxassetid://16221396385"}},{["nodeId"]=3,["parentId"]=0,["class"]="Attachment",["name"]="CustomAttachment",["properties"]={["CFrame"]={["type"]="CFrame",["v"]={0.1299,0,0.075,1,0,0,0,0.70713,0.70708,0,-0.70708,0.70713}}}},{["nodeId"]=4,["parentId"]=0,["class"]="MeshPart",["name"]="Scope",["properties"]={["Reflectance"]=1,["TextureID"]="",["MeshId"]="rbxassetid://15374679651",["Size"]={["type"]="Vector3",["v"]={0.18712001,0.18712001,1.41355002}},["CFrame"]={["type"]="CFrame",["v"]={0,0.48315,0.20723,1,0,0,0,1,0,0,0,1}},["Transparency"]=0.34999999,["Color"]={["type"]="Color3",["v"]={0.50588238,0.70980394,0.80000001}},["MeshSize"]={["type"]="Vector3",["v"]={6.38486004,6.38486004,49.99999619}},["Material"]="Enum.Material.Glass"}}},["anchor"]=0} end
-if not scopeOnly then data.weapons.Gun["Gingerscope_Bronze"]={["nodes"]={{["nodeId"]=0,["class"]="MeshPart",["name"]="GunDisplay",["properties"]={["Reflectance"]=0,["TextureID"]="rbxassetid://93684911189915",["MeshId"]="rbxassetid://15374602183",["Size"]={["type"]="Vector3",["v"]={0.269705,1.25815403,4.20871401}},["CFrame"]={["type"]="CFrame",["v"]={0,0,0,1,0,0,0,1,0,0,0,1}},["Transparency"]=0,["Color"]={["type"]="Color3",["v"]={0.56078434,0.13333334,0.13333334}},["MeshSize"]={["type"]="Vector3",["v"]={3.20412111,14.94272614,50}},["Material"]="Enum.Material.Brick"}},{["nodeId"]=1,["parentId"]=0,["class"]="Sound",["name"]="AltSound",["properties"]={["RollOffMinDistance"]=10,["RollOffMode"]="Enum.RollOffMode.Inverse",["Looped"]=false,["PlaybackSpeed"]=1,["RollOffMaxDistance"]=10000,["Volume"]=0.5,["SoundId"]="rbxassetid://90731824782499"}},{["nodeId"]=2,["parentId"]=0,["class"]="Beam",["name"]="CustomBeam",["properties"]={["Enabled"]=true,["FaceCamera"]=false,["Color"]={["type"]="ColorSequence",["points"]={{["value"]={["type"]="Color3",["v"]={0.95240712,0.39836729,0}},["time"]=0},{["value"]={["type"]="Color3",["v"]={0.95240712,0.39836729,0}},["time"]=1}}},["Width0"]=1,["Transparency"]={["type"]="NumberSequence",["points"]={{["value"]=0,["time"]=0,["envelope"]=0},{["value"]=0,["time"]=1,["envelope"]=0}}},["Segments"]=10,["Width1"]=1,["LightEmission"]=1,["CurveSize0"]=0,["CurveSize1"]=0,["Texture"]="rbxassetid://16221396385"}},{["nodeId"]=3,["parentId"]=0,["class"]="Attachment",["name"]="CustomAttachment",["properties"]={["CFrame"]={["type"]="CFrame",["v"]={0.1299,0,0.075,1,0,0,0,0.70713,0.70708,0,-0.70708,0.70713}}}},{["nodeId"]=4,["parentId"]=0,["class"]="MeshPart",["name"]="Scope",["properties"]={["Reflectance"]=1,["TextureID"]="",["MeshId"]="rbxassetid://15374679651",["Size"]={["type"]="Vector3",["v"]={0.18712001,0.18712001,1.41355002}},["CFrame"]={["type"]="CFrame",["v"]={0,0.48315,0.20724,1,0,0,0,1,0,0,0,1}},["Transparency"]=0.34999999,["Color"]={["type"]="Color3",["v"]={0.50588238,0.70980394,0.80000001}},["MeshSize"]={["type"]="Vector3",["v"]={6.38486004,6.38486004,49.99999619}},["Material"]="Enum.Material.Glass"}}},["anchor"]=0} end
-if not scopeOnly then data.weapons.Gun["Gingerscope_Gold"]={["nodes"]={{["nodeId"]=0,["class"]="MeshPart",["name"]="GunDisplay",["properties"]={["Reflectance"]=0,["TextureID"]="rbxassetid://16220653605",["MeshId"]="rbxassetid://15374602183",["Size"]={["type"]="Vector3",["v"]={0.269705,1.25815403,4.20871401}},["CFrame"]={["type"]="CFrame",["v"]={0,0,0,1,0,0,0,1,0,0,0,1}},["Transparency"]=0,["Color"]={["type"]="Color3",["v"]={0.56078434,0.13333334,0.13333334}},["MeshSize"]={["type"]="Vector3",["v"]={3.20412111,14.94272614,50}},["Material"]="Enum.Material.Brick"}},{["nodeId"]=1,["parentId"]=0,["class"]="Sound",["name"]="AltSound",["properties"]={["RollOffMinDistance"]=10,["RollOffMode"]="Enum.RollOffMode.Inverse",["Looped"]=false,["PlaybackSpeed"]=1,["RollOffMaxDistance"]=10000,["Volume"]=0.5,["SoundId"]="rbxassetid://90731824782499"}},{["nodeId"]=2,["parentId"]=0,["class"]="Beam",["name"]="CustomBeam",["properties"]={["Enabled"]=true,["FaceCamera"]=false,["Color"]={["type"]="ColorSequence",["points"]={{["value"]={["type"]="Color3",["v"]={0.96433967,0.81477076,0.03395132}},["time"]=0},{["value"]={["type"]="Color3",["v"]={0.96433967,0.81477076,0.03395132}},["time"]=1}}},["Width0"]=1,["Transparency"]={["type"]="NumberSequence",["points"]={{["value"]=0,["time"]=0,["envelope"]=0},{["value"]=0,["time"]=1,["envelope"]=0}}},["Segments"]=10,["Width1"]=1,["LightEmission"]=1,["CurveSize0"]=0,["CurveSize1"]=0,["Texture"]="rbxassetid://16221396385"}},{["nodeId"]=3,["parentId"]=0,["class"]="Attachment",["name"]="CustomAttachment",["properties"]={["CFrame"]={["type"]="CFrame",["v"]={0.1299,0,0.075,1,0,0,0,0.70713,0.70708,0,-0.70708,0.70713}}}},{["nodeId"]=4,["parentId"]=0,["class"]="MeshPart",["name"]="Scope",["properties"]={["Reflectance"]=1,["TextureID"]="",["MeshId"]="rbxassetid://15374679651",["Size"]={["type"]="Vector3",["v"]={0.18712001,0.18712001,1.41355002}},["CFrame"]={["type"]="CFrame",["v"]={0,0.48315,0.20726,1,0,0,0,1,0,0,0,1}},["Transparency"]=0.34999999,["Color"]={["type"]="Color3",["v"]={0.50588238,0.70980394,0.80000001}},["MeshSize"]={["type"]="Vector3",["v"]={6.38486004,6.38486004,49.99999619}},["Material"]="Enum.Material.Glass"}}},["anchor"]=0} end
-if not scopeOnly then data.weapons.Gun["Gingerscope_Silver"]={["nodes"]={{["nodeId"]=0,["class"]="MeshPart",["name"]="GunDisplay",["properties"]={["Reflectance"]=0,["TextureID"]="rbxassetid://16207691225",["MeshId"]="rbxassetid://15374602183",["Size"]={["type"]="Vector3",["v"]={0.269705,1.25815403,4.20871401}},["CFrame"]={["type"]="CFrame",["v"]={0,0,0,1,0,0,0,1,0,0,0,1}},["Transparency"]=0,["Color"]={["type"]="Color3",["v"]={0.56078434,0.13333334,0.13333334}},["MeshSize"]={["type"]="Vector3",["v"]={3.20412111,14.94272614,50}},["Material"]="Enum.Material.Brick"}},{["nodeId"]=1,["parentId"]=0,["class"]="Sound",["name"]="AltSound",["properties"]={["RollOffMinDistance"]=10,["RollOffMode"]="Enum.RollOffMode.Inverse",["Looped"]=false,["PlaybackSpeed"]=1,["RollOffMaxDistance"]=10000,["Volume"]=0.5,["SoundId"]="rbxassetid://90731824782499"}},{["nodeId"]=2,["parentId"]=0,["class"]="Attachment",["name"]="CustomAttachment",["properties"]={["CFrame"]={["type"]="CFrame",["v"]={0.1299,0,0.075,1,0,0,0,0.70713,0.70708,0,-0.70708,0.70713}}}},{["nodeId"]=3,["parentId"]=0,["class"]="Beam",["name"]="CustomBeam",["properties"]={["Enabled"]=true,["FaceCamera"]=false,["Color"]={["type"]="ColorSequence",["points"]={{["value"]={["type"]="Color3",["v"]={0.80784315,0.98431373,1}},["time"]=0},{["value"]={["type"]="Color3",["v"]={0.80784315,0.98431373,1}},["time"]=1}}},["Width0"]=0.5,["Transparency"]={["type"]="NumberSequence",["points"]={{["value"]=0,["time"]=0,["envelope"]=0},{["value"]=0,["time"]=1,["envelope"]=0}}},["Segments"]=10,["Width1"]=1,["LightEmission"]=1,["CurveSize0"]=0,["CurveSize1"]=0,["Texture"]="http://www.roblox.com/asset/?id=106972878353658"}},{["nodeId"]=4,["parentId"]=0,["class"]="MeshPart",["name"]="Scope",["properties"]={["Reflectance"]=1,["TextureID"]="",["MeshId"]="rbxassetid://15374679651",["Size"]={["type"]="Vector3",["v"]={0.18712001,0.18712001,1.41355002}},["CFrame"]={["type"]="CFrame",["v"]={0,0.48318,0.20723,1,0,0,0,1,0,0,0,1}},["Transparency"]=0.34999999,["Color"]={["type"]="Color3",["v"]={0.50588238,0.70980394,0.80000001}},["MeshSize"]={["type"]="Vector3",["v"]={6.38486004,6.38486004,49.99999619}},["Material"]="Enum.Material.Glass"}}},["anchor"]=0} end
+if not scopeOnly then data.weapons.Gun["Gingerscope_Blue"]={["nodes"]={{["nodeId"]=0,["class"]="MeshPart",["name"]="GunDisplay",["properties"]={["Reflectance"]=0,["TextureID"]="rbxassetid://16207062047",["MeshId"]="rbxassetid://15374602183",["Size"]={["type"]="Vector3",["v"]={0.269705,1.25815403,4.20871401}},["CFrame"]={["type"]="CFrame",["v"]={0,0,0,1,0,0,0,1,0,0,0,1}},["Transparency"]=0,["Color"]={["type"]="Color3",["v"]={0.56078434,0.13333334,0.13333334}},["MeshSize"]={["type"]="Vector3",["v"]={3.20412111,14.94272614,50}},["Material"]="Enum.Material.Brick"}},{["nodeId"]=1,["parentId"]=0,["class"]="Sound",["name"]="AltSound",["properties"]={["RollOffMinDistance"]=10,["RollOffMode"]="Enum.RollOffMode.Inverse",["Looped"]=false,["PlaybackSpeed"]=1,["RollOffMaxDistance"]=10000,["Volume"]=0.5,["SoundId"]="rbxassetid://90731824782499"}},{["nodeId"]=2,["parentId"]=0,["class"]="Beam",["name"]="CustomBeam",["properties"]={["Enabled"]=true,["FaceCamera"]=false,["Color"]={["type"]="ColorSequence",["points"]={{["value"]={["type"]="Color3",["v"]={0,0.23529412,1}},["time"]=0},{["value"]={["type"]="Color3",["v"]={0,0.23529412,1}},["time"]=1}}},["Width0"]=1,["Transparency"]={["type"]="NumberSequence",["points"]={{["value"]=0,["time"]=0,["envelope"]=0},{["value"]=0,["time"]=1,["envelope"]=0}}},["Segments"]=10,["Width1"]=1,["LightEmission"]=1,["CurveSize0"]=0,["CurveSize1"]=0,["Texture"]="rbxassetid://16221396385"}},{["nodeId"]=3,["parentId"]=0,["class"]="Attachment",["name"]="CustomAttachment",["properties"]={["CFrame"]={["type"]="CFrame",["v"]={0.1299,0,0.075,1,0,0,0,0.70713,0.70708,0,-0.70708,0.70713}}}},{["nodeId"]=4,["parentId"]=0,["class"]="MeshPart",["name"]="Scope",["properties"]={["Reflectance"]=1,["TextureID"]="",["MeshId"]="rbxassetid://15374679651",["Size"]={["type"]="Vector3",["v"]={0.18712001,0.18712001,1.41355002}},["CFrame"]={["type"]="CFrame",["v"]={0,0.48315,0.20723,1,0,0,0,1,0,0,0,1}},["Transparency"]=0.34999999,["Color"]={["type"]="Color3",["v"]={0.50588238,0.70980394,0.80000001}},["MeshSize"]={["type"]="Vector3",["v"]={6.38486004,6.38486004,49.99999619}},["Material"]="Enum.Material.Glass"}}},["anchor"]=0,["grip"]={["v"]={0,-0.39999872,0.89999962,1,0,0,0,1,0,0,0,1},["type"]="CFrame"}} end
+if not scopeOnly then data.weapons.Gun["Gingerscope_Bronze"]={["nodes"]={{["nodeId"]=0,["class"]="MeshPart",["name"]="GunDisplay",["properties"]={["Reflectance"]=0,["TextureID"]="rbxassetid://93684911189915",["MeshId"]="rbxassetid://15374602183",["Size"]={["type"]="Vector3",["v"]={0.269705,1.25815403,4.20871401}},["CFrame"]={["type"]="CFrame",["v"]={0,0,0,1,0,0,0,1,0,0,0,1}},["Transparency"]=0,["Color"]={["type"]="Color3",["v"]={0.56078434,0.13333334,0.13333334}},["MeshSize"]={["type"]="Vector3",["v"]={3.20412111,14.94272614,50}},["Material"]="Enum.Material.Brick"}},{["nodeId"]=1,["parentId"]=0,["class"]="Sound",["name"]="AltSound",["properties"]={["RollOffMinDistance"]=10,["RollOffMode"]="Enum.RollOffMode.Inverse",["Looped"]=false,["PlaybackSpeed"]=1,["RollOffMaxDistance"]=10000,["Volume"]=0.5,["SoundId"]="rbxassetid://90731824782499"}},{["nodeId"]=2,["parentId"]=0,["class"]="Beam",["name"]="CustomBeam",["properties"]={["Enabled"]=true,["FaceCamera"]=false,["Color"]={["type"]="ColorSequence",["points"]={{["value"]={["type"]="Color3",["v"]={0.95240712,0.39836729,0}},["time"]=0},{["value"]={["type"]="Color3",["v"]={0.95240712,0.39836729,0}},["time"]=1}}},["Width0"]=1,["Transparency"]={["type"]="NumberSequence",["points"]={{["value"]=0,["time"]=0,["envelope"]=0},{["value"]=0,["time"]=1,["envelope"]=0}}},["Segments"]=10,["Width1"]=1,["LightEmission"]=1,["CurveSize0"]=0,["CurveSize1"]=0,["Texture"]="rbxassetid://16221396385"}},{["nodeId"]=3,["parentId"]=0,["class"]="Attachment",["name"]="CustomAttachment",["properties"]={["CFrame"]={["type"]="CFrame",["v"]={0.1299,0,0.075,1,0,0,0,0.70713,0.70708,0,-0.70708,0.70713}}}},{["nodeId"]=4,["parentId"]=0,["class"]="MeshPart",["name"]="Scope",["properties"]={["Reflectance"]=1,["TextureID"]="",["MeshId"]="rbxassetid://15374679651",["Size"]={["type"]="Vector3",["v"]={0.18712001,0.18712001,1.41355002}},["CFrame"]={["type"]="CFrame",["v"]={0,0.48315,0.20724,1,0,0,0,1,0,0,0,1}},["Transparency"]=0.34999999,["Color"]={["type"]="Color3",["v"]={0.50588238,0.70980394,0.80000001}},["MeshSize"]={["type"]="Vector3",["v"]={6.38486004,6.38486004,49.99999619}},["Material"]="Enum.Material.Glass"}}},["anchor"]=0,["grip"]={["v"]={0,-0.39999872,0.89999962,1,0,0,0,1,0,0,0,1},["type"]="CFrame"}} end
+if not scopeOnly then data.weapons.Gun["Gingerscope_Gold"]={["nodes"]={{["nodeId"]=0,["class"]="MeshPart",["name"]="GunDisplay",["properties"]={["Reflectance"]=0,["TextureID"]="rbxassetid://16220653605",["MeshId"]="rbxassetid://15374602183",["Size"]={["type"]="Vector3",["v"]={0.269705,1.25815403,4.20871401}},["CFrame"]={["type"]="CFrame",["v"]={0,0,0,1,0,0,0,1,0,0,0,1}},["Transparency"]=0,["Color"]={["type"]="Color3",["v"]={0.56078434,0.13333334,0.13333334}},["MeshSize"]={["type"]="Vector3",["v"]={3.20412111,14.94272614,50}},["Material"]="Enum.Material.Brick"}},{["nodeId"]=1,["parentId"]=0,["class"]="Sound",["name"]="AltSound",["properties"]={["RollOffMinDistance"]=10,["RollOffMode"]="Enum.RollOffMode.Inverse",["Looped"]=false,["PlaybackSpeed"]=1,["RollOffMaxDistance"]=10000,["Volume"]=0.5,["SoundId"]="rbxassetid://90731824782499"}},{["nodeId"]=2,["parentId"]=0,["class"]="Beam",["name"]="CustomBeam",["properties"]={["Enabled"]=true,["FaceCamera"]=false,["Color"]={["type"]="ColorSequence",["points"]={{["value"]={["type"]="Color3",["v"]={0.96433967,0.81477076,0.03395132}},["time"]=0},{["value"]={["type"]="Color3",["v"]={0.96433967,0.81477076,0.03395132}},["time"]=1}}},["Width0"]=1,["Transparency"]={["type"]="NumberSequence",["points"]={{["value"]=0,["time"]=0,["envelope"]=0},{["value"]=0,["time"]=1,["envelope"]=0}}},["Segments"]=10,["Width1"]=1,["LightEmission"]=1,["CurveSize0"]=0,["CurveSize1"]=0,["Texture"]="rbxassetid://16221396385"}},{["nodeId"]=3,["parentId"]=0,["class"]="Attachment",["name"]="CustomAttachment",["properties"]={["CFrame"]={["type"]="CFrame",["v"]={0.1299,0,0.075,1,0,0,0,0.70713,0.70708,0,-0.70708,0.70713}}}},{["nodeId"]=4,["parentId"]=0,["class"]="MeshPart",["name"]="Scope",["properties"]={["Reflectance"]=1,["TextureID"]="",["MeshId"]="rbxassetid://15374679651",["Size"]={["type"]="Vector3",["v"]={0.18712001,0.18712001,1.41355002}},["CFrame"]={["type"]="CFrame",["v"]={0,0.48315,0.20726,1,0,0,0,1,0,0,0,1}},["Transparency"]=0.34999999,["Color"]={["type"]="Color3",["v"]={0.50588238,0.70980394,0.80000001}},["MeshSize"]={["type"]="Vector3",["v"]={6.38486004,6.38486004,49.99999619}},["Material"]="Enum.Material.Glass"}}},["anchor"]=0,["grip"]={["v"]={0,-0.39999872,0.89999962,1,0,0,0,1,0,0,0,1},["type"]="CFrame"}} end
+if not scopeOnly then data.weapons.Gun["Gingerscope_Silver"]={["nodes"]={{["nodeId"]=0,["class"]="MeshPart",["name"]="GunDisplay",["properties"]={["Reflectance"]=0,["TextureID"]="rbxassetid://16207691225",["MeshId"]="rbxassetid://15374602183",["Size"]={["type"]="Vector3",["v"]={0.269705,1.25815403,4.20871401}},["CFrame"]={["type"]="CFrame",["v"]={0,0,0,1,0,0,0,1,0,0,0,1}},["Transparency"]=0,["Color"]={["type"]="Color3",["v"]={0.56078434,0.13333334,0.13333334}},["MeshSize"]={["type"]="Vector3",["v"]={3.20412111,14.94272614,50}},["Material"]="Enum.Material.Brick"}},{["nodeId"]=1,["parentId"]=0,["class"]="Sound",["name"]="AltSound",["properties"]={["RollOffMinDistance"]=10,["RollOffMode"]="Enum.RollOffMode.Inverse",["Looped"]=false,["PlaybackSpeed"]=1,["RollOffMaxDistance"]=10000,["Volume"]=0.5,["SoundId"]="rbxassetid://90731824782499"}},{["nodeId"]=2,["parentId"]=0,["class"]="Attachment",["name"]="CustomAttachment",["properties"]={["CFrame"]={["type"]="CFrame",["v"]={0.1299,0,0.075,1,0,0,0,0.70713,0.70708,0,-0.70708,0.70713}}}},{["nodeId"]=3,["parentId"]=0,["class"]="Beam",["name"]="CustomBeam",["properties"]={["Enabled"]=true,["FaceCamera"]=false,["Color"]={["type"]="ColorSequence",["points"]={{["value"]={["type"]="Color3",["v"]={0.80784315,0.98431373,1}},["time"]=0},{["value"]={["type"]="Color3",["v"]={0.80784315,0.98431373,1}},["time"]=1}}},["Width0"]=0.5,["Transparency"]={["type"]="NumberSequence",["points"]={{["value"]=0,["time"]=0,["envelope"]=0},{["value"]=0,["time"]=1,["envelope"]=0}}},["Segments"]=10,["Width1"]=1,["LightEmission"]=1,["CurveSize0"]=0,["CurveSize1"]=0,["Texture"]="http://www.roblox.com/asset/?id=106972878353658"}},{["nodeId"]=4,["parentId"]=0,["class"]="MeshPart",["name"]="Scope",["properties"]={["Reflectance"]=1,["TextureID"]="",["MeshId"]="rbxassetid://15374679651",["Size"]={["type"]="Vector3",["v"]={0.18712001,0.18712001,1.41355002}},["CFrame"]={["type"]="CFrame",["v"]={0,0.48318,0.20723,1,0,0,0,1,0,0,0,1}},["Transparency"]=0.34999999,["Color"]={["type"]="Color3",["v"]={0.50588238,0.70980394,0.80000001}},["MeshSize"]={["type"]="Vector3",["v"]={6.38486004,6.38486004,49.99999619}},["Material"]="Enum.Material.Glass"}}},["anchor"]=0,["grip"]={["v"]={0,-0.39999872,0.89999962,1,0,0,0,1,0,0,0,1},["type"]="CFrame"}} end
 if not scopeOnly then data.weapons.Gun["GoldHarvester"]={["nodes"]={{["nodeId"]=0,["class"]="MeshPart",["name"]="GunDisplay",["properties"]={["Reflectance"]=0,["TextureID"]="rbxassetid://8194215358",["MeshId"]="rbxassetid://7775027413",["Size"]={["type"]="Vector3",["v"]={2.24475837,0.65491521,2.87999988}},["CFrame"]={["type"]="CFrame",["v"]={0,0,0,1,0,0,0,1,0,0,0,1}},["Transparency"]=0,["Color"]={["type"]="Color3",["v"]={0.06666667,0.06666667,0.06666667}},["MeshSize"]={["type"]="Vector3",["v"]={44.2533493,12.91105461,56.8140564}},["Material"]="Enum.Material.Brick"}},{["nodeId"]=1,["parentId"]=0,["class"]="Sound",["name"]="AltSound",["properties"]={["RollOffMinDistance"]=10,["RollOffMode"]="Enum.RollOffMode.Inverse",["Looped"]=false,["PlaybackSpeed"]=1.39999998,["RollOffMaxDistance"]=10000,["Volume"]=1,["SoundId"]="rbxassetid://7808472682"}},{["nodeId"]=2,["parentId"]=0,["class"]="Beam",["name"]="CustomBeam",["properties"]={["Enabled"]=true,["FaceCamera"]=false,["Color"]={["type"]="ColorSequence",["points"]={{["value"]={["type"]="Color3",["v"]={0.96195924,0.81820399,0}},["time"]=0},{["value"]={["type"]="Color3",["v"]={0.96195924,0.81820399,0}},["time"]=1}}},["Width0"]=0.2,["Transparency"]={["type"]="NumberSequence",["points"]={{["value"]=0.5,["time"]=0,["envelope"]=0},{["value"]=0.5,["time"]=1,["envelope"]=0}}},["Segments"]=10,["Width1"]=0.2,["LightEmission"]=0.5,["CurveSize0"]=0,["CurveSize1"]=0,["Texture"]=""}},{["nodeId"]=3,["parentId"]=0,["class"]="Attachment",["name"]="CustomAttachment",["properties"]={["CFrame"]={["type"]="CFrame",["v"]={0.1299,0,0.075,2e-05,-0.5,-0.86603,1,-4e-05,5e-05,-6e-05,-0.86603,0.5}}}}},["anchor"]=0} end
 if not scopeOnly then data.weapons.Gun["GoldIceblaster"]={["nodes"]={{["nodeId"]=0,["class"]="MeshPart",["name"]="GunDisplay",["properties"]={["Reflectance"]=0,["TextureID"]="http://www.roblox.com/asset/?id=6246949956",["MeshId"]="rbxassetid://6125828567",["Size"]={["type"]="Vector3",["v"]={0.44320101,1.92998004,1.02381003}},["CFrame"]={["type"]="CFrame",["v"]={0,0,0,1,0,0,0,1,0,0,0,1}},["Transparency"]=0,["Color"]={["type"]="Color3",["v"]={0.06666667,0.06666667,0.06666667}},["MeshSize"]={["type"]="Vector3",["v"]={0.44320101,1.92998004,1.02381003}},["Material"]="Enum.Material.Brick"}},{["nodeId"]=2,["parentId"]=0,["class"]="Attachment",["name"]="Attachment",["properties"]={["CFrame"]={["type"]="CFrame",["v"]={0,0,0,1,0,0,0,1,0,0,0,1}}}}},["anchor"]=0} end
 if not scopeOnly then data.weapons.Gun["GoldSugar"]={["nodes"]={{["nodeId"]=0,["class"]="Part",["name"]="GunDisplay",["properties"]={["Reflectance"]=0,["Color"]={["type"]="Color3",["v"]={0.76862746,0.15686275,0.10980392}},["CFrame"]={["type"]="CFrame",["v"]={0,0,0,1,0,0,0,1,0,0,0,1}},["Transparency"]=0,["Size"]={["type"]="Vector3",["v"]={0.2,1,1.89999998}},["Material"]="Enum.Material.Plastic"}},{["nodeId"]=1,["parentId"]=0,["class"]="SpecialMesh",["name"]="Mesh",["properties"]={["Offset"]={["type"]="Vector3",["v"]={0,0,0}},["VertexColor"]={["type"]="Vector3",["v"]={1,1,1}},["MeshType"]="Enum.MeshType.FileMesh",["Scale"]={["type"]="Vector3",["v"]={0.5,0.5,0.5}},["MeshId"]="http://www.roblox.com/asset/?id=101086719",["TextureId"]="http://www.roblox.com/asset/?id=132002664307056"}},{["nodeId"]=2,["parentId"]=0,["class"]="Attachment",["name"]="CustomAttachment",["properties"]={["CFrame"]={["type"]="CFrame",["v"]={-0.1,0.28232,0.30719,-1,0,0,0,-0.08713,-0.9962,0,-0.9962,0.08713}}}}},["anchor"]=0} end
@@ -6311,7 +6311,7 @@ if not scopeOnly then data.effects["Darkfire"]={["nodes"]={{["nodeId"]=-1,["clas
 if not scopeOnly then data.effects["Darkswirl"]={["nodes"]={{["nodeId"]=-1,["class"]="Part",["name"]="EffectOrigin",["properties"]={["Transparency"]=1,["Size"]={["type"]="Vector3",["v"]={0.1,0.1,0.1}},["CFrame"]={["type"]="CFrame",["v"]={0,0,0,1,0,0,0,1,0,0,0,1}}}},{["nodeId"]=5,["parentId"]=-1,["class"]="ParticleEmitter",["name"]="a",["properties"]={["ShapeStyle"]="Enum.ParticleEmitterShapeStyle.Volume",["SpreadAngle"]={["type"]="Vector2",["v"]={360,360}},["FlipbookStartRandom"]=false,["FlipbookFramerate"]={["min"]=1,["type"]="NumberRange",["max"]=1},["Drag"]=0,["ZOffset"]=-1,["TimeScale"]=1,["LightInfluence"]=0,["Texture"]="http://www.roblox.com/asset/?id=140712856356108",["LightEmission"]=0,["Lifetime"]={["min"]=5,["type"]="NumberRange",["max"]=7},["Speed"]={["min"]=0.1,["type"]="NumberRange",["max"]=0.1},["Brightness"]=1,["FlipbookLayout"]="Enum.ParticleFlipbookLayout.None",["Size"]={["type"]="NumberSequence",["points"]={{["value"]=0.43749988,["time"]=0,["envelope"]=0},{["value"]=0.87499976,["time"]=1,["envelope"]=0}}},["Enabled"]=true,["FlipbookMode"]="Enum.ParticleFlipbookMode.Loop",["RotSpeed"]={["min"]=-10,["type"]="NumberRange",["max"]=10},["Rotation"]={["min"]=0,["type"]="NumberRange",["max"]=360},["EmissionDirection"]="Enum.NormalId.Top",["ShapeInOut"]="Enum.ParticleEmitterShapeInOut.InAndOut",["Rate"]=7,["Transparency"]={["type"]="NumberSequence",["points"]={{["value"]=1,["time"]=0,["envelope"]=0},{["value"]=1,["time"]=0.04738155,["envelope"]=0},{["value"]=0.68124998,["time"]=0.07481297,["envelope"]=0},{["value"]=0.36250001,["time"]=0.15710723,["envelope"]=0},{["value"]=0.16874999,["time"]=0.29052371,["envelope"]=0},{["value"]=0.14375001,["time"]=0.47007483,["envelope"]=0},{["value"]=0.20625001,["time"]=0.73940152,["envelope"]=0},{["value"]=1,["time"]=1,["envelope"]=0}}},["VelocityInheritance"]=0,["ShapePartial"]=1,["LockedToPart"]=true,["Squash"]={["type"]="NumberSequence",["points"]={{["value"]=0,["time"]=0,["envelope"]=0},{["value"]=0,["time"]=1,["envelope"]=0}}},["Orientation"]="Enum.ParticleOrientation.FacingCamera",["Acceleration"]={["type"]="Vector3",["v"]={0,0,0}},["Shape"]="Enum.ParticleEmitterShape.Box",["Color"]={["type"]="ColorSequence",["points"]={{["value"]={["type"]="Color3",["v"]={0,0,0}},["time"]=0},{["value"]={["type"]="Color3",["v"]={0,0,0}},["time"]=1}}}}},{["nodeId"]=6,["parentId"]=-1,["class"]="ParticleEmitter",["name"]="c",["properties"]={["ShapeStyle"]="Enum.ParticleEmitterShapeStyle.Volume",["SpreadAngle"]={["type"]="Vector2",["v"]={360,360}},["FlipbookStartRandom"]=false,["FlipbookFramerate"]={["min"]=1,["type"]="NumberRange",["max"]=1},["Drag"]=0,["ZOffset"]=-1,["TimeScale"]=1,["LightInfluence"]=0,["Texture"]="http://www.roblox.com/asset/?id=137531944183104",["LightEmission"]=0,["Lifetime"]={["min"]=6,["type"]="NumberRange",["max"]=6},["Speed"]={["min"]=0.1,["type"]="NumberRange",["max"]=0.1},["Brightness"]=1,["FlipbookLayout"]="Enum.ParticleFlipbookLayout.None",["Size"]={["type"]="NumberSequence",["points"]={{["value"]=0.06249964,["time"]=0,["envelope"]=0},{["value"]=1.18749976,["time"]=1,["envelope"]=0}}},["Enabled"]=true,["FlipbookMode"]="Enum.ParticleFlipbookMode.Loop",["RotSpeed"]={["min"]=-10,["type"]="NumberRange",["max"]=10},["Rotation"]={["min"]=-360,["type"]="NumberRange",["max"]=360},["EmissionDirection"]="Enum.NormalId.Top",["ShapeInOut"]="Enum.ParticleEmitterShapeInOut.InAndOut",["Rate"]=5,["Transparency"]={["type"]="NumberSequence",["points"]={{["value"]=1,["time"]=0,["envelope"]=0},{["value"]=1,["time"]=0.04738155,["envelope"]=0},{["value"]=0.51874995,["time"]=0.12593517,["envelope"]=0},{["value"]=0.30624998,["time"]=0.19077307,["envelope"]=0},{["value"]=0.28749996,["time"]=0.32543641,["envelope"]=0},{["value"]=0.29374999,["time"]=0.47630924,["envelope"]=0},{["value"]=0.59375,["time"]=0.70698255,["envelope"]=0},{["value"]=0.86874998,["time"]=0.8129676,["envelope"]=0},{["value"]=1,["time"]=0.88778061,["envelope"]=0},{["value"]=1,["time"]=1,["envelope"]=0}}},["VelocityInheritance"]=0,["ShapePartial"]=1,["LockedToPart"]=true,["Squash"]={["type"]="NumberSequence",["points"]={{["value"]=0.44999981,["time"]=0,["envelope"]=0},{["value"]=-0.11250019,["time"]=0.13591023,["envelope"]=0.03750014},{["value"]=0.14999986,["time"]=0.38528681,["envelope"]=0.11249971},{["value"]=-0.1875,["time"]=0.61596012,["envelope"]=0.11249971},{["value"]=0.41250014,["time"]=0.86159605,["envelope"]=0.03750014},{["value"]=0,["time"]=1,["envelope"]=0}}},["Orientation"]="Enum.ParticleOrientation.FacingCamera",["Acceleration"]={["type"]="Vector3",["v"]={0,0,0}},["Shape"]="Enum.ParticleEmitterShape.Box",["Color"]={["type"]="ColorSequence",["points"]={{["value"]={["type"]="Color3",["v"]={0,0,0}},["time"]=0},{["value"]={["type"]="Color3",["v"]={0,0,0}},["time"]=1}}}}}},["anchor"]=-1} end
 if not scopeOnly then data.effects["Doge"]={["nodes"]={{["nodeId"]=-1,["class"]="Part",["name"]="EffectOrigin",["properties"]={["Transparency"]=1,["Size"]={["type"]="Vector3",["v"]={0.1,0.1,0.1}},["CFrame"]={["type"]="CFrame",["v"]={0,0,0,1,0,0,0,1,0,0,0,1}}}},{["nodeId"]=5,["parentId"]=-1,["class"]="ParticleEmitter",["name"]="ParticleEmitter",["properties"]={["ShapeStyle"]="Enum.ParticleEmitterShapeStyle.Volume",["SpreadAngle"]={["type"]="Vector2",["v"]={10,10}},["FlipbookStartRandom"]=false,["FlipbookFramerate"]={["min"]=1,["type"]="NumberRange",["max"]=1},["Drag"]=0,["ZOffset"]=0,["TimeScale"]=1,["LightInfluence"]=0,["Texture"]="http://www.roblox.com/asset/?id=137464107502936",["LightEmission"]=0,["Lifetime"]={["min"]=1.5,["type"]="NumberRange",["max"]=2},["Speed"]={["min"]=3,["type"]="NumberRange",["max"]=3},["Brightness"]=1,["FlipbookLayout"]="Enum.ParticleFlipbookLayout.None",["Size"]={["type"]="NumberSequence",["points"]={{["value"]=0.5,["time"]=0,["envelope"]=0},{["value"]=0.5,["time"]=1,["envelope"]=0}}},["Enabled"]=true,["FlipbookMode"]="Enum.ParticleFlipbookMode.Loop",["RotSpeed"]={["min"]=10,["type"]="NumberRange",["max"]=10},["Rotation"]={["min"]=0,["type"]="NumberRange",["max"]=0},["EmissionDirection"]="Enum.NormalId.Top",["ShapeInOut"]="Enum.ParticleEmitterShapeInOut.Outward",["Rate"]=5,["Transparency"]={["type"]="NumberSequence",["points"]={{["value"]=0,["time"]=0,["envelope"]=0},{["value"]=0,["time"]=1,["envelope"]=0}}},["VelocityInheritance"]=0,["ShapePartial"]=1,["LockedToPart"]=false,["Squash"]={["type"]="NumberSequence",["points"]={{["value"]=0,["time"]=0,["envelope"]=0},{["value"]=0,["time"]=1,["envelope"]=0}}},["Orientation"]="Enum.ParticleOrientation.FacingCamera",["Acceleration"]={["type"]="Vector3",["v"]={0,0,0}},["Shape"]="Enum.ParticleEmitterShape.Box",["Color"]={["type"]="ColorSequence",["points"]={{["value"]={["type"]="Color3",["v"]={1,1,1}},["time"]=0},{["value"]={["type"]="Color3",["v"]={1,1,1}},["time"]=1}}}}}},["anchor"]=-1} end
 if not scopeOnly then data.effects["EasterGlow2023"]={["nodes"]={{["nodeId"]=-1,["class"]="Part",["name"]="EffectOrigin",["properties"]={["Transparency"]=1,["Size"]={["type"]="Vector3",["v"]={0.1,0.1,0.1}},["CFrame"]={["type"]="CFrame",["v"]={0,0,0,1,0,0,0,1,0,0,0,1}}}},{["nodeId"]=5,["parentId"]=-1,["class"]="ParticleEmitter",["name"]="a",["properties"]={["ShapeStyle"]="Enum.ParticleEmitterShapeStyle.Volume",["SpreadAngle"]={["type"]="Vector2",["v"]={360,360}},["FlipbookStartRandom"]=false,["FlipbookFramerate"]={["min"]=1,["type"]="NumberRange",["max"]=1},["Drag"]=5,["ZOffset"]=1,["TimeScale"]=0.34999999,["LightInfluence"]=0,["Texture"]="http://www.roblox.com/asset/?id=120162320121986",["LightEmission"]=1,["Lifetime"]={["min"]=0.69999999,["type"]="NumberRange",["max"]=1},["Speed"]={["min"]=3,["type"]="NumberRange",["max"]=3},["Brightness"]=7.11499977,["FlipbookLayout"]="Enum.ParticleFlipbookLayout.None",["Size"]={["type"]="NumberSequence",["points"]={{["value"]=0.1,["time"]=0,["envelope"]=0},{["value"]=0,["time"]=1,["envelope"]=0}}},["Enabled"]=true,["FlipbookMode"]="Enum.ParticleFlipbookMode.Loop",["RotSpeed"]={["min"]=0,["type"]="NumberRange",["max"]=0},["Rotation"]={["min"]=0,["type"]="NumberRange",["max"]=0},["EmissionDirection"]="Enum.NormalId.Top",["ShapeInOut"]="Enum.ParticleEmitterShapeInOut.Outward",["Rate"]=5,["Transparency"]={["type"]="NumberSequence",["points"]={{["value"]=1,["time"]=0,["envelope"]=0},{["value"]=1,["time"]=0.0884041,["envelope"]=0},{["value"]=0.74374998,["time"]=0.188289,["envelope"]=0},{["value"]=0.55000001,["time"]=0.262916,["envelope"]=0},{["value"]=0.38124999,["time"]=0.33409899,["envelope"]=0},{["value"]=0.06875,["time"]=0.48794499,["envelope"]=0},{["value"]=0.075,["time"]=0.67623401,["envelope"]=0},{["value"]=0.2,["time"]=0.80023003,["envelope"]=0},{["value"]=0.41874999,["time"]=0.89896703,["envelope"]=0},{["value"]=0.61250001,["time"]=0.95752001,["envelope"]=0},{["value"]=0.99374998,["time"]=1,["envelope"]=0}}},["VelocityInheritance"]=0,["ShapePartial"]=1,["LockedToPart"]=true,["Squash"]={["type"]="NumberSequence",["points"]={{["value"]=0,["time"]=0,["envelope"]=0},{["value"]=0,["time"]=1,["envelope"]=0}}},["Orientation"]="Enum.ParticleOrientation.FacingCamera",["Acceleration"]={["type"]="Vector3",["v"]={0,0,0}},["Shape"]="Enum.ParticleEmitterShape.Box",["Color"]={["type"]="ColorSequence",["points"]={{["value"]={["type"]="Color3",["v"]={0,0.98431402,1}},["time"]=0},{["value"]={["type"]="Color3",["v"]={0,0.98431402,1}},["time"]=1}}}}},{["nodeId"]=6,["parentId"]=-1,["class"]="ParticleEmitter",["name"]="b",["properties"]={["ShapeStyle"]="Enum.ParticleEmitterShapeStyle.Volume",["SpreadAngle"]={["type"]="Vector2",["v"]={360,360}},["FlipbookStartRandom"]=false,["FlipbookFramerate"]={["min"]=1,["type"]="NumberRange",["max"]=1},["Drag"]=5,["ZOffset"]=1,["TimeScale"]=0.34999999,["LightInfluence"]=0,["Texture"]="http://www.roblox.com/asset/?id=120162320121986",["LightEmission"]=1,["Lifetime"]={["min"]=0.69999999,["type"]="NumberRange",["max"]=1},["Speed"]={["min"]=3,["type"]="NumberRange",["max"]=3},["Brightness"]=7.11499977,["FlipbookLayout"]="Enum.ParticleFlipbookLayout.None",["Size"]={["type"]="NumberSequence",["points"]={{["value"]=0.1,["time"]=0,["envelope"]=0},{["value"]=0,["time"]=1,["envelope"]=0}}},["Enabled"]=true,["FlipbookMode"]="Enum.ParticleFlipbookMode.Loop",["RotSpeed"]={["min"]=0,["type"]="NumberRange",["max"]=0},["Rotation"]={["min"]=0,["type"]="NumberRange",["max"]=0},["EmissionDirection"]="Enum.NormalId.Top",["ShapeInOut"]="Enum.ParticleEmitterShapeInOut.Outward",["Rate"]=5,["Transparency"]={["type"]="NumberSequence",["points"]={{["value"]=1,["time"]=0,["envelope"]=0},{["value"]=1,["time"]=0.0884041,["envelope"]=0},{["value"]=0.74374998,["time"]=0.188289,["envelope"]=0},{["value"]=0.55000001,["time"]=0.262916,["envelope"]=0},{["value"]=0.38124999,["time"]=0.33409899,["envelope"]=0},{["value"]=0.06875,["time"]=0.48794499,["envelope"]=0},{["value"]=0.075,["time"]=0.67623401,["envelope"]=0},{["value"]=0.2,["time"]=0.80023003,["envelope"]=0},{["value"]=0.41874999,["time"]=0.89896703,["envelope"]=0},{["value"]=0.61250001,["time"]=0.95752001,["envelope"]=0},{["value"]=0.99374998,["time"]=1,["envelope"]=0}}},["VelocityInheritance"]=0,["ShapePartial"]=1,["LockedToPart"]=true,["Squash"]={["type"]="NumberSequence",["points"]={{["value"]=0,["time"]=0,["envelope"]=0},{["value"]=0,["time"]=1,["envelope"]=0}}},["Orientation"]="Enum.ParticleOrientation.FacingCamera",["Acceleration"]={["type"]="Vector3",["v"]={0,0,0}},["Shape"]="Enum.ParticleEmitterShape.Box",["Color"]={["type"]="ColorSequence",["points"]={{["value"]={["type"]="Color3",["v"]={0.917647,0,1}},["time"]=0},{["value"]={["type"]="Color3",["v"]={0.917647,0,1}},["time"]=1}}}}},{["nodeId"]=7,["parentId"]=-1,["class"]="ParticleEmitter",["name"]="c",["properties"]={["ShapeStyle"]="Enum.ParticleEmitterShapeStyle.Volume",["SpreadAngle"]={["type"]="Vector2",["v"]={360,360}},["FlipbookStartRandom"]=false,["FlipbookFramerate"]={["min"]=1,["type"]="NumberRange",["max"]=1},["Drag"]=12,["ZOffset"]=-1,["TimeScale"]=1,["LightInfluence"]=0,["Texture"]="http://www.roblox.com/asset/?id=120162320121986",["LightEmission"]=1,["Lifetime"]={["min"]=2,["type"]="NumberRange",["max"]=4},["Speed"]={["min"]=1,["type"]="NumberRange",["max"]=1},["Brightness"]=1,["FlipbookLayout"]="Enum.ParticleFlipbookLayout.None",["Size"]={["type"]="NumberSequence",["points"]={{["value"]=0,["time"]=0,["envelope"]=0},{["value"]=2.625,["time"]=0.87715298,["envelope"]=0},{["value"]=4.5625,["time"]=1,["envelope"]=0}}},["Enabled"]=true,["FlipbookMode"]="Enum.ParticleFlipbookMode.Loop",["RotSpeed"]={["min"]=10,["type"]="NumberRange",["max"]=100},["Rotation"]={["min"]=0,["type"]="NumberRange",["max"]=360},["EmissionDirection"]="Enum.NormalId.Top",["ShapeInOut"]="Enum.ParticleEmitterShapeInOut.Outward",["Rate"]=10,["Transparency"]={["type"]="NumberSequence",["points"]={{["value"]=1,["time"]=0,["envelope"]=0},{["value"]=1,["time"]=0.0866242,["envelope"]=0},{["value"]=0.03125,["time"]=0.122293,["envelope"]=0},{["value"]=0.04375,["time"]=0.19977,["envelope"]=0},{["value"]=0.54374999,["time"]=0.32146999,["envelope"]=0},{["value"]=1,["time"]=0.47561899,["envelope"]=0},{["value"]=1,["time"]=1,["envelope"]=0}}},["VelocityInheritance"]=0,["ShapePartial"]=1,["LockedToPart"]=true,["Squash"]={["type"]="NumberSequence",["points"]={{["value"]=0,["time"]=0,["envelope"]=0},{["value"]=0,["time"]=1,["envelope"]=0}}},["Orientation"]="Enum.ParticleOrientation.FacingCamera",["Acceleration"]={["type"]="Vector3",["v"]={0,0,0}},["Shape"]="Enum.ParticleEmitterShape.Box",["Color"]={["type"]="ColorSequence",["points"]={{["value"]={["type"]="Color3",["v"]={0,1,0.96862698}},["time"]=0},{["value"]={["type"]="Color3",["v"]={0,1,0.96862698}},["time"]=1}}}}},{["nodeId"]=8,["parentId"]=-1,["class"]="ParticleEmitter",["name"]="d",["properties"]={["ShapeStyle"]="Enum.ParticleEmitterShapeStyle.Volume",["SpreadAngle"]={["type"]="Vector2",["v"]={360,360}},["FlipbookStartRandom"]=false,["FlipbookFramerate"]={["min"]=1,["type"]="NumberRange",["max"]=1},["Drag"]=12,["ZOffset"]=-1,["TimeScale"]=1,["LightInfluence"]=0,["Texture"]="http://www.roblox.com/asset/?id=120162320121986",["LightEmission"]=1,["Lifetime"]={["min"]=2,["type"]="NumberRange",["max"]=4},["Speed"]={["min"]=1,["type"]="NumberRange",["max"]=1},["Brightness"]=1,["FlipbookLayout"]="Enum.ParticleFlipbookLayout.None",["Size"]={["type"]="NumberSequence",["points"]={{["value"]=0,["time"]=0,["envelope"]=0},{["value"]=2.625,["time"]=0.87715298,["envelope"]=0},{["value"]=4.5625,["time"]=1,["envelope"]=0}}},["Enabled"]=true,["FlipbookMode"]="Enum.ParticleFlipbookMode.Loop",["RotSpeed"]={["min"]=10,["type"]="NumberRange",["max"]=100},["Rotation"]={["min"]=0,["type"]="NumberRange",["max"]=360},["EmissionDirection"]="Enum.NormalId.Top",["ShapeInOut"]="Enum.ParticleEmitterShapeInOut.Outward",["Rate"]=10,["Transparency"]={["type"]="NumberSequence",["points"]={{["value"]=1,["time"]=0,["envelope"]=0},{["value"]=1,["time"]=0.0866242,["envelope"]=0},{["value"]=0.03125,["time"]=0.122293,["envelope"]=0},{["value"]=0.04375,["time"]=0.19977,["envelope"]=0},{["value"]=0.54374999,["time"]=0.32146999,["envelope"]=0},{["value"]=1,["time"]=0.47561899,["envelope"]=0},{["value"]=1,["time"]=1,["envelope"]=0}}},["VelocityInheritance"]=0,["ShapePartial"]=1,["LockedToPart"]=true,["Squash"]={["type"]="NumberSequence",["points"]={{["value"]=0,["time"]=0,["envelope"]=0},{["value"]=0,["time"]=1,["envelope"]=0}}},["Orientation"]="Enum.ParticleOrientation.FacingCamera",["Acceleration"]={["type"]="Vector3",["v"]={0,0,0}},["Shape"]="Enum.ParticleEmitterShape.Box",["Color"]={["type"]="ColorSequence",["points"]={{["value"]={["type"]="Color3",["v"]={0.78431398,0,1}},["time"]=0},{["value"]={["type"]="Color3",["v"]={0.78431398,0,1}},["time"]=1}}}}}},["anchor"]=-1} end
-if not scopeOnly then data.effects["Electric"]={["nodes"]={{["nodeId"]=-1,["class"]="Part",["name"]="EffectOrigin",["properties"]={["Transparency"]=1,["Size"]={["type"]="Vector3",["v"]={0.1,0.1,0.1}},["CFrame"]={["type"]="CFrame",["v"]={0,0,0,1,0,0,0,1,0,0,0,1}}}}},["anchor"]=-1} end
+if not scopeOnly then data.effects["Electric"]={["nodes"]={{["nodeId"]=-1,["class"]="Part",["name"]="EffectOrigin",["properties"]={["Transparency"]=1,["Size"]={["type"]="Vector3",["v"]={0.1,0.1,0.1}},["CFrame"]={["type"]="CFrame",["v"]={0,0,0,1,0,0,0,1,0,0,0,1}}}},{["nodeId"]=8,["parentId"]=-1,["class"]="BillboardGui",["name"]="Electric",["properties"]={["Enabled"]=true,["MaxDistance"]="inf",["StudsOffsetWorldSpace"]={["v"]={0,0,0},["type"]="Vector3"},["StudsOffset"]={["v"]={0,0,0.5},["type"]="Vector3"},["AlwaysOnTop"]=false,["Size"]={["y"]={3,0},["type"]="UDim2",["x"]={3,0}}}},{["nodeId"]=25,["parentId"]=8,["class"]="ImageLabel",["name"]="ImageLabel",["properties"]={["ImageColor3"]={["v"]={1,1,1},["type"]="Color3"},["ScaleType"]="Enum.ScaleType.Stretch",["ImageTransparency"]=0.30000001,["BackgroundColor3"]={["v"]={1,1,1},["type"]="Color3"},["AnchorPoint"]={["v"]={0,0},["type"]="Vector2"},["ImageRectSize"]={["v"]={0,0},["type"]="Vector2"},["Rotation"]=267,["ImageRectOffset"]={["v"]={0,0},["type"]="Vector2"},["BackgroundTransparency"]=1,["Position"]={["y"]={0,0},["type"]="UDim2",["x"]={0,0}},["Visible"]=true,["ZIndex"]=1,["Image"]="http://www.roblox.com/asset/?id=87751403785421",["Size"]={["y"]={1,0},["type"]="UDim2",["x"]={1,0}}}}},["anchor"]=-1} end
 if not scopeOnly then data.effects["Elitify"]={["nodes"]={{["nodeId"]=-1,["class"]="Part",["name"]="EffectOrigin",["properties"]={["Transparency"]=1,["Size"]={["type"]="Vector3",["v"]={0.1,0.1,0.1}},["CFrame"]={["type"]="CFrame",["v"]={0,0,0,1,0,0,0,1,0,0,0,1}}}},{["nodeId"]=5,["parentId"]=-1,["class"]="ParticleEmitter",["name"]="EliteEffect",["properties"]={["ShapeStyle"]="Enum.ParticleEmitterShapeStyle.Volume",["SpreadAngle"]={["type"]="Vector2",["v"]={10,10}},["FlipbookStartRandom"]=false,["FlipbookFramerate"]={["min"]=1,["type"]="NumberRange",["max"]=1},["Drag"]=0,["ZOffset"]=0,["TimeScale"]=1,["LightInfluence"]=0,["Texture"]="http://www.roblox.com/asset/?id=113104219605646",["LightEmission"]=0,["Lifetime"]={["min"]=1.5,["type"]="NumberRange",["max"]=2},["Speed"]={["min"]=3,["type"]="NumberRange",["max"]=3},["Brightness"]=1,["FlipbookLayout"]="Enum.ParticleFlipbookLayout.None",["Size"]={["type"]="NumberSequence",["points"]={{["value"]=0.5,["time"]=0,["envelope"]=0},{["value"]=0.5,["time"]=1,["envelope"]=0}}},["Enabled"]=true,["FlipbookMode"]="Enum.ParticleFlipbookMode.Loop",["RotSpeed"]={["min"]=10,["type"]="NumberRange",["max"]=10},["Rotation"]={["min"]=0,["type"]="NumberRange",["max"]=0},["EmissionDirection"]="Enum.NormalId.Top",["ShapeInOut"]="Enum.ParticleEmitterShapeInOut.Outward",["Rate"]=5,["Transparency"]={["type"]="NumberSequence",["points"]={{["value"]=0,["time"]=0,["envelope"]=0},{["value"]=0,["time"]=1,["envelope"]=0}}},["VelocityInheritance"]=0,["ShapePartial"]=1,["LockedToPart"]=false,["Squash"]={["type"]="NumberSequence",["points"]={{["value"]=0,["time"]=0,["envelope"]=0},{["value"]=0,["time"]=1,["envelope"]=0}}},["Orientation"]="Enum.ParticleOrientation.FacingCamera",["Acceleration"]={["type"]="Vector3",["v"]={0,0,0}},["Shape"]="Enum.ParticleEmitterShape.Box",["Color"]={["type"]="ColorSequence",["points"]={{["value"]={["type"]="Color3",["v"]={1,1,1}},["time"]=0},{["value"]={["type"]="Color3",["v"]={1,1,1}},["time"]=1}}}}}},["anchor"]=-1} end
 if not scopeOnly then data.effects["Ethereal"]={["nodes"]={{["nodeId"]=-1,["class"]="Part",["name"]="EffectOrigin",["properties"]={["Transparency"]=1,["Size"]={["type"]="Vector3",["v"]={0.1,0.1,0.1}},["CFrame"]={["type"]="CFrame",["v"]={0,0,0,1,0,0,0,1,0,0,0,1}}}},{["nodeId"]=5,["parentId"]=-1,["class"]="ParticleEmitter",["name"]="a",["properties"]={["ShapeStyle"]="Enum.ParticleEmitterShapeStyle.Volume",["SpreadAngle"]={["type"]="Vector2",["v"]={0,10}},["FlipbookStartRandom"]=false,["FlipbookFramerate"]={["min"]=1,["type"]="NumberRange",["max"]=1},["Drag"]=0,["ZOffset"]=0,["TimeScale"]=1,["LightInfluence"]=0.69999999,["Texture"]="http://www.roblox.com/asset/?id=103495892151355",["LightEmission"]=1,["Lifetime"]={["min"]=2,["type"]="NumberRange",["max"]=2},["Speed"]={["min"]=0,["type"]="NumberRange",["max"]=0},["Brightness"]=1,["FlipbookLayout"]="Enum.ParticleFlipbookLayout.None",["Size"]={["type"]="NumberSequence",["points"]={{["value"]=0,["time"]=0,["envelope"]=0},{["value"]=1.375,["time"]=1,["envelope"]=0}}},["Enabled"]=true,["FlipbookMode"]="Enum.ParticleFlipbookMode.Loop",["RotSpeed"]={["min"]=1,["type"]="NumberRange",["max"]=3},["Rotation"]={["min"]=0,["type"]="NumberRange",["max"]=360},["EmissionDirection"]="Enum.NormalId.Top",["ShapeInOut"]="Enum.ParticleEmitterShapeInOut.Outward",["Rate"]=15,["Transparency"]={["type"]="NumberSequence",["points"]={{["value"]=1,["time"]=0,["envelope"]=0},{["value"]=0.75,["time"]=0.021814,["envelope"]=0},{["value"]=0.76875001,["time"]=0.50057399,["envelope"]=0},{["value"]=0.88749999,["time"]=0.68061501,["envelope"]=0},{["value"]=0.95625001,["time"]=0.83689201,["envelope"]=0},{["value"]=1,["time"]=1,["envelope"]=0}}},["VelocityInheritance"]=0,["ShapePartial"]=1,["LockedToPart"]=false,["Squash"]={["type"]="NumberSequence",["points"]={{["value"]=0,["time"]=0,["envelope"]=0},{["value"]=0,["time"]=1,["envelope"]=0}}},["Orientation"]="Enum.ParticleOrientation.FacingCamera",["Acceleration"]={["type"]="Vector3",["v"]={0,0,0}},["Shape"]="Enum.ParticleEmitterShape.Box",["Color"]={["type"]="ColorSequence",["points"]={{["value"]={["type"]="Color3",["v"]={0.372549,0.83137298,0.78039199}},["time"]=0},{["value"]={["type"]="Color3",["v"]={0.372549,0.83137298,0.78039199}},["time"]=1}}}}}},["anchor"]=-1} end
 if not scopeOnly then data.effects["Fireworks2023"]={["nodes"]={{["nodeId"]=-1,["class"]="Part",["name"]="EffectOrigin",["properties"]={["Transparency"]=1,["Size"]={["type"]="Vector3",["v"]={0.1,0.1,0.1}},["CFrame"]={["type"]="CFrame",["v"]={0,0,0,1,0,0,0,1,0,0,0,1}}}},{["nodeId"]=5,["parentId"]=-1,["class"]="ParticleEmitter",["name"]="Emitter",["properties"]={["ShapeStyle"]="Enum.ParticleEmitterShapeStyle.Volume",["SpreadAngle"]={["type"]="Vector2",["v"]={360,360}},["FlipbookStartRandom"]=false,["FlipbookFramerate"]={["min"]=18.29999924,["type"]="NumberRange",["max"]=18.29999924},["Drag"]=4.5,["ZOffset"]=1,["TimeScale"]=0.85000002,["LightInfluence"]=0,["Texture"]="http://www.roblox.com/asset/?id=73651093525254",["LightEmission"]=1,["Lifetime"]={["min"]=2,["type"]="NumberRange",["max"]=2},["Speed"]={["min"]=0.1,["type"]="NumberRange",["max"]=0.5},["Brightness"]=7.67500019,["FlipbookLayout"]="Enum.ParticleFlipbookLayout.Grid4x4",["Size"]={["type"]="NumberSequence",["points"]={{["value"]=0.12499988,["time"]=0,["envelope"]=0},{["value"]=0.68749964,["time"]=1,["envelope"]=0}}},["Enabled"]=true,["FlipbookMode"]="Enum.ParticleFlipbookMode.Loop",["RotSpeed"]={["min"]=-50,["type"]="NumberRange",["max"]=50},["Rotation"]={["min"]=-360,["type"]="NumberRange",["max"]=360},["EmissionDirection"]="Enum.NormalId.Top",["ShapeInOut"]="Enum.ParticleEmitterShapeInOut.Outward",["Rate"]=1.29999995,["Transparency"]={["type"]="NumberSequence",["points"]={{["value"]=0,["time"]=0,["envelope"]=0},{["value"]=0.0625,["time"]=0.5286783,["envelope"]=0},{["value"]=0.32499999,["time"]=0.82793021,["envelope"]=0},{["value"]=1,["time"]=1,["envelope"]=0}}},["VelocityInheritance"]=0,["ShapePartial"]=1,["LockedToPart"]=true,["Squash"]={["type"]="NumberSequence",["points"]={{["value"]=0,["time"]=0,["envelope"]=0},{["value"]=0,["time"]=0.51995015,["envelope"]=0},{["value"]=0.22500014,["time"]=0.57231921,["envelope"]=0},{["value"]=-0.1500001,["time"]=0.59600997,["envelope"]=0},{["value"]=0,["time"]=0.66209477,["envelope"]=0},{["value"]=-0.11250019,["time"]=0.72568583,["envelope"]=0},{["value"]=0.07499981,["time"]=0.77182049,["envelope"]=0},{["value"]=0.11249971,["time"]=0.8154614,["envelope"]=0},{["value"]=-0.07499981,["time"]=0.84538656,["envelope"]=0},{["value"]=-0.03750014,["time"]=0.90024942,["envelope"]=0},{["value"]=0,["time"]=1,["envelope"]=0}}},["Orientation"]="Enum.ParticleOrientation.FacingCamera",["Acceleration"]={["type"]="Vector3",["v"]={0,0,0}},["Shape"]="Enum.ParticleEmitterShape.Box",["Color"]={["type"]="ColorSequence",["points"]={{["value"]={["type"]="Color3",["v"]={1,0,0.90196079}},["time"]=0},{["value"]={["type"]="Color3",["v"]={1,0,0.90196079}},["time"]=1}}}}},{["nodeId"]=6,["parentId"]=-1,["class"]="ParticleEmitter",["name"]="Emitter",["properties"]={["ShapeStyle"]="Enum.ParticleEmitterShapeStyle.Volume",["SpreadAngle"]={["type"]="Vector2",["v"]={360,360}},["FlipbookStartRandom"]=false,["FlipbookFramerate"]={["min"]=1,["type"]="NumberRange",["max"]=1},["Drag"]=12,["ZOffset"]=-1,["TimeScale"]=1,["LightInfluence"]=0,["Texture"]="http://www.roblox.com/asset/?id=120162320121986",["LightEmission"]=1,["Lifetime"]={["min"]=1,["type"]="NumberRange",["max"]=3},["Speed"]={["min"]=0.1,["type"]="NumberRange",["max"]=0.1},["Brightness"]=0.405,["FlipbookLayout"]="Enum.ParticleFlipbookLayout.None",["Size"]={["type"]="NumberSequence",["points"]={{["value"]=0.5,["time"]=0,["envelope"]=0},{["value"]=0.74999988,["time"]=1,["envelope"]=0}}},["Enabled"]=true,["FlipbookMode"]="Enum.ParticleFlipbookMode.Loop",["RotSpeed"]={["min"]=10,["type"]="NumberRange",["max"]=100},["Rotation"]={["min"]=0,["type"]="NumberRange",["max"]=360},["EmissionDirection"]="Enum.NormalId.Top",["ShapeInOut"]="Enum.ParticleEmitterShapeInOut.Outward",["Rate"]=10,["Transparency"]={["type"]="NumberSequence",["points"]={{["value"]=1,["time"]=0,["envelope"]=0},{["value"]=0.25,["time"]=0.06608479,["envelope"]=0},{["value"]=0.01249999,["time"]=0.19700749,["envelope"]=0},{["value"]=0,["time"]=0.31047383,["envelope"]=0},{["value"]=0.19374996,["time"]=0.47755614,["envelope"]=0},{["value"]=0.47499996,["time"]=0.65960103,["envelope"]=0},{["value"]=1,["time"]=0.86159605,["envelope"]=0},{["value"]=1,["time"]=1,["envelope"]=0}}},["VelocityInheritance"]=0,["ShapePartial"]=1,["LockedToPart"]=true,["Squash"]={["type"]="NumberSequence",["points"]={{["value"]=0,["time"]=0,["envelope"]=0},{["value"]=0,["time"]=1,["envelope"]=0}}},["Orientation"]="Enum.ParticleOrientation.FacingCamera",["Acceleration"]={["type"]="Vector3",["v"]={0,0,0}},["Shape"]="Enum.ParticleEmitterShape.Box",["Color"]={["type"]="ColorSequence",["points"]={{["value"]={["type"]="Color3",["v"]={1,0,0.05098039}},["time"]=0},{["value"]={["type"]="Color3",["v"]={0,0,1}},["time"]=0.5224914},{["value"]={["type"]="Color3",["v"]={0.34901962,1,0}},["time"]=1}}}}},{["nodeId"]=7,["parentId"]=-1,["class"]="ParticleEmitter",["name"]="Emitter",["properties"]={["ShapeStyle"]="Enum.ParticleEmitterShapeStyle.Volume",["SpreadAngle"]={["type"]="Vector2",["v"]={360,360}},["FlipbookStartRandom"]=false,["FlipbookFramerate"]={["min"]=18.29999924,["type"]="NumberRange",["max"]=18.29999924},["Drag"]=4.5,["ZOffset"]=1,["TimeScale"]=0.85000002,["LightInfluence"]=0,["Texture"]="http://www.roblox.com/asset/?id=73651093525254",["LightEmission"]=1,["Lifetime"]={["min"]=2,["type"]="NumberRange",["max"]=2},["Speed"]={["min"]=0.1,["type"]="NumberRange",["max"]=0.5},["Brightness"]=7.67500019,["FlipbookLayout"]="Enum.ParticleFlipbookLayout.Grid4x4",["Size"]={["type"]="NumberSequence",["points"]={{["value"]=0.12499988,["time"]=0,["envelope"]=0},{["value"]=0.68749964,["time"]=1,["envelope"]=0}}},["Enabled"]=true,["FlipbookMode"]="Enum.ParticleFlipbookMode.Loop",["RotSpeed"]={["min"]=-50,["type"]="NumberRange",["max"]=50},["Rotation"]={["min"]=-360,["type"]="NumberRange",["max"]=360},["EmissionDirection"]="Enum.NormalId.Top",["ShapeInOut"]="Enum.ParticleEmitterShapeInOut.Outward",["Rate"]=1.20000005,["Transparency"]={["type"]="NumberSequence",["points"]={{["value"]=0,["time"]=0,["envelope"]=0},{["value"]=0.0625,["time"]=0.5286783,["envelope"]=0},{["value"]=0.32499999,["time"]=0.82793021,["envelope"]=0},{["value"]=1,["time"]=1,["envelope"]=0}}},["VelocityInheritance"]=0,["ShapePartial"]=1,["LockedToPart"]=true,["Squash"]={["type"]="NumberSequence",["points"]={{["value"]=0,["time"]=0,["envelope"]=0},{["value"]=0,["time"]=0.51995015,["envelope"]=0},{["value"]=0.22500014,["time"]=0.57231921,["envelope"]=0},{["value"]=-0.1500001,["time"]=0.59600997,["envelope"]=0},{["value"]=0,["time"]=0.66209477,["envelope"]=0},{["value"]=-0.11250019,["time"]=0.72568583,["envelope"]=0},{["value"]=0.07499981,["time"]=0.77182049,["envelope"]=0},{["value"]=0.11249971,["time"]=0.8154614,["envelope"]=0},{["value"]=-0.07499981,["time"]=0.84538656,["envelope"]=0},{["value"]=-0.03750014,["time"]=0.90024942,["envelope"]=0},{["value"]=0,["time"]=1,["envelope"]=0}}},["Orientation"]="Enum.ParticleOrientation.FacingCamera",["Acceleration"]={["type"]="Vector3",["v"]={0,0,0}},["Shape"]="Enum.ParticleEmitterShape.Box",["Color"]={["type"]="ColorSequence",["points"]={{["value"]={["type"]="Color3",["v"]={0,0.53333336,1}},["time"]=0},{["value"]={["type"]="Color3",["v"]={0,0.53333336,1}},["time"]=1}}}}},{["nodeId"]=8,["parentId"]=-1,["class"]="ParticleEmitter",["name"]="Emitter",["properties"]={["ShapeStyle"]="Enum.ParticleEmitterShapeStyle.Volume",["SpreadAngle"]={["type"]="Vector2",["v"]={360,360}},["FlipbookStartRandom"]=false,["FlipbookFramerate"]={["min"]=18.29999924,["type"]="NumberRange",["max"]=18.29999924},["Drag"]=4.5,["ZOffset"]=1,["TimeScale"]=0.85000002,["LightInfluence"]=0,["Texture"]="http://www.roblox.com/asset/?id=73651093525254",["LightEmission"]=1,["Lifetime"]={["min"]=2,["type"]="NumberRange",["max"]=2},["Speed"]={["min"]=0.1,["type"]="NumberRange",["max"]=0.5},["Brightness"]=7.67500019,["FlipbookLayout"]="Enum.ParticleFlipbookLayout.Grid4x4",["Size"]={["type"]="NumberSequence",["points"]={{["value"]=0.12499988,["time"]=0,["envelope"]=0},{["value"]=0.68749964,["time"]=1,["envelope"]=0}}},["Enabled"]=true,["FlipbookMode"]="Enum.ParticleFlipbookMode.Loop",["RotSpeed"]={["min"]=-50,["type"]="NumberRange",["max"]=50},["Rotation"]={["min"]=-360,["type"]="NumberRange",["max"]=360},["EmissionDirection"]="Enum.NormalId.Top",["ShapeInOut"]="Enum.ParticleEmitterShapeInOut.Outward",["Rate"]=1.10000002,["Transparency"]={["type"]="NumberSequence",["points"]={{["value"]=0,["time"]=0,["envelope"]=0},{["value"]=0.0625,["time"]=0.5286783,["envelope"]=0},{["value"]=0.32499999,["time"]=0.82793021,["envelope"]=0},{["value"]=1,["time"]=1,["envelope"]=0}}},["VelocityInheritance"]=0,["ShapePartial"]=1,["LockedToPart"]=true,["Squash"]={["type"]="NumberSequence",["points"]={{["value"]=0,["time"]=0,["envelope"]=0},{["value"]=0,["time"]=0.51995015,["envelope"]=0},{["value"]=0.22500014,["time"]=0.57231921,["envelope"]=0},{["value"]=-0.1500001,["time"]=0.59600997,["envelope"]=0},{["value"]=0,["time"]=0.66209477,["envelope"]=0},{["value"]=-0.11250019,["time"]=0.72568583,["envelope"]=0},{["value"]=0.07499981,["time"]=0.77182049,["envelope"]=0},{["value"]=0.11249971,["time"]=0.8154614,["envelope"]=0},{["value"]=-0.07499981,["time"]=0.84538656,["envelope"]=0},{["value"]=-0.03750014,["time"]=0.90024942,["envelope"]=0},{["value"]=0,["time"]=1,["envelope"]=0}}},["Orientation"]="Enum.ParticleOrientation.FacingCamera",["Acceleration"]={["type"]="Vector3",["v"]={0,0,0}},["Shape"]="Enum.ParticleEmitterShape.Box",["Color"]={["type"]="ColorSequence",["points"]={{["value"]={["type"]="Color3",["v"]={1,0,0.06666667}},["time"]=0},{["value"]={["type"]="Color3",["v"]={1,0,0.06666667}},["time"]=1}}}}},{["nodeId"]=9,["parentId"]=-1,["class"]="ParticleEmitter",["name"]="Emitter",["properties"]={["ShapeStyle"]="Enum.ParticleEmitterShapeStyle.Volume",["SpreadAngle"]={["type"]="Vector2",["v"]={360,360}},["FlipbookStartRandom"]=false,["FlipbookFramerate"]={["min"]=18.29999924,["type"]="NumberRange",["max"]=18.29999924},["Drag"]=4.5,["ZOffset"]=1,["TimeScale"]=0.85000002,["LightInfluence"]=0,["Texture"]="http://www.roblox.com/asset/?id=73651093525254",["LightEmission"]=1,["Lifetime"]={["min"]=2,["type"]="NumberRange",["max"]=2},["Speed"]={["min"]=0.1,["type"]="NumberRange",["max"]=0.5},["Brightness"]=7.67500019,["FlipbookLayout"]="Enum.ParticleFlipbookLayout.Grid4x4",["Size"]={["type"]="NumberSequence",["points"]={{["value"]=0.12499988,["time"]=0,["envelope"]=0},{["value"]=0.68749964,["time"]=1,["envelope"]=0}}},["Enabled"]=true,["FlipbookMode"]="Enum.ParticleFlipbookMode.Loop",["RotSpeed"]={["min"]=-50,["type"]="NumberRange",["max"]=50},["Rotation"]={["min"]=-360,["type"]="NumberRange",["max"]=360},["EmissionDirection"]="Enum.NormalId.Top",["ShapeInOut"]="Enum.ParticleEmitterShapeInOut.Outward",["Rate"]=1,["Transparency"]={["type"]="NumberSequence",["points"]={{["value"]=0,["time"]=0,["envelope"]=0},{["value"]=0.0625,["time"]=0.5286783,["envelope"]=0},{["value"]=0.32499999,["time"]=0.82793021,["envelope"]=0},{["value"]=1,["time"]=1,["envelope"]=0}}},["VelocityInheritance"]=0,["ShapePartial"]=1,["LockedToPart"]=true,["Squash"]={["type"]="NumberSequence",["points"]={{["value"]=0,["time"]=0,["envelope"]=0},{["value"]=0,["time"]=0.51995015,["envelope"]=0},{["value"]=0.22500014,["time"]=0.57231921,["envelope"]=0},{["value"]=-0.1500001,["time"]=0.59600997,["envelope"]=0},{["value"]=0,["time"]=0.66209477,["envelope"]=0},{["value"]=-0.11250019,["time"]=0.72568583,["envelope"]=0},{["value"]=0.07499981,["time"]=0.77182049,["envelope"]=0},{["value"]=0.11249971,["time"]=0.8154614,["envelope"]=0},{["value"]=-0.07499981,["time"]=0.84538656,["envelope"]=0},{["value"]=-0.03750014,["time"]=0.90024942,["envelope"]=0},{["value"]=0,["time"]=1,["envelope"]=0}}},["Orientation"]="Enum.ParticleOrientation.FacingCamera",["Acceleration"]={["type"]="Vector3",["v"]={0,0,0}},["Shape"]="Enum.ParticleEmitterShape.Box",["Color"]={["type"]="ColorSequence",["points"]={{["value"]={["type"]="Color3",["v"]={0,1,0.16470589}},["time"]=0},{["value"]={["type"]="Color3",["v"]={0,1,0.16470589}},["time"]=1}}}}}},["anchor"]=-1} end
@@ -6433,7 +6433,7 @@ if not scopeOnly then data.effectInfo["Darkfire"]={} end
 if not scopeOnly then data.effectInfo["Darkswirl"]={} end
 if not scopeOnly then data.effectInfo["Doge"]={} end
 if not scopeOnly then data.effectInfo["EasterGlow2023"]={} end
-if not scopeOnly then data.effectInfo["Electric"]={["texture"]="http://www.roblox.com/asset/?id=4210410112"} end
+if not scopeOnly then data.effectInfo["Electric"]={} end
 if not scopeOnly then data.effectInfo["Elitify"]={} end
 if not scopeOnly then data.effectInfo["Ethereal"]={} end
 if not scopeOnly then data.effectInfo["Fireworks2023"]={} end
@@ -7925,6 +7925,8 @@ local allowed={Part=true,MeshPart=true,WedgePart=true,CornerWedgePart=true,Speci
     SurfaceLight=true,BillboardGui=true,ImageLabel=true}
 local function decode(value,objects)
     if type(value)=="string" then
+        if value=="inf" then return math.huge end
+        if value=="-inf" then return -math.huge end
         local group,name=value:match("^Enum%.(%w+)%.(%w+)$")
         if group then return Enum[group][name] end
         return value
@@ -7936,7 +7938,10 @@ local function decode(value,objects)
     if kind=="Color3" then return Color3.new(v[1],v[2],v[3]) end
     if kind=="CFrame" then return CFrame.new(table.unpack(v)) end
     if kind=="UDim" then return UDim.new(v[1],v[2]) end
-    if kind=="UDim2" then return UDim2.new(v[1],v[2],v[3],v[4]) end
+    if kind=="UDim2" then
+        if value.x and value.y then return UDim2.new(value.x[1],value.x[2],value.y[1],value.y[2]) end
+        return UDim2.new(v[1],v[2],v[3],v[4])
+    end
     if kind=="Rect" then return Rect.new(table.unpack(v)) end
     if kind=="NumberRange" then return NumberRange.new(value.min,value.max) end
     if kind=="NumberSequence" then
@@ -7956,6 +7961,7 @@ local function create(record,id)
     local model=Instance.new("Model")
     model.Name="VisualsV2_Original_"..id
     local objects={}
+    if record.grip then model:SetAttribute("VisualsV2_CapturedGrip",decode(record.grip)) end
     for _,node in ipairs(record.nodes) do
         if allowed[node.class] then
             local object=Instance.new(node.class=="MeshPart" and "Part" or node.class=="Tool" and "Folder" or node.class)
@@ -9352,6 +9358,8 @@ local function buildTemplate(entry)
     if not root then clone:Destroy(); return nil,"No weapon mesh was found for "..entry.name end
     local attachment=gripAttachment(root)
     local attachmentGrip=attachment and attachment.CFrame
+    local holsterAttachment=attachment or root:FindFirstChild("Attachment")
+    local holsterGrip=holsterAttachment and holsterAttachment:IsA("Attachment") and holsterAttachment.CFrame or CFrame.new()
     local texture=assetId(modelData.textureid or modelData.texture or data.textureid or data.texture)
     if texture then
         local mesh=root:FindFirstChildWhichIsA("SpecialMesh")
@@ -9393,7 +9401,7 @@ local function buildTemplate(entry)
     end
     if not root:IsDescendantOf(model) then model:Destroy(); return nil,"The weapon Handle is unavailable" end
     model.PrimaryPart=root
-    return {model=model,root=root,grip=grip,attachmentGrip=attachmentGrip,useToolGrip=useToolGrip,scopeHold=scopeHold,chroma=data.chroma==true,
+    return {model=model,root=root,grip=grip,attachmentGrip=attachmentGrip,holsterGrip=holsterGrip,useToolGrip=useToolGrip,scopeHold=scopeHold,chroma=data.chroma==true,
         revision=entry.revision,lastUsed=os.clock(),source=sourceName,attempts=attempts}
 end
 
@@ -9516,6 +9524,85 @@ local function suppressToolHold(tool,hold)
     end
 end
 
+local scopeMeshes=nil
+local lastNativeScopeScan=0
+local storageScopeScanned=false
+local function nativeScopeId(tool)
+    if not tool or tool:GetAttribute(MARKER) then return nil end
+    local id=originalHold(tool)
+    if not id then return nil end
+    local item=tostring(tool:GetAttribute("ItemID") or tool:GetAttribute("WeaponID") or tool:GetAttribute("ItemName") or "")
+    local entry=catalog.Gun[item]
+    if entry and isScope(entry) then return id end
+    if not scopeMeshes then
+        scopeMeshes={}
+        local originals=env.VisualsV2Runtime.OriginalVisuals
+        for _,candidate in pairs(catalog.Gun) do
+            if isScope(candidate) then
+                local prototype=originals and originals.GetWeapon("Gun",candidate.id)
+                for _,object in ipairs(prototype and prototype:GetDescendants() or {}) do
+                    if object:IsA("MeshPart") then scopeMeshes[assetId(object.MeshId) or ""]=true
+                    elseif object:IsA("SpecialMesh") then scopeMeshes[assetId(object.MeshId) or ""]=true end
+                end
+            end
+        end
+    end
+    local root=visualRoot(tool)
+    local mesh=root and (root:IsA("MeshPart") and assetId(root.MeshId)
+        or root:FindFirstChildWhichIsA("SpecialMesh") and assetId(root:FindFirstChildWhichIsA("SpecialMesh").MeshId))
+    if mesh and scopeMeshes[mesh] then return id end
+end
+local function scopeCacheKey(rig)
+    return "nativeScopeHold_"..tostring(game.GameId).."_"..rig
+end
+local function resolveScopeHold(tool,humanoid,rig)
+    local native=nativeScopeId(tool)
+    if native then return native end
+    if nativeScopeHolds[rig] then return nativeScopeHolds[rig] end
+    local saved=assetId(C(scopeCacheKey(rig),nil))
+    if saved then nativeScopeHolds[rig]=saved;return saved end
+    if os.clock()-lastNativeScopeScan>=1 then
+        lastNativeScopeScan=os.clock()
+        for _,owner in ipairs(game:GetService("Players"):GetPlayers()) do
+            local character=owner.Character
+            local otherHumanoid=character and character:FindFirstChildOfClass("Humanoid")
+            if otherHumanoid and tostring(otherHumanoid.RigType)==rig then
+                local backpack=owner:FindFirstChildOfClass("Backpack")
+                for _,container in pairs({character,backpack}) do
+                    for _,candidate in ipairs(container:GetChildren()) do
+                        if candidate:IsA("Tool") then
+                            local id=nativeScopeId(candidate)
+                            if id then nativeScopeHolds[rig]=id;return id end
+                        end
+                    end
+                end
+            end
+        end
+        local storage=game:GetService("ReplicatedStorage")
+        if not storageScopeScanned then
+        storageScopeScanned=true
+        for _,object in ipairs(storage:GetDescendants()) do
+            if object:IsA("Animation") and not owned(object,storage) then
+                local name=compact(object.Name)
+                local context=object.Parent
+                local scopeContext=false
+                for _=1,4 do
+                    if not context or context==storage then break end
+                    local parentName=compact(context.Name)
+                    if parentName:find("gingerscope",1,true) or parentName:find("voidscope",1,true) or parentName:find("matrixscope",1,true) then scopeContext=true;break end
+                    context=context.Parent
+                end
+                if name:find("scopehold",1,true) or scopeContext and (name=="customhold" or name=="hold2" or name=="gingerscopehold") then
+                    local id=assetId(object.AnimationId)
+                    if id then nativeScopeHolds[rig]=id;return id end
+                end
+            end
+        end
+    end
+    end
+    if mmv then return ORIGINAL_SCOPE_HOLD end
+end
+
 local function updateScopeHold(tool,state,entry)
     local character=player.Character
     local humanoid=character and character:FindFirstChildOfClass("Humanoid")
@@ -9526,12 +9613,12 @@ local function updateScopeHold(tool,state,entry)
         return
     end
     local rig=tostring(humanoid.RigType)
-    local mmv=game.GameId==10413186812 or game.PlaceId==93017634738276
-    local nativeId=originalHold(tool) or (not nativeScopeHolds[rig] and state.scopeTemplateHold)
-    if nativeId and not mmv then nativeScopeHolds[rig]=nativeId end
-
-    local id=not mmv and nativeScopeHolds[rig] or ORIGINAL_SCOPE_HOLD
-    id=id or ORIGINAL_SCOPE_HOLD
+    local id=resolveScopeHold(tool,humanoid,rig)
+    if not id then
+        state.holdError="The original scope animation has not been found in this game."
+        if state.hold or state.holdPending then stopScopeHold(state) end
+        return
+    end
     local signature=state.applied..":"..id
     local hold=state.hold
     if hold and hold.animator==animator and hold.signature==signature and hold.track.IsPlaying then
@@ -9585,7 +9672,7 @@ local function updateScopeHold(tool,state,entry)
         local ok=track and (not ownsTrack or track.Length>0)
         if ok and ownsTrack then
             ok=pcall(function()
-                track.Priority=Enum.AnimationPriority.Action
+                track.Priority=Enum.AnimationPriority.Action2
                 track.Looped=true
                 track:Play(0.12,1,1)
             end)
@@ -9593,6 +9680,7 @@ local function updateScopeHold(tool,state,entry)
         if not ok then
             discard()
             state.holdPending=nil
+            state.holdError="Original animation "..id.." did not load for "..rig
             state.holdRetry={signature=signature,untilTime=os.clock()+30}
             local warning=rig..":"..id
             if not scopeHoldWarnings[warning] then
@@ -9603,6 +9691,9 @@ local function updateScopeHold(tool,state,entry)
         end
         state.holdPending=nil
         state.holdRetry=nil
+        state.holdError=nil
+        nativeScopeHolds[rig]=id
+        SetCfg(scopeCacheKey(rig),id)
         hold={track=track,animation=animation,animator=animator,signature=signature,
             owned=ownsTrack,suppressed={}}
         state.hold=hold
@@ -9839,6 +9930,13 @@ local function hideHolsterOriginal(state)
     end
 end
 
+local function nativeHolsterGrip(object)
+    local root=object and visualRoot(object)
+    if not root then return CFrame.new() end
+    local attachment=gripAttachment(root) or root:FindFirstChild("Attachment")
+    return attachment and attachment:IsA("Attachment") and attachment.CFrame or CFrame.new()
+end
+
 local function refreshHolsters()
     local character=player.Character
     local body=character and (character:FindFirstChild("UpperTorso") or character:FindFirstChild("Torso")
@@ -9858,9 +9956,10 @@ local function refreshHolsters()
         else
             local original=nativeHolster(character,kind)
             local state=holsters[kind]
+            local nativeMount=nativeHolsterGrip(original)
             local signature=cacheKey(entry)..":"..entry.revision
             if state and state.character==character and state.body==body and state.original==original
-                and state.applied==signature and state.model and state.model.Parent==character then
+                and state.applied==signature and state.nativeMount==nativeMount and state.model and state.model.Parent==character then
                 hideHolsterOriginal(state)
                 updateChroma(state)
             else
@@ -9871,11 +9970,14 @@ local function refreshHolsters()
                 if model and not root then model:Destroy();model=nil end
                 if model then
                     local originalRoot=original and visualRoot(original)
-                    local anchor=originalRoot or body
+                    local belt=character:FindFirstChild(kind.."Belt",true)
+                    if belt and (not belt:IsA("Attachment") or not belt.Parent or not belt.Parent:IsA("BasePart")) then belt=nil end
+                    local anchor=originalRoot or belt and belt.Parent or body
                     local side=kind=="Gun" and 1 or -1
-                    local base=originalRoot and originalRoot.CFrame or body.CFrame
+                    local base=originalRoot and originalRoot.CFrame*nativeMount*template.holsterGrip:Inverse()
+                        or belt and belt.Parent.CFrame*belt.CFrame*template.holsterGrip:Inverse() or body.CFrame
                         *CFrame.new(side*(body.Size.X*0.5+0.15),-body.Size.Y*0.4,0.15)
-                        *CFrame.Angles(0,0,math.rad(side*35))
+                        *CFrame.Angles(0,0,math.rad(side*35))*template.holsterGrip:Inverse()
                     local origin=root.CFrame
                     local parts={}
                     for _,part in ipairs(model:GetDescendants()) do
@@ -9897,7 +9999,7 @@ local function refreshHolsters()
                     model:SetAttribute("WeaponID",entry.id)
                     model:SetAttribute("WeaponType",kind)
                     state={model=model,body=body,original=original,originals={},applied=signature,
-                        character=character,parts=parts,chromaTargets=template.chroma and chromaTargets(model,root) or nil}
+                        character=character,parts=parts,nativeMount=nativeMount,chromaTargets=template.chroma and chromaTargets(model,root) or nil}
                     holsters[kind]=state
                     model.Parent=character
                     hideHolsterOriginal(state)
@@ -10021,6 +10123,7 @@ connections[#connections+1]=player.ChildAdded:Connect(function(child)
     if child:IsA("Backpack") then task.defer(function() if alive and runtimeAlive then refreshTools() end end) end
 end)
 connections[#connections+1]=game:GetService("ReplicatedStorage").DescendantAdded:Connect(function(object)
+    if object:IsA("Animation") then storageScopeScanned=false end
     local ancestor=object
     while ancestor and ancestor~=game:GetService("ReplicatedStorage") do
         if ancestor:GetAttribute(MARKER) then return end
@@ -10057,7 +10160,8 @@ env.VisualsV2Runtime.ClientWeaponSkins={
                 if actualKind(tool)==kind then
                     item.tools[#item.tools+1]={path=objectPath(tool),name=tool.Name,
                         equipped=tool.Parent==player.Character,rendered=value.model and value.model.Parent~=nil or false,
-                        handle=objectPath(visualRoot(tool)),blocked=value.blocked}
+                        handle=objectPath(visualRoot(tool)),blocked=value.blocked,holdError=value.holdError,
+                        holdAnimation=value.hold and value.hold.track.Animation.AnimationId or nil}
                 end
             end
             local holster=holsters[kind]
@@ -10145,7 +10249,6 @@ local effectList={
     {id="Arctic2022",name="Arctic",label="Arctic (2022)"},
     {id="Aurora2021",name="Aurora",label="Aurora (2021)"},
     {id="Aurora2024",name="Aurora Lights",label="Aurora Lights (2024)"},
-    {id="Balloons",name="Balloons",label="Balloons"},
     {id="Bats",name="Bats",label="Bats"},
     {id="Bats2020",name="Batswarm",label="Batswarm (2020)"},
     {id="Bats2024",name="Bat Swarm",label="Bat Swarm (2024)"},
@@ -10170,18 +10273,15 @@ local effectList={
     {id="Darkfire",name="Darkfire",label="Darkfire"},
     {id="Darkswirl",name="Darkswirl",label="Darkswirl (2023)"},
     {id="Doge",name="Doge",label="Doge"},
-    {id="Dual",name="Dual Wield",label="Dual Wield"},
     {id="EasterGlow2023",name="Easter Glow",label="Easter Glow (2023)"},
     {id="Electric",name="Electric Knife",label="Electric Knife"},
     {id="Elitify",name="Elite-ify",label="Elite-ify"},
     {id="Ethereal",name="Ethereal",label="Ethereal"},
-    {id="Feathers",name="Feathers",label="Feathers"},
     {id="Fireworks2023",name="Fireworks",label="Fireworks (2023)"},
     {id="FlamingoEffect2025",name="Flamingo",label="Flamingo (2025)"},
     {id="Floral2023",name="Floral",label="Floral (2023)"},
     {id="Flowers2024",name="Flowers",label="Flowers (2024)"},
     {id="Flowerwood",name="Flowerwood",label="Flowerwood"},
-    {id="Flowerwood_Pink",name="Pink Flowerwood",label="Pink Flowerwood"},
     {id="Frost2025",name="Frost",label="Frost (2025)"},
     {id="FrostbiteEffect",name="Frostbite",label="Frostbite"},
     {id="Frostfire2020",name="Frostfire",label="Frostfire (2020)"},
@@ -10213,7 +10313,6 @@ local effectList={
     {id="Nightlife26",name="Nightlife",label="Nightlife (2026)"},
     {id="Nightsky2025",name="Nightsky",label="Nightsky (2025)"},
     {id="NorthernLights",name="Northern Lights",label="Northern Lights (2018)"},
-    {id="Ocean26",name="Ocean",label="Ocean (2026)"},
     {id="Petals",name="Petals",label="Petals"},
     {id="Phantom",name="Phantom",label="Phantom"},
     {id="PhantomEffect2022",name="Ghostly",label="Ghostly (2022)"},
@@ -10290,8 +10389,10 @@ for _,entry in ipairs(effectList) do
 end
 table.sort(effectList,function(a,b) return a.label:lower()<b.label:lower() end)
 for _,entry in ipairs(effectList) do
-    options[#options+1]=entry.label
-    byLabel[entry.label]=entry.id
+    if byId[entry.id] then
+        options[#options+1]=entry.label
+        byLabel[entry.label]=entry.id
+    end
 end
 if selected~="None" and not byId[selected] then selected="None" end
 
@@ -10457,10 +10558,19 @@ local function hideNative(tool,state)
     end
 end
 
+local function attached(state)
+    for _,object in ipairs(state.outputs) do
+        if not object.Parent or not object:IsDescendantOf(state.handle) then return false end
+    end
+    return true
+end
+
 local function update()
     if not alive or not runtimeAlive or not enabled or selected=="None" then clearAll();return end
     local character=LocalPlayer.Character
     if not character then clearAll();return end
+    local humanoid=character:FindFirstChildOfClass("Humanoid")
+    if humanoid and humanoid.Health<=0 then clearAll();return end
     local targets={}
     for _,tool in ipairs(character:GetChildren()) do
         local skins=env.VisualsV2Runtime.ClientWeaponSkins
@@ -10480,7 +10590,7 @@ local function update()
     local seen={}
     for _,tool in ipairs(targets) do seen[tool]=true end
     for tool,state in pairs(states) do
-        if not seen[tool] or state.handle~=blade(tool) or state.id~=selected then clear(tool) end
+        if not seen[tool] or state.handle~=blade(tool) or state.id~=selected or not attached(state) then clear(tool) end
     end
     for _,tool in ipairs(targets) do
         if tool.Parent and seen[tool] then
@@ -10758,21 +10868,27 @@ local selected=tostring(C("vv2Pet","None"))
 local alive=true
 local catalog={}
 local model,root,parts,follow
+local velocity=Vector3.new()
 local character=nil
 local hidden={}
 local heartbeat=nil
 local connections={}
 local lastError=nil
-for id,data in pairs(originals.Metadata.Pets) do
-    catalog[id]={id=id,name=data.name or id,data=data}
-end
+local motionMode="none"
+local nativeAnchor=nil
+local petHalfHeight=.5
+for id,data in pairs(originals.Metadata.Pets) do catalog[id]={id=id,name=data.name or id,data=data} end
 if not catalog[selected] then selected="None" end
 local function restoreNative()
     for object,record in pairs(hidden) do pcall(function() object[record.property]=record.value end) end
     table.clear(hidden)
 end
-local function hideNative()
+local function nativePet()
     local pet=character and character:FindFirstChild("Pet")
+    local body=pet and (pet:IsA("BasePart") and pet or pet:FindFirstChild("Body",true) or pet:FindFirstChildWhichIsA("BasePart",true))
+    if body and body:IsA("BasePart") then return pet,body end
+end
+local function hideNative(pet)
     if not pet then return end
     local objects={pet}
     for _,object in ipairs(pet:GetDescendants()) do objects[#objects+1]=object end
@@ -10786,49 +10902,113 @@ local function hideNative()
 end
 local function clear()
     if model then model:Destroy() end
-    model=nil;root=nil;parts=nil;follow=nil
+    model=nil;root=nil;parts=nil;follow=nil;nativeAnchor=nil
+    velocity=Vector3.new();motionMode="none"
     restoreNative()
+end
+local function spawnModel()
+    local source=originals.GetPet(selected)
+    if not source then lastError="Original pet template unavailable";return false end
+    model=source:Clone();model.Name="VisualsV2_ClientPet"
+    model:SetAttribute("VisualsV2_ClientPet",true);model:SetAttribute("VisualsV2_ClientWeaponSkin",true)
+    root=model.PrimaryPart or model:FindFirstChildWhichIsA("BasePart",true)
+    if not root then clear();lastError="Original pet has no body";return false end
+    local origin=root.CFrame
+    local bottom=0
+    parts={}
+    for _,part in ipairs(model:GetDescendants()) do
+        if part:IsA("BasePart") then
+            part.Anchored=true;part.CanCollide=false;part.CanTouch=false;part.CanQuery=false
+            part.Massless=true;part.LocalTransparencyModifier=0
+            local relative=origin:ToObjectSpace(part.CFrame)
+            parts[#parts+1]={part=part,relative=relative}
+            bottom=math.min(bottom,relative.Position.Y-part.Size.Y*.5)
+        end
+    end
+    petHalfHeight=math.max(.15,-bottom);lastError=nil
+    return true
+end
+local function useNativeMotion(pet,body)
+    if nativeAnchor~=body then
+        for _,record in ipairs(parts) do
+            if record.weld then record.weld:Destroy() end
+            record.part.CFrame=body.CFrame*record.relative
+            record.part.Anchored=false
+            local weld=Instance.new("Weld")
+            weld.Name="VisualsV2_PetMotionWeld";weld.Part0=body;weld.Part1=record.part
+            weld.C0=record.relative;weld.C1=CFrame.new();weld.Parent=record.part
+            record.weld=weld
+        end
+        nativeAnchor=body
+    end
+    motionMode="native"
+    hideNative(pet)
+end
+local function springGoal(body,floating,dt)
+    local offset=Vector3.new(3,0,3)
+    local position=body.Position or body.CFrame.Position
+    local target=position+offset+Vector3.new(0,floating and 1.1+math.sin(os.clock()*2.5)*.25 or -2,0)
+    if not floating then
+        pcall(function()
+            local params=RaycastParams.new();params.FilterType=Enum.RaycastFilterType.Exclude
+            local filters={character,model}
+            local pet=nativePet();if pet then filters[#filters+1]=pet end
+            params.FilterDescendantsInstances=filters
+            local hit=workspace:Raycast(target+Vector3.new(0,8,0),Vector3.new(0,-30,0),params)
+            if hit then target=Vector3.new(target.X,hit.Position.Y+petHalfHeight,target.Z) end
+        end)
+    end
+    local current=follow and follow.Position or target
+    local distance=(target-current).Magnitude
+    if distance>60 then current=target;velocity=Vector3.new() end
+    local steps=math.max(1,math.min(12,math.ceil(math.max(dt,0)*60)))
+    local h=math.min(math.max(dt,0),.2)/steps
+    for _=1,steps do
+        local acceleration=(target-current)*25-velocity*10
+        velocity=velocity+acceleration*h
+        current=current+velocity*h
+    end
+    local direction=Vector3.new(velocity.X,0,velocity.Z)
+    if direction.Magnitude<.1 then direction=Vector3.new(position.X-current.X,0,position.Z-current.Z) end
+    if direction.Magnitude<.001 then direction=Vector3.new(0,0,-1) end
+    local goal=CFrame.lookAt(current,current+direction.Unit)
+    if not floating then goal=goal*CFrame.new(0,math.sin(os.clock()*8)*math.min(velocity.Magnitude/14,1)*.08,0) end
+    return goal
 end
 local function update(dt)
     if character~=LocalPlayer.Character then clear();character=LocalPlayer.Character end
     local body=character and (character:FindFirstChild("HumanoidRootPart") or character:FindFirstChild("Torso"))
     if not enabled or not catalog[selected] or not body then clear();return end
-    if not model then
-        local source=originals.GetPet(selected)
-        if not source then lastError="Original pet template unavailable";return end
-        model=source:Clone()
-        model.Name="VisualsV2_ClientPet"
-        model:SetAttribute("VisualsV2_ClientPet",true)
-        model:SetAttribute("VisualsV2_ClientWeaponSkin",true)
-        root=model.PrimaryPart or model:FindFirstChildWhichIsA("BasePart",true)
-        if not root then clear();lastError="Original pet has no body";return end
-        local origin=root.CFrame
-        parts={}
-        for _,part in ipairs(model:GetDescendants()) do
-            if part:IsA("BasePart") then
-                part.Anchored=true;part.CanCollide=false;part.CanTouch=false;part.CanQuery=false
-                part.LocalTransparencyModifier=0
-                parts[#parts+1]={part=part,relative=origin:ToObjectSpace(part.CFrame)}
-            end
-        end
-        lastError=nil
+    local pet,petBody=nativePet()
+    local nativeId=pet and pet:IsA("StringValue") and pet.Value
+    if nativeId==selected or selected=="<3" and nativeId=="HeartBalloon" then
+        clear();motionMode="native-original";return
     end
-    local floating=catalog[selected].data.type~="Walking"
-    local bob=floating and math.sin(os.clock()*2.5)*0.25 or 0
-    local goal=body.CFrame*CFrame.new(3,floating and 0.8+bob or -1.6,3)
-    follow=follow and follow:Lerp(goal,1-math.exp(-math.max(dt,0)*9)) or goal
-    for _,record in ipairs(parts) do record.part.CFrame=follow*record.relative end
+    local nativeData=nativeId and catalog[nativeId] and catalog[nativeId].data
+    local compatible=petBody and nativeData and nativeData.type==catalog[selected].data.type
+    if not model and not spawnModel() then return end
+    if compatible then useNativeMotion(pet,petBody)
+    else
+        if nativeAnchor then
+            for _,record in ipairs(parts) do
+                if record.weld then record.weld:Destroy();record.weld=nil end
+                record.part.Anchored=true
+            end
+            nativeAnchor=nil
+        end
+        motionMode="spring"
+        follow=springGoal(body,catalog[selected].data.type~="Walking",dt)
+        for _,record in ipairs(parts) do record.part.CFrame=follow*record.relative end
+        hideNative(pet)
+    end
     if not model.Parent then model.Parent=workspace end
-    hideNative()
 end
 local function refresh()
     if heartbeat then heartbeat:Disconnect();heartbeat=nil end
     clear();character=LocalPlayer.Character
     if not alive or not runtimeAlive or not enabled or selected=="None" then return end
     update(0)
-    heartbeat=RunService.Heartbeat:Connect(function(dt)
-        if alive and runtimeAlive then update(dt) end
-    end)
+    heartbeat=RunService.Heartbeat:Connect(function(dt) if alive and runtimeAlive then update(dt) end end)
 end
 connections[#connections+1]=LocalPlayer.CharacterAdded:Connect(function() task.defer(refresh) end)
 env.VisualsV2Runtime.ClientPets={
@@ -10838,18 +11018,17 @@ env.VisualsV2Runtime.ClientPets={
         selected=id;SetCfg("vv2Pet",id);refresh();return true
     end,
     SetEnabled=function(value)
-        enabled=value==true and not mmv
-        SetCfg("vv2PetsEnabled",enabled);refresh();return true
+        enabled=value==true and not mmv;SetCfg("vv2PetsEnabled",enabled);refresh();return true
     end,
     GetState=function() return enabled,selected end,
     Refresh=refresh,
     GetDiagnostics=function()
-        return {enabled=enabled,selected=selected,rendered=model and model.Parent~=nil or false,error=lastError}
+        return {enabled=enabled,selected=selected,rendered=motionMode=="native-original" or model and model.Parent~=nil or false,
+            motion=motionMode,error=lastError}
     end,
 }
 env.VisualsV2Runtime.RegisterReset(function()
-    enabled=false;selected="None"
-    SetCfg("vv2PetsEnabled",false);SetCfg("vv2Pet","None");refresh()
+    enabled=false;selected="None";SetCfg("vv2PetsEnabled",false);SetCfg("vv2Pet","None");refresh()
     if not runtimeAlive then alive=false;for _,connection in ipairs(connections) do connection:Disconnect() end end
 end)
 refresh()
