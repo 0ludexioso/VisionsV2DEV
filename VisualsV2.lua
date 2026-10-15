@@ -263,7 +263,7 @@ end
 
 loadConfig()
 
-env.VisualsV2Runtime = {Resetters = {}, Build = "2026-10-15"}
+env.VisualsV2Runtime = {Resetters = {}, Build = "2026-10-15-skins-1"}
 env.VisualsV2Runtime.RegisterReset = function(callback)
     if type(callback) == "function" then table.insert(env.VisualsV2Runtime.Resetters, callback) end
 end
@@ -998,7 +998,7 @@ local animPresets = {
                 fall  = "http://www.roblox.com/asset/?id=138967706335414"
             },
             ["WDTL"] = {
-                idle1 = "http://www.roblox.com/asset/?id=92849173543269",
+idle1 = "http://www.roblox.com/asset/?id=92849173543269",
                 idle2 = "http://www.roblox.com/asset/?id=92849173543269",
                 walk  = "http://www.roblox.com/asset/?id=73718308412641",
                 run   = "http://www.roblox.com/asset/?id=135515454877967",
@@ -1998,7 +1998,7 @@ local function restoreForceFieldPart(part)
         local ok, material = pcall(function()
             return Enum.Material[materialName]
         end)
-        if ok and material then part.Material = material end
+if ok and material then part.Material = material end
     end
     if typeof(oldColor) == "Color3" then part.Color = oldColor end
     part:SetAttribute(FF_MATERIAL_ATTR, nil)
@@ -2998,7 +2998,7 @@ scheduleSide=function(state,side,delayTime)
                         applySideNow(state,side)
                     end
                 end)
-            end
+end
         end)
     end)
 end
@@ -3998,8 +3998,7 @@ local function setupSpeedButtons()
     big.Active=true
     big.Parent=gui
     speedButton=big
-
-    local corner=Instance.new("UICorner")
+local corner=Instance.new("UICorner")
     corner.CornerRadius=UDim.new(0,5)
     corner.Parent=big
     makeBigButtonDraggable(big)
@@ -4998,7 +4997,7 @@ local function appearance_apply(state,color)
         end
         part.Color=color;part.MaterialVariant=""
         if preset=="ForceField" then
-            part.Material=Enum.Material.ForceField
+part.Material=Enum.Material.ForceField
             if bombMask then
                 part.Reflectance=0
                 if data.texture~=nil then part.TextureID=BOMB_FORCEFIELD_TEXTURE end
@@ -7988,13 +7987,41 @@ local function decode(value,objects)
     if kind=="Instance" then return objects and objects[value.nodeId] end
     error("Unsupported captured visual type: "..tostring(kind))
 end
-local function create(record,id)
+local gripSources={Gun={
+    BlueHarvester="Harvester",BronzeHarvester="Harvester",SilverHarvester="Harvester",GoldHarvester="Harvester",
+    ElderwoodGunBlue="ElderwoodGun",ElderwoodGunBronze="ElderwoodGun",ElderwoodGunSilver="ElderwoodGun",ElderwoodGunGold="ElderwoodGun",
+    IcepiercerBronze="Icepiercer",IcepiercerSilver="Icepiercer",IcepiercerGold="Icepiercer",IcepiercerRed="Icepiercer",
+    RaygunBronze="Raygun",RaygunSilver="Raygun",RaygunGold="Raygun",RaygunRed="Raygun",RaygunChroma="Raygun",
+    Snowcannon="SnowcannonChroma",SnowcannonBronze="SnowcannonChroma",SnowcannonSilver="SnowcannonChroma",
+    SnowcannonGold="SnowcannonChroma",SnowcannonRed="SnowcannonChroma",
+},Knife={BlueCandy="Candy",BronzeCandy="Candy",SilverCandy="Candy",GoldCandy="Candy"}}
+local inheritedGrips={}
+local function weaponGrip(category,id,record)
+if record.grip then return record.grip end
+    for _,node in ipairs(record.nodes) do
+        if node.class=="Tool" and node.properties.Grip then return node.properties.Grip end
+    end
+    local source=gripSources[category] and gripSources[category][id]
+    if not source then return nil end
+    local key=category..":"..source
+    if not inheritedGrips[key] then
+        local factory=data.weapons[category][source]
+        local captured=type(factory)=="function" and factory() or factory
+        if captured then inheritedGrips[key]=weaponGrip(category,source,captured) end
+    end
+    return inheritedGrips[key]
+end
+local function create(record,id,category)
     local model=Instance.new("Model")
     model.Name="VisualsV2_Original_"..id
     local objects={}
-    if record.grip then model:SetAttribute("VisualsV2_CapturedGrip",decode(record.grip)) end
+    local weapon=category=="Gun" or category=="Knife"
+    local grip=weapon and weaponGrip(category,id,record) or record.grip
+    if grip then model:SetAttribute("VisualsV2_CapturedGrip",decode(grip)) end
     for _,node in ipairs(record.nodes) do
-        if allowed[node.class] then
+        local unnecessary=weapon and (node.class=="Sound" or node.class=="EqualizerSoundEffect"
+            or node.class=="Animation" or node.class=="BillboardGui" or node.class=="ImageLabel")
+        if allowed[node.class] and not unnecessary then
             local object=Instance.new(node.class=="MeshPart" and "Part" or node.class=="Tool" and "Folder" or node.class)
             object.Name=node.name
             objects[node.nodeId]=object
@@ -8045,7 +8072,7 @@ local function get(category,id,record)
     if not built[key] then
         local ok,object=pcall(function()
             if type(record)=="function" then record=record();recordLoads=recordLoads+1 end
-            return create(record,id)
+            return create(record,id,category)
         end)
         if not ok then failures[key]=tostring(object);return nil end
         object.Parent=cache;built[key]=object
@@ -8095,6 +8122,8 @@ local alive=true
 local catalog={Gun={},Knife={}}
 local connections={}
 local toolStates={}
+local changes=Instance.new("BindableEvent")
+local skinStats={clones=0,reuses=0,refreshes=0}
 local heartbeat=nil
 local hideFrame=nil
 local refreshTools,updateWatching
@@ -8968,7 +8997,7 @@ local staticMM2={
     {"Knife","SantasMagic",{["itemid"]=4535483042,["itemname"]="Santa's Magic",["itemtype"]="Knife",["rarity"]="Legendary",["year"]="2019"}},
     {"Knife","SantasSpirit",{["itemid"]=6123357775,["itemname"]="Santa's Spirit",["itemtype"]="Knife",["rarity"]="Legendary",["year"]="2020"}},
     {"Knife","Saw",{["itemid"]=235381341,["itemname"]="Saw",["itemtype"]="Knife",["rarity"]="Godly"}},
-    {"Knife","SawChroma",{["chroma"]=true,["itemid"]=3187392992,["itemname"]="Saw",["itemtype"]="Knife",["rarity"]="Godly"}},
+{"Knife","SawChroma",{["chroma"]=true,["itemid"]=3187392992,["itemname"]="Saw",["itemtype"]="Knife",["rarity"]="Godly"}},
     {"Knife","Scarf_K_2023",{["itemid"]=15415482999,["itemname"]="Scarf",["itemtype"]="Knife",["rarity"]="Common"}},
     {"Knife","Scratch",{["itemid"]=531873371,["itemname"]="Scratch",["itemtype"]="Knife",["rarity"]="Legendary",["year"]="2016"}},
     {"Knife","ScratchBlue",{["itemid"]=1133316381,["itemname"]="Scratch",["itemtype"]="Knife",["rarity"]="Legendary",["year"]="2017"}},
@@ -9414,7 +9443,8 @@ local function buildTemplate(entry)
     local capturedGrip=clone:GetAttribute("VisualsV2_CapturedGrip")
     local grip=typeof(capturedGrip)=="CFrame" and capturedGrip or typeof(data.grip)=="CFrame" and data.grip or nil
     local useToolGrip=typeof(capturedGrip)=="CFrame"
-    local scopeHold=isScope(entry) and originalHold(clone) or nil
+    local behavior=originals and originals.GetGunBehavior(entry.id)
+    local scopeHold=isScope(entry) and (behavior and assetId(behavior.hold) or originalHold(clone)) or nil
     if clone:IsA("Tool") then grip=clone.Grip;useToolGrip=true end
     local ancestor=root.Parent
     while ancestor and ancestor~=clone do
@@ -9490,7 +9520,8 @@ local function templateFor(entry)
                 for candidate,value in pairs(cache) do
                     local selected=false
                     for _,state in pairs(kinds) do
-                        if candidate==state.key:gsub("^client","")..":"..state.selected then selected=true end
+                        local kind=state==kinds.Gun and "Gun" or "Knife"
+                        if candidate==kind..":"..state.selected then selected=true end
                     end
                     if not selected and value.lastUsed<oldestTime then oldestKey,oldestTime=candidate,value.lastUsed end
                 end
@@ -9528,7 +9559,12 @@ local function stopScopeHold(state)
     state.hold=nil
     if not hold then return end
     if hold.died then hold.died:Disconnect() end
-    for track,weight in pairs(hold.suppressed) do
+    if hold.played then hold.played:Disconnect() end
+    if hold.poseConnection then hold.poseConnection:Disconnect() end
+    for motor,transform in pairs(hold.motors or {}) do
+        pcall(function() motor.Transform=transform end)
+    end
+    for track,weight in pairs(hold.suppressed or {}) do
         pcall(function() if track.IsPlaying then track:AdjustWeight(weight,0.12) end end)
     end
     if hold.owned then
@@ -9634,11 +9670,13 @@ end
 local function scopeCacheKey(rig)
     return "nativeScopeHold_"..tostring(game.GameId).."_"..rig
 end
-local function resolveScopeHold(tool,humanoid,rig)
+local function resolveScopeHold(tool,humanoid,rig,templateHold)
     local rejected=rejectedScopeHolds[rig] or {}
     rejectedScopeHolds[rig]=rejected
     local native=nativeScopeId(tool,humanoid)
     if native and (not rejected[native] or rejected[native]<=os.clock()) then return native end
+    if humanoid.RigType==Enum.HumanoidRigType.R15 and templateHold
+        and (not rejected[templateHold] or rejected[templateHold]<=os.clock()) then return templateHold end
     if not mmv and humanoid.RigType==Enum.HumanoidRigType.R15
         and (not rejected[ORIGINAL_SCOPE_HOLD] or rejected[ORIGINAL_SCOPE_HOLD]<=os.clock()) then return ORIGINAL_SCOPE_HOLD end
     if nativeScopeHolds[rig] and (mmv or nativeScopeHolds[rig]~=MMV_SCOPE_HOLD) and (not rejected[nativeScopeHolds[rig]] or rejected[nativeScopeHolds[rig]]<=os.clock()) then return nativeScopeHolds[rig] end
@@ -9686,6 +9724,36 @@ local function resolveScopeHold(tool,humanoid,rig)
     if humanoid.RigType==Enum.HumanoidRigType.R15 and (not rejected[ORIGINAL_SCOPE_HOLD] or rejected[ORIGINAL_SCOPE_HOLD]<=os.clock()) then return ORIGINAL_SCOPE_HOLD end
 end
 
+local function r6ScopeHold(tool,state,humanoid)
+    local character=humanoid.Parent
+    local hold=state.hold
+    if hold and hold.pose and hold.character==character then return end
+    stopScopeHold(state)
+    local torso=character:FindFirstChild("Torso")
+    local right=torso and torso:FindFirstChild("Right Shoulder")
+    local left=torso and torso:FindFirstChild("Left Shoulder")
+    if not right or not left or not right:IsA("Motor6D") or not left:IsA("Motor6D") then
+        state.holdError="Waiting for the R6 shoulder joints"
+        return
+    end
+    hold={pose=true,character=character,motors={[right]=right.Transform,[left]=left.Transform},suppressed={}}
+    state.hold=hold;state.holdError=nil
+    local rightRotation=CFrame.Angles(math.rad(90),math.rad(-8),math.rad(-6))
+    local leftRotation=CFrame.Angles(math.rad(80),math.rad(32),math.rad(12))
+    local rotations={[right]=rightRotation,[left]=leftRotation}
+    local function pose()
+        if state.hold~=hold or tool.Parent~=character or humanoid.Health<=0 then return end
+        for motor,rotation in pairs(rotations) do
+            if motor.Parent then
+                motor.Transform=motor.C0:Inverse()*CFrame.new(motor.C0.Position)*rotation*motor.C1.Rotation
+            end
+        end
+    end
+    hold.poseConnection=RunService.PreSimulation:Connect(pose)
+    hold.died=humanoid.Died:Connect(function() if state.hold==hold then stopScopeHold(state) end end)
+    pose()
+end
+
 local function updateScopeHold(tool,state,entry)
     local character=player.Character
     local humanoid=character and character:FindFirstChildOfClass("Humanoid")
@@ -9695,7 +9763,11 @@ local function updateScopeHold(tool,state,entry)
         return
     end
     local rig=tostring(humanoid.RigType)
-    local id=resolveScopeHold(tool,humanoid,rig)
+    if humanoid.RigType==Enum.HumanoidRigType.R6 then
+        r6ScopeHold(tool,state,humanoid)
+        return
+    end
+    local id=resolveScopeHold(tool,humanoid,rig,state.scopeTemplateHold)
     if not id then
         state.holdError=state.holdError or "The original scope animation has not been found in this game."
         if state.hold or state.holdPending then stopScopeHold(state) end
@@ -9704,7 +9776,6 @@ local function updateScopeHold(tool,state,entry)
     local signature=state.applied..":"..id
     local hold=state.hold
     if hold and hold.animator==animator and hold.signature==signature and hold.track.IsPlaying then
-        suppressToolHold(tool,hold)
         return
     end
     local pending=state.holdPending
@@ -9792,15 +9863,15 @@ local function updateScopeHold(tool,state,entry)
         hold.died=humanoid.Died:Connect(function()
             if state.hold==hold then stopScopeHold(state) end
         end)
+        hold.played=animator.AnimationPlayed:Connect(function(track)
+            if state.hold==hold and track~=hold.track then suppressToolHold(tool,hold) end
+        end)
         suppressToolHold(tool,hold)
     end)
 end
-local function restoreVisuals(state)
-    stopScopeHold(state)
-    state.holdRetry=nil
-    state.scopeTemplateHold=nil
-    if state.model then state.model:Destroy(); state.model=nil end
+local function restoreOriginals(state)
     for object,record in pairs(state.originals) do
+        if record.connection then record.connection:Disconnect() end
         pcall(function()
             local value=record.value
             local effects=env.VisualsV2Runtime.ClientKnifeEffects
@@ -9810,12 +9881,26 @@ local function restoreVisuals(state)
     end
     table.clear(state.originals)
     state.nativeDirty=true
+end
+local function parkVisuals(state)
+    if not state.model or state.model.Parent==nil then return end
+    stopScopeHold(state)
+    state.model.Parent=nil
+    restoreOriginals(state)
+end
+local function restoreVisuals(state)
+    stopScopeHold(state)
+    state.holdRetry=nil
+    state.scopeTemplateHold=nil
+    if state.model then state.model:Destroy(); state.model=nil end
+    restoreOriginals(state)
     if state.nativeConnection then state.nativeConnection:Disconnect();state.nativeConnection=nil end
     state.applied=nil
     state.handle=nil
     state.appliedGrip=nil
     state.chromaTargets=nil
     state.parts=nil
+    state.welds=nil
 end
 
 local function chromaTargets(model,root)
@@ -9848,6 +9933,22 @@ local function updateChroma(state)
     end
 end
 
+local function hideObject(object,state,property,value,original)
+    local record=state.originals[object]
+    if not record then
+        record={property=property,value=original==nil and object[property] or original}
+        state.originals[object]=record
+        record.connection=object:GetPropertyChangedSignal(property):Connect(function()
+            if not record.writing and state.model and state.model.Parent and object[property]~=value then
+                record.writing=true;object[property]=value;record.writing=false
+            end
+        end)
+    end
+    if object[property]~=value then
+        record.writing=true;object[property]=value;record.writing=false
+    end
+end
+
 local function hideOriginals(tool,state)
     if state.nativeDirty==false then return end
     state.nativeDirty=false
@@ -9860,16 +9961,16 @@ local function hideOriginals(tool,state)
                 or object:IsA("Fire") or object:IsA("Smoke") or object:IsA("Sparkles")
                 or object:IsA("Light") or (object:IsA("BillboardGui") and object.Name=="CantShoot") then property,value="Enabled",false end
             if property then
+                local original
                 if not state.originals[object] then
-                    local original=object[property]
+                    original=object[property]
                     local effects=env.VisualsV2Runtime.ClientKnifeEffects
                     if property=="Enabled" and effects then
                         local value=effects.GetOriginalEnabled(object)
                         if value~=nil then original=value end
                     end
-                    state.originals[object]={property=property,value=original}
                 end
-                pcall(function() object[property]=value end)
+                hideObject(object,state,property,value,original)
             end
         end
     end
@@ -9890,21 +9991,53 @@ local function actualKind(tool)
     end
 end
 
+local function equippedGrip(tool,handle,state)
+    local joint=state.gripJoint
+    if not joint or not joint.Parent or joint.Part1~=handle then
+        joint=nil
+        local character=player.Character
+        local hand=character and (character:FindFirstChild("RightHand") or character:FindFirstChild("Right Arm"))
+for _,container in pairs({hand,handle}) do
+            for _,candidate in ipairs(container:GetChildren()) do
+                if candidate:IsA("JointInstance") and candidate.Name=="RightGrip" and candidate.Part1==handle then
+                    joint=candidate;break
+                end
+            end
+            if joint then break end
+        end
+        if state.gripConnection then state.gripConnection:Disconnect();state.gripConnection=nil end
+        state.gripJoint=joint
+        if joint and state.onChanged then state.gripConnection=joint:GetPropertyChangedSignal("C1"):Connect(state.onChanged) end
+    end
+    return joint and joint.C1 or tool.Grip
+end
+
 local function apply(tool,state)
     local kind=actualKind(tool)
     local settings=kind and kinds[kind]
     local entry=settings and catalog[kind][settings.selected]
-    if not settings or not settings.enabled or not entry or not localTool(tool) or tool.Parent~=player.Character then
+    if not settings or not settings.enabled or not entry or not localTool(tool) then
         if state.model or state.hold or state.holdPending then restoreVisuals(state) end
         return
     end
+    if tool.Parent~=player.Character then parkVisuals(state);return end
     local handle=visualRoot(tool)
     if not handle or not handle:IsA("BasePart") then state.blocked="No usable weapon handle";restoreVisuals(state);return end
     local nativeAttachment=gripAttachment(handle)
-    local nativeGrip=state.useToolGrip and tool.Grip or nativeAttachment and nativeAttachment.CFrame or tool.Grip
+    local nativeGrip=state.useToolGrip and equippedGrip(tool,handle,state) or nativeAttachment and nativeAttachment.CFrame or tool.Grip
     local signature=cacheKey(entry)..":"..entry.revision
-    if state.applied==signature and state.handle==handle and state.appliedGrip==nativeGrip
-        and state.model and state.model.Parent==player.Character then
+    if state.applied==signature and state.handle==handle and state.model then
+        if state.appliedGrip~=nativeGrip then
+            local delta=nativeGrip*state.appliedGrip:Inverse()
+            for _,weld in ipairs(state.welds or {}) do weld.C0=delta*weld.C0 end
+            state.appliedGrip=nativeGrip
+        end
+        if state.model.Parent~=player.Character then
+            state.model.Parent=player.Character
+            state.nativeDirty=true
+            hideOriginals(tool,state)
+            skinStats.reuses=skinStats.reuses+1
+        end
         updateScopeHold(tool,state,entry)
         return
     end
@@ -9917,14 +10050,16 @@ local function apply(tool,state)
     state.blocked=nil
     local model=cloneObject(template.model)
     if not model then return end
+    skinStats.clones=skinStats.clones+1
     local root=model.PrimaryPart or visualRoot(model)
     if not root then model:Destroy(); return end
     local origin=root.CFrame
-    nativeGrip=template.useToolGrip and tool.Grip or nativeAttachment and nativeAttachment.CFrame or tool.Grip
+    nativeGrip=template.useToolGrip and equippedGrip(tool,handle,state) or nativeAttachment and nativeAttachment.CFrame or tool.Grip
     local targetGrip=template.useToolGrip and template.grip or template.attachmentGrip or template.grip
     local offset=targetGrip and nativeGrip*targetGrip:Inverse() or CFrame.new()
     local partCount=0
     local parts={}
+    local welds={}
     for _,part in ipairs(model:GetDescendants()) do
         if part:IsA("BasePart") then
             local relative=offset*origin:ToObjectSpace(part.CFrame)
@@ -9935,6 +10070,7 @@ local function apply(tool,state)
             weld.Name="VisualsV2_ClientSkinWeld"
             weld.Part0=handle; weld.Part1=part; weld.C0=relative; weld.C1=CFrame.new()
             weld.Parent=part
+            welds[#welds+1]=weld
             partCount=partCount+1;parts[#parts+1]=part
         end
     end
@@ -9944,6 +10080,7 @@ local function apply(tool,state)
     model:SetAttribute("WeaponID",entry.id)
     state.model=model; state.handle=handle; state.applied=signature
     state.parts=parts
+    state.welds=welds
     state.appliedGrip=nativeGrip
     state.useToolGrip=template.useToolGrip
     state.scopeTemplateHold=template.scopeHold
@@ -9958,6 +10095,7 @@ local function forgetTool(tool)
     local state=toolStates[tool]
     if not state then return end
     toolStates[tool]=nil
+    if state.gripConnection then state.gripConnection:Disconnect() end
     for _,connection in ipairs(state.connections) do connection:Disconnect() end
     restoreVisuals(state)
 end
@@ -9977,12 +10115,13 @@ local function trackTool(tool)
                 state.queued=false
                 if alive and runtimeAlive and toolStates[tool]==state then
                     if localTool(tool) then
-                        if state.model then hideOriginals(tool,state) end
+                        if state.model and state.model.Parent then hideOriginals(tool,state) end
                         guarded("Apply "..tool.Name,apply,tool,state)
                     else forgetTool(tool) end
                 end
             end)
         end
+        state.onChanged=changed
         state.connections[1]=tool.DescendantAdded:Connect(changed)
         state.connections[2]=tool.DescendantRemoving:Connect(changed)
         state.connections[3]=tool.AncestryChanged:Connect(function() changed() end)
@@ -10021,10 +10160,7 @@ local function hideHolsterOriginal(state)
     if not original then return end
     hideOriginals(original,state)
     if original:IsA("BasePart") then
-        if not state.originals[original] then
-            state.originals[original]={property="LocalTransparencyModifier",value=original.LocalTransparencyModifier}
-        end
-        original.LocalTransparencyModifier=1
+        hideObject(original,state,"LocalTransparencyModifier",1)
     end
 end
 
@@ -10108,6 +10244,7 @@ end
 
 refreshTools=function()
     if not alive or not runtimeAlive then return end
+    skinStats.refreshes=skinStats.refreshes+1
     guarded("Refresh holsters",refreshHolsters)
     if not kinds.Gun.enabled and not kinds.Knife.enabled then
         for tool in pairs(toolStates) do forgetTool(tool) end
@@ -10137,35 +10274,30 @@ updateWatching=function()
     local elapsed=0
     heartbeat=RunService.Heartbeat:Connect(function(dt)
         elapsed=elapsed+math.max(tonumber(dt) or 0,0)
-        if elapsed>=0.25 then elapsed=0; refreshTools() end
+        if elapsed>=0.75 then elapsed=0; refreshTools() end
     end)
+    local colorAt=0
     hideFrame=RunService.RenderStepped:Connect(function()
+        local now=os.clock()
+        local colorDue=now-colorAt>=1/30
+        if colorDue then colorAt=now end
         for _,state in pairs(holsters) do
             if state.model then
-                updateChroma(state)
+                if colorDue then updateChroma(state) end
                 local alpha=state.body.LocalTransparencyModifier
-                for _,part in ipairs(state.parts or {}) do
-                    if part.Parent and part.LocalTransparencyModifier~=alpha then part.LocalTransparencyModifier=alpha end
-                end
-                for object,record in pairs(state.originals) do
-                    pcall(function()
-                        if record.property=="Enabled" then
-                            if object.Enabled then object.Enabled=false end
-                        elseif object[record.property]~=1 then object[record.property]=1 end
-                    end)
+                if state.alpha~=alpha then
+                    state.alpha=alpha
+                    for _,part in ipairs(state.parts or {}) do
+                        if part.Parent and part.LocalTransparencyModifier~=alpha then part.LocalTransparencyModifier=alpha end
+                    end
                 end
             end
         end
         for tool,state in pairs(toolStates) do
-            if state.model then updateChroma(state) end
             if state.model and tool.Parent==player.Character then
+                if colorDue then updateChroma(state) end
                 for _,part in ipairs(state.parts or {}) do
                     if part.Parent and part.LocalTransparencyModifier~=0 then part.LocalTransparencyModifier=0 end
-                end
-                for object,record in pairs(state.originals) do
-                    pcall(function()
-                        if record.property=="Enabled" then object.Enabled=false else object[record.property]=1 end
-                    end)
                 end
             end
         end
@@ -10214,11 +10346,37 @@ for kind,entries in pairs(catalog) do
     if kinds[kind].selected~=NONE and not entries[kinds[kind].selected] then kinds[kind].selected=NONE end
 end
 
-connections[#connections+1]=player.CharacterAdded:Connect(function()
-    task.defer(function() if alive and runtimeAlive then refreshTools() end end)
-end)
+local containerConnections={}
+local function scheduleTools()
+    if not alive or not runtimeAlive or containerConnections.queued then return end
+    containerConnections.queued=true
+    task.defer(function()
+        containerConnections.queued=false
+        if alive and runtimeAlive then refreshTools() end
+    end)
+end
+local function bindContainers()
+    for key,connection in pairs(containerConnections) do
+        if key~="queued" then connection:Disconnect();containerConnections[key]=nil end
+    end
+    for _,container in pairs({player.Character,player:FindFirstChildOfClass("Backpack")}) do
+        containerConnections[#containerConnections+1]=container.ChildAdded:Connect(function(object)
+            if object:IsA("Tool") or object.Name:find("Display",1,true) then scheduleTools() end
+        end)
+        containerConnections[#containerConnections+1]=container.ChildRemoved:Connect(function(object)
+            if object:IsA("Tool") or object.Name:find("Display",1,true) then scheduleTools() end
+        end)
+        if container==player.Character then
+            containerConnections[#containerConnections+1]=container.DescendantAdded:Connect(function(object)
+                if object.Name=="RightGrip" or object:IsA("Humanoid") or object:IsA("Animator") then scheduleTools() end
+            end)
+        end
+    end
+    scheduleTools()
+end
+connections[#connections+1]=player.CharacterAdded:Connect(bindContainers)
 connections[#connections+1]=player.ChildAdded:Connect(function(child)
-    if child:IsA("Backpack") then task.defer(function() if alive and runtimeAlive then refreshTools() end end) end
+    if child:IsA("Backpack") then bindContainers() end
 end)
 connections[#connections+1]=game:GetService("ReplicatedStorage").DescendantAdded:Connect(function(object)
     if object:IsA("Animation") then storageScopeScanned=false end
@@ -10240,6 +10398,7 @@ connections[#connections+1]=game:GetService("ReplicatedStorage").DescendantAdded
 end)
 env.VisualsV2Runtime.ClientWeaponSkins={
     Catalog=catalog,
+    Changed=changes.Event,
     GetKind=actualKind,
     GetVisualRoot=visualRoot,
     GetModel=function(tool)
@@ -10248,7 +10407,7 @@ env.VisualsV2Runtime.ClientWeaponSkins={
     end,
     GetNativeHolster=function(kind) return nativeHolster(player.Character,kind) end,
     GetDiagnostics=function()
-        local report={errors=table.clone(recentErrors),weapons={}}
+        local report={build="2026-10-15-skins-1",stats=table.clone(skinStats),errors=table.clone(recentErrors),weapons={}}
         for kind,settings in pairs(kinds) do
             local entry=catalog[kind][settings.selected]
             local key=entry and cacheKey(entry)
@@ -10263,7 +10422,8 @@ env.VisualsV2Runtime.ClientWeaponSkins={
                     item.tools[#item.tools+1]={path=objectPath(tool),name=tool.Name,
                         equipped=tool.Parent==player.Character,rendered=value.model and value.model.Parent~=nil or false,
                         handle=objectPath(visualRoot(tool)),blocked=value.blocked,holdError=value.holdError,
-                        holdAnimation=value.hold and value.hold.track.Animation.AnimationId or nil}
+                        holdAnimation=value.hold and (value.hold.pose and "R6 scope pose"
+                            or value.hold.track and value.hold.track.Animation and value.hold.track.Animation.AnimationId) or nil}
                 end
             end
             local holster=holsters[kind]
@@ -10283,6 +10443,7 @@ env.VisualsV2Runtime.ClientWeaponSkins={
         state.enabled=value==true and (not mmv or kind=="Gun")
         SetCfg(state.key.."Enabled",state.enabled)
         updateWatching()
+        changes:Fire(kind)
         return true
     end,
     Select=function(kind,id)
@@ -10293,6 +10454,7 @@ env.VisualsV2Runtime.ClientWeaponSkins={
         if entry then failed[cacheKey(entry)]=nil end
         SetCfg(state.key.."Skin",id)
         refreshTools()
+        changes:Fire(kind)
         return true
     end,
     GetState=function(kind)
@@ -10332,6 +10494,8 @@ env.VisualsV2Runtime.RegisterReset(function()
     updateWatching()
     if not runtimeAlive then
         alive=false
+        for key,connection in pairs(containerConnections) do if key~="queued" then connection:Disconnect() end end
+        changes:Destroy()
         for _,connection in ipairs(connections) do connection:Disconnect() end
         for kind in pairs(holsters) do clearHolster(kind) end
         for _,template in pairs(cache) do template.model:Destroy() end
@@ -10339,6 +10503,7 @@ env.VisualsV2Runtime.RegisterReset(function()
         table.clear(nativeScopeHolds)
     end
 end)
+bindContainers()
 updateWatching()
 end)()
 
@@ -11197,12 +11362,27 @@ end
 local function routeNativeAudio(record)
     if record.writing then return end
     local sound,state=record.sound,record.state
+    if record.kind=="Reload" and state.suppressReload then
+        record.writing=true
+        if record.saved.Volume==nil then record.saved.Volume=sound.Volume end
+        sound.Volume=0;record.applied.Volume=0
+        record.writing=false
+        return
+    end
     local settings=record.kind=="Shot" and state.behavior.shoot or state.behavior.reload
     if not settings then return end
     local id=assetId(sound.SoundId)
-    local customName=sound.Name:lower()=="altsound" or sound.Name:lower()=="customreload"
+    if record.kind=="Shot" then
+        local applied=assetId(record.applied.SoundId)
+        if (applied or record.externalShot) and id~=applied and id~=record.nativeId and id~=vanillaAssets.Shot then
+            record.externalShot=id
+            restoreNativeAudio(record)
+            return
+        end
+        record.externalShot=nil
+    end
     local native=id and (id==vanillaAssets[record.kind] or id==assetId(record.applied.SoundId)
-        or customName and nativeAssets[record.kind][id])
+        or nativeAssets[record.kind][id])
     if not native then restoreNativeAudio(record);return end
     record.writing=true
     for _,key in ipairs(soundProperties) do
@@ -11278,6 +11458,13 @@ local function makeSound(state,kind,settings)
     end
     sound.Parent=state.audioHost
     state.overlays[kind]=sound
+    task.spawn(function()
+        if states[state.tool]~=state or not sound.Parent then return end
+        local ok,reason=pcall(function() game:GetService("ContentProvider"):PreloadAsync({sound}) end)
+        if states[state.tool]==state and (not ok or not sound.IsLoaded) then
+            state.soundError=kind.." "..sound.SoundId..": "..tostring(ok and "Asset was not loaded" or reason)
+        end
+    end)
 end
 local function audible(state,kind)
     if state.tool.Parent==LocalPlayer.Character then return true end
@@ -11287,7 +11474,12 @@ end
 local function confirmed(state,kind,source,authorized)
     if states[state.tool]~=state or not authorized and not audible(state,kind) then return end
     local now=os.clock()
-    if kind=="Shot" then state.shotAt=now end
+    if kind=="Shot" then
+        if now-(state.shotAt or -math.huge)>0.12 and now-(state.remoteAt or -math.huge)>0.12 then
+            state.shotCycle=(state.shotCycle or 0)+1
+        end
+        state.shotAt=now
+    end
     local settings=kind=="Shot" and state.behavior.shoot or state.behavior.reload
     if not settings then return end
     if source==nil then
@@ -11306,6 +11498,11 @@ local function confirmed(state,kind,source,authorized)
     local pending=state.pending[kind]
     if pending then if source then pending.sources[source]=true end;return end
     if now-(state.lastPlay[kind] or -math.huge)<0.12 then return end
+    if kind=="Reload" then
+        local cycle=state.shotCycle or 0
+        if state.reloadCycle==cycle and now-(state.reloadDispatchedAt or -math.huge)<6 then return end
+        state.reloadCycle=cycle;state.reloadDispatchedAt=now
+    end
     pending={sources={}}
     if source then pending.sources[source]=true end
     state.pending[kind]=pending
@@ -11313,10 +11510,10 @@ local function confirmed(state,kind,source,authorized)
         if states[state.tool]~=state or state.pending[kind]~=pending then return end
         state.pending[kind]=nil
         state.lastPlay[kind]=os.clock()
-        for sound in pairs(pending.sources) do
-            if assetId(sound.SoundId)==assetId(settings.SoundId)
-                and math.abs((tonumber(sound.PlaybackSpeed) or 1)-(tonumber(settings.PlaybackSpeed) or 1))<0.001 then return end
-        end
+        -- A source here is an ODH/custom sound that is already allowed to play.
+        -- Native sounds are intercepted and submit false, so they cannot consume
+        -- this dispatch and then be stopped by their Played listener.
+        if next(pending.sources) then return end
         local sound=state.overlays[kind]
         if sound and sound.Parent then
             local ok,err=pcall(function() sound.TimePosition=0;sound:Play() end)
@@ -11330,13 +11527,16 @@ local function configureObject(tool,state,object)
         local name=object.Name:lower():gsub("[^%w]","")
         local kind=shotNames[name] and "Shot" or reloadNames[name] and "Reload"
         if kind then
-            local record={sound=object,state=state,kind=kind,saved={},applied={}}
+            local record={sound=object,state=state,kind=kind,saved={},applied={},nativeId=assetId(object.SoundId)}
             state.sounds[object]=record;nativeSounds[object]=record
             routeNativeAudio(record)
             state.connections[#state.connections+1]=object.Played:Connect(function()
                 if states[tool]~=state or not audible(state,kind) then return end
                 local settings=kind=="Shot" and state.behavior.shoot or state.behavior.reload
-                if settings and (kind=="Reload" or assetId(object.SoundId)==assetId(settings.SoundId)) then
+                local id=assetId(object.SoundId)
+                local nativeShot=kind=="Shot" and id and record.externalShot~=id and (id==vanillaAssets.Shot or nativeAssets.Shot[id]
+                    or settings and id==assetId(settings.SoundId))
+                if kind=="Reload" and state.suppressReload or nativeShot then
                     pcall(function() object:Stop() end)
                     confirmed(state,kind,false)
                 else confirmed(state,kind,object) end
@@ -11344,6 +11544,11 @@ local function configureObject(tool,state,object)
             state.connections[#state.connections+1]=object:GetPropertyChangedSignal("SoundId"):Connect(function()
                 if states[tool]==state then routeNativeAudio(record) end
             end)
+            if kind=="Reload" and state.suppressReload then
+                state.connections[#state.connections+1]=object:GetPropertyChangedSignal("Volume"):Connect(function()
+                    if states[tool]==state then routeNativeAudio(record) end
+                end)
+            end
         end
     elseif object:IsA("RemoteEvent") and (object.Name=="Shoot" or object.Name=="ShootGun") then
         shotRemotes[object]=state;state.remotes[object]=true
@@ -11353,9 +11558,9 @@ local function configureObject(tool,state,object)
 end
 local function installAudioTransport()
     local bridge=env.VisualsV2GunAudioBridge
-    if type(bridge)~="table" or bridge.version~=2 then
+    if type(bridge)~="table" or bridge.version~=3 then
         if type(bridge)=="table" then bridge.handler=nil end
-        bridge={version=2,dispatchers=setmetatable({}, {__mode="k"})}
+        bridge={version=3,dispatchers=setmetatable({}, {__mode="k"}),methods={}}
         env.VisualsV2GunAudioBridge=bridge
     end
     audioTransport=bridge
@@ -11399,23 +11604,47 @@ local function installAudioTransport()
         end
         if not record or not audible(record.state,record.kind) then return end
         local state,kind=record.state,record.kind
-        local replacement
         local settings=kind=="Shot" and state.behavior.shoot or state.behavior.reload
-        if not settings then return end
-        if kind=="Reload" then
-            local now=os.clock()
-            local elapsed=now-(state.reloadDispatchedAt or -math.huge)
-            if state.shotCycle and state.reloadCycle==state.shotCycle and elapsed<6
-                or not state.shotCycle and elapsed<0.8 then return "skip" end
-            state.reloadDispatchedAt=now;state.reloadCycle=state.shotCycle
-            replacement=state.overlays[kind]
-        elseif assetId(sound.SoundId)==vanillaAssets[kind]
-            or method=="Play" and assetId(sound.SoundId)==assetId(settings.SoundId) then
-            replacement=state.overlays[kind]
-        end
         state.nativeCalls[kind]=state.nativeCalls[kind]+1
-        confirmed(state,kind,replacement or sound)
-        if replacement then return method=="Play" and "self" or "sound",replacement end
+        if kind=="Reload" then
+            if not state.suppressReload then return end
+            state.suppressedReloads=(state.suppressedReloads or 0)+1
+            confirmed(state,kind,false)
+            return "skip"
+        end
+        if not settings then return end
+        local id=assetId(sound.SoundId)
+        if id and record.externalShot~=id and (id==vanillaAssets.Shot or nativeAssets.Shot[id] or id==assetId(settings.SoundId)) then
+            confirmed(state,kind,false)
+            return "skip"
+        end
+        confirmed(state,kind,sound)
+    end
+    local functionHook=hookfunction or env.hookfunction
+    local closure=newcclosure or env.newcclosure
+    if type(functionHook)=="function" and not bridge.methodsAttempted then
+        bridge.methodsAttempted=true
+        local sample=Instance.new("Sound")
+        for _,method in ipairs({"Play","PlayLocalSound"}) do
+            local target=method=="Play" and sample.Play or soundService.PlayLocalSound
+            local previousMethod
+            local wrapper=function(object,...)
+                local handler=bridge.handler
+                if not handler then return previousMethod(object,...) end
+                local thread=coroutine.running() or bridge
+                if bridge.dispatchers[thread] then return previousMethod(object,...) end
+                bridge.dispatchers[thread]=true
+                local ok,action=pcall(handler,object,method,...)
+                bridge.dispatchers[thread]=nil
+                if not ok then bridge.error=tostring(action) end
+                if ok and action=="skip" then return end
+                return previousMethod(object,...)
+            end
+            if type(closure)=="function" then wrapper=closure(wrapper) end
+            local ok,result=pcall(functionHook,target,wrapper)
+            if ok and type(result)=="function" then previousMethod=result;bridge.methods[method]=true end
+        end
+        sample:Destroy()
     end
     if bridge.ready then return end
     local namecall=getnamecallmethod or env.getnamecallmethod
@@ -11454,7 +11683,6 @@ local function installAudioTransport()
         if ok and action=="skip" then return end
         return previous(object,...)
     end
-    local closure=newcclosure or env.newcclosure
     if type(closure)=="function" then wrapper=closure(wrapper) end
     local ok,result=pcall(hook,game,"__namecall",wrapper)
     if ok and type(result)=="function" then previous=result;bridge.ready=true;bridge.error=nil
@@ -11492,14 +11720,18 @@ local function update()
         end
     end
     for tool,state in pairs(states) do
-        if not current[tool] or state.id~=id then clear(tool,enabled and state.id==id) end
+        if not current[tool] or state.id~=id or state.handle~=tool:FindFirstChild("Handle",true) then
+            clear(tool,enabled and state.id==id)
+        end
     end
     for tool in pairs(current) do
         local state=states[tool]
         if not state then
             local handle=tool:FindFirstChild("Handle",true)
             if handle and handle:IsA("BasePart") then
-                state={id=id,tool=tool,handle=handle,behavior=behavior,saved={},created={},connections={},
+                local scope=id:lower():find("scope",1,true)~=nil
+                state={id=id,tool=tool,handle=handle,behavior=behavior,suppressReload=scope or behavior.reload~=nil,
+                    saved={},created={},connections={},
                     sounds=setmetatable({}, {__mode="k"}),remotes={},overlays={},pending={},evidence={},lastPlay={},
                     plays={Shot=0,Reload=0},nativeCalls={Shot=0,Reload=0}}
                 states[tool]=state
@@ -11647,6 +11879,31 @@ local function watchRemoteRoot(root)
 end
 for _,root in ipairs(storage:GetChildren()) do watchRemoteRoot(root) end
 connections[#connections+1]=storage.ChildAdded:Connect(watchRemoteRoot)
+local audioContainerConnections={}
+local audioQueued=false
+local function scheduleAudio()
+    if audioQueued or not alive or not runtimeAlive then return end
+    audioQueued=true
+    task.defer(function() audioQueued=false;if alive and runtimeAlive then update() end end)
+end
+local function bindAudioContainers()
+    for _,connection in ipairs(audioContainerConnections) do connection:Disconnect() end
+    table.clear(audioContainerConnections)
+    for _,container in pairs({LocalPlayer.Character,LocalPlayer:FindFirstChildOfClass("Backpack")}) do
+        audioContainerConnections[#audioContainerConnections+1]=container.ChildAdded:Connect(scheduleAudio)
+        audioContainerConnections[#audioContainerConnections+1]=container.ChildRemoved:Connect(scheduleAudio)
+        audioContainerConnections[#audioContainerConnections+1]=container.DescendantAdded:Connect(function(object)
+            if object.Name=="Handle" or object:IsA("Animator") then scheduleAudio() end
+        end)
+    end
+    scheduleAudio()
+end
+connections[#connections+1]=skins.Changed:Connect(scheduleAudio)
+connections[#connections+1]=LocalPlayer.CharacterAdded:Connect(bindAudioContainers)
+connections[#connections+1]=LocalPlayer.ChildAdded:Connect(function(object)
+    if object:IsA("Backpack") then bindAudioContainers() end
+end)
+bindAudioContainers()
 connections[#connections+1]=workspace.DescendantAdded:Connect(function(object)
     if not alive or not runtimeAlive or not object:IsA("Beam") then return end
     if object.Name=="VisualsV2_ShotBeam" then return end
@@ -11688,7 +11945,7 @@ connections[#connections+1]=RunService.Heartbeat:Connect(function(dt)
         end
     end
     elapsed=elapsed+dt
-    if elapsed>=0.15 then elapsed=0;update() end
+    if elapsed>=0.75 then elapsed=0;update() end
 end)
 env.VisualsV2Runtime.GunCosmetics={Refresh=update,GetAudioSource=function(tool,kind)
     local state=states[tool]
@@ -11704,6 +11961,8 @@ end,GetDiagnostics=function()
         customReload=state.behavior.reload~=nil,customBeam=state.behavior.beam~=nil,
         inputs=state.inputs or 0,shotPlays=state.plays.Shot,reloadPlays=state.plays.Reload,tracers=state.tracers or 0,
         remoteShots=state.remoteShots or 0,nativeShotCalls=state.nativeCalls.Shot,nativeReloadCalls=state.nativeCalls.Reload,
+        suppressedReloads=state.suppressedReloads or 0,suppressReload=state.suppressReload,
+        directAudioMethods=audioTransport and audioTransport.methods,
         visualShots=state.visualShots or 0,audioOutsideTool=state.audioHost and state.audioHost.Parent==soundService or false,
         nativeAudioReady=audioTransport and audioTransport.ready or false,nativeAudioError=audioTransport and audioTransport.error,
         shot=audio(state.overlays.Shot),reload=audio(state.overlays.Reload),soundError=state.soundError} end
@@ -11715,6 +11974,7 @@ env.VisualsV2Runtime.RegisterReset(function()
         alive=false
         if audioTransport then audioTransport.handler=nil end
         for _,connection in ipairs(connections) do connection:Disconnect() end
+        for _,connection in ipairs(audioContainerConnections) do connection:Disconnect() end
     end
 end)
 update()
@@ -11737,7 +11997,7 @@ local stats={scans=0,toolWrites=0,imageWrites=0}
 local refresh,schedule
 
 local function imageKey(value)
-    value=tostring(value or ""):lower()
+value=tostring(value or ""):lower()
     return value:match("rbxassetid://(%d+)") or value:match("[?&]assetid=(%d+)")
         or value:match("[?&]id=(%d+)") or value:match("^%s*(%d+)%s*$") or value
 end
@@ -12021,7 +12281,8 @@ local ownedCache={}
 local inventoryModule=nil
 local profile=nil
 local controls={}
-local stats={filterRuns=0,builds=0,cardsCreated=0,cardsRemoved=0,uiPolls=0,discoveries=0,publishYields=0}
+local stats={filterRuns=0,builds=0,cardsCreated=0,cardsRemoved=0,uiPolls=0,discoveries=0,publishYields=0,imagesLoaded=0}
+local loadVisibleImages
 local definitions={
     Gun={label=mmv and "Matrixscope / Voidscope" or "Guns",key=mmv and "clientScopeEnabled" or "clientGunEnabled",entries=skins.Catalog.Gun},
     Knife={label="Knives",key="clientKnifeEnabled",entries=skins.Catalog.Knife},
@@ -12208,7 +12469,7 @@ local function itemsFor(main,kind)
     return child(category,"Items") or child(category,"ItemList") or category
 end
 
-local function fill(frame,data)
+local function fill(frame,data,lazyImage)
     local title=child(frame,"ItemName")
     local label=child(title,"Label")
     local coloured=child(title,"ColoredName")
@@ -12224,7 +12485,10 @@ local function fill(frame,data)
         if label then label.Visible=true;label.TextColor3=Color3.new(1,1,1) end
         if coloured then coloured.Visible=false end
     end
-    if icon then icon.Image=image(data.Image);preloadImage(icon.Image) end
+    if icon then
+        icon.Image=lazyImage and "" or image(data.Image)
+        if not lazyImage then preloadImage(icon.Image) end
+    end
     if amount then amount.Text="" end
     local tags=child(frame,"Tags")
     if tags then
@@ -12296,6 +12560,27 @@ local function removePreview(record,kind)
     disconnect(preview.connections)
     pcall(function() preview.frame:Destroy() end)
     if preview.original.Parent and preview.original.Visible==false then preview.original.Visible=preview.visible end
+end
+
+local function watchImages(record,target)
+    local viewport=target
+    while viewport and viewport~=record.main and not viewport:IsA("ScrollingFrame") do viewport=viewport.Parent end
+    if not viewport or not viewport:IsA("ScrollingFrame") then return nil end
+    if not record.imageWatches[viewport] then
+        record.imageWatches[viewport]=true
+        local function changed()
+            if record.imageQueued then return end
+            record.imageQueued=true
+            task.delay(0.04,function()
+                record.imageQueued=false
+                if alive and runtimeAlive and records[record.main]==record and loadVisibleImages then loadVisibleImages(record) end
+            end)
+        end
+        for _,property in ipairs({"CanvasPosition","AbsoluteSize"}) do
+            record.imageConnections[#record.imageConnections+1]=viewport:GetPropertyChangedSignal(property):Connect(changed)
+        end
+    end
+    return viewport
 end
 
 local function watchCanvas(record,target)
@@ -12427,6 +12712,27 @@ local function categoryOpen(record,kind)
     return visible(categoryFor(record.main,kind))
 end
 
+loadVisibleImages=function(record)
+    if not record.open then return end
+    for _,card in pairs(record.cards) do
+        if not card.imageLoaded and card.frame.Parent==card.target and card.frame.Visible and categoryOpen(record,card.kind) then
+            local viewport=card.viewport
+            local within=true
+            if viewport then
+                local p,size=card.frame.AbsolutePosition,card.frame.AbsoluteSize
+                local origin,bounds=viewport.AbsolutePosition,viewport.AbsoluteSize
+                local margin=math.max(size.Y,64)
+                within=size.Y>0 and p.Y+size.Y>=origin.Y-margin and p.Y<=origin.Y+bounds.Y+margin
+                    and p.X+size.X>=origin.X-margin and p.X<=origin.X+bounds.X+margin
+            end
+            if within and card.icon then
+                card.icon.Image=image(card.data.Image)
+                card.imageLoaded=true;stats.imagesLoaded=stats.imagesLoaded+1
+            end
+        end
+    end
+end
+
 local function updatePreviews(record)
     for kind in pairs(definitions) do
         if categoryOpen(record,kind) then updatePreview(record,kind) else removePreview(record,kind) end
@@ -12438,7 +12744,7 @@ local function cacheFilters(record)
     record.filterConnections={}
     record.filterRefs={}
     local function changed()
-        record.filterDirty=true
+        record.filterDirty=true;record.dirty=true
         if schedule then schedule() end
     end
     for _,name in ipairs({"Weapons","Effects","Pets"}) do
@@ -12479,16 +12785,20 @@ local function readFilters(record)
     end
 end
 
-local function applyCardFilter(record,card)
-    local filter=record.filters and record.filters[(card.kind=="Effects" or card.kind=="Pets") and card.kind or "Weapons"]
-    if not filter then return end
+local function matchesFilter(record,kind,data)
+    local filter=record.filters and record.filters[(kind=="Effects" or kind=="Pets") and kind or "Weapons"]
+    if not filter then return true end
     local query=filter.query
-    local show=query=="" or card.data.ItemName:lower():find(query,1,true)~=nil
-    if filter.modern and card.kind~="Effects" and card.kind~="Pets" and query=="" and filter.class then
-        local class=card.data.InventoryClass
+    local show=query=="" or data.ItemName:lower():find(query,1,true)~=nil
+    if filter.modern and kind~="Effects" and kind~="Pets" and query=="" and filter.class then
+        local class=data.InventoryClass
         if class=="Christmas" or class=="Halloween" then class="Event" end
         show=class==filter.class
     end
+    return show
+end
+local function applyCardFilter(record,card)
+    local show=matchesFilter(record,card.kind,card.data)
     if card.frame.Visible~=show then card.settingVisible=true;card.frame.Visible=show;card.settingVisible=false end
 end
 
@@ -12498,6 +12808,7 @@ local function filterCards(record)
     for _,card in pairs(record.cards) do applyCardFilter(record,card) end
     record.filterDirty=false
     updatePreviews(record)
+    loadVisibleImages(record)
 end
 
 local function addCard(record,kind,entry)
@@ -12516,13 +12827,14 @@ local function addCard(record,kind,entry)
     frame.Name="VisualsV2_"..kind.."_"..entry.id
     frame:SetAttribute("WeaponID",entry.id)
     frame:SetAttribute("VisualKind",kind)
-    fill(frame,data)
+    fill(frame,data,true)
     local rarityOrder={Unique=1,Ancient=2,Secret=2,Classic=3,Godly=4,Legendary=5,Rare=6,Uncommon=7,Common=8}
     frame.LayoutOrder=entry.games and (entry.id=="Matrixscope" and -2000000 or -1999999)
         or (rarityOrder[data.Rarity] or 9)*100000+(entry.order or 0)
     local button=child(child(frame,"Container"),"ActionButton")
     if not button or not button:IsA("GuiButton") then frame:Destroy();record.waiting[kind]="Item button unavailable";return end
-    local card={kind=kind,id=entry.id,frame=frame,data=data,target=target,connections={},canvas=watchCanvas(record,target)}
+    local card={kind=kind,id=entry.id,frame=frame,data=data,target=target,connections={},canvas=watchCanvas(record,target),
+        viewport=watchImages(record,target),icon=child(child(frame,"Container"),"Icon")}
     record.cards[key]=card
     stats.cardsCreated=stats.cardsCreated+1
     card.connections[1]=button.Activated:Connect(function()
@@ -12542,7 +12854,7 @@ local function addCard(record,kind,entry)
         if not card.settingVisible and alive and runtimeAlive then applyCardFilter(record,card) end
     end)
     applyCardFilter(record,card)
-    frame.Parent=record.staging
+    frame.Parent=card.target
 end
 
 local function imageKey(value)
@@ -12612,7 +12924,7 @@ end
 
 local function updateRecord(record)
     local isOpen=visible(record.main)
-    if record.open~=isOpen then record.filterDirty=true end
+    if record.open~=isOpen then record.filterDirty=true;if isOpen then record.dirty=true end end
     record.open=isOpen
     if record.dirty then
         table.clear(ownedCache)
@@ -12625,6 +12937,8 @@ local function updateRecord(record)
     if record.filterDirty then filterCards(record)
     elseif isOpen then updatePreviews(record) end
     if not isOpen then for kind in pairs(record.previews) do removePreview(record,kind) end end
+    if not isOpen then return end
+    loadVisibleImages(record)
     if record.building or not record.dirty then return end
     record.dirty=false;record.building=true;record.waiting={}
     stats.builds=stats.builds+1
@@ -12634,7 +12948,7 @@ local function updateRecord(record)
         local started=os.clock()
         for _,kind in ipairs({"Gun","Knife","Effects","Pets"}) do
             local definition=definitions[kind]
-            if enabled(kind) then
+            if enabled(kind) and categoryOpen(record,kind) then
                 if not definition.sorted then
                     definition.sorted={}
                     for _,entry in pairs(definition.entries) do definition.sorted[#definition.sorted+1]=entry end
@@ -12644,12 +12958,15 @@ local function updateRecord(record)
                 end
                 for index,entry in ipairs(definition.sorted) do
                     if not alive or not runtimeAlive or generation~=record.generation or not record.main.Parent then return end
-                    if not enabled(kind) then break end
+                    if not visible(record.main) then record.building=false;record.dirty=true;return end
+                    if not enabled(kind) or not categoryOpen(record,kind) then break end
                     entry.order=index
-                    if not nativeOwns(kind,entry.id) and not record.cards[kind..":"..entry.id] then
+                    if not nativeOwns(kind,entry.id) and not record.cards[kind..":"..entry.id]
+                        and matchesFilter(record,kind,info(kind,entry)) then
                         addCard(record,kind,entry);count=count+1
                     end
                     if count>=24 or os.clock()-started>=0.003 then
+                        loadVisibleImages(record)
                         count=0;task.wait(0.02);started=os.clock()
                     end
                 end
@@ -12680,6 +12997,7 @@ local function forgetRecord(record)
     if record.staging then record.staging:Destroy() end
     disconnect(record.filterConnections or {})
     disconnect(record.visibilityConnections or {})
+disconnect(record.imageConnections or {})
     for kind,template in pairs(record.templates) do template:Destroy();record.templates[kind]=nil end
 end
 
@@ -12691,7 +13009,7 @@ local function discover()
             local main=child(object,"Main")
             if main and child(main,"Weapons") and not records[main] then
                 local record={main=main,cards={},previews={},canvases={},templates={},waiting={},generation=0,
-                    building=false,dirty=true,open=false,filterDirty=true,visibilityConnections={}}
+                    building=false,dirty=true,open=false,filterDirty=true,visibilityConnections={},imageWatches={},imageConnections={}}
                 record.staging=Instance.new("Folder")
                 record.staging.Name="VisualsV2_InventoryBuild"
                 records[main]=record
@@ -14679,7 +14997,6 @@ task.spawn(function()
 end)
 env.VisualsV2Runtime.RegisterReset(function() toggle:Set(false); enabled=false; alive=false end)
 end)()
-
 ;(function()
 local section=mainTab:AddSection("Coin Aura","Utilities")
 local enabled=C("coinAuraEnabled",false)
@@ -15679,7 +15996,7 @@ local TAP_TIME_THRESHOLD = 0.3
 
 BombJumpMaid:GiveTasks(
     Services.UserInputService.InputBegan:Connect(function(input, gp)
-        if gp then return end
+if gp then return end
         if input.UserInputType == Enum.UserInputType.Touch or input.UserInputType == Enum.UserInputType.MouseButton1 then
             activeTouches[input] = {startPosition = input.Position, startTime = tick(), moved = false}
         end
@@ -16678,7 +16995,6 @@ worldSection:AddSlider("Exposure",-2,5,exposure,function(value)
 end)
 
 if fullbrightEnabled then applyFullbright() else disableFullbright() end
-
 local fogSection=mainTab:AddSection("Fog","World")
 fogEnabled=C("fogEnabled",false)
 local fogRainbow=C("fogRainbow",false)
@@ -17679,7 +17995,7 @@ local function ensureMonitorStatistic()
     SetCfg("vv2FpsPingShowFps",true)
     pcall(function()
         shared.Notify("Error: Enable at least one statistic, or turn off Monitor UI. FPS has been enabled.",4)
-    end)
+end)
     task.defer(function()
         if showFps and fpsToggle then fpsToggle:Set(true) end
     end)
