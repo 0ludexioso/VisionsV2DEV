@@ -6635,7 +6635,7 @@ if not scopeOnly then data.gunBehavior["IcepiercerBronze"]={["shoot"]={["RollOff
 if not scopeOnly then data.gunBehavior["IcepiercerGold"]={["shoot"]={["RollOffMode"]="Enum.RollOffMode.Inverse",["PlaybackSpeed"]=1.39999998,["RollOffMaxDistance"]=10000,["Volume"]=1,["SoundId"]="rbxassetid://7808472682",["RollOffMinDistance"]=10},["beam"]={["Enabled"]=true,["FaceCamera"]=false,["Color"]={["points"]={{["value"]={["v"]={1,0.84695202,0.29245442},["type"]="Color3"},["time"]=0},{["value"]={["v"]={1,0.84695202,0.29245442},["type"]="Color3"},["time"]=1}},["type"]="ColorSequence"},["Segments"]=10,["Transparency"]={["points"]={{["value"]=0.5,["time"]=0,["envelope"]=0},{["value"]=0.5,["time"]=1,["envelope"]=0}},["type"]="NumberSequence"},["Width0"]=0.2,["Width1"]=0.2,["LightEmission"]=0.5,["CurveSize1"]=0,["CurveSize0"]=0,["Texture"]=""},["animations"]={}} end
 if not scopeOnly then data.gunBehavior["IcepiercerRed"]={["shoot"]={["RollOffMinDistance"]=10,["RollOffMode"]="Enum.RollOffMode.Inverse",["PlaybackSpeed"]=1.39999998,["RollOffMaxDistance"]=10000,["Volume"]=1,["SoundId"]="rbxassetid://7808472682"},["beam"]={["Enabled"]=true,["FaceCamera"]=false,["Color"]={["type"]="ColorSequence",["points"]={{["value"]={["type"]="Color3",["v"]={1,0,0}},["time"]=0},{["value"]={["type"]="Color3",["v"]={1,0,0}},["time"]=1}}},["Width0"]=0.2,["Transparency"]={["type"]="NumberSequence",["points"]={{["value"]=0.5,["time"]=0,["envelope"]=0},{["value"]=0.5,["time"]=1,["envelope"]=0}}},["Segments"]=10,["Width1"]=0.2,["LightEmission"]=0.5,["CurveSize0"]=0,["CurveSize1"]=0,["Texture"]=""},["animations"]={}} end
 if not scopeOnly then data.gunBehavior["IcepiercerSilver"]={["shoot"]={["RollOffMinDistance"]=10,["RollOffMode"]="Enum.RollOffMode.Inverse",["PlaybackSpeed"]=1.39999998,["RollOffMaxDistance"]=10000,["Volume"]=1,["SoundId"]="rbxassetid://7808472682"},["beam"]={["Enabled"]=true,["FaceCamera"]=false,["Color"]={["type"]="ColorSequence",["points"]={{["value"]={["type"]="Color3",["v"]={0.82745099,0.83529413,0.83529413}},["time"]=0},{["value"]={["type"]="Color3",["v"]={0.82745099,0.83529413,0.83529413}},["time"]=1}}},["Width0"]=0.2,["Transparency"]={["type"]="NumberSequence",["points"]={{["value"]=0.5,["time"]=0,["envelope"]=0},{["value"]=0.5,["time"]=1,["envelope"]=0}}},["Segments"]=10,["Width1"]=0.2,["LightEmission"]=0.5,["CurveSize0"]=0,["CurveSize1"]=0,["Texture"]=""},["animations"]={}} end
-data.gunBehavior["Matrixscope"]={["shoot"]={["RollOffMinDistance"]=9.17886162,["RollOffMode"]="Enum.RollOffMode.Inverse",["PlaybackSpeed"]=0.80000001,["RollOffMaxDistance"]=9178.86230469,["Volume"]=0.5,["SoundId"]="rbxassetid://130113370",["equalizer"]={["Enabled"]=true,["LowGain"]=-5,["HighGain"]=0,["MidGain"]=0,["Priority"]=0}},["reload"]={["RollOffMinDistance"]=9.17886162,["RollOffMode"]="Enum.RollOffMode.Inverse",["PlaybackSpeed"]=1,["RollOffMaxDistance"]=9178.86230469,["Volume"]=0.5,["SoundId"]="rbxassetid://130113322",["equalizer"]={["Enabled"]=true,["LowGain"]=-5,["HighGain"]=0,["MidGain"]=0,["Priority"]=0}},["beam"]={["Enabled"]=true,["FaceCamera"]=false,["Color"]={["type"]="ColorSequence",["points"]={{["value"]={["type"]="Color3",["v"]={0,1,0}},["time"]=0},{["value"]={["type"]="Color3",["v"]={0,1,0}},["time"]=1}}},["Width0"]=0.2,["Transparency"]={["type"]="NumberSequence",["points"]={{["value"]=0,["time"]=0,["envelope"]=0},{["value"]=0,["time"]=1,["envelope"]=0}}},["Segments"]=10,["Width1"]=0.2,["LightEmission"]=0.5,["CurveSize0"]=0,["CurveSize1"]=0,["Texture"]=""},["hold"]="rbxassetid://134818020160275",["animations"]={["CustomHold"]="rbxassetid://134818020160275",["Shoot"]="rbxassetid://124281955370937",["Reload"]="rbxassetid://127786188145385"}}
+data.gunBehavior["Matrixscope"]={["shoot"]={["RollOffMode"]="Enum.RollOffMode.Inverse",["PlaybackSpeed"]=0.80000001,["RollOffMaxDistance"]=9178.86230469,["Volume"]=0.5,["SoundId"]="rbxassetid://130113322",["RollOffMinDistance"]=9.17886162,["equalizer"]={["Enabled"]=true,["LowGain"]=-5,["HighGain"]=0,["MidGain"]=0,["Priority"]=0}},["reload"]={["RollOffMode"]="Enum.RollOffMode.Inverse",["PlaybackSpeed"]=0.64999998,["RollOffMaxDistance"]=9178.86230469,["Volume"]=0.5,["SoundId"]="rbxassetid://130113370",["RollOffMinDistance"]=9.17886162,["equalizer"]={["Enabled"]=true,["LowGain"]=-5,["HighGain"]=0,["MidGain"]=0,["Priority"]=0}},["beam"]={["Enabled"]=true,["FaceCamera"]=false,["Color"]={["type"]="ColorSequence",["points"]={{["value"]={["type"]="Color3",["v"]={0,1,0}},["time"]=0},{["value"]={["type"]="Color3",["v"]={0,1,0}},["time"]=1}}},["Width0"]=0.2,["Transparency"]={["type"]="NumberSequence",["points"]={{["value"]=0,["time"]=0,["envelope"]=0},{["value"]=0,["time"]=1,["envelope"]=0}}},["Segments"]=10,["Width1"]=0.2,["LightEmission"]=0.5,["CurveSize0"]=0,["CurveSize1"]=0,["Texture"]=""},["hold"]="rbxassetid://134818020160275",["animations"]={["CustomHold"]="rbxassetid://134818020160275",["Shoot"]="rbxassetid://124281955370937",["Reload"]="rbxassetid://127786188145385"}}
 if not scopeOnly then data.gunBehavior["Raygun"]={["shoot"]={["RollOffMode"]="Enum.RollOffMode.Inverse",["PlaybackSpeed"]=1.39999998,["RollOffMaxDistance"]=10000,["Volume"]=1,["SoundId"]="rbxassetid://76985543647435",["RollOffMinDistance"]=10,["equalizer"]={["Enabled"]=true,["LowGain"]=-5,["HighGain"]=0,["MidGain"]=0,["Priority"]=0}},["beam"]={["Enabled"]=true,["FaceCamera"]=false,["Color"]={["points"]={{["value"]={["v"]={0,1,0},["type"]="Color3"},["time"]=0},{["value"]={["v"]={0,1,0},["type"]="Color3"},["time"]=1}},["type"]="ColorSequence"},["Segments"]=10,["Transparency"]={["points"]={{["value"]=0.5,["time"]=0,["envelope"]=0},{["value"]=0.5,["time"]=1,["envelope"]=0}},["type"]="NumberSequence"},["Width0"]=0.2,["Width1"]=0.2,["LightEmission"]=0.5,["CurveSize1"]=0,["CurveSize0"]=0,["Texture"]=""},["animations"]={["Shoot"]="rbxassetid://124281955370937",["Reload"]="rbxassetid://127786188145385"}} end
 if not scopeOnly then data.gunBehavior["RaygunBronze"]={["shoot"]={["RollOffMinDistance"]=10,["RollOffMode"]="Enum.RollOffMode.Inverse",["PlaybackSpeed"]=1.39999998,["RollOffMaxDistance"]=10000,["Volume"]=1,["SoundId"]="rbxassetid://76985543647435",["equalizer"]={["Enabled"]=true,["LowGain"]=-5,["HighGain"]=0,["MidGain"]=0,["Priority"]=0}},["beam"]={["Enabled"]=true,["FaceCamera"]=false,["Color"]={["type"]="ColorSequence",["points"]={{["value"]={["type"]="Color3",["v"]={1,0.3921569,0}},["time"]=0},{["value"]={["type"]="Color3",["v"]={1,0.3921569,0}},["time"]=1}}},["Width0"]=0.2,["Transparency"]={["type"]="NumberSequence",["points"]={{["value"]=0.5,["time"]=0,["envelope"]=0},{["value"]=0.5,["time"]=1,["envelope"]=0}}},["Segments"]=10,["Width1"]=0.2,["LightEmission"]=0.5,["CurveSize0"]=0,["CurveSize1"]=0,["Texture"]=""},["animations"]={}} end
 if not scopeOnly then data.gunBehavior["RaygunChroma"]={["shoot"]={["RollOffMode"]="Enum.RollOffMode.Inverse",["PlaybackSpeed"]=1.60000002,["RollOffMaxDistance"]=10000,["Volume"]=1,["SoundId"]="rbxassetid://76985543647435",["RollOffMinDistance"]=10,["equalizer"]={["Enabled"]=true,["LowGain"]=-5,["HighGain"]=0,["MidGain"]=0,["Priority"]=0}},["beam"]={["Enabled"]=true,["FaceCamera"]=false,["Color"]={["points"]={{["value"]={["v"]={1,0,0.01568628},["type"]="Color3"},["time"]=0},{["value"]={["v"]={0.66666669,0,0.61176473},["type"]="Color3"},["time"]=0.183391},{["value"]={["v"]={0,0,0.77254903},["type"]="Color3"},["time"]=0.39100346},{["value"]={["v"]={0,1,0.96862745},["type"]="Color3"},["time"]=0.6193772},{["value"]={["v"]={0,0.65098041,0.04313726},["type"]="Color3"},["time"]=0.80449831},{["value"]={["v"]={1,0.93333334,0},["type"]="Color3"},["time"]=1}},["type"]="ColorSequence"},["Segments"]=10,["Transparency"]={["points"]={{["value"]=0.5,["time"]=0,["envelope"]=0},{["value"]=0.5,["time"]=1,["envelope"]=0}},["type"]="NumberSequence"},["Width0"]=0.2,["Width1"]=0.2,["LightEmission"]=0.5,["CurveSize1"]=0,["CurveSize0"]=0,["Texture"]=""},["animations"]={}} end
@@ -6651,7 +6651,7 @@ end)()
 if not scopeOnly then data.gunBehavior["SnowcannonGold"]={["shoot"]={["RollOffMinDistance"]=10,["RollOffMode"]="Enum.RollOffMode.Inverse",["PlaybackSpeed"]=1.39999998,["RollOffMaxDistance"]=10000,["Volume"]=0.5,["SoundId"]="rbxassetid://138706272607549"},["beam"]={["Enabled"]=true,["FaceCamera"]=false,["Color"]={["type"]="ColorSequence",["points"]={{["value"]={["type"]="Color3",["v"]={0.9889372,0.85192645,0}},["time"]=0},{["value"]={["type"]="Color3",["v"]={0.9889372,0.85192645,0}},["time"]=1}}},["Width0"]=0.5,["Transparency"]={["type"]="NumberSequence",["points"]={{["value"]=0.40000001,["time"]=0,["envelope"]=0},{["value"]=0.40000001,["time"]=1,["envelope"]=0}}},["Segments"]=10,["Width1"]=0.5,["LightEmission"]=0.5,["CurveSize0"]=0,["CurveSize1"]=0,["Texture"]=""},["animations"]={}} end
 if not scopeOnly then data.gunBehavior["SnowcannonRed"]={["shoot"]={["RollOffMinDistance"]=10,["RollOffMode"]="Enum.RollOffMode.Inverse",["PlaybackSpeed"]=1.39999998,["RollOffMaxDistance"]=10000,["Volume"]=0.5,["SoundId"]="rbxassetid://138706272607549"},["beam"]={["Enabled"]=true,["FaceCamera"]=false,["Color"]={["type"]="ColorSequence",["points"]={{["value"]={["type"]="Color3",["v"]={1,0,0}},["time"]=0},{["value"]={["type"]="Color3",["v"]={1,0,0}},["time"]=1}}},["Width0"]=0.5,["Transparency"]={["type"]="NumberSequence",["points"]={{["value"]=0.40000001,["time"]=0,["envelope"]=0},{["value"]=0.40000001,["time"]=1,["envelope"]=0}}},["Segments"]=10,["Width1"]=0.5,["LightEmission"]=0.5,["CurveSize0"]=0,["CurveSize1"]=0,["Texture"]=""},["animations"]={}} end
 if not scopeOnly then data.gunBehavior["SnowcannonSilver"]={["shoot"]={["RollOffMinDistance"]=10,["RollOffMode"]="Enum.RollOffMode.Inverse",["PlaybackSpeed"]=1.39999998,["RollOffMaxDistance"]=10000,["Volume"]=0.5,["SoundId"]="rbxassetid://138706272607549"},["beam"]={["Enabled"]=true,["FaceCamera"]=false,["Color"]={["type"]="ColorSequence",["points"]={{["value"]={["type"]="Color3",["v"]={0.88505381,0.92541391,0.99165332}},["time"]=0},{["value"]={["type"]="Color3",["v"]={0.88505381,0.92541391,0.99165332}},["time"]=1}}},["Width0"]=0.5,["Transparency"]={["type"]="NumberSequence",["points"]={{["value"]=0.40000001,["time"]=0,["envelope"]=0},{["value"]=0.40000001,["time"]=1,["envelope"]=0}}},["Segments"]=10,["Width1"]=0.5,["LightEmission"]=0.5,["CurveSize0"]=0,["CurveSize1"]=0,["Texture"]=""},["animations"]={}} end
-data.gunBehavior["Voidscope"]={["shoot"]={["RollOffMode"]="Enum.RollOffMode.Inverse",["PlaybackSpeed"]=0.64999998,["RollOffMaxDistance"]=9178.86230469,["Volume"]=0.5,["SoundId"]="rbxassetid://130113370",["RollOffMinDistance"]=9.17886162,["equalizer"]={["Enabled"]=true,["LowGain"]=-5,["HighGain"]=0,["MidGain"]=0,["Priority"]=0}},["reload"]={["RollOffMode"]="Enum.RollOffMode.Inverse",["PlaybackSpeed"]=0.80000001,["RollOffMaxDistance"]=9178.86230469,["Volume"]=0.5,["SoundId"]="rbxassetid://130113322",["RollOffMinDistance"]=9.17886162,["equalizer"]={["Enabled"]=true,["LowGain"]=-5,["HighGain"]=0,["MidGain"]=0,["Priority"]=0}},["beam"]={["Enabled"]=true,["FaceCamera"]=false,["Color"]={["points"]={{["value"]={["v"]={1,1,1},["type"]="Color3"},["time"]=0},{["value"]={["v"]={1,1,1},["type"]="Color3"},["time"]=1}},["type"]="ColorSequence"},["Segments"]=10,["Transparency"]={["points"]={{["value"]=0,["time"]=0,["envelope"]=0},{["value"]=0,["time"]=1,["envelope"]=0}},["type"]="NumberSequence"},["Width0"]=0.2,["Width1"]=0.2,["LightEmission"]=0.5,["CurveSize1"]=0,["CurveSize0"]=0,["Texture"]=""},["hold"]="rbxassetid://134818020160275",["animations"]={["CustomHold"]="rbxassetid://134818020160275",["Shoot"]="rbxassetid://124281955370937",["Reload"]="rbxassetid://127786188145385"},["flicker"]={["interval"]=0.01666667,["colors"]={{["type"]="ColorSequence",["points"]={{["time"]=0,["value"]={["type"]="Color3",["v"]={1,1,1}}},{["time"]=1,["value"]={["type"]="Color3",["v"]={1,1,1}}}}},{["type"]="ColorSequence",["points"]={{["time"]=0,["value"]={["type"]="Color3",["v"]={0,0,0}}},{["time"]=1,["value"]={["type"]="Color3",["v"]={0,0,0}}}}}}}}
+data.gunBehavior["Voidscope"]={["shoot"]={["RollOffMinDistance"]=9.17886162,["RollOffMode"]="Enum.RollOffMode.Inverse",["PlaybackSpeed"]=1,["RollOffMaxDistance"]=9178.86230469,["Volume"]=0.5,["SoundId"]="rbxassetid://130113322",["equalizer"]={["Enabled"]=true,["LowGain"]=-5,["HighGain"]=0,["MidGain"]=0,["Priority"]=0}},["reload"]={["RollOffMinDistance"]=9.17886162,["RollOffMode"]="Enum.RollOffMode.Inverse",["PlaybackSpeed"]=0.80000001,["RollOffMaxDistance"]=9178.86230469,["Volume"]=0.5,["SoundId"]="rbxassetid://130113370",["equalizer"]={["Enabled"]=true,["LowGain"]=-5,["HighGain"]=0,["MidGain"]=0,["Priority"]=0}},["beam"]={["Enabled"]=true,["FaceCamera"]=false,["Color"]={["points"]={{["value"]={["v"]={1,1,1},["type"]="Color3"},["time"]=0},{["value"]={["v"]={1,1,1},["type"]="Color3"},["time"]=1}},["type"]="ColorSequence"},["Segments"]=10,["Transparency"]={["points"]={{["value"]=0,["time"]=0,["envelope"]=0},{["value"]=0,["time"]=1,["envelope"]=0}},["type"]="NumberSequence"},["Width0"]=0.2,["Width1"]=0.2,["LightEmission"]=0.5,["CurveSize1"]=0,["CurveSize0"]=0,["Texture"]=""},["hold"]="rbxassetid://134818020160275",["animations"]={["CustomHold"]="rbxassetid://134818020160275",["Shoot"]="rbxassetid://124281955370937",["Reload"]="rbxassetid://127786188145385"},["flicker"]={["interval"]=0.01666667,["colors"]={{["type"]="ColorSequence",["points"]={{["time"]=0,["value"]={["type"]="Color3",["v"]={1,1,1}}},{["time"]=1,["value"]={["type"]="Color3",["v"]={1,1,1}}}}},{["type"]="ColorSequence",["points"]={{["time"]=0,["value"]={["type"]="Color3",["v"]={0,0,0}}},{["time"]=1,["value"]={["type"]="Color3",["v"]={0,0,0}}}}}}}}
 end)()
 ;(function()
 if not scopeOnly then data.metadata.Gun["Ace"]={["image"]="http://www.roblox.com/Thumbs/Asset.ashx?format=png&width=250&height=250&assetId=238546577",["itemid"]=238546577,["rarity"]="Rare",["itemname"]="Ace"} end
@@ -9634,9 +9634,9 @@ local function resolveScopeHold(tool,humanoid,rig)
     rejectedScopeHolds[rig]=rejected
     local native=nativeScopeId(tool,humanoid)
     if native and (not rejected[native] or rejected[native]<=os.clock()) then return native end
-    if nativeScopeHolds[rig] and (not rejected[nativeScopeHolds[rig]] or rejected[nativeScopeHolds[rig]]<=os.clock()) then return nativeScopeHolds[rig] end
+    if nativeScopeHolds[rig] and (mmv or nativeScopeHolds[rig]~=ORIGINAL_SCOPE_HOLD) and (not rejected[nativeScopeHolds[rig]] or rejected[nativeScopeHolds[rig]]<=os.clock()) then return nativeScopeHolds[rig] end
     local saved=assetId(C(scopeCacheKey(rig),nil))
-    if saved and (not rejected[saved] or rejected[saved]<=os.clock()) then nativeScopeHolds[rig]=saved;return saved end
+    if saved and (mmv or saved~=ORIGINAL_SCOPE_HOLD) and (not rejected[saved] or rejected[saved]<=os.clock()) then nativeScopeHolds[rig]=saved;return saved end
     if os.clock()-lastNativeScopeScan>=1 then
         lastNativeScopeScan=os.clock()
         for _,owner in ipairs(game:GetService("Players"):GetPlayers()) do
@@ -9676,7 +9676,7 @@ local function resolveScopeHold(tool,humanoid,rig)
         end
     end
     end
-    if mmv and humanoid.RigType==Enum.HumanoidRigType.R15 and (not rejected[ORIGINAL_SCOPE_HOLD] or rejected[ORIGINAL_SCOPE_HOLD]<=os.clock()) then return ORIGINAL_SCOPE_HOLD end
+    if humanoid.RigType==Enum.HumanoidRigType.R15 and (not rejected[ORIGINAL_SCOPE_HOLD] or rejected[ORIGINAL_SCOPE_HOLD]<=os.clock()) then return ORIGINAL_SCOPE_HOLD end
 end
 
 local function updateScopeHold(tool,state,entry)
@@ -11138,6 +11138,11 @@ local alive=true
 local states={}
 local connections={}
 local liveBeams={}
+local nativeSounds=setmetatable({}, {__mode="k"})
+local shotRemotes=setmetatable({}, {__mode="k"})
+local nativeAssets={Shot={},Reload={}}
+local vanillaAssets={Shot="10209803",Reload="4753414199"}
+local audioTransport
 local soundProperties={"SoundId","Volume","PlaybackSpeed","RollOffMinDistance","RollOffMaxDistance","RollOffMode"}
 local beamProperties={"Color","Texture","Width0","Width1","LightEmission","LightInfluence","Transparency",
     "TextureLength","TextureMode","TextureSpeed","Segments","CurveSize0","CurveSize1"}
@@ -11145,6 +11150,15 @@ local shotNames={gunshot=true,altsound=true,shoot=true,shotsound=true,shootsound
 local reloadNames={reload=true,customreload=true,reloadsound=true}
 local function assetId(value)
     return tostring(value or ""):match("(%d+)")
+end
+for id in pairs(originals.Metadata.Gun or {}) do
+    local behavior=originals.GetGunBehavior(id)
+    if behavior then
+        for kind,key in pairs({Shot="shoot",Reload="reload"}) do
+            local id=behavior[key] and assetId(behavior[key].SoundId)
+            if id then nativeAssets[kind][id]=true end
+        end
+    end
 end
 local function owned(object,tool)
     while object and object~=tool do
@@ -11162,16 +11176,50 @@ local function write(state,object,key,value)
         object[key]=originals.Decode(value)
     end)
 end
+local function restoreNativeAudio(record)
+    record.writing=true
+    for key,value in pairs(record.saved or {}) do
+        pcall(function() if record.sound[key]==record.applied[key] then record.sound[key]=value end end)
+    end
+    record.saved={};record.applied={}
+    record.writing=false
+end
+local function routeNativeAudio(record)
+    if record.writing then return end
+    local sound,state=record.sound,record.state
+    local settings=record.kind=="Shot" and state.behavior.shoot or state.behavior.reload
+    if not settings then return end
+    local id=assetId(sound.SoundId)
+    local customName=sound.Name:lower()=="altsound" or sound.Name:lower()=="customreload"
+    local native=id and (id==vanillaAssets[record.kind] or id==assetId(record.applied.SoundId)
+        or customName and nativeAssets[record.kind][id])
+    if not native then restoreNativeAudio(record);return end
+    record.writing=true
+    for _,key in ipairs(soundProperties) do
+        local value=settings[key]
+        if value~=nil then
+            pcall(function()
+                if record.saved[key]==nil then record.saved[key]=sound[key] end
+                value=originals.Decode(value)
+                sound[key]=value;record.applied[key]=value
+            end)
+        end
+    end
+    record.writing=false
+end
 local function clear(tool)
     local state=states[tool]
     if not state then return end
     states[tool]=nil
     for _,connection in ipairs(state.connections) do connection:Disconnect() end
+    for sound,record in pairs(state.sounds) do nativeSounds[sound]=nil;restoreNativeAudio(record) end
+    for remote in pairs(state.remotes) do shotRemotes[remote]=nil end
     for object,values in pairs(state.saved) do
         liveBeams[object]=nil
         for key,record in pairs(values) do pcall(function() object[key]=record.value end) end
     end
     for _,object in ipairs(state.created) do pcall(function() object:Destroy() end) end
+    if audioTransport and not next(states) then audioTransport.handler=nil end
 end
 local function makeSound(state,handle,kind,settings)
     if not settings then return end
@@ -11196,18 +11244,34 @@ local function confirmed(state,kind,source)
     if kind=="Shot" then state.shotAt=now end
     local settings=kind=="Shot" and state.behavior.shoot or state.behavior.reload
     if not settings then return end
-    local same=source and assetId(source.SoundId)==assetId(settings.SoundId)
-        and math.abs((tonumber(source.PlaybackSpeed) or 1)-(tonumber(settings.PlaybackSpeed) or 1))<0.001
+    if source==nil then
+        if state.evidence[kind] or now-(state.lastPlay[kind] or -math.huge)<0.12 then return end
+        local token={}
+        state.evidence[kind]=token
+        task.delay(0.08,function()
+            if states[state.tool]==state and state.evidence[kind]==token then
+                state.evidence[kind]=nil
+                confirmed(state,kind,false)
+            end
+        end)
+        return
+    end
+    state.evidence[kind]=nil
     local pending=state.pending[kind]
-    if pending then pending.nativeMatch=pending.nativeMatch or same;return end
+    if pending then if source then pending.sources[source]=true end;return end
     if now-(state.lastPlay[kind] or -math.huge)<0.12 then return end
-    pending={nativeMatch=same}
+    pending={sources={}}
+    if source then pending.sources[source]=true end
     state.pending[kind]=pending
     task.defer(function()
         if states[state.tool]~=state or state.pending[kind]~=pending then return end
         state.pending[kind]=nil
         state.lastPlay[kind]=os.clock()
-        if state.tool.Parent~=LocalPlayer.Character or pending.nativeMatch then return end
+        if state.tool.Parent~=LocalPlayer.Character then return end
+        for sound in pairs(pending.sources) do
+            if assetId(sound.SoundId)==assetId(settings.SoundId)
+                and math.abs((tonumber(sound.PlaybackSpeed) or 1)-(tonumber(settings.PlaybackSpeed) or 1))<0.001 then return end
+        end
         local sound=state.overlays[kind]
         if sound and sound.Parent then
             local ok,err=pcall(function() sound.TimePosition=0;sound:Play() end)
@@ -11221,12 +11285,108 @@ local function configureObject(tool,state,object)
         local name=object.Name:lower():gsub("[^%w]","")
         local kind=shotNames[name] and "Shot" or reloadNames[name] and "Reload"
         if kind then
-            state.sounds[object]=true
+            local record={sound=object,state=state,kind=kind,saved={},applied={}}
+            state.sounds[object]=record;nativeSounds[object]=record
+            routeNativeAudio(record)
             state.connections[#state.connections+1]=object.Played:Connect(function() confirmed(state,kind,object) end)
+            state.connections[#state.connections+1]=object:GetPropertyChangedSignal("SoundId"):Connect(function()
+                if states[tool]==state then routeNativeAudio(record) end
+            end)
         end
+    elseif object:IsA("RemoteEvent") and (object.Name=="Shoot" or object.Name=="ShootGun") then
+        shotRemotes[object]=state;state.remotes[object]=true
     elseif object:IsA("Beam") and object.Name=="CustomBeam" and state.behavior.beam then
         for _,key in ipairs(beamProperties) do write(state,object,key,state.behavior.beam[key]) end
     end
+end
+local function installAudioTransport()
+    local bridge=env.VisualsV2GunAudioBridge
+    if type(bridge)~="table" or bridge.version~=1 then
+        if type(bridge)=="table" then bridge.handler=nil end
+        bridge={version=1,dispatchers=setmetatable({}, {__mode="k"})}
+        env.VisualsV2GunAudioBridge=bridge
+    end
+    audioTransport=bridge
+    local soundService=game:GetService("SoundService")
+    local callingScript=getcallingscript or env.getcallingscript
+    bridge.handler=function(object,method,first)
+        if not alive or not runtimeAlive then return end
+        if method=="FireServer" then
+            local state=shotRemotes[object]
+            if state and state.tool.Parent==LocalPlayer.Character then
+                state.remoteShots=(state.remoteShots or 0)+1
+                confirmed(state,"Shot")
+            end
+            return
+        end
+        local sound=method=="PlayLocalSound" and object==soundService and first or method=="Play" and object
+        local record=sound and nativeSounds[sound]
+        if not record and sound and type(callingScript)=="function" then
+            local ok,script=pcall(callingScript)
+            if ok and script then
+                local current=script
+                local state
+                while current do
+                    state=states[current]
+                    if state then break end
+                    current=current.Parent
+                end
+                if state and state.tool.Parent==LocalPlayer.Character and typeof(sound)=="Instance" and sound.ClassName=="Sound" then
+                    local name=sound.Name:lower():gsub("[^%w]","")
+                    local kind=shotNames[name] and "Shot" or reloadNames[name] and "Reload"
+                    if kind then record={sound=sound,state=state,kind=kind} end
+                end
+            end
+        end
+        if not record or record.state.tool.Parent~=LocalPlayer.Character then return end
+        local state,kind=record.state,record.kind
+        local replacement
+        if assetId(sound.SoundId)==vanillaAssets[kind] then replacement=state.overlays[kind] end
+        state.nativeCalls[kind]=state.nativeCalls[kind]+1
+        confirmed(state,kind,replacement or sound)
+        if replacement then return method=="Play" and "self" or "sound",replacement end
+    end
+    if bridge.ready then return end
+    local namecall=getnamecallmethod or env.getnamecallmethod
+    local restoreMethod=setnamecallmethod or env.setnamecallmethod
+    local hook=hookmetamethod or env.hookmetamethod
+    if type(namecall)~="function" then bridge.error="getnamecallmethod is unavailable";return end
+    if type(hook)~="function" then
+        local rawMeta=getrawmetatable or env.getrawmetatable
+        local readOnly=setreadonly or env.setreadonly
+        if type(rawMeta)~="function" or type(readOnly)~="function" then bridge.error="Native audio observation is unavailable";return end
+        hook=function(object,key,replacement)
+            local mt=rawMeta(object)
+            local previous=mt[key]
+            local isReadOnly=isreadonly or env.isreadonly
+            local wasReadOnly=true
+            if type(isReadOnly)=="function" then wasReadOnly=isReadOnly(mt) end
+            readOnly(mt,false);mt[key]=replacement;readOnly(mt,wasReadOnly)
+            return previous
+        end
+    end
+    local previous
+    local wrapper=function(object,...)
+        local handler=bridge.handler
+        if not handler then return previous(object,...) end
+        local method=namecall()
+        if method~="FireServer" and method~="PlayLocalSound" and method~="Play" then return previous(object,...) end
+        local thread=coroutine.running() or bridge
+        if bridge.dispatchers[thread] then return previous(object,...) end
+        bridge.dispatchers[thread]=true
+        local ok,action,value=pcall(handler,object,method,...)
+        bridge.dispatchers[thread]=nil
+        if not ok then bridge.error=tostring(action) end
+        if type(restoreMethod)=="function" then pcall(restoreMethod,method) end
+        if ok and action=="self" then return previous(value,...) end
+        if ok and action=="sound" then return previous(object,value,select(2,...)) end
+        return previous(object,...)
+    end
+    local closure=newcclosure or env.newcclosure
+    if type(closure)=="function" then wrapper=closure(wrapper) end
+    local ok,result=pcall(hook,game,"__namecall",wrapper)
+    if ok and type(result)=="function" then previous=result;bridge.ready=true;bridge.error=nil
+    else bridge.error=tostring(result) end
 end
 local function bindAnimator(state)
     local character=LocalPlayer.Character
@@ -11266,7 +11426,8 @@ local function update()
             local handle=tool:FindFirstChild("Handle",true)
             if handle and handle:IsA("BasePart") then
                 state={id=id,tool=tool,handle=handle,behavior=behavior,saved={},created={},connections={},
-                    sounds=setmetatable({}, {__mode="k"}),overlays={},pending={},lastPlay={},plays={Shot=0,Reload=0}}
+                    sounds=setmetatable({}, {__mode="k"}),remotes={},overlays={},pending={},evidence={},lastPlay={},
+                    plays={Shot=0,Reload=0},nativeCalls={Shot=0,Reload=0}}
                 states[tool]=state
                 makeSound(state,handle,"Shot",behavior.shoot)
                 makeSound(state,handle,"Reload",behavior.reload)
@@ -11285,6 +11446,7 @@ local function update()
                 state.connections[#state.connections+1]=tool.Activated:Connect(function()
                     if tool.Parent==LocalPlayer.Character then state.inputAt=os.clock();state.inputs=(state.inputs or 0)+1 end
                 end)
+                installAudioTransport()
             end
         end
         if state then
@@ -11392,12 +11554,18 @@ env.VisualsV2Runtime.GunCosmetics={Refresh=update,GetDiagnostics=function()
     for tool,state in pairs(states) do result[#result+1]={tool=tool.Name,id=state.id,customShoot=state.behavior.shoot~=nil,
         customReload=state.behavior.reload~=nil,customBeam=state.behavior.beam~=nil,
         inputs=state.inputs or 0,shotPlays=state.plays.Shot,reloadPlays=state.plays.Reload,tracers=state.tracers or 0,
+        remoteShots=state.remoteShots or 0,nativeShotCalls=state.nativeCalls.Shot,nativeReloadCalls=state.nativeCalls.Reload,
+        nativeAudioReady=audioTransport and audioTransport.ready or false,nativeAudioError=audioTransport and audioTransport.error,
         shot=audio(state.overlays.Shot),reload=audio(state.overlays.Reload),soundError=state.soundError} end
     return result
 end}
 env.VisualsV2Runtime.RegisterReset(function()
     for tool in pairs(states) do clear(tool) end
-    if not runtimeAlive then alive=false;for _,connection in ipairs(connections) do connection:Disconnect() end end
+    if not runtimeAlive then
+        alive=false
+        if audioTransport then audioTransport.handler=nil end
+        for _,connection in ipairs(connections) do connection:Disconnect() end
+    end
 end)
 update()
 end)()
@@ -15054,39 +15222,20 @@ function proxy:AddButton(label,callback)
         if alive and runtimeAlive then callback() end
     end)
 end
-local function keyFromName(value)
-    local name=tostring(value or ""):match("^%s*(.-)%s*$"):gsub("^Enum%.KeyCode%.","")
-    if #name==1 then name=name:upper() end
-    local ok,key=pcall(function() return Enum.KeyCode[name] end)
-    if ok and key and key~=Enum.KeyCode.Unknown then return key end
-    local enumOK,items=pcall(function() return Enum.KeyCode:GetEnumItems() end)
-    if enumOK then
-        for _,item in ipairs(items) do
-            if item.Name:lower()==name:lower() and item~=Enum.KeyCode.Unknown then return item end
+function proxy:AddKeybind(label,defaultKey,callback)
+    local saved=C(settingKey(label),defaultKey)
+    local controller=section:AddKeybind(controlLabel(label),saved,function(...)
+        if alive and runtimeAlive then callback(...) end
+    end)
+    if type(controller)=="table" then
+        for _,name in ipairs({"Destroy","Disconnect"}) do
+            if type(controller[name])=="function" then
+                RootMaid:GiveTask(function() pcall(controller[name],controller) end)
+                break
+            end
         end
     end
-end
-function proxy:AddKeybind(label,defaultKey,callback)
-    local enabled=false
-    local configKey=settingKey(label)
-    local key=keyFromName(C(configKey,defaultKey)) or keyFromName(defaultKey)
-    if key then SetCfg(configKey,key.Name) end
-    proxy:AddToggle("Enable "..label,function(value) enabled=value end)
-    local textbox=section:AddTextBox(controlLabel(label),function(value)
-        if not alive or not runtimeAlive then return end
-        local selected=keyFromName(value)
-        if selected then
-            key=selected
-            SetCfg(configKey,key.Name)
-            shared.Notify(controlLabel(label).." saved: "..key.Name,2)
-        else shared.Notify("Enter a valid key name, such as E, G or Space.",3) end
-    end)
-    RootMaid:GiveTask(Services.UserInputService.InputBegan:Connect(function(input,processed)
-        if alive and runtimeAlive and enabled and not processed
-            and input.UserInputType==Enum.UserInputType.Keyboard
-            and not Services.UserInputService:GetFocusedTextBox() and input.KeyCode==key then callback() end
-    end))
-    return textbox
+    return controller
 end
 local BombJump={AddSection=function(_,title)
     if title=="Gold Bomb Jump+" then proxy:AddLabel("Gold Bomb Jump Options") end
