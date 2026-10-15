@@ -263,7 +263,7 @@ if type(previousRuntime) == "table" and type(previousRuntime.Cleanup) == "functi
     pcall(previousRuntime.Cleanup)
 end
 
-env.VisualsV2Runtime = {Resetters = {}, Build = "2026-10-14"}
+env.VisualsV2Runtime = {Resetters = {}, Build = "2026-10-15"}
 env.VisualsV2Runtime.RegisterReset = function(callback)
     if type(callback) == "function" then table.insert(env.VisualsV2Runtime.Resetters, callback) end
 end
@@ -5230,6 +5230,7 @@ end)()
 local scopeOnly=game.GameId==10413186812 or game.PlaceId==93017634738276
 local data={weapons={Gun={},Knife={}},effects={},effectInfo={},pets={},metadata={Gun={},Knife={},Effects={},Pets={}},gunBehavior={}}
 local scopeMeshes={["15374602183"]=true,["15374679651"]=true,["79692502167966"]=true}
+local nativeIcons={Gun={"196751820"},Knife={"196750384"}}
 ;(function()
 if not scopeOnly then data.weapons.Gun["Ace"]=function() return {["nodes"]={{["nodeId"]=0,["class"]="Part",["name"]="GunDisplay",["properties"]={["Reflectance"]=0,["Color"]={["type"]="Color3",["v"]={0.63921571,0.63529414,0.64705884}},["CFrame"]={["type"]="CFrame",["v"]={0,0,0,1,0,0,0,1,0,0,0,1}},["Transparency"]=0,["Size"]={["type"]="Vector3",["v"]={0.2,1.83000016,1.02999997}},["Material"]="Enum.Material.SmoothPlastic"}},{["nodeId"]=1,["parentId"]=0,["class"]="SpecialMesh",["name"]="Mesh",["properties"]={["Offset"]={["type"]="Vector3",["v"]={0,0,0}},["VertexColor"]={["type"]="Vector3",["v"]={1,1,1}},["MeshType"]="Enum.MeshType.FileMesh",["Scale"]={["type"]="Vector3",["v"]={1.5,1.5,1.5}},["MeshId"]="http://www.roblox.com/asset/?id=79401392 ",["TextureId"]="http://www.roblox.com/asset/?id=178208194"}},{["nodeId"]=3,["parentId"]=0,["class"]="Attachment",["name"]="Attachment",["properties"]={["CFrame"]={["type"]="CFrame",["v"]={0,0,0,1,0,0,0,1,0,0,0,1}}}}},["anchor"]=0} end end
 if not scopeOnly then data.weapons.Gun["AduriteGun"]=function() return {["nodes"]={{["nodeId"]=0,["class"]="Tool",["name"]="Gun",["properties"]={["Enabled"]=true,["CanBeDropped"]=false,["RequiresHandle"]=true,["Grip"]={["type"]="CFrame",["v"]={0,-0.69999999,-0.30000001,1,0,0,0,0,-1,0,1,0}},["TextureId"]="http://www.roblox.com/Thumbs/Asset.ashx?format=png&width=250&height=250&assetId=175668921"},["attributes"]={["Image"]="http://www.roblox.com/Thumbs/Asset.ashx?format=png&width=250&height=250&assetId=175668921",["Rarity"]="Uncommon",["IsWeapon"]=true,["ItemType"]="Gun",["ItemName"]="Adurite",["ItemID"]="AduriteGun",["IsGun"]=true}},{["nodeId"]=1,["parentId"]=0,["class"]="Part",["name"]="Handle",["properties"]={["Reflectance"]=0,["Color"]={["type"]="Color3",["v"]={0.63921571,0.63529414,0.64705884}},["CFrame"]={["type"]="CFrame",["v"]={0,0,0,1,0,0,0,1,0,0,0,1}},["Transparency"]=0,["Size"]={["type"]="Vector3",["v"]={0.2,1.83000016,1.02999997}},["Material"]="Enum.Material.SmoothPlastic"}},{["nodeId"]=5,["parentId"]=0,["class"]="Folder",["name"]="Sounds",["properties"]={}},{["nodeId"]=6,["parentId"]=0,["class"]="Folder",["name"]="Animations",["properties"]={}},{["nodeId"]=8,["parentId"]=1,["class"]="SpecialMesh",["name"]="Mesh",["properties"]={["Offset"]={["type"]="Vector3",["v"]={0,0,0}},["VertexColor"]={["type"]="Vector3",["v"]={1,1,1}},["MeshType"]="Enum.MeshType.FileMesh",["Scale"]={["type"]="Vector3",["v"]={1.5,1.5,1.5}},["MeshId"]="http://www.roblox.com/asset/?id=79401392 ",["TextureId"]="rbxassetid://162812733"}},{["nodeId"]=9,["parentId"]=1,["class"]="Sound",["name"]="Gunshot",["properties"]={["PlaybackSpeed"]=1,["RollOffMaxDistance"]=10000,["Volume"]=0.69999999,["SoundId"]="http://www.roblox.com/asset/?id=10209803",["Looped"]=false,["RollOffMinDistance"]=10}},{["nodeId"]=10,["parentId"]=1,["class"]="Sound",["name"]="Reload",["properties"]={["PlaybackSpeed"]=1,["RollOffMaxDistance"]=10000,["Volume"]=1,["SoundId"]="rbxassetid://4753414199",["Looped"]=false,["RollOffMinDistance"]=10}},{["nodeId"]=12,["parentId"]=6,["class"]="Animation",["name"]="Shoot",["properties"]={["AnimationId"]="rbxassetid://124281955370937"}},{["nodeId"]=13,["parentId"]=6,["class"]="Animation",["name"]="Reload",["properties"]={["AnimationId"]="rbxassetid://127786188145385"}}},["anchor"]=1} end end
@@ -6634,7 +6635,7 @@ if not scopeOnly then data.gunBehavior["IcepiercerBronze"]={["shoot"]={["RollOff
 if not scopeOnly then data.gunBehavior["IcepiercerGold"]={["shoot"]={["RollOffMode"]="Enum.RollOffMode.Inverse",["PlaybackSpeed"]=1.39999998,["RollOffMaxDistance"]=10000,["Volume"]=1,["SoundId"]="rbxassetid://7808472682",["RollOffMinDistance"]=10},["beam"]={["Enabled"]=true,["FaceCamera"]=false,["Color"]={["points"]={{["value"]={["v"]={1,0.84695202,0.29245442},["type"]="Color3"},["time"]=0},{["value"]={["v"]={1,0.84695202,0.29245442},["type"]="Color3"},["time"]=1}},["type"]="ColorSequence"},["Segments"]=10,["Transparency"]={["points"]={{["value"]=0.5,["time"]=0,["envelope"]=0},{["value"]=0.5,["time"]=1,["envelope"]=0}},["type"]="NumberSequence"},["Width0"]=0.2,["Width1"]=0.2,["LightEmission"]=0.5,["CurveSize1"]=0,["CurveSize0"]=0,["Texture"]=""},["animations"]={}} end
 if not scopeOnly then data.gunBehavior["IcepiercerRed"]={["shoot"]={["RollOffMinDistance"]=10,["RollOffMode"]="Enum.RollOffMode.Inverse",["PlaybackSpeed"]=1.39999998,["RollOffMaxDistance"]=10000,["Volume"]=1,["SoundId"]="rbxassetid://7808472682"},["beam"]={["Enabled"]=true,["FaceCamera"]=false,["Color"]={["type"]="ColorSequence",["points"]={{["value"]={["type"]="Color3",["v"]={1,0,0}},["time"]=0},{["value"]={["type"]="Color3",["v"]={1,0,0}},["time"]=1}}},["Width0"]=0.2,["Transparency"]={["type"]="NumberSequence",["points"]={{["value"]=0.5,["time"]=0,["envelope"]=0},{["value"]=0.5,["time"]=1,["envelope"]=0}}},["Segments"]=10,["Width1"]=0.2,["LightEmission"]=0.5,["CurveSize0"]=0,["CurveSize1"]=0,["Texture"]=""},["animations"]={}} end
 if not scopeOnly then data.gunBehavior["IcepiercerSilver"]={["shoot"]={["RollOffMinDistance"]=10,["RollOffMode"]="Enum.RollOffMode.Inverse",["PlaybackSpeed"]=1.39999998,["RollOffMaxDistance"]=10000,["Volume"]=1,["SoundId"]="rbxassetid://7808472682"},["beam"]={["Enabled"]=true,["FaceCamera"]=false,["Color"]={["type"]="ColorSequence",["points"]={{["value"]={["type"]="Color3",["v"]={0.82745099,0.83529413,0.83529413}},["time"]=0},{["value"]={["type"]="Color3",["v"]={0.82745099,0.83529413,0.83529413}},["time"]=1}}},["Width0"]=0.2,["Transparency"]={["type"]="NumberSequence",["points"]={{["value"]=0.5,["time"]=0,["envelope"]=0},{["value"]=0.5,["time"]=1,["envelope"]=0}}},["Segments"]=10,["Width1"]=0.2,["LightEmission"]=0.5,["CurveSize0"]=0,["CurveSize1"]=0,["Texture"]=""},["animations"]={}} end
-data.gunBehavior["Matrixscope"]={["shoot"]={["RollOffMinDistance"]=9.17886162,["RollOffMode"]="Enum.RollOffMode.Inverse",["PlaybackSpeed"]=1,["RollOffMaxDistance"]=9178.86230469,["Volume"]=0.5,["SoundId"]="rbxassetid://130113322",["equalizer"]={["Enabled"]=true,["LowGain"]=-5,["HighGain"]=0,["MidGain"]=0,["Priority"]=0}},["reload"]={["RollOffMinDistance"]=9.17886162,["RollOffMode"]="Enum.RollOffMode.Inverse",["PlaybackSpeed"]=0.80000001,["RollOffMaxDistance"]=9178.86230469,["Volume"]=0.5,["SoundId"]="rbxassetid://130113370",["equalizer"]={["Enabled"]=true,["LowGain"]=-5,["HighGain"]=0,["MidGain"]=0,["Priority"]=0}},["beam"]={["Enabled"]=true,["FaceCamera"]=false,["Color"]={["type"]="ColorSequence",["points"]={{["value"]={["type"]="Color3",["v"]={0,1,0}},["time"]=0},{["value"]={["type"]="Color3",["v"]={0,1,0}},["time"]=1}}},["Width0"]=0.2,["Transparency"]={["type"]="NumberSequence",["points"]={{["value"]=0,["time"]=0,["envelope"]=0},{["value"]=0,["time"]=1,["envelope"]=0}}},["Segments"]=10,["Width1"]=0.2,["LightEmission"]=0.5,["CurveSize0"]=0,["CurveSize1"]=0,["Texture"]=""},["hold"]="rbxassetid://134818020160275",["animations"]={["CustomHold"]="rbxassetid://134818020160275",["Shoot"]="rbxassetid://124281955370937",["Reload"]="rbxassetid://127786188145385"}}
+data.gunBehavior["Matrixscope"]={["shoot"]={["RollOffMinDistance"]=9.17886162,["RollOffMode"]="Enum.RollOffMode.Inverse",["PlaybackSpeed"]=0.80000001,["RollOffMaxDistance"]=9178.86230469,["Volume"]=0.5,["SoundId"]="rbxassetid://130113370",["equalizer"]={["Enabled"]=true,["LowGain"]=-5,["HighGain"]=0,["MidGain"]=0,["Priority"]=0}},["reload"]={["RollOffMinDistance"]=9.17886162,["RollOffMode"]="Enum.RollOffMode.Inverse",["PlaybackSpeed"]=1,["RollOffMaxDistance"]=9178.86230469,["Volume"]=0.5,["SoundId"]="rbxassetid://130113322",["equalizer"]={["Enabled"]=true,["LowGain"]=-5,["HighGain"]=0,["MidGain"]=0,["Priority"]=0}},["beam"]={["Enabled"]=true,["FaceCamera"]=false,["Color"]={["type"]="ColorSequence",["points"]={{["value"]={["type"]="Color3",["v"]={0,1,0}},["time"]=0},{["value"]={["type"]="Color3",["v"]={0,1,0}},["time"]=1}}},["Width0"]=0.2,["Transparency"]={["type"]="NumberSequence",["points"]={{["value"]=0,["time"]=0,["envelope"]=0},{["value"]=0,["time"]=1,["envelope"]=0}}},["Segments"]=10,["Width1"]=0.2,["LightEmission"]=0.5,["CurveSize0"]=0,["CurveSize1"]=0,["Texture"]=""},["hold"]="rbxassetid://134818020160275",["animations"]={["CustomHold"]="rbxassetid://134818020160275",["Shoot"]="rbxassetid://124281955370937",["Reload"]="rbxassetid://127786188145385"}}
 if not scopeOnly then data.gunBehavior["Raygun"]={["shoot"]={["RollOffMode"]="Enum.RollOffMode.Inverse",["PlaybackSpeed"]=1.39999998,["RollOffMaxDistance"]=10000,["Volume"]=1,["SoundId"]="rbxassetid://76985543647435",["RollOffMinDistance"]=10,["equalizer"]={["Enabled"]=true,["LowGain"]=-5,["HighGain"]=0,["MidGain"]=0,["Priority"]=0}},["beam"]={["Enabled"]=true,["FaceCamera"]=false,["Color"]={["points"]={{["value"]={["v"]={0,1,0},["type"]="Color3"},["time"]=0},{["value"]={["v"]={0,1,0},["type"]="Color3"},["time"]=1}},["type"]="ColorSequence"},["Segments"]=10,["Transparency"]={["points"]={{["value"]=0.5,["time"]=0,["envelope"]=0},{["value"]=0.5,["time"]=1,["envelope"]=0}},["type"]="NumberSequence"},["Width0"]=0.2,["Width1"]=0.2,["LightEmission"]=0.5,["CurveSize1"]=0,["CurveSize0"]=0,["Texture"]=""},["animations"]={["Shoot"]="rbxassetid://124281955370937",["Reload"]="rbxassetid://127786188145385"}} end
 if not scopeOnly then data.gunBehavior["RaygunBronze"]={["shoot"]={["RollOffMinDistance"]=10,["RollOffMode"]="Enum.RollOffMode.Inverse",["PlaybackSpeed"]=1.39999998,["RollOffMaxDistance"]=10000,["Volume"]=1,["SoundId"]="rbxassetid://76985543647435",["equalizer"]={["Enabled"]=true,["LowGain"]=-5,["HighGain"]=0,["MidGain"]=0,["Priority"]=0}},["beam"]={["Enabled"]=true,["FaceCamera"]=false,["Color"]={["type"]="ColorSequence",["points"]={{["value"]={["type"]="Color3",["v"]={1,0.3921569,0}},["time"]=0},{["value"]={["type"]="Color3",["v"]={1,0.3921569,0}},["time"]=1}}},["Width0"]=0.2,["Transparency"]={["type"]="NumberSequence",["points"]={{["value"]=0.5,["time"]=0,["envelope"]=0},{["value"]=0.5,["time"]=1,["envelope"]=0}}},["Segments"]=10,["Width1"]=0.2,["LightEmission"]=0.5,["CurveSize0"]=0,["CurveSize1"]=0,["Texture"]=""},["animations"]={}} end
 if not scopeOnly then data.gunBehavior["RaygunChroma"]={["shoot"]={["RollOffMode"]="Enum.RollOffMode.Inverse",["PlaybackSpeed"]=1.60000002,["RollOffMaxDistance"]=10000,["Volume"]=1,["SoundId"]="rbxassetid://76985543647435",["RollOffMinDistance"]=10,["equalizer"]={["Enabled"]=true,["LowGain"]=-5,["HighGain"]=0,["MidGain"]=0,["Priority"]=0}},["beam"]={["Enabled"]=true,["FaceCamera"]=false,["Color"]={["points"]={{["value"]={["v"]={1,0,0.01568628},["type"]="Color3"},["time"]=0},{["value"]={["v"]={0.66666669,0,0.61176473},["type"]="Color3"},["time"]=0.183391},{["value"]={["v"]={0,0,0.77254903},["type"]="Color3"},["time"]=0.39100346},{["value"]={["v"]={0,1,0.96862745},["type"]="Color3"},["time"]=0.6193772},{["value"]={["v"]={0,0.65098041,0.04313726},["type"]="Color3"},["time"]=0.80449831},{["value"]={["v"]={1,0.93333334,0},["type"]="Color3"},["time"]=1}},["type"]="ColorSequence"},["Segments"]=10,["Transparency"]={["points"]={{["value"]=0.5,["time"]=0,["envelope"]=0},{["value"]=0.5,["time"]=1,["envelope"]=0}},["type"]="NumberSequence"},["Width0"]=0.2,["Width1"]=0.2,["LightEmission"]=0.5,["CurveSize1"]=0,["CurveSize0"]=0,["Texture"]=""},["animations"]={}} end
@@ -6650,7 +6651,7 @@ end)()
 if not scopeOnly then data.gunBehavior["SnowcannonGold"]={["shoot"]={["RollOffMinDistance"]=10,["RollOffMode"]="Enum.RollOffMode.Inverse",["PlaybackSpeed"]=1.39999998,["RollOffMaxDistance"]=10000,["Volume"]=0.5,["SoundId"]="rbxassetid://138706272607549"},["beam"]={["Enabled"]=true,["FaceCamera"]=false,["Color"]={["type"]="ColorSequence",["points"]={{["value"]={["type"]="Color3",["v"]={0.9889372,0.85192645,0}},["time"]=0},{["value"]={["type"]="Color3",["v"]={0.9889372,0.85192645,0}},["time"]=1}}},["Width0"]=0.5,["Transparency"]={["type"]="NumberSequence",["points"]={{["value"]=0.40000001,["time"]=0,["envelope"]=0},{["value"]=0.40000001,["time"]=1,["envelope"]=0}}},["Segments"]=10,["Width1"]=0.5,["LightEmission"]=0.5,["CurveSize0"]=0,["CurveSize1"]=0,["Texture"]=""},["animations"]={}} end
 if not scopeOnly then data.gunBehavior["SnowcannonRed"]={["shoot"]={["RollOffMinDistance"]=10,["RollOffMode"]="Enum.RollOffMode.Inverse",["PlaybackSpeed"]=1.39999998,["RollOffMaxDistance"]=10000,["Volume"]=0.5,["SoundId"]="rbxassetid://138706272607549"},["beam"]={["Enabled"]=true,["FaceCamera"]=false,["Color"]={["type"]="ColorSequence",["points"]={{["value"]={["type"]="Color3",["v"]={1,0,0}},["time"]=0},{["value"]={["type"]="Color3",["v"]={1,0,0}},["time"]=1}}},["Width0"]=0.5,["Transparency"]={["type"]="NumberSequence",["points"]={{["value"]=0.40000001,["time"]=0,["envelope"]=0},{["value"]=0.40000001,["time"]=1,["envelope"]=0}}},["Segments"]=10,["Width1"]=0.5,["LightEmission"]=0.5,["CurveSize0"]=0,["CurveSize1"]=0,["Texture"]=""},["animations"]={}} end
 if not scopeOnly then data.gunBehavior["SnowcannonSilver"]={["shoot"]={["RollOffMinDistance"]=10,["RollOffMode"]="Enum.RollOffMode.Inverse",["PlaybackSpeed"]=1.39999998,["RollOffMaxDistance"]=10000,["Volume"]=0.5,["SoundId"]="rbxassetid://138706272607549"},["beam"]={["Enabled"]=true,["FaceCamera"]=false,["Color"]={["type"]="ColorSequence",["points"]={{["value"]={["type"]="Color3",["v"]={0.88505381,0.92541391,0.99165332}},["time"]=0},{["value"]={["type"]="Color3",["v"]={0.88505381,0.92541391,0.99165332}},["time"]=1}}},["Width0"]=0.5,["Transparency"]={["type"]="NumberSequence",["points"]={{["value"]=0.40000001,["time"]=0,["envelope"]=0},{["value"]=0.40000001,["time"]=1,["envelope"]=0}}},["Segments"]=10,["Width1"]=0.5,["LightEmission"]=0.5,["CurveSize0"]=0,["CurveSize1"]=0,["Texture"]=""},["animations"]={}} end
-data.gunBehavior["Voidscope"]={["shoot"]={["RollOffMode"]="Enum.RollOffMode.Inverse",["PlaybackSpeed"]=0.80000001,["RollOffMaxDistance"]=9178.86230469,["Volume"]=0.5,["SoundId"]="rbxassetid://130113322",["RollOffMinDistance"]=9.17886162,["equalizer"]={["Enabled"]=true,["LowGain"]=-5,["HighGain"]=0,["MidGain"]=0,["Priority"]=0}},["reload"]={["RollOffMode"]="Enum.RollOffMode.Inverse",["PlaybackSpeed"]=0.64999998,["RollOffMaxDistance"]=9178.86230469,["Volume"]=0.5,["SoundId"]="rbxassetid://130113370",["RollOffMinDistance"]=9.17886162,["equalizer"]={["Enabled"]=true,["LowGain"]=-5,["HighGain"]=0,["MidGain"]=0,["Priority"]=0}},["beam"]={["Enabled"]=true,["FaceCamera"]=false,["Color"]={["points"]={{["value"]={["v"]={1,1,1},["type"]="Color3"},["time"]=0},{["value"]={["v"]={1,1,1},["type"]="Color3"},["time"]=1}},["type"]="ColorSequence"},["Segments"]=10,["Transparency"]={["points"]={{["value"]=0,["time"]=0,["envelope"]=0},{["value"]=0,["time"]=1,["envelope"]=0}},["type"]="NumberSequence"},["Width0"]=0.2,["Width1"]=0.2,["LightEmission"]=0.5,["CurveSize1"]=0,["CurveSize0"]=0,["Texture"]=""},["hold"]="rbxassetid://134818020160275",["animations"]={["CustomHold"]="rbxassetid://134818020160275",["Shoot"]="rbxassetid://124281955370937",["Reload"]="rbxassetid://127786188145385"}}
+data.gunBehavior["Voidscope"]={["shoot"]={["RollOffMode"]="Enum.RollOffMode.Inverse",["PlaybackSpeed"]=0.64999998,["RollOffMaxDistance"]=9178.86230469,["Volume"]=0.5,["SoundId"]="rbxassetid://130113370",["RollOffMinDistance"]=9.17886162,["equalizer"]={["Enabled"]=true,["LowGain"]=-5,["HighGain"]=0,["MidGain"]=0,["Priority"]=0}},["reload"]={["RollOffMode"]="Enum.RollOffMode.Inverse",["PlaybackSpeed"]=0.80000001,["RollOffMaxDistance"]=9178.86230469,["Volume"]=0.5,["SoundId"]="rbxassetid://130113322",["RollOffMinDistance"]=9.17886162,["equalizer"]={["Enabled"]=true,["LowGain"]=-5,["HighGain"]=0,["MidGain"]=0,["Priority"]=0}},["beam"]={["Enabled"]=true,["FaceCamera"]=false,["Color"]={["points"]={{["value"]={["v"]={1,1,1},["type"]="Color3"},["time"]=0},{["value"]={["v"]={1,1,1},["type"]="Color3"},["time"]=1}},["type"]="ColorSequence"},["Segments"]=10,["Transparency"]={["points"]={{["value"]=0,["time"]=0,["envelope"]=0},{["value"]=0,["time"]=1,["envelope"]=0}},["type"]="NumberSequence"},["Width0"]=0.2,["Width1"]=0.2,["LightEmission"]=0.5,["CurveSize1"]=0,["CurveSize0"]=0,["Texture"]=""},["hold"]="rbxassetid://134818020160275",["animations"]={["CustomHold"]="rbxassetid://134818020160275",["Shoot"]="rbxassetid://124281955370937",["Reload"]="rbxassetid://127786188145385"},["flicker"]={["interval"]=0.01666667,["colors"]={{["type"]="ColorSequence",["points"]={{["time"]=0,["value"]={["type"]="Color3",["v"]={1,1,1}}},{["time"]=1,["value"]={["type"]="Color3",["v"]={1,1,1}}}}},{["type"]="ColorSequence",["points"]={{["time"]=0,["value"]={["type"]="Color3",["v"]={0,0,0}}},{["time"]=1,["value"]={["type"]="Color3",["v"]={0,0,0}}}}}}}}
 end)()
 ;(function()
 if not scopeOnly then data.metadata.Gun["Ace"]={["image"]="http://www.roblox.com/Thumbs/Asset.ashx?format=png&width=250&height=250&assetId=238546577",["itemid"]=238546577,["rarity"]="Rare",["itemname"]="Ace"} end
@@ -8061,6 +8062,7 @@ local function ids(values)
 end
 env.VisualsV2Runtime.OriginalVisuals={
     ScopeMeshes=scopeMeshes,
+    NativeIcons=nativeIcons,
     GetWeapon=function(kind,id) return get(kind,id,data.weapons[kind] and data.weapons[kind][id]) end,
     GetEffect=function(id) return get("Effect",id,data.effects[id]) end,
     GetPet=function(id) return get("Pet",id,data.pets[id]) end,
@@ -9631,10 +9633,10 @@ local function resolveScopeHold(tool,humanoid,rig)
     local rejected=rejectedScopeHolds[rig] or {}
     rejectedScopeHolds[rig]=rejected
     local native=nativeScopeId(tool,humanoid)
-    if native and not rejected[native] then return native end
-    if nativeScopeHolds[rig] and not rejected[nativeScopeHolds[rig]] then return nativeScopeHolds[rig] end
+    if native and (not rejected[native] or rejected[native]<=os.clock()) then return native end
+    if nativeScopeHolds[rig] and (not rejected[nativeScopeHolds[rig]] or rejected[nativeScopeHolds[rig]]<=os.clock()) then return nativeScopeHolds[rig] end
     local saved=assetId(C(scopeCacheKey(rig),nil))
-    if saved and not rejected[saved] then nativeScopeHolds[rig]=saved;return saved end
+    if saved and (not rejected[saved] or rejected[saved]<=os.clock()) then nativeScopeHolds[rig]=saved;return saved end
     if os.clock()-lastNativeScopeScan>=1 then
         lastNativeScopeScan=os.clock()
         for _,owner in ipairs(game:GetService("Players"):GetPlayers()) do
@@ -9646,7 +9648,7 @@ local function resolveScopeHold(tool,humanoid,rig)
                     for _,candidate in ipairs(container:GetChildren()) do
                         if candidate:IsA("Tool") then
                             local id=nativeScopeId(candidate,otherHumanoid)
-                            if id and not rejected[id] then nativeScopeHolds[rig]=id;return id end
+                            if id and (not rejected[id] or rejected[id]<=os.clock()) then nativeScopeHolds[rig]=id;return id end
                         end
                     end
                 end
@@ -9668,28 +9670,27 @@ local function resolveScopeHold(tool,humanoid,rig)
                 end
                 if name:find("scopehold",1,true) or scopeContext and (name=="customhold" or name=="hold2" or name=="gingerscopehold") then
                     local id=assetId(object.AnimationId)
-                    if id and not rejected[id] then nativeScopeHolds[rig]=id;return id end
+                    if id and (not rejected[id] or rejected[id]<=os.clock()) then nativeScopeHolds[rig]=id;return id end
                 end
             end
         end
     end
     end
-    if mmv and not rejected[ORIGINAL_SCOPE_HOLD] then return ORIGINAL_SCOPE_HOLD end
+    if mmv and humanoid.RigType==Enum.HumanoidRigType.R15 and (not rejected[ORIGINAL_SCOPE_HOLD] or rejected[ORIGINAL_SCOPE_HOLD]<=os.clock()) then return ORIGINAL_SCOPE_HOLD end
 end
 
 local function updateScopeHold(tool,state,entry)
     local character=player.Character
     local humanoid=character and character:FindFirstChildOfClass("Humanoid")
     local animator=humanoid and humanoid:FindFirstChildOfClass("Animator")
-    if not isScope(entry) or tool.Parent~=character or not state.model or not animator
-        or humanoid.Health<=0 then
+    if not isScope(entry) or tool.Parent~=character or not state.model or not animator or humanoid.Health<=0 then
         if state.hold or state.holdPending then stopScopeHold(state) end
         return
     end
     local rig=tostring(humanoid.RigType)
     local id=resolveScopeHold(tool,humanoid,rig)
     if not id then
-        state.holdError="The original scope animation has not been found in this game."
+        state.holdError=state.holdError or "The original scope animation has not been found in this game."
         if state.hold or state.holdPending then stopScopeHold(state) end
         return
     end
@@ -9714,26 +9715,40 @@ local function updateScopeHold(tool,state,entry)
             and humanoid:FindFirstChildOfClass("Animator")==animator
     end
     task.spawn(function()
-        local track=nil
-        local animation=nil
+        local track,animation,loadError
         local ownsTrack=false
-
         for _,candidate in ipairs(playingTracks(animator)) do
             if candidate.IsPlaying and candidate.Animation and assetId(candidate.Animation.AnimationId)==id then
-                track=candidate; break
+                track=candidate;break
             end
         end
         if not track then
             ownsTrack=true
-            animation=Instance.new("Animation")
-            animation.Name="VisualsV2ScopeHold"
-            animation:SetAttribute(MARKER,true)
-            animation.AnimationId="rbxassetid://"..id
-            animation.Parent=model
-            local ok,result=pcall(function() return animator:LoadAnimation(animation) end)
-            if ok then track=result end
-            local deadline=os.clock()+6
-            while track and current() and track.Length<=0 and os.clock()<deadline do task.wait(0.1) end
+            local source
+            for _,object in ipairs(tool:GetDescendants()) do
+                if object:IsA("Animation") and not owned(object,tool) and assetId(object.AnimationId)==id then source=object;break end
+            end
+            if not source then
+                animation=Instance.new("Animation")
+                animation.Name="VisualsV2ScopeHold"
+                animation:SetAttribute(MARKER,true)
+                animation.AnimationId="rbxassetid://"..id
+                animation.Parent=model
+                source=animation
+            end
+            local ok,result=pcall(function() return animator:LoadAnimation(source) end)
+            if ok then track=result else loadError=tostring(result) end
+            if track and current() then
+                local played,err=pcall(function()
+                    track.Priority=Enum.AnimationPriority.Action2
+                    track.Looped=true
+                    track:Play(0.12,1,1)
+                end)
+                if not played then loadError=tostring(err) end
+                local deadline=os.clock()+20
+                while not loadError and current() and track.Length<=0 and os.clock()<deadline do task.wait(0.1) end
+                if not loadError and track.Length<=0 then loadError="Animation data was still unavailable after 20 seconds" end
+            end
         end
         local function discard()
             if ownsTrack and track then
@@ -9742,28 +9757,19 @@ local function updateScopeHold(tool,state,entry)
             end
             if animation then animation:Destroy() end
         end
-        if not current() then discard(); return end
-        local ok=track and (not ownsTrack or track.Length>0)
-        if ok and ownsTrack then
-            ok=pcall(function()
-                track.Priority=Enum.AnimationPriority.Action2
-                track.Looped=true
-                track:Play(0.12,1,1)
-            end)
-        end
-        if not ok then
+        if not current() then discard();return end
+        if not track or loadError or not track.IsPlaying then
             discard()
             state.holdPending=nil
             rejectedScopeHolds[rig]=rejectedScopeHolds[rig] or {}
-            rejectedScopeHolds[rig][id]=true
-            nativeScopeHolds[rig]=nil
-            SetCfg(scopeCacheKey(rig),nil)
-            state.holdError="Original animation "..id.." did not load for "..rig
+            rejectedScopeHolds[rig][id]=os.clock()+30
+            if nativeScopeHolds[rig]==id then nativeScopeHolds[rig]=nil end
+            state.holdError="Original animation "..id.." ("..rig.."): "..(loadError or "The animation did not start")
             state.holdRetry={signature=signature,untilTime=os.clock()+30}
             local warning=rig..":"..id
             if not scopeHoldWarnings[warning] then
                 scopeHoldWarnings[warning]=true
-                notify("The original scope hold could not load in this game ("..id.."); the scope skin is still enabled.")
+                notify("The original scope hold could not load ("..id.."). It will retry; save weapon diagnostics if this continues.")
             end
             return
         end
@@ -9782,7 +9788,6 @@ local function updateScopeHold(tool,state,entry)
         suppressToolHold(tool,hold)
     end)
 end
-
 local function restoreVisuals(state)
     stopScopeHold(state)
     state.holdRetry=nil
@@ -10030,14 +10035,8 @@ local function refreshHolsters()
     local humanoid=character and character:FindFirstChildOfClass("Humanoid")
     for kind,settings in pairs(kinds) do
         local entry=settings.enabled and catalog[kind][settings.selected]
-        local equipped=false
-        if character then
-            for _,object in ipairs(character:GetChildren()) do
-                if object:IsA("Tool") and actualKind(object)==kind then equipped=true;break end
-            end
-        end
         if not alive or not runtimeAlive or not entry or not body or not body:IsA("BasePart")
-            or not humanoid or humanoid.Health<=0 or equipped then
+            or not humanoid or humanoid.Health<=0 then
             clearHolster(kind)
         else
             local original=nativeHolster(character,kind)
@@ -10675,7 +10674,7 @@ local function update()
         if tool:IsA("Tool") and (kind=="Knife" or tool.Name:lower()=="knife") then targets[#targets+1]=tool end
     end
     local skins=env.VisualsV2Runtime.ClientWeaponSkins
-    local holster=#targets==0 and skins and skins.GetHolster and skins.GetHolster("Knife")
+    local holster=skins and skins.GetHolster and skins.GetHolster("Knife")
     if #targets==0 and not holster and skins and skins.GetNativeHolster then holster=skins.GetNativeHolster("Knife") end
     if #targets==0 and not holster then
         for _,name in ipairs({"Knife","KnifeDisplay","KnifeHolster"}) do
@@ -11138,9 +11137,15 @@ local originals=env.VisualsV2Runtime.OriginalVisuals
 local alive=true
 local states={}
 local connections={}
+local liveBeams={}
 local soundProperties={"SoundId","Volume","PlaybackSpeed","RollOffMinDistance","RollOffMaxDistance","RollOffMode"}
 local beamProperties={"Color","Texture","Width0","Width1","LightEmission","LightInfluence","Transparency",
-    "TextureLength","TextureMode","TextureSpeed","FaceCamera","Segments","CurveSize0","CurveSize1"}
+    "TextureLength","TextureMode","TextureSpeed","Segments","CurveSize0","CurveSize1"}
+local shotNames={gunshot=true,altsound=true,shoot=true,shotsound=true,shootsound=true}
+local reloadNames={reload=true,customreload=true,reloadsound=true}
+local function assetId(value)
+    return tostring(value or ""):match("(%d+)")
+end
 local function owned(object,tool)
     while object and object~=tool do
         if object:GetAttribute("VisualsV2_ClientWeaponSkin") or object:GetAttribute("VisualsV2_GunCosmetic") then return true end
@@ -11148,15 +11153,12 @@ local function owned(object,tool)
     end
     return false
 end
-local function remember(state,object,key)
-    local saved=state.saved[object]
-    if not saved then saved={};state.saved[object]=saved end
-    if not saved[key] then saved[key]={value=object[key]} end
-end
 local function write(state,object,key,value)
     if value==nil then return end
     pcall(function()
-        remember(state,object,key)
+        local saved=state.saved[object]
+        if not saved then saved={};state.saved[object]=saved end
+        if not saved[key] then saved[key]={value=object[key]} end
         object[key]=originals.Decode(value)
     end)
 end
@@ -11166,104 +11168,231 @@ local function clear(tool)
     states[tool]=nil
     for _,connection in ipairs(state.connections) do connection:Disconnect() end
     for object,values in pairs(state.saved) do
+        liveBeams[object]=nil
         for key,record in pairs(values) do pcall(function() object[key]=record.value end) end
     end
     for _,object in ipairs(state.created) do pcall(function() object:Destroy() end) end
 end
-local function configureSound(state,object,settings)
-    for _,key in ipairs(soundProperties) do write(state,object,key,settings[key]) end
-    if settings.equalizer then
-        local eq=object:FindFirstChildWhichIsA("EqualizerSoundEffect")
-        if not eq then
-            eq=Instance.new("EqualizerSoundEffect")
-            eq.Name="VisualsV2_OriginalEqualizer";eq:SetAttribute("VisualsV2_GunCosmetic",true)
-            eq.Parent=object;state.created[#state.created+1]=eq
-        end
-        for key,value in pairs(settings.equalizer) do write(state,eq,key,value) end
+local function makeSound(state,handle,kind,settings)
+    if not settings then return end
+    local sound=Instance.new("Sound")
+    sound.Name="VisualsV2_"..kind.."Overlay"
+    sound:SetAttribute("VisualsV2_GunCosmetic",true)
+    for _,key in ipairs(soundProperties) do
+        if settings[key]~=nil then pcall(function() sound[key]=originals.Decode(settings[key]) end) end
     end
+    if settings.equalizer then
+        local eq=Instance.new("EqualizerSoundEffect")
+        for key,value in pairs(settings.equalizer) do pcall(function() eq[key]=value end) end
+        eq.Parent=sound
+    end
+    sound.Parent=handle
+    state.created[#state.created+1]=sound
+    state.overlays[kind]=sound
+end
+local function confirmed(state,kind,source)
+    if states[state.tool]~=state or state.tool.Parent~=LocalPlayer.Character then return end
+    local now=os.clock()
+    if kind=="Shot" then state.shotAt=now end
+    local settings=kind=="Shot" and state.behavior.shoot or state.behavior.reload
+    if not settings then return end
+    local same=source and assetId(source.SoundId)==assetId(settings.SoundId)
+        and math.abs((tonumber(source.PlaybackSpeed) or 1)-(tonumber(settings.PlaybackSpeed) or 1))<0.001
+    local pending=state.pending[kind]
+    if pending then pending.nativeMatch=pending.nativeMatch or same;return end
+    if now-(state.lastPlay[kind] or -math.huge)<0.12 then return end
+    pending={nativeMatch=same}
+    state.pending[kind]=pending
+    task.defer(function()
+        if states[state.tool]~=state or state.pending[kind]~=pending then return end
+        state.pending[kind]=nil
+        state.lastPlay[kind]=os.clock()
+        if state.tool.Parent~=LocalPlayer.Character or pending.nativeMatch then return end
+        local sound=state.overlays[kind]
+        if sound and sound.Parent then
+            local ok,err=pcall(function() sound.TimePosition=0;sound:Play() end)
+            if ok then state.plays[kind]=state.plays[kind]+1 else state.soundError=tostring(err) end
+        end
+    end)
 end
 local function configureObject(tool,state,object)
     if owned(object,tool) then return end
-    if object:IsA("Sound") then
-        local name=object.Name:lower()
-        local settings=(name=="gunshot" or name=="altsound" or name=="shoot" or name=="shotsound") and state.behavior.shoot
-            or (name=="reload" or name=="customreload" or name=="reloadsound") and state.behavior.reload
-        if settings then configureSound(state,object,settings) end
+    if object:IsA("Sound") and not state.sounds[object] then
+        local name=object.Name:lower():gsub("[^%w]","")
+        local kind=shotNames[name] and "Shot" or reloadNames[name] and "Reload"
+        if kind then
+            state.sounds[object]=true
+            state.connections[#state.connections+1]=object.Played:Connect(function() confirmed(state,kind,object) end)
+        end
     elseif object:IsA("Beam") and object.Name=="CustomBeam" and state.behavior.beam then
         for _,key in ipairs(beamProperties) do write(state,object,key,state.behavior.beam[key]) end
     end
+end
+local function bindAnimator(state)
+    local character=LocalPlayer.Character
+    local humanoid=character and character:FindFirstChildOfClass("Humanoid")
+    local animator=humanoid and humanoid:FindFirstChildOfClass("Animator")
+    if state.animator==animator then return end
+    if state.animationConnection then state.animationConnection:Disconnect() end
+    state.animator=animator
+    if not animator then return end
+    state.animationConnection=animator.AnimationPlayed:Connect(function(track)
+        if state.tool.Parent~=LocalPlayer.Character or not track.Animation then return end
+        local id=assetId(track.Animation.AnimationId)
+        local animations=state.tool:FindFirstChild("Animations")
+        for _,pair in ipairs({{"Shoot","Shot"},{"Reload","Reload"}}) do
+            local native=animations and animations:FindFirstChild(pair[1])
+            local expected=native and assetId(native.AnimationId)
+                or state.behavior.animations and assetId(state.behavior.animations[pair[1]])
+            if id and id==expected then confirmed(state,pair[2]);return end
+        end
+    end)
+    state.connections[#state.connections+1]=state.animationConnection
 end
 local function update()
     local enabled,id=skins.GetState("Gun")
     local behavior=enabled and originals.GetGunBehavior(id)
     local current={}
-    for _,state in pairs(states) do
-        for object in pairs(state.saved) do if not object.Parent then state.saved[object]=nil end end
-    end
     local backpack=LocalPlayer:FindFirstChildOfClass("Backpack")
-    for _,container in ipairs({LocalPlayer.Character,backpack}) do
-        if container then
-            for _,tool in ipairs(container:GetChildren()) do
-                if tool:IsA("Tool") and skins.GetKind(tool)=="Gun" and behavior then current[tool]=true end
-            end
+    for _,container in pairs({LocalPlayer.Character,backpack}) do
+        for _,tool in ipairs(container:GetChildren()) do
+            if tool:IsA("Tool") and skins.GetKind(tool)=="Gun" and behavior then current[tool]=true end
         end
     end
     for tool,state in pairs(states) do if not current[tool] or state.id~=id then clear(tool) end end
     for tool in pairs(current) do
-        if not states[tool] then
+        local state=states[tool]
+        if not state then
             local handle=tool:FindFirstChild("Handle",true)
             if handle and handle:IsA("BasePart") then
-                local state={id=id,behavior=behavior,saved={},created={},connections={}}
+                state={id=id,tool=tool,handle=handle,behavior=behavior,saved={},created={},connections={},
+                    sounds=setmetatable({}, {__mode="k"}),overlays={},pending={},lastPlay={},plays={Shot=0,Reload=0}}
                 states[tool]=state
+                makeSound(state,handle,"Shot",behavior.shoot)
+                makeSound(state,handle,"Reload",behavior.reload)
                 for _,object in ipairs(tool:GetDescendants()) do configureObject(tool,state,object) end
-                for _,definition in ipairs({{name="AltSound",settings=behavior.shoot},{name="CustomReload",settings=behavior.reload}}) do
-                    if definition.settings and not handle:FindFirstChild(definition.name) then
-                        local sound=Instance.new("Sound");sound.Name=definition.name
-                        sound:SetAttribute("VisualsV2_GunCosmetic",true)
-                        configureSound(state,sound,definition.settings)
-                        sound.Parent=handle;state.created[#state.created+1]=sound
-                    end
-                end
                 if behavior.beam and not handle:FindFirstChild("CustomBeam") then
                     local beam=Instance.new("Beam");beam.Name="CustomBeam"
                     beam:SetAttribute("VisualsV2_GunCosmetic",true)
                     for _,key in ipairs(beamProperties) do
-                        local value=behavior.beam[key]
-                        if value~=nil then pcall(function() beam[key]=originals.Decode(value) end) end
+                        if behavior.beam[key]~=nil then beam[key]=originals.Decode(behavior.beam[key]) end
                     end
                     beam.Parent=handle;state.created[#state.created+1]=beam
                 end
                 state.connections[#state.connections+1]=tool.DescendantAdded:Connect(function(object)
                     if states[tool]==state then configureObject(tool,state,object) end
                 end)
+                state.connections[#state.connections+1]=tool.Activated:Connect(function()
+                    if tool.Parent==LocalPlayer.Character then state.inputAt=os.clock();state.inputs=(state.inputs or 0)+1 end
+                end)
+            end
+        end
+        if state then
+            bindAnimator(state)
+            for object in pairs(state.saved) do if not object.Parent then state.saved[object]=nil;liveBeams[object]=nil end end
+        end
+    end
+end
+local function distanceToShot(beam,handle)
+    local a,b=beam.Attachment0,beam.Attachment1
+    if not a or not b then return nil end
+    local origin=handle.Position
+    local muzzle=handle:FindFirstChild("GunRaycastAttachment",true)
+    if muzzle and muzzle:IsA("Attachment") then origin=muzzle.WorldPosition end
+    return math.min((a.WorldPosition-origin).Magnitude,(b.WorldPosition-origin).Magnitude)
+end
+local function matchShot(beam)
+    local now=os.clock()
+    for tool,state in pairs(states) do
+        if tool.Parent==LocalPlayer.Character and state.behavior.beam and not beam:IsDescendantOf(tool) then
+            local a,b=beam.Attachment0,beam.Attachment1
+            local direct=a and a:IsDescendantOf(tool) or b and b:IsDescendantOf(tool)
+            if direct then return state end
+            if now-math.max(state.inputAt or -math.huge,state.shotAt or -math.huge)<=0.4 then
+                local distance=distanceToShot(beam,state.handle)
+                if distance and distance<=6 then
+                    local ambiguous=false
+                    for _,owner in ipairs(Players:GetPlayers()) do
+                        if owner~=LocalPlayer and owner.Character then
+                            local peer=owner.Character:FindFirstChild("Gun")
+                            local handle=peer and peer:IsA("Tool") and peer:FindFirstChild("Handle",true)
+                            if handle and handle:IsA("BasePart") then
+                                local other=distanceToShot(beam,handle)
+                                if other and other<=distance+1 then ambiguous=true;break end
+                            end
+                        end
+                    end
+                    if not ambiguous then return state end
+                end
             end
         end
     end
 end
+local function applyShot(beam)
+    if not beam.Parent or liveBeams[beam] then return liveBeams[beam]~=nil end
+    local state=matchShot(beam)
+    if not state then return false end
+    for _,key in ipairs(beamProperties) do write(state,beam,key,state.behavior.beam[key]) end
+    local flicker=state.behavior.flicker
+    local colors={}
+    for _,color in ipairs(flicker and flicker.colors or {}) do colors[#colors+1]=originals.Decode(color) end
+    liveBeams[beam]={state=state,colors=colors,interval=flicker and flicker.interval or 1,elapsed=0,index=1}
+    state.tracers=(state.tracers or 0)+1
+    confirmed(state,"Shot")
+    return true
+end
 connections[#connections+1]=workspace.DescendantAdded:Connect(function(object)
-    if not alive or not runtimeAlive or not object:IsA("Beam") then return end
+    if not alive or not runtimeAlive or not object:IsA("Beam") or (object.Name~="Beam" and object.Name~="CustomBeam") then return end
+    local active=false
+    for tool,state in pairs(states) do
+        if tool.Parent==LocalPlayer.Character and state.behavior.beam and not object:IsDescendantOf(tool) then active=true;break end
+    end
+    if not active then return end
     task.defer(function()
-        if not object.Parent then return end
-        for tool,state in pairs(states) do
-            if tool.Parent==LocalPlayer.Character then
-                local attachment=object.Attachment0 or object.Attachment1
-                if attachment and attachment:IsDescendantOf(tool) and state.behavior.beam then
-                    for _,key in ipairs(beamProperties) do write(state,object,key,state.behavior.beam[key]) end
-                    return
-                end
-            end
+        if not alive or not runtimeAlive or not object.Parent or applyShot(object) then return end
+        if object.Attachment0 and object.Attachment1 then return end
+        local waiting={}
+        local function disconnect()
+            for _,connection in ipairs(waiting) do connection:Disconnect() end
+            table.clear(waiting)
         end
+        local function changed() if not object.Parent or applyShot(object) then disconnect() end end
+        for _,key in ipairs({"Attachment0","Attachment1"}) do
+            waiting[#waiting+1]=object:GetPropertyChangedSignal(key):Connect(changed)
+        end
+        task.delay(0.4,disconnect)
     end)
 end)
 local elapsed=0
 connections[#connections+1]=RunService.Heartbeat:Connect(function(dt)
+    if not alive or not runtimeAlive then return end
+    for beam,record in pairs(liveBeams) do
+        if not beam.Parent or states[record.state.tool]~=record.state then
+            record.state.saved[beam]=nil;liveBeams[beam]=nil
+        elseif #record.colors>1 then
+            record.elapsed=record.elapsed+dt
+            if record.elapsed>=record.interval then
+                local steps=math.floor(record.elapsed/record.interval)
+                record.elapsed=record.elapsed%record.interval
+                record.index=(record.index-1+steps)%#record.colors+1
+                beam.Color=record.colors[record.index]
+            end
+        end
+    end
     elapsed=elapsed+dt
-    if elapsed>=0.15 then elapsed=0;if alive and runtimeAlive then update() end end
+    if elapsed>=0.15 then elapsed=0;update() end
 end)
 env.VisualsV2Runtime.GunCosmetics={Refresh=update,GetDiagnostics=function()
     local result={}
+    local function audio(sound)
+        if not sound then return nil end
+        return {asset=sound.SoundId,loaded=sound.IsLoaded,length=sound.TimeLength,playing=sound.IsPlaying,
+            speed=sound.PlaybackSpeed,volume=sound.Volume}
+    end
     for tool,state in pairs(states) do result[#result+1]={tool=tool.Name,id=state.id,customShoot=state.behavior.shoot~=nil,
-        customReload=state.behavior.reload~=nil,customBeam=state.behavior.beam~=nil} end
+        customReload=state.behavior.reload~=nil,customBeam=state.behavior.beam~=nil,
+        inputs=state.inputs or 0,shotPlays=state.plays.Shot,reloadPlays=state.plays.Reload,tracers=state.tracers or 0,
+        shot=audio(state.overlays.Shot),reload=audio(state.overlays.Reload),soundError=state.soundError} end
     return result
 end}
 env.VisualsV2Runtime.RegisterReset(function()
@@ -11315,12 +11444,16 @@ local function indexImage(value,kind)
 end
 for _,kind in ipairs({"Gun","Knife"}) do
     for _,data in pairs(originals.Metadata[kind] or {}) do indexImage(data.image or data.itemid,kind) end
+    for _,value in ipairs(originals.NativeIcons and originals.NativeIcons[kind] or {}) do indexImage(value,kind) end
 end
 pcall(function()
     local database=game:GetService("ReplicatedStorage"):FindFirstChild("Database")
     local sync=database and database:FindFirstChild("Sync")
     local module=sync and sync:FindFirstChild("Item")
-    local data=module and require(module)
+    local data=module and module:IsA("ModuleScript") and require(module)
+    if not data and sync and sync:IsA("ModuleScript") then
+        local all=require(sync);data=type(all)=="table" and (all.Item or all.Weapons)
+    end
     for _,entry in pairs(type(data)=="table" and data or {}) do
         if type(entry)=="table" and (entry.ItemType=="Gun" or entry.ItemType=="Knife") then
             indexImage(entry.Image or entry.Icon or entry.ItemID,entry.ItemType)
@@ -11346,9 +11479,9 @@ local function restoreImage(object,record)
     record.applied=nil
 end
 
-local hudNames={equip=true,equipbutton=true,touchbinding=true,touchbindings=true,backpack=true,
+local hudNames={equip=true,equipbutton=true,touchbinding=true,touchbindings=true,backpack=true,inventory=true,inventory2=true,
     hotbar=true,toolbar=true,toolslots=true,itembar=true,tools=true,mobile=true,phone=true,touch=true}
-local excluded={inventory=true,inventory2=true,shop=true,trade=true,trading=true,spectate=true,
+local excluded={shop=true,trade=true,trading=true,spectate=true,
     spectating=true,roundend=true,endround=true,roundresults=true,victory=true,results=true}
 local function context(object)
     local current=object
@@ -11358,8 +11491,23 @@ local function context(object)
         if current:GetAttribute("VisualsV2_InventoryVisual") then return nil end
         local name=current.Name:lower():gsub("[^%w]","")
         if excluded[name] then return nil end
-        if hudNames[name] then allowed=true end
-        if name=="gun" or name=="knife" then fixed=name=="gun" and "Gun" or "Knife" end
+        if name=="inventory" or name=="inventory2" then
+            local main=current:FindFirstChild("Main") or current
+            if main:FindFirstChild("Weapons") or main:FindFirstChild("Effects") or main:FindFirstChild("Pets") then return nil end
+        end
+        if hudNames[name] or name:find("equip",1,true) or name:find("touch",1,true) then allowed=true end
+        if not fixed and (name=="gun" or name=="knife") then fixed=name=="gun" and "Gun" or "Knife" end
+        if not fixed then
+            local candidate,ambiguous
+            for _,reference in ipairs(current:GetChildren()) do
+                if reference:IsA("ObjectValue") and reference.Value and reference.Value:IsA("Tool") then
+                    local kind=skins.GetKind(reference.Value)
+                    if candidate and kind and candidate~=kind then ambiguous=true;break end
+                    candidate=kind or candidate
+                end
+            end
+            if not ambiguous then fixed=candidate end
+        end
         current=current.Parent
     end
     return current==playerGui and allowed, fixed
@@ -12406,12 +12554,14 @@ local function collect()
     local storage=game:GetService("ReplicatedStorage")
     local skins=runtime.ClientWeaponSkins
     local effects=runtime.ClientKnifeEffects
-    local report={at=os.time(),placeId=game.PlaceId,universeId=game.GameId,runtimeAvailable=true,
+    local report={at=os.time(),placeId=game.PlaceId,universeId=game.GameId,build=runtime.Build,runtimeAvailable=true,
         weapons=skins and skins.GetDiagnostics(),effects=effects and effects.GetDiagnostics(),
         inventory=runtime.VisualWeaponInventory and runtime.VisualWeaponInventory.GetDiagnostics(),
         originalAssets=runtime.OriginalVisuals and runtime.OriginalVisuals.GetDiagnostics(),
         pets=runtime.ClientPets and runtime.ClientPets.GetDiagnostics(),
         gunCosmetics=runtime.GunCosmetics and runtime.GunCosmetics.GetDiagnostics(),
+        presentation=runtime.WeaponPresentation and runtime.WeaponPresentation.GetDiagnostics(),
+        inventoryTools=runtime.InventoryTools and runtime.InventoryTools.GetDiagnostics(),
         tools={},character={},originalDefinitions={},availableTemplates={},storageRoots={}}
     pcall(function() report.executor=identifyexecutor() end)
     local selected={}
@@ -14904,7 +15054,6 @@ function proxy:AddButton(label,callback)
         if alive and runtimeAlive then callback() end
     end)
 end
-local choosingBinding=nil
 local function keyFromName(value)
     local name=tostring(value or ""):match("^%s*(.-)%s*$"):gsub("^Enum%.KeyCode%.","")
     if #name==1 then name=name:upper() end
@@ -14922,41 +15071,22 @@ function proxy:AddKeybind(label,defaultKey,callback)
     local configKey=settingKey(label)
     local key=keyFromName(C(configKey,defaultKey)) or keyFromName(defaultKey)
     if key then SetCfg(configKey,key.Name) end
-    local binding={}
     proxy:AddToggle("Enable "..label,function(value) enabled=value end)
-    local function saveKey(selected)
-        key=selected
-        SetCfg(configKey,key.Name)
-        shared.Notify(controlLabel(label).." saved: "..key.Name,2)
-    end
-    local button=section:AddButton(controlLabel(label),function()
-        if not alive or not runtimeAlive then return end
-        choosingBinding=binding
-        shared.Notify("Press a key for "..controlLabel(label).." (current: "..key.Name.."). Escape cancels.",3)
-    end)
-
-    section:AddTextBox(controlLabel(label.." Name"),function(value)
+    local textbox=section:AddTextBox(controlLabel(label),function(value)
         if not alive or not runtimeAlive then return end
         local selected=keyFromName(value)
         if selected then
-            choosingBinding=nil
-            saveKey(selected)
+            key=selected
+            SetCfg(configKey,key.Name)
+            shared.Notify(controlLabel(label).." saved: "..key.Name,2)
         else shared.Notify("Enter a valid key name, such as E, G or Space.",3) end
     end)
     RootMaid:GiveTask(Services.UserInputService.InputBegan:Connect(function(input,processed)
-        if not alive or not runtimeAlive or input.UserInputType~=Enum.UserInputType.Keyboard then return end
-        if choosingBinding==binding then
-            if input.KeyCode==Enum.KeyCode.Unknown then return end
-            choosingBinding=nil
-            if input.KeyCode==Enum.KeyCode.Escape then
-                shared.Notify(controlLabel(label).." selection cancelled",2)
-            else saveKey(input.KeyCode) end
-            return
-        end
-        if not choosingBinding and enabled and not processed
+        if alive and runtimeAlive and enabled and not processed
+            and input.UserInputType==Enum.UserInputType.Keyboard
             and not Services.UserInputService:GetFocusedTextBox() and input.KeyCode==key then callback() end
     end))
-    return button
+    return textbox
 end
 local BombJump={AddSection=function(_,title)
     if title=="Gold Bomb Jump+" then proxy:AddLabel("Gold Bomb Jump Options") end
@@ -16507,6 +16637,12 @@ local getinfo=(debug and debug.getinfo) or getinfo
 local getconstants=(debug and debug.getconstants) or getconstants
 local targetFunctions={}
 local targetsScanned=false
+local scanningTargets=false
+local targetEpoch=0
+local lastTargetScan=-math.huge
+local slotReferences={}
+local observedGui=nil
+local perf={targetScans=0,guiScans=0,slotVisits=0,scanYields=0}
 local alive=true
 local recoveryToken=0
 local recoveryRunning=false
@@ -16536,14 +16672,19 @@ local function disconnectAll(connections)
 end
 
 local function discoverTargets(force)
-    if targetsScanned and not force then return end
-    targetsScanned=false
-    table.clear(targetFunctions)
+    if scanningTargets or (targetsScanned and not force) or os.clock()-lastTargetScan<2 then return end
     if not (type(getgc)=="function" and type(getupvalues)=="function"
         and type(setupvalue)=="function" and type(getinfo)=="function") then return end
+    scanningTargets=true
+    lastTargetScan=os.clock()
+    local epoch=targetEpoch
+    perf.targetScans=perf.targetScans+1
     local okGc,objects=pcall(getgc)
-    if not okGc or type(objects)~="table" then return end
-    for _,f in ipairs(objects) do
+    if not okGc or type(objects)~="table" then scanningTargets=false;return end
+    local found={}
+    local slice=os.clock()
+    for index,f in ipairs(objects) do
+        if not alive or not runtimeAlive or targetEpoch~=epoch or not inventoryEnabled then scanningTargets=false;return end
         if type(f)=="function" then
             local success,info=pcall(getinfo,f)
             if success and type(info)=="table" then
@@ -16559,12 +16700,18 @@ local function discoverTargets(force)
                         isTarget=hasTouch and hasEquip
                     end
                 end
-                if isTarget then table.insert(targetFunctions,f) end
+                if isTarget then found[#found+1]=f end
             end
         end
+        if index%64==0 or os.clock()-slice>=0.002 then
+            perf.scanYields=perf.scanYields+1
+            task.wait()
+            slice=os.clock()
+        end
     end
-
+    targetFunctions=found
     targetsScanned=#targetFunctions>0
+    scanningTargets=false
 end
 
 local limitNames={maxitems=true,maxslots=true,maxtools=true,inventorylimit=true,
@@ -16666,6 +16813,51 @@ local function toyRemote()
     if remote and remote:IsA("RemoteFunction") then return remote end
 end
 
+local function isNativeSlot(reference)
+    local slot=reference.Parent
+    if not slot or not slot:IsA("GuiObject") or not slot.Parent then return false end
+    local current=slot
+    while current and current~=observedGui do
+        if current.Name:sub(1,10)=="VisualsV2_" or current:GetAttribute("VisualsV2_InventoryVisual") then return false end
+        if current.Name=="Inventory" or current.Name=="Inventory2" then
+            local main=current:FindFirstChild("Main") or current
+            if main:FindFirstChild("Weapons") or main:FindFirstChild("Effects") or main:FindFirstChild("Pets") then return false end
+        end
+        current=current.Parent
+    end
+    return current==observedGui and slot.Parent:FindFirstChildOfClass("UIListLayout")~=nil
+end
+local function cacheReference(reference)
+    if slotReferences[reference] or not reference:IsA("ObjectValue") or not isNativeSlot(reference) then return end
+    slotReferences[reference]=reference:GetPropertyChangedSignal("Value"):Connect(function()
+        toyOrderDirty=true
+        requestRecovery(false)
+    end)
+    toyOrderDirty=true
+end
+local function clearReferences()
+    for _,connection in pairs(slotReferences) do connection:Disconnect() end
+    table.clear(slotReferences)
+end
+local function scanSlotReferences(gui)
+    perf.guiScans=perf.guiScans+1
+    local pending={gui}
+    local count=0
+    while #pending>0 and alive and runtimeAlive and observedGui==gui do
+        local object=table.remove(pending)
+        local skip=object~=gui and (object.Name:sub(1,10)=="VisualsV2_" or object:GetAttribute("VisualsV2_InventoryVisual"))
+        if not skip and (object.Name=="Inventory" or object.Name=="Inventory2") then
+            local main=object:FindFirstChild("Main") or object
+            skip=main:FindFirstChild("Weapons") or main:FindFirstChild("Effects") or main:FindFirstChild("Pets")
+        end
+        if not skip then
+            cacheReference(object)
+            for _,child in ipairs(object:GetChildren()) do pending[#pending+1]=child end
+        end
+        count=count+1
+        if count%96==0 then task.wait() end
+    end
+end
 local function orderSelectedTools(char,backpack,token)
     if not backpack or player.Character~=char or token~=recoveryToken then return false end
     local order={}
@@ -16678,18 +16870,18 @@ local function orderSelectedTools(char,backpack,token)
         end
     end
 
-    local gui=player:FindFirstChildOfClass("PlayerGui")
-    if gui then
-        for _,slot in ipairs(gui:GetDescendants()) do
-            if slot:IsA("GuiObject") and slot.Parent and slot.Parent:FindFirstChildOfClass("UIListLayout") then
-                local tool
-                for _,reference in ipairs(slot:GetChildren()) do
-                    if reference:IsA("ObjectValue") and order[reference.Value] then tool=reference.Value;break end
-                end
-                if tool then
-                    if originalSlotOrders[slot]==nil then originalSlotOrders[slot]=slot.LayoutOrder end
-                    slot.LayoutOrder=order[tool]-100
-                end
+    for reference,connection in pairs(slotReferences) do
+        perf.slotVisits=perf.slotVisits+1
+        if not reference.Parent or not isNativeSlot(reference) then
+            connection:Disconnect();slotReferences[reference]=nil
+        else
+            local slot=reference.Parent
+            local index=order[reference.Value]
+            if index then
+                if originalSlotOrders[slot]==nil then originalSlotOrders[slot]=slot.LayoutOrder end
+                slot.LayoutOrder=index-100
+            elseif originalSlotOrders[slot]~=nil then
+                slot.LayoutOrder=originalSlotOrders[slot];originalSlotOrders[slot]=nil
             end
         end
     end
@@ -16726,8 +16918,6 @@ requestRecovery=function(forceScan)
     if recoveryCharacter~=char then
         cancelRecovery()
         recoveryCharacter=char
-        targetsScanned=false
-        table.clear(targetFunctions)
     end
     if forceScan then rescanRequested=true end
     recoveryDeadline=math.max(recoveryDeadline,os.clock()+20)
@@ -16746,7 +16936,7 @@ requestRecovery=function(forceScan)
             if humanoid and humanoid.Health>0 then
                 local force=rescanRequested
                 if scanTimes[scanIndex] and now-startedAt>=scanTimes[scanIndex] then
-                    force=true
+                    force=force or not targetsScanned
                     repeat scanIndex=scanIndex+1
                     until not scanTimes[scanIndex] or now-startedAt<scanTimes[scanIndex]
                 end
@@ -16881,24 +17071,35 @@ local function watchCharacter(char)
     characterConnections[2]=char.ChildRemoved:Connect(changed)
 end
 
-local function queueGuiRecovery()
+local function queueGuiRecovery(invalidate)
+    if invalidate then
+        targetEpoch=targetEpoch+1
+        targetsScanned=false
+        lastTargetScan=-math.huge
+    end
     guiRefreshToken=guiRefreshToken+1
     local token=guiRefreshToken
     task.delay(0.35,function()
-        if alive and token==guiRefreshToken then requestRecovery(true) end
+        if alive and token==guiRefreshToken then requestRecovery(false) end
     end)
 end
 
 local function watchPlayerGui(gui)
     disconnectAll(guiConnections)
+    clearReferences()
+    observedGui=gui
     if not gui then return end
+    task.defer(function() scanSlotReferences(gui) end)
     guiConnections[#guiConnections+1]=gui.ChildAdded:Connect(function(child)
-        if child.Name=="MainGUI" or (child:IsA("ScreenGui") and child.Name:sub(1,10)~="VisualsV2_") then
-            queueGuiRecovery()
-        end
+        if child.Name=="MainGUI" then queueGuiRecovery(true) end
     end)
     guiConnections[#guiConnections+1]=gui.DescendantAdded:Connect(function(child)
-        if child.Name=="EquipButton" or child.Name=="TouchBinding" then queueGuiRecovery() end
+        if child:IsA("ObjectValue") then cacheReference(child)
+        elseif child:IsA("UIListLayout") and child.Parent then
+            for _,slot in ipairs(child.Parent:GetChildren()) do
+                for _,reference in ipairs(slot:GetChildren()) do cacheReference(reference) end
+            end
+        elseif child.Name=="EquipButton" or child.Name=="TouchBinding" then queueGuiRecovery(false) end
     end)
 end
 
@@ -16960,19 +17161,17 @@ lifecycleConnections[#lifecycleConnections+1]=player.CharacterRemoving:Connect(f
     removingCharacter=char
     disconnectAll(characterConnections)
     cancelRecovery()
-    targetsScanned=false
-    table.clear(targetFunctions)
 end)
 lifecycleConnections[#lifecycleConnections+1]=player.CharacterAdded:Connect(function(char)
     removingCharacter=nil
     watchCharacter(char)
     watchBackpack(player:FindFirstChildOfClass("Backpack"))
-    requestRecovery(true)
+    requestRecovery(false)
 end)
 lifecycleConnections[#lifecycleConnections+1]=player.ChildAdded:Connect(function(child)
     if child:IsA("Backpack") then
         watchBackpack(child)
-        requestRecovery(true)
+        requestRecovery(false)
     elseif child:IsA("PlayerGui") then
         watchPlayerGui(child)
         requestRecovery(true)
@@ -16987,6 +17186,7 @@ watchCharacter(player.Character)
 watchPlayerGui(player:FindFirstChildOfClass("PlayerGui"))
 if inventoryEnabled or autoGetTools then task.defer(function() requestRecovery(false) end) end
 
+env.VisualsV2Runtime.InventoryTools={GetDiagnostics=function() return table.clone(perf) end}
 env.VisualsV2Runtime.RegisterReset(function()
     alive=false
     guiRefreshToken=guiRefreshToken+1
@@ -17003,6 +17203,7 @@ env.VisualsV2Runtime.RegisterReset(function()
     disconnectAll(characterConnections)
     disconnectAll(toyConnections)
     disconnectAll(guiConnections)
+    clearReferences()
 end)
 end)()
 
